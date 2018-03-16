@@ -21,8 +21,7 @@ LIBS   = $(shell ncursesw5-config --libs)
 
 EXEC     = ccsvv
 
-INCLUDES = $(INC_DIR)/ncv_ccsvv.h \
-           $(INC_DIR)/ncv_table.h \
+INCLUDES = $(INC_DIR)/ncv_table.h \
            $(INC_DIR)/ncv_parser.h \
            $(INC_DIR)/ncv_common.h 
            
