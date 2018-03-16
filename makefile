@@ -2,7 +2,7 @@
 # Definition of the project directories.
 ############################################################################
 
-INC_DIR = include
+INC_DIR = inc
 SRC_DIR = src
 OBJ_DIR = obj
 
@@ -21,19 +21,21 @@ LIBS   = $(shell ncursesw5-config --libs)
 
 EXEC     = ccsvv
 
-INCLUDES = $(INC_DIR)/ccsvv.h \
-           $(INC_DIR)/common.h \
-           $(INC_DIR)/utils.h
+INCLUDES = $(INC_DIR)/ncv_ccsvv.h \
+           $(INC_DIR)/ncv_table.h \
+           $(INC_DIR)/ncv_parser.h \
+           $(INC_DIR)/ncv_common.h 
            
-OBJECTS  = $(OBJ_DIR)/ccsvv.o \
-           $(OBJ_DIR)/utils.o
-
+OBJECTS  = $(OBJ_DIR)/ncv_ccsvv.o \
+           $(OBJ_DIR)/ncv_table.o \
+           $(OBJ_DIR)/ncv_parser.o \
+           $(OBJ_DIR)/ncv_common.o
+           
 ############################################################################
 # Definitions of the build commands.
 ############################################################################
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDES)
-	echo $(ncursesw5-config --libs)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
 $(EXEC): $(OBJECTS)
