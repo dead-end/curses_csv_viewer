@@ -94,7 +94,7 @@ int main(const int argc, char * const argv[]) {
 	//
 	// start processing the csv file
 	//
-	process_csv_file(filename, L',', &table);
+	parser_process_file(filename, W_DELIM, &table);
 
 #ifdef DEBUG
 	s_table_dump(&table);
