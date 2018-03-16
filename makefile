@@ -21,12 +21,13 @@ LIBS   = $(shell ncursesw5-config --libs)
 
 EXEC     = ccsvv
 
+TEST     = ncv_test
+
 INCLUDES = $(INC_DIR)/ncv_table.h \
            $(INC_DIR)/ncv_parser.h \
            $(INC_DIR)/ncv_common.h 
            
-OBJECTS  = $(OBJ_DIR)/ncv_ccsvv.o \
-           $(OBJ_DIR)/ncv_table.o \
+OBJECTS  = $(OBJ_DIR)/ncv_table.o \
            $(OBJ_DIR)/ncv_parser.o \
            $(OBJ_DIR)/ncv_common.o
            
@@ -37,10 +38,13 @@ OBJECTS  = $(OBJ_DIR)/ncv_ccsvv.o \
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDES)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
-$(EXEC): $(OBJECTS)
+$(EXEC): $(OBJECTS) $(OBJ_DIR)/ncv_ccsvv.o
 	gcc -o $@ $^ $(CFLAGS) $(LIBS)
 
-all: $(EXEC) $(OBJECTS)
+$(TEST): $(OBJECTS) $(OBJ_DIR)/ncv_test.o
+	gcc -o $@ $^ $(CFLAGS) $(LIBS)
+
+all: $(EXEC) $(TEST) $(OBJECTS)
 
 ############################################################################
 # Definition of the cleanup and run task.
@@ -56,3 +60,4 @@ clean:
 	rm -f $(SRC_DIR)/*.c~
 	rm -f $(INC_DIR)/*.h~
 	rm -f $(EXEC)
+	rm -f $(TEST)
