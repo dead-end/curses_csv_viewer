@@ -41,6 +41,8 @@
 #define W_NEW_LINE L'\n'
 #define W_STR_TERM L'\0'
 #define W_QUOTE    L'\"'
+#define W_CR       L'\r'
+#define W_DELIM    L','
 
 //
 // a boolean type that can be undefined
