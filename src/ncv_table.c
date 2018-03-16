@@ -75,6 +75,8 @@ void s_table_copy(s_table *table, const int row, const int column, const wchar_t
 	if (table->fields[row][column] == NULL) {
 		print_exit_str("Unable to allocate memory!\n");
 	}
+
+	print_debug("s_table_copy() row: %d column: %d field: %ls\n", row, column, str);
 }
 
 /***************************************************************************
