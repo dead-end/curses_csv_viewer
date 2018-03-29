@@ -27,7 +27,7 @@ typedef struct s_table {
 //
 // The table related function
 //
-void s_table_create(s_table *table, const int no_columns, const int no_rows);
+void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
 
