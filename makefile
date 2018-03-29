@@ -25,10 +25,12 @@ TEST     = ncv_test
 
 INCLUDES = $(INC_DIR)/ncv_table.h \
            $(INC_DIR)/ncv_parser.h \
+           $(INC_DIR)/ncv_curses.h \
            $(INC_DIR)/ncv_common.h 
            
 OBJECTS  = $(OBJ_DIR)/ncv_table.o \
            $(OBJ_DIR)/ncv_parser.o \
+           $(OBJ_DIR)/ncv_curses.o \
            $(OBJ_DIR)/ncv_common.o
            
 ############################################################################
