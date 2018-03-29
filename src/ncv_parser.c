@@ -33,14 +33,19 @@ typedef struct s_csv_parser {
 
 	//
 	// The csv file is read line by line. The parsing is done char by char. The
-	// pointer shows the current parses char.
+	// pointer shows the current char to be parsed.
 	//
 	wchar_t line[MAX_LINE];
 	wchar_t *ptr_line;
 
 	//
-	// The content is copied char by char to the field. The field pointer shows
-	// the current position.
+	// The parsed content is copied char by char to the field. The field pointer
+	// shows the current position.
+	//
+	// There are no checks for overflow in the code. This is done implicitly. The
+	// line is filled with fgets which adds a \0. The line ptr checks for \0. The
+	// field is by construction smaller than the line, because escape chars are
+	// omitted, but both have MAX_LINE size.
 	//
 	wchar_t field[MAX_LINE];
 	wchar_t *ptr_field;
@@ -63,6 +68,10 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 	csv_parser->current_column = 0;
 	csv_parser->ptr_field = csv_parser->field;
 	csv_parser->is_escaped = BOOL_UNDEF;
+
+	if (do_count) {
+		csv_parser->no_columns = 0;
+	}
 }
 
 /***************************************************************************
@@ -75,7 +84,7 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_end) {
 
 	//
-	// count the columns in the first row and compare them with all others
+	// count the columns in the first row
 	//
 	if (csv_parser->do_count && csv_parser->current_row == 0) {
 		csv_parser->no_columns++;
@@ -88,13 +97,16 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 
 	if (is_row_end) {
 
+		//
+		// if the row ends we update the current row
+		//
 		csv_parser->current_row++;
 
-		if (csv_parser->current_row != 0) {
+		//
+		// compare the column number of the first row with that of the current
+		//
+		if (csv_parser->current_row > 1) {
 
-			//
-			// compare the column number of the first row with that of the current
-			//
 			if (csv_parser->no_columns != csv_parser->current_column) {
 				print_exit("count_columns_and_rows() row: %d current columns: %d expected columns: %d\n", csv_parser->current_row, csv_parser->current_column, csv_parser->no_columns);
 			}
@@ -173,11 +185,11 @@ static void copy_field_char(s_csv_parser *csv_parser) {
 
 static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_parser, s_table *table) {
 
-	//
-	// process csv file line by line
-	//
 	while (true) {
 
+		//
+		// process csv file line by line
+		//
 		if ((csv_parser->ptr_line = fgetws(csv_parser->line, MAX_LINE, file)) == NULL) {
 			break;
 		}
@@ -285,7 +297,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
  * again and copy the data to the structure.
  *
  * The second time the csv file is read for parsing the data should be in
- * the file system cache so the io overhead should be limited.
+ * the file system cache so the IO overhead should be limited.
  **************************************************************************/
 
 void parser_process_file(const char *filename, const wchar_t delim, s_table *table) {
@@ -319,7 +331,7 @@ void parser_process_file(const char *filename, const wchar_t delim, s_table *tab
 	//
 	// allocate memory for the number of rows and columns
 	//
-	s_table_create(table, csv_parser.current_row, csv_parser.no_columns);
+	s_table_init(table, csv_parser.current_row, csv_parser.no_columns);
 
 	//
 	// parse the csv file again to copy the fields to the table structure
