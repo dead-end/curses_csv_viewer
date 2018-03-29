@@ -65,8 +65,8 @@ static void test1() {
 	compare(table.fields[3][2], L"f32->\nd32");
 
 	compare(table.fields[4][0], L"");
-	compare(table.fields[4][1], L"");
-	compare(table.fields[4][2], L"end");
+	compare(table.fields[4][1], L"end");
+	compare(table.fields[4][2], L"");
 
 	//
 	// check the meta data
