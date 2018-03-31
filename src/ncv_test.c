@@ -53,7 +53,7 @@ static void test1() {
 	compare(table.fields[0][2], L"f02");
 
 	compare(table.fields[1][0], L"f10");
-	compare(table.fields[1][1], L"f11->\n\"d11\"");
+	compare(table.fields[1][1], L"f11->\n\"d111\"");
 	compare(table.fields[1][2], L"f12");
 
 	compare(table.fields[2][0], L"f20");
@@ -71,9 +71,15 @@ static void test1() {
 	//
 	// check the meta data
 	//
-	check_int(table.sizes[0], 9, "sizes col: 0");
-	check_int(table.sizes[1], 5, "sizes col: 1");
-	check_int(table.sizes[2], 5, "sizes col: 2");
+	check_int(table.width[0], 9, "col width: 0");
+	check_int(table.width[1], 6, "col width: 1");
+	check_int(table.width[2], 5, "col width: 2");
+
+	check_int(table.height[0], 1, "row_height: 0");
+	check_int(table.height[1], 2, "row_height: 1");
+	check_int(table.height[2], 1, "row_height: 2");
+	check_int(table.height[3], 2, "row_height: 3");
+	check_int(table.height[4], 1, "row_height: 4");
 
 	s_table_free(&table);
 
@@ -85,13 +91,15 @@ static void test1() {
  * view state shows which part of the csv file is visible.
  **************************************************************************/
 
-static void checkViewState(const s_view_state *view_state, const int col_start, const int col_end, const int rest) {
+static void checkViewState(const s_view_state *view_state, const int col_start, const int col_end, const int col_truncated, const int truncated_len) {
 
 	check_int(view_state->col_start, col_start, "col_start");
 
 	check_int(view_state->col_end, col_end, "col_end");
 
-	check_int(view_state->rest, rest, "rest");
+	check_int(view_state->col_truncated, col_truncated, "col_truncated");
+
+	check_int(view_state->truncated_len, truncated_len, "truncated_len");
 }
 
 /***************************************************************************
@@ -111,17 +119,17 @@ static void test2() {
 	//
 	parser_process_file("res/test2_case1.csv", W_DELIM, &table);
 	s_view_state_update(&view_state, &table, 0, DIR_FORWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 2, 1);
+	checkViewState(&view_state, 0, 2, 2, 1);
 	s_table_free(&table);
 
 	parser_process_file("res/test2_case2.csv", W_DELIM, &table);
 	s_view_state_update(&view_state, &table, 0, DIR_FORWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 1, 3);
+	checkViewState(&view_state, 0, 1, 1, 3);
 	s_table_free(&table);
 
 	parser_process_file("res/test2_case3.csv", W_DELIM, &table);
 	s_view_state_update(&view_state, &table, 0, DIR_FORWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 2, 0);
+	checkViewState(&view_state, 0, 2, 2, 0);
 	s_table_free(&table);
 
 	//
@@ -129,17 +137,17 @@ static void test2() {
 	//
 	parser_process_file("res/test2_case1.csv", W_DELIM, &table);
 	s_view_state_update(&view_state, &table, 2, DIR_BACKWARD, WIN_X_10);
-	checkViewState(&view_state, 2, 0, 2);
+	checkViewState(&view_state, 0, 2, 0, 2);
 	s_table_free(&table);
 
 	parser_process_file("res/test2_case2.csv", W_DELIM, &table);
 	s_view_state_update(&view_state, &table, 1, DIR_BACKWARD, WIN_X_10);
-	checkViewState(&view_state, 1, 0, 4);
+	checkViewState(&view_state, 0, 1, 0, 4);
 	s_table_free(&table);
 
 	parser_process_file("res/test2_case3.csv", W_DELIM, &table);
 	s_view_state_update(&view_state, &table, 2, DIR_BACKWARD, WIN_X_10);
-	checkViewState(&view_state, 2, 0, 1);
+	checkViewState(&view_state, 0, 2, 0, 1);
 	s_table_free(&table);
 
 	print_debug_str("test2() End\n");
