@@ -19,7 +19,7 @@
 // definition of the print_debug macro.
 //
 #ifdef DEBUG
-#define DEBUG_OUT stdout
+#define DEBUG_OUT stderr
 #define print_debug(fmt, ...) fprintf(DEBUG_OUT, "DEBUG - " fmt, ##__VA_ARGS__)
 #define print_debug_str(fmt)  fprintf(DEBUG_OUT, "DEBUG - " fmt)
 #else
