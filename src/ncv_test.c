@@ -87,6 +87,104 @@ static void test1() {
 }
 
 /***************************************************************************
+ *
+ **************************************************************************/
+
+static void check_start_end(const s_start_end *start_end, const int start, const int end, const int truncated, const int size, const char *msg) {
+
+	print_debug("check_start_end() %s\n", msg);
+
+	check_int(start_end->start, start, "s_start_end: start");
+
+	check_int(start_end->end, end, "s_start_end: end");
+
+	check_int(start_end->truncated, truncated, "s_start_end: truncated");
+
+	check_int(start_end->size, size, "s_start_end: size");
+}
+
+static void test2() {
+	s_start_end start_end;
+
+	print_debug_str("test2() Start\n");
+
+	//
+	// 1234567890 <- win size
+	// |****|*|***|
+	//          ^
+	//
+	int sizes_1[3] = { 4, 1, 3 };
+	s_start_end_update(&start_end, sizes_1, 0, 3, DIR_FORWARD, 10);
+	check_start_end(&start_end, 0, 2, 2, 1, "test 1");
+
+	//
+	// 1234567890 <- win size
+	// |****|***|*|
+	//          ^
+	//
+	int sizes_2[3] = { 4, 3, 1 };
+	s_start_end_update(&start_end, sizes_2, 0, 3, DIR_FORWARD, 10);
+	check_start_end(&start_end, 0, 1, -1, 0, "test 2");
+
+	//
+	// 1234567890 <- win size
+	// |****|**|***|
+	//          ^
+	//
+	int sizes_3[3] = { 4, 2, 3 };
+	s_start_end_update(&start_end, sizes_3, 0, 3, DIR_FORWARD, 10);
+	check_start_end(&start_end, 0, 2, 2, 0, "test 3");
+
+	//
+	// 12345678901234567890 <- win size
+	// |****|*|***|
+	//            ^
+	//
+	int sizes_4[3] = { 4, 1, 3 };
+	s_start_end_update(&start_end, sizes_4, 0, 3, DIR_FORWARD, 20);
+	check_start_end(&start_end, 0, 2, -1, 0, "test 4");
+
+	//
+	//   1234567890 <- win size
+	// |***|*|****|
+	//   ^
+	//
+	int sizes_5[3] = { 3, 1, 4 };
+	s_start_end_update(&start_end, sizes_5, 2, 3, DIR_BACKWARD, 10);
+	check_start_end(&start_end, 0, 2, 0, 1, "test 5");
+
+	//
+	//   1234567890 <- win size
+	// |*|***|****|
+	//   ^
+	//
+	int sizes_6[3] = { 1, 3, 4 };
+	s_start_end_update(&start_end, sizes_6, 2, 3, DIR_BACKWARD, 10);
+	check_start_end(&start_end, 1, 2, -1, 0, "test 6");
+
+	//
+	//    1234567890 <- win size
+	// |***|**|****|
+	//    ^
+	//
+	int sizes_7[3] = { 3, 2, 4 };
+	s_start_end_update(&start_end, sizes_7, 2, 3, DIR_BACKWARD, 10);
+	check_start_end(&start_end, 0, 2, 0, 0, "test 7");
+
+	//
+	// 12345678901234567890 <- win size
+	//         |***|*|****|
+	//         ^
+	//
+	int sizes_8[3] = { 3, 1, 4 };
+	s_start_end_update(&start_end, sizes_8, 2, 3, DIR_BACKWARD, 20);
+	check_start_end(&start_end, 0, 2, -1, 0, "test 8");
+
+
+	print_debug_str("test2() End\n");
+}
+
+/***************************************************************************
  * The main functon simply starts the test.
  **************************************************************************/
 
@@ -97,6 +195,8 @@ int main(const int argc, char * const argv[]) {
 	setlocale(LC_ALL, "");
 
 	test1();
+
+	test2();
 
 	print_debug_str("main() End\n");
 
