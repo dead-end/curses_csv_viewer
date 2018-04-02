@@ -87,73 +87,6 @@ static void test1() {
 }
 
 /***************************************************************************
- * The function ensures that the view state has the expected values. The
- * view state shows which part of the csv file is visible.
- **************************************************************************/
-
-static void checkViewState(const s_view_state *view_state, const int col_start, const int col_end, const int col_truncated, const int truncated_len) {
-
-	check_int(view_state->col_start, col_start, "col_start");
-
-	check_int(view_state->col_end, col_end, "col_end");
-
-	check_int(view_state->col_truncated, col_truncated, "col_truncated");
-
-	check_int(view_state->truncated_len, truncated_len, "truncated_len");
-}
-
-/***************************************************************************
- * The function reads test csv files and checks view states.
- **************************************************************************/
-
-#define WIN_X_10 10
-
-static void test2() {
-	s_table table;
-	s_view_state view_state;
-
-	print_debug_str("test2() Start\n");
-
-	//
-	// DIR_FORWARD
-	//
-	parser_process_file("res/test2_case1.csv", W_DELIM, &table);
-	s_view_state_update(&view_state, &table, 0, DIR_FORWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 2, 2, 1);
-	s_table_free(&table);
-
-	parser_process_file("res/test2_case2.csv", W_DELIM, &table);
-	s_view_state_update(&view_state, &table, 0, DIR_FORWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 1, 1, 3);
-	s_table_free(&table);
-
-	parser_process_file("res/test2_case3.csv", W_DELIM, &table);
-	s_view_state_update(&view_state, &table, 0, DIR_FORWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 2, 2, 0);
-	s_table_free(&table);
-
-	//
-	// DIR_BACKWARD
-	//
-	parser_process_file("res/test2_case1.csv", W_DELIM, &table);
-	s_view_state_update(&view_state, &table, 2, DIR_BACKWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 2, 0, 2);
-	s_table_free(&table);
-
-	parser_process_file("res/test2_case2.csv", W_DELIM, &table);
-	s_view_state_update(&view_state, &table, 1, DIR_BACKWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 1, 0, 4);
-	s_table_free(&table);
-
-	parser_process_file("res/test2_case3.csv", W_DELIM, &table);
-	s_view_state_update(&view_state, &table, 2, DIR_BACKWARD, WIN_X_10);
-	checkViewState(&view_state, 0, 2, 0, 1);
-	s_table_free(&table);
-
-	print_debug_str("test2() End\n");
-}
-
-/***************************************************************************
  * The main functon simply starts the test.
  **************************************************************************/
 
@@ -164,8 +97,6 @@ int main(const int argc, char * const argv[]) {
 	setlocale(LC_ALL, "");
 
 	test1();
-
-	test2();
 
 	print_debug_str("main() End\n");
 
