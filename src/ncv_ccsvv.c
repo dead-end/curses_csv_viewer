@@ -9,6 +9,7 @@
 #include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_parser.h"
+#include "ncv_curses.h"
 
 /***************************************************************************
  * The function writes the program usage. It is called with an error flag.
@@ -99,6 +100,12 @@ int main(const int argc, char * const argv[]) {
 #ifdef DEBUG
 	s_table_dump(&table);
 #endif
+
+	curses_init();
+
+	curses_loop(&table);
+
+	curses_finish();
 
 	//
 	// free the allocated memory
