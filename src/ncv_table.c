@@ -159,7 +159,7 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	s_table_field_dimension(str, &col_size, &row_size);
 
 	print_debug("s_table_copy() row: %d column: %d field: %ls\n", row, column, str);
-	print_debug("s_table_copy() height current: %d max: %d\n", row, table->height[row]);
+	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->height[row]);
 	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
 
 	//
