@@ -57,7 +57,7 @@ layer=-1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>546</x>
+      <x>560</x>
       <y>238</y>
       <w>126</w>
       <h>224</h>
@@ -157,11 +157,11 @@ height</panel_attributes>
     <coordinates>
       <x>504</x>
       <y>238</y>
-      <w>98</w>
+      <w>126</w>
       <h>42</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>50.0;10.0;10.0;10.0</additional_attributes>
+    <additional_attributes>70.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -177,25 +177,25 @@ height</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>546</x>
-      <y>462</y>
-      <w>154</w>
-      <h>98</h>
+      <x>476</x>
+      <y>392</y>
+      <w>224</w>
+      <h>168</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;.
 m2=visable</panel_attributes>
-    <additional_attributes>10.0;10.0;50.0;50.0</additional_attributes>
+    <additional_attributes>10.0;10.0;100.0;100.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>98</x>
       <y>210</y>
-      <w>504</w>
+      <w>532</w>
       <h>42</h>
     </coordinates>
     <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>10.0;10.0;340.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;360.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -203,10 +203,10 @@ m2=visable</panel_attributes>
       <x>154</x>
       <y>154</y>
       <w>42</w>
-      <h>378</h>
+      <h>392</h>
     </coordinates>
     <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>10.0;250.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;260.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -223,12 +223,12 @@ m2=visable</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>532</x>
-      <y>182</y>
+      <y>154</y>
       <w>42</w>
-      <h>336</h>
+      <h>364</h>
     </coordinates>
     <panel_attributes>lt=-</panel_attributes>
-    <additional_attributes>10.0;220.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;240.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -322,7 +322,7 @@ m2=visable</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>98</x>
-      <y>462</y>
+      <y>476</y>
       <w>70</w>
       <h>42</h>
     </coordinates>
@@ -333,7 +333,7 @@ m2=visable</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>126</x>
-      <y>462</y>
+      <y>476</y>
       <w>42</w>
       <h>70</h>
     </coordinates>
