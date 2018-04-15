@@ -207,7 +207,7 @@ static void test_table_part_update() {
  *
  **************************************************************************/
 
-static void test_table_part() {
+static void test_field_part() {
 
 	s_table_part table_part;
 	s_field_part field_part;
@@ -352,7 +352,7 @@ int main(const int argc, char * const argv[]) {
 
 	test_table_part_update();
 
-	test_table_part();
+	test_field_part();
 
 	test_field_truncated_line();
 
