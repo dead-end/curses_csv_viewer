@@ -6,10 +6,12 @@ Each table consists of columns and rows. Each row has a maximum heigth and
 each column has a maximum width.
 If the table width and hight is larger than the window size, only a part of
 the table will be visualized.
+
 The table view has a reference field. The reference field is aligned with one
-of the corners. 
+of the corners. The fields at the oposite sides of the window may be truncated.
 
 ![table part](img/table_part.png?raw=true "Table Part")
 
+A truncated field may be truncated left or right or at top or bottom
 
 ![field part](img/field_part.png?raw=true "Field Part")
