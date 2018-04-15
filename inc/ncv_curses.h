@@ -6,53 +6,101 @@
 #define INC_NCV_CURSES_H_
 
 //
-// If the csv file is large, the table shows only a part of the file. The
-// view state struct contains data, that define the visible part.
+// constances that affect for loop directions
 //
-typedef struct s_view_state {
-
-	//
-	// The start column it the reference how the view is constructed. The
-	// column is fully visible and aligned to the right or left border,
-	// depending on the value of direction.
-	//
-	int col_start;
-
-	//
-	// This is the column at the opposite site of the window. Depending on
-	// the size of the window, only a part of the column is visible.
-	//
-	int col_end;
-
-	//
-	// The rest member shows the size available for the end column. If rest
-	// is the max column size, the end column is fully visible.
-	//
-	int rest;
-
-	//
-	// The direction has the value DIR_FORWARD or DIR_BACKWARD, depending
-	// on the side the start column is aligned. If the start column is
-	// aligned left the direction is DIR_FORWARD.
-	//
-	int direction;
-
-	//
-	// The row of the csv structure, which is visible at the fist table row.
-	//
-	int row;
-
-} s_view_state;
-
 #define DIR_FORWARD 1
 #define DIR_BACKWARD -1
 
-//
-// The view state related function
-//
-void s_view_state_update(s_view_state *view_state, const s_table *table, const int col_start, const int direction, const int win_x);
+/***************************************************************************
+ * The table has two s_table_part structures, one for the row and one for
+ * the column. The structure defines which part of the table is visible.
+ ***************************************************************************/
 
-#define s_view_state_debug(v) print_debug("s_view_state_debug() col_start: %d direction: %d col_end: %d rest: %d\n", \
-		                                  v->col_start, v->direction, v->col_end, v->rest)
+typedef struct s_table_part {
+
+	//
+	// the index of the first row / column that is visible
+	//
+	int start;
+
+	//
+	// the index of the last row / column that is visible
+	//
+	int end;
+
+	//
+	// the index of the row / column that is truncated. The value is equal to
+	// start or end
+	//
+	int truncated;
+
+	//
+	// the size of the truncated row / column
+	//
+	int size;
+
+} s_table_part;
+
+/***************************************************************************
+ * A field has two s_field_part structure, one for the row and one for the
+ * column. The structure defines which part of the field is visible. If the
+ * field is not truncated, start is 0  and size if the row height or the
+ * column width.
+ ***************************************************************************/
+
+typedef struct s_field_part {
+
+	//
+	// row:    the first line that is visible
+	// column: the first char that is visible
+	//
+	int start;
+
+	//
+	// row:    the number of lines that are visible
+	// column: the number of chars that are visible
+	//
+	int size;
+
+} s_field_part;
+
+/***************************************************************************
+ *
+ **************************************************************************/
+
+typedef struct s_ref_point {
+
+	int row;
+
+	int col;
+
+	int aligned;
+
+} s_ref_point;
+
+/***************************************************************************
+ * Function definitions
+ **************************************************************************/
+
+//
+// functions that are used throughout the program
+//
+
+void curses_init();
+
+void curses_finish();
+
+void curses_loop(const s_table *table);
+
+//
+// functions that are exported for tests
+//
+
+void s_field_part_update(const s_table_part *table_part, const int size, const int index, s_field_part *field_part);
+
+void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int index_max, const int direction, const int win_size);
+
+wchar_t *field_truncated_line(wchar_t *str_ptr, wchar_t *buffer, s_field_part *col_field_part);
+
 
 #endif /* INC_NCV_CURSES_H_ */
