@@ -329,12 +329,6 @@ static void test_field_truncated_line() {
 
 	check_null(ptr);
 
-	//
-	// calling the function with NULL returns NULL
-	//
-	ptr = field_truncated_line(NULL, buffer, &col_field_part);
-	check_null(ptr);
-
 	print_debug_str("field_truncated_line() Start\n");
 }
 
