@@ -281,7 +281,7 @@ static void print_horizontal_border(const s_table *table, const s_table_part *co
  *
  **************************************************************************/
 
-static void print_table(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part) {
+static void print_table(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
 	int win_row = 1;
 	int win_col;
@@ -311,13 +311,21 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 
 			if (row_field_part.size > 0 && col_field_part.size > 0) {
 
-				if (table_row == row_table_part->start) {
+				if (table_row == 0) {
 					attron(A_BOLD);
+				}
+
+				if (table_row == cursor->row && table_col == cursor->col) {
+					attron(A_REVERSE);
 				}
 
 				print_truncated_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row, win_col);
 
-				if (table_row == row_table_part->start) {
+				if (table_row == cursor->row && table_col == cursor->col) {
+					attroff(A_REVERSE);
+				}
+
+				if (table_row == 0) {
 					attroff(A_BOLD);
 				}
 			}
@@ -354,6 +362,8 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 	refresh();
 }
 
+#define update(sd, s, d) sd.start = s; sd.dir = d
+
 /***************************************************************************
  *
  **************************************************************************/
@@ -366,16 +376,36 @@ void curses_loop(const s_table *table) {
 	s_table_part row_table_part;
 	s_table_part col_table_part;
 
+	s_field cursor;
+	cursor.row = 0;
+	cursor.col = 0;
+	bool updated = true;
+
+	s_start_dir col_start_dir;
+	col_start_dir.start = 0;
+	update(col_start_dir, 0, DIR_FORWARD);
+
+	s_start_dir row_start_dir;
+	update(row_start_dir, 0, DIR_FORWARD);
+
 	getmaxyx(stdscr, win_y, win_x);
-	s_table_part_update(&row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, win_y);
-	s_table_part_update(&col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, win_x);
 
 	print_debug_str("curses_loop() start\n");
 
 	while (1) {
 
+		if (updated) {
+			updated = false;
+
+			//
+			// update the visible part of the table
+			//
+			s_table_part_update(&row_table_part, table->height, row_start_dir.start, table->no_rows, row_start_dir.dir, win_y);
+			s_table_part_update(&col_table_part, table->width, col_start_dir.start, table->no_columns, col_start_dir.dir, win_x);
+		}
+
 		erase();
-		print_table(table, &row_table_part, &col_table_part);
+		print_table(table, &row_table_part, &col_table_part, &cursor);
 
 		keyInput = getch();
 
@@ -385,6 +415,63 @@ void curses_loop(const s_table *table) {
 		} else if (keyInput == 'q' || keyInput == 'Q') {
 			break;
 
+		} else if (keyInput == KEY_LEFT) {
+			if (cursor.col - 1 >= 0) {
+				cursor.col--;
+
+				if (cursor.col == col_table_part.truncated) {
+					update(col_start_dir, col_table_part.start, DIR_FORWARD);
+
+				} else if (cursor.col < col_table_part.start) {
+					update(col_start_dir, cursor.col, DIR_FORWARD);
+				}
+
+				updated = true;
+			}
+
+		} else if (keyInput == KEY_RIGHT) {
+			if (cursor.col + 1 < table->no_columns) {
+				cursor.col++;
+
+				if (cursor.col == col_table_part.truncated) {
+					update(col_start_dir, col_table_part.end, DIR_BACKWARD);
+
+				} else if (cursor.col > col_table_part.end) {
+					update(col_start_dir, cursor.col, DIR_BACKWARD);
+				}
+
+				updated = true;
+			}
+
+		} else if (keyInput == KEY_UP) {
+			if (cursor.row - 1 >= 0) {
+				cursor.row--;
+
+				if (cursor.row == row_table_part.truncated) {
+					update(row_start_dir, row_table_part.start, DIR_FORWARD);
+
+				} else if (cursor.row < row_table_part.start) {
+					update(row_start_dir, cursor.row, DIR_FORWARD);
+
+				}
+
+				updated = true;
+			}
+
+		} else if (keyInput == KEY_DOWN) {
+			if (cursor.row + 1 < table->no_rows) {
+				cursor.row++;
+
+				if (cursor.row == row_table_part.truncated) {
+					update(row_start_dir, row_table_part.end, DIR_BACKWARD);
+
+				} else if (cursor.row > row_table_part.end) {
+					update(row_start_dir, cursor.row, DIR_BACKWARD);
+				}
+
+				updated = true;
+			}
+
 		} else if (keyInput == KEY_RESIZE) {
 
 			//
@@ -392,12 +479,7 @@ void curses_loop(const s_table *table) {
 			//
 			getmaxyx(stdscr, win_y, win_x);
 			print_debug("curses_loop() new win size y: %d x: %d\n", win_y, win_x);
-
-			//
-			// update the visible part of the table
-			//
-			s_table_part_update(&row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, win_y);
-			s_table_part_update(&col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, win_x);
+			updated = true;
 		}
 	}
 

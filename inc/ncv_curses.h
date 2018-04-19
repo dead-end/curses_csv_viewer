@@ -68,15 +68,25 @@ typedef struct s_field_part {
  *
  **************************************************************************/
 
-typedef struct s_ref_point {
+typedef struct s_field {
 
 	int row;
 
 	int col;
 
-	int aligned;
+} s_field;
 
-} s_ref_point;
+/***************************************************************************
+ *
+ **************************************************************************/
+
+typedef struct s_start_dir {
+
+	int start;
+
+	int dir;
+
+} s_start_dir;
 
 /***************************************************************************
  * Function definitions
