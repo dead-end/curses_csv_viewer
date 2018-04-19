@@ -12,6 +12,6 @@ of the corners. The fields at the oposite sides of the window may be truncated.
 
 ![table part](img/table_part.png?raw=true "Table Part")
 
-A truncated field may be truncated left or right or at top or bottom
+A truncated field may be truncated left or right or at top or bottom.
 
 ![field part](img/field_part.png?raw=true "Field Part")
