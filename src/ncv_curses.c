@@ -419,10 +419,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.col - 1 >= 0) {
 				cursor.col--;
 
-				if (cursor.col == col_table_part.truncated) {
-					update(col_start_dir, col_table_part.start, DIR_FORWARD);
-
-				} else if (cursor.col < col_table_part.start) {
+				if (cursor.col <= col_table_part.start) {
 					update(col_start_dir, cursor.col, DIR_FORWARD);
 				}
 
@@ -433,10 +430,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.col + 1 < table->no_columns) {
 				cursor.col++;
 
-				if (cursor.col == col_table_part.truncated) {
-					update(col_start_dir, col_table_part.end, DIR_BACKWARD);
-
-				} else if (cursor.col > col_table_part.end) {
+				if (cursor.col >= col_table_part.end) {
 					update(col_start_dir, cursor.col, DIR_BACKWARD);
 				}
 
@@ -447,12 +441,8 @@ void curses_loop(const s_table *table) {
 			if (cursor.row - 1 >= 0) {
 				cursor.row--;
 
-				if (cursor.row == row_table_part.truncated) {
-					update(row_start_dir, row_table_part.start, DIR_FORWARD);
-
-				} else if (cursor.row < row_table_part.start) {
+				if (cursor.row <= row_table_part.start) {
 					update(row_start_dir, cursor.row, DIR_FORWARD);
-
 				}
 
 				updated = true;
@@ -462,10 +452,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.row + 1 < table->no_rows) {
 				cursor.row++;
 
-				if (cursor.row == row_table_part.truncated) {
-					update(row_start_dir, row_table_part.end, DIR_BACKWARD);
-
-				} else if (cursor.row > row_table_part.end) {
+				if (cursor.row >= row_table_part.end) {
 					update(row_start_dir, cursor.row, DIR_BACKWARD);
 				}
 
