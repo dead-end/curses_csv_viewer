@@ -99,7 +99,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
  * direction.
  * The num parameter defines the number of rows or columns.
  **************************************************************************/
-// TODO: index_start by ref_index
+
 void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int num, const int direction, const int win_size) {
 
 	//
@@ -221,11 +221,29 @@ wchar_t *field_truncated_line(wchar_t *str_ptr, wchar_t *buffer, s_field_part *c
 	}
 }
 
+
+/***************************************************************************
+ * The function adds 'size' space chars as a padding to the current
+ * position.
+ **************************************************************************/
+
+static void add_padding(const int size) {
+	for (int i = 0; i < size; i++) {
+		addch(' ');
+	}
+}
+
+/***************************************************************************
+ * The macro creates a move variant of the add_padding function.
+ **************************************************************************/
+
+#define mv_add_padding(r,c, s) move(r, c); add_padding(s)
+
 /***************************************************************************
  *
  **************************************************************************/
 
-void print_truncated_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col) {
+void print_truncated_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col, const bool do_padding) {
 
 	print_debug("print_truncated_field() win row: %d win col: %d '%ls'\n", win_row, win_col, ptr);
 
@@ -235,19 +253,34 @@ void print_truncated_field(wchar_t *ptr, s_field_part *row_field_part, s_field_p
 
 	int current_win_row = win_row;
 
+	bool padding_lines = false;
+
 	for (int field_line = 0; field_line < field_height; field_line++) {
 
-		ptr = field_truncated_line(ptr, buffer, col_field_part);
+		if (!padding_lines) {
+			ptr = field_truncated_line(ptr, buffer, col_field_part);
 
-		print_debug("print_truncated_field() field line: %d '%ls'\n", field_line, buffer);
+			print_debug("print_truncated_field() field line: %d '%ls'\n", field_line, buffer);
 
-		if (field_line >= row_field_part->start) {
-			mvaddwstr(current_win_row++, win_col, buffer);
-		}
+			if (field_line >= row_field_part->start) {
+				mvaddwstr(current_win_row++, win_col, buffer);
 
-		if (ptr == NULL) {
-			print_debug_str("print_truncated_field() no next line\n");
-			break;
+				if (do_padding) {
+				add_padding(col_field_part->size - wcslen(buffer));
+				}
+			}
+
+			if (ptr == NULL) {
+				print_debug_str("print_truncated_field() no next line\n");
+
+				if (!do_padding) {
+					break;
+				}
+
+				padding_lines = true;
+			}
+		} else {
+			mv_add_padding(current_win_row++, win_col, col_field_part->size);
 		}
 	}
 }
@@ -289,6 +322,8 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 	s_field_part row_field_part;
 	s_field_part col_field_part;
 
+	bool is_cursor;
+
 	for (int table_row = row_table_part->start; table_row <= row_table_part->end; table_row++) {
 
 		win_col = 1;
@@ -315,13 +350,14 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					attron(A_BOLD);
 				}
 
-				if (table_row == cursor->row && table_col == cursor->col) {
+				is_cursor = table_row == cursor->row && table_col == cursor->col;
+				if (is_cursor) {
 					attron(A_REVERSE);
 				}
 
-				print_truncated_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row, win_col);
+				print_truncated_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row, win_col, is_cursor);
 
-				if (table_row == cursor->row && table_col == cursor->col) {
+				if (is_cursor) {
 					attroff(A_REVERSE);
 				}
 
@@ -392,7 +428,7 @@ void curses_loop(const s_table *table) {
 
 	print_debug_str("curses_loop() start\n");
 
-	while (1) {
+	while (true) {
 
 		if (updated) {
 			updated = false;
