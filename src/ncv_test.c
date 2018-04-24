@@ -253,12 +253,14 @@ static void test_field_part_update() {
  *
  **************************************************************************/
 
+#define STR_LEN 5
+
 static void test_field_truncated_line() {
 
 	print_debug_str("field_truncated_line() Start\n");
 
 	s_field_part col_field_part;
-	wchar_t buffer[5 + 1];
+	wchar_t buffer[STR_LEN + 1];
 	wchar_t *ptr;
 
 	//
@@ -272,20 +274,26 @@ static void test_field_truncated_line() {
 	//
 	col_field_part.start = 0;
 	col_field_part.size = 2;
+	buffer[col_field_part.size] = W_STR_TERM;
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"  ");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"1");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"1 ");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"12");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"12");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"12");
 
 	check_null(ptr);
@@ -298,19 +306,24 @@ static void test_field_truncated_line() {
 
 	ptr = str1;
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"  ");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"  ");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"  ");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"3");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"3 ");
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"34");
 
 	check_null(ptr);
@@ -324,8 +337,9 @@ static void test_field_truncated_line() {
 	col_field_part.start = 0;
 	col_field_part.size = 2;
 
-	ptr = field_truncated_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"");
+	//wmemset(buffer, L' ', col_field_part.size);
+	ptr = get_field_line(ptr, buffer, &col_field_part);
+	check_str(buffer, L"  ");
 
 	check_null(ptr);
 

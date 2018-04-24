@@ -110,7 +110,7 @@ void s_field_part_update(const s_table_part *table_part, const int size, const i
 
 void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int index_max, const int direction, const int win_size);
 
-wchar_t *field_truncated_line(wchar_t *str_ptr, wchar_t *buffer, s_field_part *col_field_part);
+wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *col_field_part);
 
 
 #endif /* INC_NCV_CURSES_H_ */

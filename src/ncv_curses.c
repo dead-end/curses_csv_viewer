@@ -19,7 +19,7 @@ void curses_init() {
 	}
 
 	//
-	// allow KEY_RESIZE to be read on SIGWINCH
+	// Allow KEY_RESIZE to be read on SIGWINCH
 	//
 	keypad(stdscr, TRUE);
 
@@ -41,7 +41,7 @@ void curses_init() {
 	// scrollok(stdscr, FALSE);
 
 	//
-	// switch off cursor by default
+	// Switch off cursor by default
 	//
 	curs_set(0);
 }
@@ -65,7 +65,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 	if (index == table_part->truncated) {
 
 		//
-		// we have to distinguish whether the first or the last row / column
+		// We have to distinguish whether the first or the last row / column
 		// is truncated.
 		//
 		if (table_part->truncated == table_part->start) {
@@ -75,7 +75,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 		}
 
 		//
-		// the field size is the truncated size
+		// The field size is the truncated size.
 		//
 		field_part->size = table_part->size;
 
@@ -103,7 +103,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int num, const int direction, const int win_size) {
 
 	//
-	// start with 1 due to the missing border
+	// Start with 1 due to the missing border.
 	//
 	int precursor = 1;
 	int sum;
@@ -115,18 +115,19 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	for (table_part->end = index_start; 0 <= table_part->end && table_part->end < num; table_part->end += direction) {
 
 		//
-		// sum up widths / heights with their borders
+		// Sum up widths / heights with their borders.
 		//
 		sum = precursor + sizes[table_part->end] + 1;
 
 		//
-		// if sum of width / heights is the window size we are finished
+		// If sum of width / heights is the window size we are finished.
 		//
 		if (sum == win_size) {
 			break;
 
 			//
-			// if the sum of width / heights is larger than the window size, the end has to be truncated
+			// If the sum of width / heights is larger than the window size,
+			// the end has to be truncated.
 			//
 		} else if (sum > win_size) {
 			table_part->truncated = table_part->end;
@@ -139,14 +140,15 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	}
 
 	//
-	// if the end member is not inside the boundaries, the window is larger than necessary
+	// If the end member is not inside the boundaries, the window is larger
+	// than necessary.
 	//
 	if (table_part->end < 0 || table_part->end >= num) {
 		table_part->end -= direction;
 	}
 
 	//
-	// if the direction is backwards swap the start and end
+	// If the direction is backwards swap the start and end.
 	//
 	if (direction == DIR_BACKWARD) {
 		const int tmp = table_part->start;
@@ -158,32 +160,51 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 }
 
 /***************************************************************************
- *
+ * The function is repeatedly called with a pointer to a field string and
+ * copies the chars of the current field line to the buffer. The buffer has
+ * a fixed size (col_field_part->size +1) and is padded with spaces. If the
+ * end of the string is reached, the buffer contains only spaces.
+ * The function updates the pointer to the start of the next line of NULL is
+ * no more lines are present.
  **************************************************************************/
 
-wchar_t *field_truncated_line(wchar_t *str_ptr, wchar_t *buffer, s_field_part *col_field_part) {
+wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *col_field_part) {
 
 	//
-	// ensure that the string is not null
+	// Initialize the buffer with spaces. This is not necessary if the field
+	// ends with more than one empty line. In this case the buffer should be
+	// unchanged.
+	//
+	wmemset(buffer, L' ', col_field_part->size);
+
+	//
+	// If the str pointer is null the function returns. In this case the
+	// buffer contains only spaces from the initialization.
 	//
 	if (str_ptr == NULL) {
-		print_exit("field_truncated_line() function called with null string\n");
+		print_debug("get_field_line() function called with null string\n");
+		return NULL;
 	}
 
+	//
+	// Get the size of the field. If the field is truncated, start is greater
+	// than 0 or size is less than the field width.
+	//
 	const int size = col_field_part->start + col_field_part->size;
+
 	wchar_t *buf_ptr = buffer;
 
 	for (int i = 0; i < size; i++) {
 
 		//
-		// on \0 or \n the line is finished
+		// On \0 or \n the line is finished.
 		//
 		if (*str_ptr == W_STR_TERM || *str_ptr == W_NEW_LINE) {
 			break;
 		}
 
 		//
-		// copy chars only if they are in the range
+		// Copy chars only if they are in the range.
 		//
 		if (i >= col_field_part->start) {
 			*buf_ptr = *str_ptr;
@@ -195,95 +216,72 @@ wchar_t *field_truncated_line(wchar_t *str_ptr, wchar_t *buffer, s_field_part *c
 	}
 
 	//
-	// add the \0 terminator to the buffer
-	//
-	*buf_ptr = W_STR_TERM;
-
-	//
-	// skip the remaining chars
+	// Skip the remaining chars after reaching the 'size' of the for loop.
 	//
 	while (*str_ptr != W_STR_TERM && *str_ptr != W_NEW_LINE) {
 		str_ptr++;
 	}
 
 	//
-	// if the str pointer is \0 we return NULL to indicate the end
+	// If the str pointer is \0 we return NULL to indicate the end.
 	//
 	if (*str_ptr == W_STR_TERM) {
 		return NULL;
 
 		//
-		// if the str pointer is \n, more lines will follow and we set the
-		// pointer to the next line
+		// If the str pointer is \n, more lines will follow and we set the
+		// pointer to the next line.
 		//
 	} else {
 		return ++str_ptr;
 	}
 }
 
+/***************************************************************************
+ * The function prints the content of a field. The field may be truncated.
+ **************************************************************************/
+
+void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col) {
+
+	print_debug("print_field() win row: %d win col: %d field: '%ls'\n", win_row, win_col, ptr);
+
+	//
+	// Get the height of the field. If the field is truncated, start is
+	// greater than 0 or size is less than the row height.
+	//
+	const int field_height = row_field_part->start + row_field_part->size;
+
+	//
+	// Create a buffer and add the str terminator.
+	//
+	wchar_t buffer[col_field_part->size + 1];
+	buffer[col_field_part->size] = W_STR_TERM;
+
+	for (int field_line = 0; field_line < field_height; field_line++) {
+
+		//
+		// Get the next field line. The pointer is updated to the next line or
+		// NULL if no more lines are present. The buffer contains the line a
+		// may contain padding chars.
+		//
+		ptr = get_field_line(ptr, buffer, col_field_part);
+		print_debug("print_field() field line: %d '%ls'\n", field_line, buffer);
+
+		//
+		// Skip the first lines if necessary,
+		//
+		if (field_line >= row_field_part->start) {
+			mvaddwstr(win_row + field_line, win_col, buffer);
+		}
+	}
+}
 
 /***************************************************************************
  * The function adds 'size' space chars as a padding to the current
  * position.
  **************************************************************************/
 
-static void add_padding(const int size) {
-	for (int i = 0; i < size; i++) {
-		addch(' ');
-	}
-}
-
-/***************************************************************************
- * The macro creates a move variant of the add_padding function.
- **************************************************************************/
-
-#define mv_add_padding(r,c, s) move(r, c); add_padding(s)
-
-/***************************************************************************
- *
- **************************************************************************/
-
-void print_truncated_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col, const bool do_padding) {
-
-	print_debug("print_truncated_field() win row: %d win col: %d '%ls'\n", win_row, win_col, ptr);
-
-	const int field_height = row_field_part->start + row_field_part->size;
-
-	wchar_t buffer[col_field_part->size + 1];
-
-	int current_win_row = win_row;
-
-	bool padding_lines = false;
-
-	for (int field_line = 0; field_line < field_height; field_line++) {
-
-		if (!padding_lines) {
-			ptr = field_truncated_line(ptr, buffer, col_field_part);
-
-			print_debug("print_truncated_field() field line: %d '%ls'\n", field_line, buffer);
-
-			if (field_line >= row_field_part->start) {
-				mvaddwstr(current_win_row++, win_col, buffer);
-
-				if (do_padding) {
-				add_padding(col_field_part->size - wcslen(buffer));
-				}
-			}
-
-			if (ptr == NULL) {
-				print_debug_str("print_truncated_field() no next line\n");
-
-				if (!do_padding) {
-					break;
-				}
-
-				padding_lines = true;
-			}
-		} else {
-			mv_add_padding(current_win_row++, win_col, col_field_part->size);
-		}
-	}
-}
+#define add_hline(s,c) for (int k = 0; k < (s); k++) addch(c)
 
 /***************************************************************************
  *
@@ -302,9 +300,7 @@ static void print_horizontal_border(const s_table *table, const s_table_part *co
 
 		s_field_part_update(col_table_part, col, table->width[col], &col_field_part);
 
-		for (int j = 0; j < col_field_part.size; j++) {
-			addch(ACS_HLINE);
-		}
+		add_hline(col_field_part.size, ACS_HLINE);
 	}
 
 	addch(right);
@@ -355,7 +351,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					attron(A_REVERSE);
 				}
 
-				print_truncated_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row, win_col, is_cursor);
+				print_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row, win_col);
 
 				if (is_cursor) {
 					attroff(A_REVERSE);
