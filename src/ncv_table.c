@@ -6,6 +6,13 @@
 #include "ncv_table.h"
 
 /***************************************************************************
+ * The width and the heights have to be at least one. Otherwise the cursor
+ * field will not be displayed.
+ **************************************************************************/
+
+#define MIN_WIDTH_HEIGHT 1
+
+/***************************************************************************
  * The function initializes the internal structure of the table struct. The
  * main task is to allocate memory for the fields and the arrays for the
  * column widths and the row heights.
@@ -13,37 +20,41 @@
 
 void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 
-	table->no_columns = no_columns;
 	table->no_rows = no_rows;
+	table->no_columns = no_columns;
 
 	print_debug("s_table_init() Allocate memory for rows: %d columns: %d\n", no_rows, no_columns);
 
 	//
-	// allocate and initialize an array for widths of the columns
+	// Allocate and initialize an array for the widths of the columns.
 	//
 	table->width = xmalloc(sizeof(int) * no_columns);
 
-	for (int i = 0; i < no_columns; i++) {
-		table->width[i] = 0;
+	for (int column = 0; column < no_columns; column++) {
+		table->width[column] = MIN_WIDTH_HEIGHT;
 	}
 
 	//
-	// allocate and initialize an array for heights of the rows
+	// Allocate and initialize an array for the heights of the rows.
 	//
 	table->height = xmalloc(sizeof(int) * no_rows);
 
-	for (int i = 0; i < no_rows; i++) {
-		table->height[i] = 0;
+	for (int row = 0; row < no_rows; row++) {
+		table->height[row] = MIN_WIDTH_HEIGHT;
 	}
 
 	//
-	// allocate a two dimensional array for the fields
-	// the fields are not initialized
+	// Allocate a two dimensional array for the fields. The fields are not
+	// initialized.
 	//
 	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
 
-	for (int i = 0; i < no_rows; i++) {
-		table->fields[i] = xmalloc(sizeof(wchar_t*) * no_columns);
+	for (int row = 0; row < no_rows; row++) {
+		table->fields[row] = xmalloc(sizeof(wchar_t*) * no_columns);
+
+		//		for (int column = 0; column < no_columns; column++) {
+		//			table->fields[row][column] = NULL;
+		//		}
 	}
 }
 
@@ -57,20 +68,20 @@ void s_table_free(s_table *table) {
 	print_debug_str("s_table_free() Freeing allocated memory for the table.\n");
 
 	//
-	// the array with the widths and heights of the columns and rows
+	// Free the arrays with the widths and heights of the columns and rows.
 	//
 	free(table->width);
 	free(table->height);
 
 	//
-	// the two dimensional array with the fields and the actual field
-	// content
+	// Iterate through the two dimensional array with the fields and the
+	// actual field content.
 	//
 	for (int row = 0; row < table->no_rows; row++) {
 		for (int column = 0; column < table->no_columns; column++) {
 
 			//
-			// the field content
+			// Free the field content.
 			//
 			free(table->fields[row][column]);
 		}
@@ -85,10 +96,16 @@ void s_table_free(s_table *table) {
  * The function computes the width and the height of the field. A field is a
  * multi line string. The height for the field is the number of lines. The
  * width is the maximum length of the lines.
+ *
+ * An empty string has width 0 and height 1.
  **************************************************************************/
 
-static void s_table_field_dimension(wchar_t *str, int *width, int *height) {
+void s_table_field_dimension(wchar_t *str, int *width, int *height) {
 
+	//
+	// The start point points to the start of the current line. The end
+	// pointer searches for the line end.
+	//
 	wchar_t *ptr_start = str;
 	wchar_t *ptr_end = str;
 
@@ -102,12 +119,12 @@ static void s_table_field_dimension(wchar_t *str, int *width, int *height) {
 		if (*ptr_end == W_NEW_LINE || *ptr_end == W_STR_TERM) {
 
 			//
-			// a \n or \0 mark the end of a line
+			// A \n or \0 mark the end of a line.
 			//
 			(*height)++;
 
 			//
-			// compute and update the width of the current line
+			// Compute and update the width of the current line.
 			//
 			width_current = ptr_end - ptr_start;
 			if (width_current > *width) {
@@ -115,19 +132,22 @@ static void s_table_field_dimension(wchar_t *str, int *width, int *height) {
 			}
 
 			//
-			// if we found the string terminator we are finished
+			// If we found the string terminator we are finished.
 			//
 			if (*ptr_end == W_STR_TERM) {
 				break;
 			}
 
 			//
-			// set the start pointer to the beginning of the next
-			// line
+			// Set the start pointer to the beginning of the next
+			// line.
 			//
 			ptr_start = ptr_end + 1;
 		}
 
+		//
+		// If we have not found the line end, we look at the next char.
+		//
 		ptr_end++;
 	}
 }
@@ -137,13 +157,13 @@ static void s_table_field_dimension(wchar_t *str, int *width, int *height) {
  * corresponding field in the table struct.
  *
  * Additionally the width and height of the field is computed and if
- * necessary, the arrays the the widths and heights are updated.
+ * necessary, the arrays with the widths and heights are updated.
  **************************************************************************/
 
 void s_table_copy(s_table *table, const int row, const int column, wchar_t *str) {
 
 	//
-	// copy the field content with allocated memory
+	// Copy the field content with allocated memory.
 	//
 	table->fields[row][column] = wcsdup(str);
 
@@ -152,7 +172,7 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	}
 
 	//
-	// compute the width and the height of the field
+	// Compute the width and the height of the field.
 	//
 	int row_size;
 	int col_size;
@@ -163,14 +183,14 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
 
 	//
-	// update the column width
+	// Update the column width if necessary.
 	//
 	if (col_size > table->width[column]) {
 		table->width[column] = col_size;
 	}
 
 	//
-	// update the row hight
+	// Update the row height if necessary.
 	//
 	if (row_size > table->height[row]) {
 		table->height[row] = row_size;
@@ -182,10 +202,10 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
  * purposes.
  **************************************************************************/
 
-void s_table_dump(s_table *table) {
+void s_table_dump(const s_table *table) {
 
 	//
-	// the fields
+	// Print the fields.
 	//
 	for (int row = 0; row < table->no_rows; row++) {
 		for (int column = 0; column < table->no_columns; column++) {
@@ -195,14 +215,14 @@ void s_table_dump(s_table *table) {
 	}
 
 	//
-	// the column widths
+	// Print the column widths.
 	//
 	for (int column = 0; column < table->no_columns; column++) {
 		print_debug("s_table_dump() column: %d width: %d\n", column, table->width[column]);
 	}
 
 	//
-	// the row heights
+	// Print the row heights.
 	//
 	for (int row = 0; row < table->no_rows; row++) {
 		print_debug("s_table_dump() row: %d height: %d\n", row, table->height[row]);

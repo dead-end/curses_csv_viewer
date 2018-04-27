@@ -38,6 +38,8 @@ void s_table_free(s_table *table);
 
 void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *str);
 
-void s_table_dump(s_table *table);
+void s_table_field_dimension(wchar_t *str, int *width, int *height);
+
+void s_table_dump(const s_table *table);
 
 #endif /* INC_NCV_TABLE_H_ */
