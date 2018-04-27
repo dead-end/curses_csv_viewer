@@ -405,7 +405,7 @@ static void test_field_truncated_line() {
  * The main function simply starts the test.
  **************************************************************************/
 
-int main(const int argc, char * const argv[]) {
+int main() {
 
 	print_debug_str("main() Start\n");
 
