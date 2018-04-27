@@ -27,7 +27,7 @@ static void check_int(const int current, const int expected, const char *msg) {
  * The function compares two strings.
  **************************************************************************/
 
-static void check_str(wchar_t *str1, wchar_t *str2) {
+static void check_str(const wchar_t *str1, const wchar_t *str2) {
 
 	if (wcscmp(str1, str2) != 0) {
 		print_exit("check_str() Strings differ: '%ls' and: '%ls'\n", str1, str2);
@@ -40,13 +40,31 @@ static void check_str(wchar_t *str1, wchar_t *str2) {
  * The function ensures that a given string is null.
  **************************************************************************/
 
-static void check_null(wchar_t *str) {
+static void check_null(const wchar_t *str) {
 
 	if (str != NULL) {
 		print_exit_str("check_null() Pointer is not null!\n");
 	}
 
 	print_debug("check_null() Pointer is expected null\n");
+}
+
+/***************************************************************************
+ * The function checks whether a s_table_part struct has the expected
+ * values.
+ **************************************************************************/
+
+static void check_table_part(const s_table_part *table_part, const int start, const int end, const int truncated, const int size, const char *msg) {
+
+	print_debug("check_table_part() %s\n", msg);
+
+	check_int(table_part->start, start, "s_table_part: start");
+
+	check_int(table_part->end, end, "s_table_part: end");
+
+	check_int(table_part->truncated, truncated, "s_table_part: truncated");
+
+	check_int(table_part->size, size, "s_table_part: size");
 }
 
 /***************************************************************************
@@ -103,24 +121,69 @@ static void test_parser() {
 }
 
 /***************************************************************************
- *
+ * The function reads and parses a csv file that contains: ",\n,"
  **************************************************************************/
 
-static void check_table_part(const s_table_part *table_part, const int start, const int end, const int truncated, const int size, const char *msg) {
+static void test_parser_empty() {
+	s_table table;
 
-	print_debug("check_table_part() %s\n", msg);
+	print_debug_str("test_parser_empty() Start\n");
 
-	check_int(table_part->start, start, "s_table_part: start");
+	parser_process_file("res/empty.csv", W_DELIM, &table);
 
-	check_int(table_part->end, end, "s_table_part: end");
+	//
+	// check all fields "by hand"
+	//
+	check_str(table.fields[0][0], L"");
+	check_str(table.fields[0][1], L"");
 
-	check_int(table_part->truncated, truncated, "s_table_part: truncated");
+	check_str(table.fields[1][0], L"");
+	check_str(table.fields[1][1], L"");
 
-	check_int(table_part->size, size, "s_table_part: size");
+	//
+	// check the meta data
+	//
+	check_int(table.width[0], 1, "col empty: 0");
+	check_int(table.width[1], 1, "col empty: 1");
+
+	check_int(table.height[0], 1, "row empty: 0");
+	check_int(table.height[1], 1, "row empty: 1");
+
+	s_table_free(&table);
+
+	print_debug_str("test_parser_empty() End\n");
 }
 
 /***************************************************************************
- *
+ * The function checks the dimensions of a field. An empty field has width 0
+ * and height 1. The minimum width of a column is 1 to ensure that the
+ * cursor field can be displayed.
+ **************************************************************************/
+
+static void test_table_field_dimension() {
+	int row_size;
+	int col_size;
+
+	print_debug_str("test_table_field_dimension() Start\n");
+
+	s_table_field_dimension(L"", &col_size, &row_size);
+	check_int(col_size, 0, "col: empty");
+	check_int(row_size, 1, "row: empty");
+
+	s_table_field_dimension(L"\n", &col_size, &row_size);
+	check_int(col_size, 0, "col: two empty");
+	check_int(row_size, 2, "row: two empty");
+
+	s_table_field_dimension(L"1\n12\n123", &col_size, &row_size);
+	check_int(col_size, 3, "col: two empty");
+	check_int(row_size, 3, "row: two empty");
+
+	print_debug_str("test_table_field_dimension() End\n");
+}
+
+/***************************************************************************
+ * The function checks the s_table_part_update function, which computes the
+ * visible part of the table for a row or column.
  **************************************************************************/
 
 static void test_table_part_update() {
@@ -204,7 +267,8 @@ static void test_table_part_update() {
 }
 
 /***************************************************************************
- *
+ * The function checks the s_field_part_update function, which computes the
+ * visible part of a truncated field.
  **************************************************************************/
 
 static void test_field_part_update() {
@@ -250,7 +314,9 @@ static void test_field_part_update() {
 }
 
 /***************************************************************************
- *
+ * The function checks the get_field_line function for a truncated field. It
+ * is repeatedly called and returns a truncated and padded line of a fixed
+ *  width.
  **************************************************************************/
 
 #define STR_LEN 5
@@ -264,72 +330,62 @@ static void test_field_truncated_line() {
 	wchar_t *ptr;
 
 	//
-	// str lines (height 6 width 5)
+	// The string with the field content (height 6 width 5)
 	//
 	wchar_t *str1 = L"\n1\n12\n123\n1234";
 	ptr = str1;
 
 	//
-	// truncated right
+	// Field is truncated right.
 	//
 	col_field_part.start = 0;
 	col_field_part.size = 2;
 	buffer[col_field_part.size] = W_STR_TERM;
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"  ");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"1 ");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"12");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"12");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"12");
 
 	check_null(ptr);
 
 	//
-	// truncated left
+	// Field is truncated left.
 	//
 	col_field_part.start = 2;
 	col_field_part.size = 2;
 
 	ptr = str1;
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"  ");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"  ");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"  ");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"3 ");
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"34");
 
 	check_null(ptr);
 
 	//
-	// test an empty field
+	// Test an empty field
 	//
 	wchar_t *str2 = L"";
 	ptr = str2;
@@ -337,7 +393,6 @@ static void test_field_truncated_line() {
 	col_field_part.start = 0;
 	col_field_part.size = 2;
 
-	//wmemset(buffer, L' ', col_field_part.size);
 	ptr = get_field_line(ptr, buffer, &col_field_part);
 	check_str(buffer, L"  ");
 
@@ -347,7 +402,7 @@ static void test_field_truncated_line() {
 }
 
 /***************************************************************************
- * The main functon simply starts the test.
+ * The main function simply starts the test.
  **************************************************************************/
 
 int main(const int argc, char * const argv[]) {
@@ -357,6 +412,10 @@ int main(const int argc, char * const argv[]) {
 	setlocale(LC_ALL, "");
 
 	test_parser();
+
+	test_parser_empty();
+
+	test_table_field_dimension();
 
 	test_table_part_update();
 
