@@ -211,7 +211,7 @@ void s_table_dump(const s_table *table) {
 		for (int column = 0; column < table->no_columns; column++) {
 			print_debug("s_table_dump() row: %d column: %d '%ls'\n", row, column, table->fields[row][column]);
 		}
-		print_debug("s_table_dump()\n");
+		print_debug_str("s_table_dump()\n");
 	}
 
 	//

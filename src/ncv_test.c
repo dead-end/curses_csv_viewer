@@ -46,7 +46,7 @@ static void check_null(const wchar_t *str) {
 		print_exit_str("check_null() Pointer is not null!\n");
 	}
 
-	print_debug("check_null() Pointer is expected null\n");
+	print_debug_str("check_null() Pointer is expected null\n");
 }
 
 /***************************************************************************

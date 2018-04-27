@@ -182,7 +182,7 @@ wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *c
 	// buffer contains only spaces from the initialization.
 	//
 	if (str_ptr == NULL) {
-		print_debug("get_field_line() function called with null string\n");
+		print_debug_str("get_field_line() function called with null string\n");
 		return NULL;
 	}
 
