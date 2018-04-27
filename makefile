@@ -10,43 +10,59 @@ OBJ_DIR = obj
 # Definition of the compiler and its flags.
 ############################################################################
 
-CC     = gcc
-DEBUG  = -DDEBUG -g
-CFLAGS = -I$(INC_DIR) -Wall -Werror -g $(shell ncursesw5-config --cflags) $(DEBUG)
-LIBS   = $(shell ncursesw5-config --libs)
+CC       = gcc
+DEBUG    = -DDEBUG -g
+WARNINGS = -Wall -Wextra -Wpedantic -Werror
+CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11
+LIBS     = $(shell ncursesw5-config --libs)
 
 ############################################################################
-# Definition of the project files.
+# LIBS
+############################################################################
+
+SRC_LIBS = $(SRC_DIR)/ncv_table.c  \
+           $(SRC_DIR)/ncv_parser.c \
+           $(SRC_DIR)/ncv_curses.c \
+           $(SRC_DIR)/ncv_common.c 
+
+OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
+
+INC_LIBS = $(subst $(SRC_DIR),$(INC_DIR),$(subst .c,.h,$(SRC_LIBS)))
+
+############################################################################
+# MAIN
 ############################################################################
 
 EXEC     = ccsvv
 
+SRC_MAIN = $(SRC_DIR)/ncv_ccsvv.c
+
+OBJ_MAIN = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_MAIN)))
+
+############################################################################
+# TEST
+############################################################################
+
 TEST     = ncv_test
 
-INCLUDES = $(INC_DIR)/ncv_table.h \
-           $(INC_DIR)/ncv_parser.h \
-           $(INC_DIR)/ncv_curses.h \
-           $(INC_DIR)/ncv_common.h 
-           
-OBJECTS  = $(OBJ_DIR)/ncv_table.o \
-           $(OBJ_DIR)/ncv_parser.o \
-           $(OBJ_DIR)/ncv_curses.o \
-           $(OBJ_DIR)/ncv_common.o
-           
+SRC_TEST = $(SRC_DIR)/ncv_test.c
+
+OBJ_TEST = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_TEST)))
+
 ############################################################################
 # Definitions of the build commands.
 ############################################################################
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDES)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_LIBS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
-$(EXEC): $(OBJECTS) $(OBJ_DIR)/ncv_ccsvv.o
+$(EXEC): $(OBJ_LIBS) $(OBJ_MAIN)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS)
 
-$(TEST): $(OBJECTS) $(OBJ_DIR)/ncv_test.o
+$(TEST): $(OBJ_LIBS) $(OBJ_TEST)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS)
 
-all: $(EXEC) $(TEST) $(OBJECTS)
+all: $(EXEC) $(TEST)
 
 ############################################################################
 # Definition of the cleanup and run task.
