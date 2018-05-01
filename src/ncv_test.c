@@ -14,39 +14,53 @@
  * not.
  **************************************************************************/
 
-static void check_int(const int current, const int expected, const char *msg) {
+static void ut_check_int(const int current, const int expected, const char *msg) {
 
 	if (current != expected) {
-		print_exit("check_int() %s current: %d expected: %d\n", msg, current, expected);
+		print_exit("ut_check_int() %s current: %d expected: %d\n", msg, current, expected);
 	}
 
-	print_debug("check_int() %s current: %d OK\n", msg, current);
+	print_debug("ut_check_int() OK - %s current: %d \n", msg, current);
 }
 
 /***************************************************************************
- * The function compares two strings.
+ * The function checks whether an size_t parameter has the expected value or
+ * not.
  **************************************************************************/
 
-static void check_str(const wchar_t *str1, const wchar_t *str2) {
+static void ut_check_size(const size_t current, const size_t expected, const char *msg) {
+
+	if (current != expected) {
+		print_exit("ut_check_size() %s current: %zu expected: %zu\n", msg, current, expected);
+	}
+
+	print_debug("ut_check_size() OK - %s size: %zu \n", msg, current);
+}
+
+/***************************************************************************
+ * The function compares two wchar strings.
+ **************************************************************************/
+
+static void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2) {
 
 	if (wcscmp(str1, str2) != 0) {
-		print_exit("check_str() Strings differ: '%ls' and: '%ls'\n", str1, str2);
+		print_exit("ut_check_wchar_str() Strings differ: '%ls' and: '%ls'\n", str1, str2);
 	}
 
-	print_debug("check_str() Strings OK: '%ls' and: '%ls'\n", str1, str2);
+	print_debug("ut_check_wchar_str() OK - String are equal: '%ls'\n", str1);
 }
 
 /***************************************************************************
- * The function ensures that a given string is null.
+ * The function ensures that a given wchar string is null.
  **************************************************************************/
 
-static void check_null(const wchar_t *str) {
+static void ut_check_wchar_null(const wchar_t *str) {
 
 	if (str != NULL) {
-		print_exit_str("check_null() Pointer is not null!\n");
+		print_exit("ut_check_wchar_null() Pointer is not null: '%ls'\n", str);
 	}
 
-	print_debug_str("check_null() Pointer is expected null\n");
+	print_debug_str("ut_check_wchar_null() OK\n");
 }
 
 /***************************************************************************
@@ -58,13 +72,13 @@ static void check_table_part(const s_table_part *table_part, const int start, co
 
 	print_debug("check_table_part() %s\n", msg);
 
-	check_int(table_part->start, start, "s_table_part: start");
+	ut_check_int(table_part->start, start, "s_table_part: start");
 
-	check_int(table_part->end, end, "s_table_part: end");
+	ut_check_int(table_part->end, end, "s_table_part: end");
 
-	check_int(table_part->truncated, truncated, "s_table_part: truncated");
+	ut_check_int(table_part->truncated, truncated, "s_table_part: truncated");
 
-	check_int(table_part->size, size, "s_table_part: size");
+	ut_check_int(table_part->size, size, "s_table_part: size");
 }
 
 /***************************************************************************
@@ -82,38 +96,38 @@ static void test_parser() {
 	//
 	// check all fields "by hand"
 	//
-	check_str(table.fields[0][0], L"f00");
-	check_str(table.fields[0][1], L"f01");
-	check_str(table.fields[0][2], L"f02");
+	ut_check_wchar_str(table.fields[0][0], L"f00");
+	ut_check_wchar_str(table.fields[0][1], L"f01");
+	ut_check_wchar_str(table.fields[0][2], L"f02");
 
-	check_str(table.fields[1][0], L"f10");
-	check_str(table.fields[1][1], L"f11->\n\"d111\"");
-	check_str(table.fields[1][2], L"f12");
+	ut_check_wchar_str(table.fields[1][0], L"f10");
+	ut_check_wchar_str(table.fields[1][1], L"f11->\n\"d111\"");
+	ut_check_wchar_str(table.fields[1][2], L"f12");
 
-	check_str(table.fields[2][0], L"f20");
-	check_str(table.fields[2][1], L"f21");
-	check_str(table.fields[2][2], L"f22");
+	ut_check_wchar_str(table.fields[2][0], L"f20");
+	ut_check_wchar_str(table.fields[2][1], L"f21");
+	ut_check_wchar_str(table.fields[2][2], L"f22");
 
-	check_str(table.fields[3][0], L"f30->,d30");
-	check_str(table.fields[3][1], L"f31");
-	check_str(table.fields[3][2], L"f32->\nd32");
+	ut_check_wchar_str(table.fields[3][0], L"f30->,d30");
+	ut_check_wchar_str(table.fields[3][1], L"f31");
+	ut_check_wchar_str(table.fields[3][2], L"f32->\nd32");
 
-	check_str(table.fields[4][0], L"");
-	check_str(table.fields[4][1], L"end");
-	check_str(table.fields[4][2], L"");
+	ut_check_wchar_str(table.fields[4][0], L"");
+	ut_check_wchar_str(table.fields[4][1], L"end");
+	ut_check_wchar_str(table.fields[4][2], L"");
 
 	//
 	// check the meta data
 	//
-	check_int(table.width[0], 9, "col width: 0");
-	check_int(table.width[1], 6, "col width: 1");
-	check_int(table.width[2], 5, "col width: 2");
+	ut_check_int(table.width[0], 9, "col width: 0");
+	ut_check_int(table.width[1], 6, "col width: 1");
+	ut_check_int(table.width[2], 5, "col width: 2");
 
-	check_int(table.height[0], 1, "row_height: 0");
-	check_int(table.height[1], 2, "row_height: 1");
-	check_int(table.height[2], 1, "row_height: 2");
-	check_int(table.height[3], 2, "row_height: 3");
-	check_int(table.height[4], 1, "row_height: 4");
+	ut_check_int(table.height[0], 1, "row_height: 0");
+	ut_check_int(table.height[1], 2, "row_height: 1");
+	ut_check_int(table.height[2], 1, "row_height: 2");
+	ut_check_int(table.height[3], 2, "row_height: 3");
+	ut_check_int(table.height[4], 1, "row_height: 4");
 
 	s_table_free(&table);
 
@@ -134,20 +148,20 @@ static void test_parser_empty() {
 	//
 	// check all fields "by hand"
 	//
-	check_str(table.fields[0][0], L"");
-	check_str(table.fields[0][1], L"");
+	ut_check_wchar_str(table.fields[0][0], L"");
+	ut_check_wchar_str(table.fields[0][1], L"");
 
-	check_str(table.fields[1][0], L"");
-	check_str(table.fields[1][1], L"");
+	ut_check_wchar_str(table.fields[1][0], L"");
+	ut_check_wchar_str(table.fields[1][1], L"");
 
 	//
 	// check the meta data
 	//
-	check_int(table.width[0], 1, "col empty: 0");
-	check_int(table.width[1], 1, "col empty: 1");
+	ut_check_int(table.width[0], 1, "col empty: 0");
+	ut_check_int(table.width[1], 1, "col empty: 1");
 
-	check_int(table.height[0], 1, "row empty: 0");
-	check_int(table.height[1], 1, "row empty: 1");
+	ut_check_int(table.height[0], 1, "row empty: 0");
+	ut_check_int(table.height[1], 1, "row empty: 1");
 
 	s_table_free(&table);
 
@@ -164,21 +178,37 @@ static void test_table_field_dimension() {
 	int row_size;
 	int col_size;
 
-	print_debug_str("test_table_field_dimension() Start\n");
+	print_debug_str("s_table_field_dimension_new() Start\n");
 
+	//
+	// Test: Empty field
+	//
 	s_table_field_dimension(L"", &col_size, &row_size);
-	check_int(col_size, 0, "col: empty");
-	check_int(row_size, 1, "row: empty");
+	ut_check_size(col_size, 0, "col: Empty field");
+	ut_check_size(row_size, 1, "row: Empty field");
 
+	//
+	// Test: Two empty lines
+	//
 	s_table_field_dimension(L"\n", &col_size, &row_size);
-	check_int(col_size, 0, "col: two empty");
-	check_int(row_size, 2, "row: two empty");
+	ut_check_size(col_size, 0, "col: Two empty lines");
+	ut_check_size(row_size, 2, "row: Two empty lines");
 
-	s_table_field_dimension(L"1\n12\n123", &col_size, &row_size);
-	check_int(col_size, 3, "col: two empty");
-	check_int(row_size, 3, "row: two empty");
+	//
+	// Test: Simple string
+	//
+	s_table_field_dimension(L"привет", &col_size, &row_size);
+	ut_check_size(col_size, wcslen(L"привет"), "col: Simple string");
+	ut_check_size(row_size, 1, "row: Simple string");
 
-	print_debug_str("test_table_field_dimension() End\n");
+	//
+	// Test: Multi lines
+	//
+	s_table_field_dimension(L"привет\nпривет привет\nпривет", &col_size, &row_size);
+	ut_check_size(col_size, wcslen(L"привет привет"), "col: Multi lines");
+	ut_check_size(row_size, 3, "row: Multi lines");
+
+	print_debug_str("s_table_field_dimension() End\n");
 }
 
 /***************************************************************************
@@ -287,12 +317,12 @@ static void test_field_part_update() {
 	table_part.size = 2;
 
 	s_field_part_update(&table_part, 0, 4, &field_part);
-	check_int(field_part.start, 0, "start");
-	check_int(field_part.size, 4, "size");
+	ut_check_int(field_part.start, 0, "start");
+	ut_check_int(field_part.size, 4, "size");
 
 	s_field_part_update(&table_part, 2, 4, &field_part);
-	check_int(field_part.start, 0, "start");
-	check_int(field_part.size, 2, "size");
+	ut_check_int(field_part.start, 0, "start");
+	ut_check_int(field_part.size, 2, "size");
 
 	//
 	// truncated left
@@ -303,12 +333,12 @@ static void test_field_part_update() {
 	table_part.size = 2;
 
 	s_field_part_update(&table_part, 0, 4, &field_part);
-	check_int(field_part.start, 2, "start");
-	check_int(field_part.size, 2, "size");
+	ut_check_int(field_part.start, 2, "start");
+	ut_check_int(field_part.size, 2, "size");
 
 	s_field_part_update(&table_part, 2, 4, &field_part);
-	check_int(field_part.start, 0, "start");
-	check_int(field_part.size, 4, "size");
+	ut_check_int(field_part.start, 0, "start");
+	ut_check_int(field_part.size, 4, "size");
 
 	print_debug_str("test_table_part() End\n");
 }
@@ -319,70 +349,72 @@ static void test_field_part_update() {
  *  width.
  **************************************************************************/
 
-#define STR_LEN 5
+#define FIELD_SIZE 2
 
-static void test_field_truncated_line() {
+static void test_get_field_line() {
 
-	print_debug_str("field_truncated_line() Start\n");
+	print_debug_str("test_get_field_line() Start\n");
 
 	s_field_part col_field_part;
-	wchar_t buffer[STR_LEN + 1];
+	wchar_t buffer[FIELD_SIZE + 1];
 	wchar_t *ptr;
 
 	//
 	// The string with the field content (height 6 width 5)
 	//
-	wchar_t *str1 = L"\n1\n12\n123\n1234";
+	wchar_t *str1 = L"\nз\nза\nзая\nзаяц";
+
+
 	ptr = str1;
 
 	//
 	// Field is truncated right.
 	//
 	col_field_part.start = 0;
-	col_field_part.size = 2;
+	col_field_part.size = FIELD_SIZE;
 	buffer[col_field_part.size] = W_STR_TERM;
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"  ");
+	ut_check_wchar_str(buffer, L"  ");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"1 ");
+	ut_check_wchar_str(buffer, L"з ");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"12");
+	ut_check_wchar_str(buffer, L"за");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"12");
+	ut_check_wchar_str(buffer, L"за");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"12");
+	ut_check_wchar_str(buffer, L"за");
 
-	check_null(ptr);
+	ut_check_wchar_null(ptr);
 
 	//
 	// Field is truncated left.
 	//
 	col_field_part.start = 2;
-	col_field_part.size = 2;
+	col_field_part.size = FIELD_SIZE;
 
 	ptr = str1;
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"  ");
+	ut_check_wchar_str(buffer, L"  ");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"  ");
+	ut_check_wchar_str(buffer, L"  ");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"  ");
+	ut_check_wchar_str(buffer, L"  ");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"3 ");
+	ut_check_wchar_str(buffer, L"я ");
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"34");
+	ut_check_wchar_str(buffer, L"яц");
 
-	check_null(ptr);
+	ut_check_wchar_null(ptr);
 
 	//
 	// Test an empty field
@@ -391,14 +423,14 @@ static void test_field_truncated_line() {
 	ptr = str2;
 
 	col_field_part.start = 0;
-	col_field_part.size = 2;
+	col_field_part.size = FIELD_SIZE;
 
 	ptr = get_field_line(ptr, buffer, &col_field_part);
-	check_str(buffer, L"  ");
+	ut_check_wchar_str(buffer, L"  ");
 
-	check_null(ptr);
+	ut_check_wchar_null(ptr);
 
-	print_debug_str("field_truncated_line() Start\n");
+	print_debug_str("test_get_field_line() End\n");
 }
 
 /***************************************************************************
@@ -421,7 +453,7 @@ int main() {
 
 	test_field_part_update();
 
-	test_field_truncated_line();
+	test_get_field_line();
 
 	print_debug_str("main() End\n");
 
