@@ -20,10 +20,10 @@ LIBS     = $(shell ncursesw5-config --libs)
 # LIBS
 ############################################################################
 
-SRC_LIBS = $(SRC_DIR)/ncv_table.c  \
-           $(SRC_DIR)/ncv_parser.c \
-           $(SRC_DIR)/ncv_curses.c \
-           $(SRC_DIR)/ncv_common.c 
+SRC_LIBS += $(SRC_DIR)/ncv_table.c
+SRC_LIBS += $(SRC_DIR)/ncv_parser.c
+SRC_LIBS += $(SRC_DIR)/ncv_curses.c
+SRC_LIBS += $(SRC_DIR)/ncv_common.c 
 
 OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
 
@@ -63,7 +63,10 @@ $(TEST): $(OBJ_LIBS) $(OBJ_TEST)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS)
 
 all: $(EXEC) $(TEST)
-
+	@echo SRC: $(SRC_LIBS)
+	@echo OBJ: $(OBJ_LIBS)
+	@echo INC: $(INC_LIBS)
+	
 ############################################################################
 # Definition of the cleanup and run task.
 ############################################################################
