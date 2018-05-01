@@ -4,7 +4,7 @@
 
 INC_DIR = inc
 SRC_DIR = src
-OBJ_DIR = obj
+OBJ_DIR = build
 TST_DIR = tests
 
 ############################################################################
@@ -64,7 +64,6 @@ $(EXEC): $(OBJ_LIBS) $(OBJ_MAIN)
 
 $(TEST): $(OBJ_LIBS) $(OBJ_TEST)
 	gcc -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS)
-
 
 unit_test: $(TEST)
 	for ut_test in $(TEST) ; do \
