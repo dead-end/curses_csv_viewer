@@ -1,5 +1,5 @@
 /*
- * file: ncv_test.c
+ * file: ut_curses.c
  */
 
 #include <locale.h>
@@ -8,60 +8,6 @@
 #include "ncv_table.h"
 #include "ncv_parser.h"
 #include "ncv_curses.h"
-
-/***************************************************************************
- * The function checks whether an int parameter has the expected value or
- * not.
- **************************************************************************/
-
-static void ut_check_int(const int current, const int expected, const char *msg) {
-
-	if (current != expected) {
-		print_exit("ut_check_int() %s current: %d expected: %d\n", msg, current, expected);
-	}
-
-	print_debug("ut_check_int() OK - %s current: %d \n", msg, current);
-}
-
-/***************************************************************************
- * The function checks whether an size_t parameter has the expected value or
- * not.
- **************************************************************************/
-
-static void ut_check_size(const size_t current, const size_t expected, const char *msg) {
-
-	if (current != expected) {
-		print_exit("ut_check_size() %s current: %zu expected: %zu\n", msg, current, expected);
-	}
-
-	print_debug("ut_check_size() OK - %s size: %zu \n", msg, current);
-}
-
-/***************************************************************************
- * The function compares two wchar strings.
- **************************************************************************/
-
-static void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2) {
-
-	if (wcscmp(str1, str2) != 0) {
-		print_exit("ut_check_wchar_str() Strings differ: '%ls' and: '%ls'\n", str1, str2);
-	}
-
-	print_debug("ut_check_wchar_str() OK - String are equal: '%ls'\n", str1);
-}
-
-/***************************************************************************
- * The function ensures that a given wchar string is null.
- **************************************************************************/
-
-static void ut_check_wchar_null(const wchar_t *str) {
-
-	if (str != NULL) {
-		print_exit("ut_check_wchar_null() Pointer is not null: '%ls'\n", str);
-	}
-
-	print_debug_str("ut_check_wchar_null() OK\n");
-}
 
 /***************************************************************************
  * The function checks whether a s_table_part struct has the expected
@@ -79,136 +25,6 @@ static void check_table_part(const s_table_part *table_part, const int start, co
 	ut_check_int(table_part->truncated, truncated, "s_table_part: truncated");
 
 	ut_check_int(table_part->size, size, "s_table_part: size");
-}
-
-/***************************************************************************
- * The function reads and parses a csv file. All fields are compared with
- * the expected values.
- **************************************************************************/
-
-static void test_parser() {
-	s_table table;
-
-	print_debug_str("test_parser() Start\n");
-
-	parser_process_file("res/test1.csv", W_DELIM, &table);
-
-	//
-	// check all fields "by hand"
-	//
-	ut_check_wchar_str(table.fields[0][0], L"f00");
-	ut_check_wchar_str(table.fields[0][1], L"f01");
-	ut_check_wchar_str(table.fields[0][2], L"f02");
-
-	ut_check_wchar_str(table.fields[1][0], L"f10");
-	ut_check_wchar_str(table.fields[1][1], L"f11->\n\"d111\"");
-	ut_check_wchar_str(table.fields[1][2], L"f12");
-
-	ut_check_wchar_str(table.fields[2][0], L"f20");
-	ut_check_wchar_str(table.fields[2][1], L"f21");
-	ut_check_wchar_str(table.fields[2][2], L"f22");
-
-	ut_check_wchar_str(table.fields[3][0], L"f30->,d30");
-	ut_check_wchar_str(table.fields[3][1], L"f31");
-	ut_check_wchar_str(table.fields[3][2], L"f32->\nd32");
-
-	ut_check_wchar_str(table.fields[4][0], L"");
-	ut_check_wchar_str(table.fields[4][1], L"end");
-	ut_check_wchar_str(table.fields[4][2], L"");
-
-	//
-	// check the meta data
-	//
-	ut_check_int(table.width[0], 9, "col width: 0");
-	ut_check_int(table.width[1], 6, "col width: 1");
-	ut_check_int(table.width[2], 5, "col width: 2");
-
-	ut_check_int(table.height[0], 1, "row_height: 0");
-	ut_check_int(table.height[1], 2, "row_height: 1");
-	ut_check_int(table.height[2], 1, "row_height: 2");
-	ut_check_int(table.height[3], 2, "row_height: 3");
-	ut_check_int(table.height[4], 1, "row_height: 4");
-
-	s_table_free(&table);
-
-	print_debug_str("test_parser() End\n");
-}
-
-/***************************************************************************
- * The function reads and parses a csv file that contains: ",\n,"
- **************************************************************************/
-
-static void test_parser_empty() {
-	s_table table;
-
-	print_debug_str("test_parser_empty() Start\n");
-
-	parser_process_file("res/empty.csv", W_DELIM, &table);
-
-	//
-	// check all fields "by hand"
-	//
-	ut_check_wchar_str(table.fields[0][0], L"");
-	ut_check_wchar_str(table.fields[0][1], L"");
-
-	ut_check_wchar_str(table.fields[1][0], L"");
-	ut_check_wchar_str(table.fields[1][1], L"");
-
-	//
-	// check the meta data
-	//
-	ut_check_int(table.width[0], 1, "col empty: 0");
-	ut_check_int(table.width[1], 1, "col empty: 1");
-
-	ut_check_int(table.height[0], 1, "row empty: 0");
-	ut_check_int(table.height[1], 1, "row empty: 1");
-
-	s_table_free(&table);
-
-	print_debug_str("test_parser_empty() End\n");
-}
-
-/***************************************************************************
- * The function checks the dimensions of a field. An empty field has width 0
- * and height 1. The minimum width of a column is 1 to ensure that the
- * cursor field can be displayed.
- **************************************************************************/
-
-static void test_table_field_dimension() {
-	int row_size;
-	int col_size;
-
-	print_debug_str("s_table_field_dimension_new() Start\n");
-
-	//
-	// Test: Empty field
-	//
-	s_table_field_dimension(L"", &col_size, &row_size);
-	ut_check_size(col_size, 0, "col: Empty field");
-	ut_check_size(row_size, 1, "row: Empty field");
-
-	//
-	// Test: Two empty lines
-	//
-	s_table_field_dimension(L"\n", &col_size, &row_size);
-	ut_check_size(col_size, 0, "col: Two empty lines");
-	ut_check_size(row_size, 2, "row: Two empty lines");
-
-	//
-	// Test: Simple string
-	//
-	s_table_field_dimension(L"привет", &col_size, &row_size);
-	ut_check_size(col_size, wcslen(L"привет"), "col: Simple string");
-	ut_check_size(row_size, 1, "row: Simple string");
-
-	//
-	// Test: Multi lines
-	//
-	s_table_field_dimension(L"привет\nпривет привет\nпривет", &col_size, &row_size);
-	ut_check_size(col_size, wcslen(L"привет привет"), "col: Multi lines");
-	ut_check_size(row_size, 3, "row: Multi lines");
-
-	print_debug_str("s_table_field_dimension() End\n");
 }
 
 /***************************************************************************
@@ -439,15 +255,9 @@ static void test_get_field_line() {
 
 int main() {
 
-	print_debug_str("main() Start\n");
+	print_debug_str("ut_curses.c - Start tests\n");
 
 	setlocale(LC_ALL, "");
-
-	test_parser();
-
-	test_parser_empty();
-
-	test_table_field_dimension();
 
 	test_table_part_update();
 
@@ -455,7 +265,7 @@ int main() {
 
 	test_get_field_line();
 
-	print_debug_str("main() End\n");
+	print_debug_str("ut_curses.c - End tests\n");
 
 	return EXIT_SUCCESS;
 }
