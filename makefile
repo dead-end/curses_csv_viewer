@@ -5,6 +5,7 @@
 INC_DIR = inc
 SRC_DIR = src
 OBJ_DIR = obj
+TST_DIR = tests
 
 ############################################################################
 # Definition of the compiler and its flags.
@@ -43,9 +44,11 @@ OBJ_MAIN = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_MAIN)))
 # TEST
 ############################################################################
 
-TEST     = ncv_test
+SRC_TEST += $(SRC_DIR)/ut_curses.c 
+SRC_TEST += $(SRC_DIR)/ut_parser.c 
+SRC_TEST += $(SRC_DIR)/ut_table.c
 
-SRC_TEST = $(SRC_DIR)/ncv_test.c
+TEST     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
 
 OBJ_TEST = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_TEST)))
 
@@ -60,12 +63,15 @@ $(EXEC): $(OBJ_LIBS) $(OBJ_MAIN)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS)
 
 $(TEST): $(OBJ_LIBS) $(OBJ_TEST)
-	gcc -o $@ $^ $(CFLAGS) $(LIBS)
+	gcc -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS)
 
-all: $(EXEC) $(TEST)
-	@echo SRC: $(SRC_LIBS)
-	@echo OBJ: $(OBJ_LIBS)
-	@echo INC: $(INC_LIBS)
+
+unit_test: $(TEST)
+	for ut_test in $(TEST) ; do \
+		./$$ut_test ; \
+    done
+
+all: $(EXEC) unit_test
 	
 ############################################################################
 # Definition of the cleanup and run task.
@@ -80,5 +86,5 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
 	rm -f $(INC_DIR)/*.h~
+	rm -f $(TST_DIR)/ut_*
 	rm -f $(EXEC)
-	rm -f $(TEST)
