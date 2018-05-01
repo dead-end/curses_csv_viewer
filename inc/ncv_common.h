@@ -6,7 +6,7 @@
 #define INCLUDE_COMMON_H_
 
 //
-// common includes
+// Common includes
 //
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,7 +16,7 @@
 #include <string.h>
 
 //
-// definition of the print_debug macro.
+// Definition of the print_debug macro. It uses stdout not to restain curses.
 //
 #ifdef DEBUG
 #define DEBUG_OUT stderr
@@ -28,7 +28,7 @@
 #endif
 
 //
-// definition of the print_error macro
+// Definition of the print_error macro
 //
 #define print_exit(fmt, ...) fprintf(stderr, "FATAL - " fmt, ##__VA_ARGS__); exit(EXIT_FAILURE)
 #define print_exit_str(fmt)  fprintf(stderr, "FATAL - " fmt); exit(EXIT_FAILURE)
@@ -36,7 +36,7 @@
 #define MAX_LINE 1024
 
 //
-// some wchar characters
+// Some wchar character constants.
 //
 #define W_NEW_LINE L'\n'
 #define W_STR_TERM L'\0'
@@ -45,15 +45,26 @@
 #define W_DELIM    L','
 
 //
-// a boolean type that can be undefined
+// A boolean type that can be undefined.
 //
 enum bool_defined {
 	BOOL_TRUE, BOOL_FLASE, BOOL_UNDEF
 };
 
 //
-// unrelated utility functions
+// Unrelated utility functions.
 //
 void *xmalloc(const size_t size);
+
+//
+// Functions that can be used for unit tests.
+//
+void ut_check_int(const int current, const int expected, const char *msg);
+
+void ut_check_size(const size_t current, const size_t expected, const char *msg);
+
+void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2);
+
+void ut_check_wchar_null(const wchar_t *str);
 
 #endif /* INCLUDE_COMMON_H_ */
