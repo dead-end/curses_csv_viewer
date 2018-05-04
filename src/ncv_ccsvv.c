@@ -59,6 +59,7 @@ static void print_usage(const bool has_error, const char* msg) {
 int main(const int argc, char * const argv[]) {
 	int c;
 	char *filename = NULL;
+	wchar_t delimiter = W_DELIM;
 
 	s_table table;
 
@@ -67,12 +68,35 @@ int main(const int argc, char * const argv[]) {
 	//
 	// parse the command line options
 	//
-	while ((c = getopt(argc, argv, "f:")) != -1) {
+	while ((c = getopt(argc, argv, "f:d:")) != -1) {
 		switch (c) {
 
 		case 'f':
 			filename = optarg;
 			print_debug("Found filename: %s\n", filename);
+			break;
+
+		case 'd':
+
+			//
+			// ensure that the delimiter consists of one character
+			//
+			if (strlen(optarg) != 1) {
+				print_usage(true, "Only a one character delimiter is allowed!");
+			}
+
+			//
+			// Convert the char to a wide char
+			//
+			if (mbtowc(NULL, NULL, 0) < 0) {
+				print_usage(true, "Unable to initialize the conversion to wide chars!");
+			}
+
+			if (mbtowc(&delimiter, optarg, MB_CUR_MAX) < 0) {
+				print_usage(true, "Unable to convert the delimiter to a wide char!");
+			}
+
+			print_debug("Delimiter: %lc\n", delimiter);
 			break;
 
 		default:
@@ -95,7 +119,7 @@ int main(const int argc, char * const argv[]) {
 	//
 	// start processing the csv file
 	//
-	parser_process_file(filename, W_DELIM, &table);
+	parser_process_file(filename, delimiter, &table);
 
 #ifdef DEBUG
 	s_table_dump(&table);
