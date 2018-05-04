@@ -10,16 +10,17 @@
 #include "ncv_curses.h"
 
 /***************************************************************************
- * The function checks the dimensions of a field. An empty field has width 0
- * and height 1. The minimum width of a column is 1 to ensure that the
- * cursor field can be displayed.
+ * The test checks the s_table_field_dimension function, which computes the
+ * width and height of a field. An empty field has width 0 and height 1. The
+ * minimum width of a column is 1 to ensure that the cursor field can be
+ * displayed.
  **************************************************************************/
 
 static void test_table_field_dimension() {
 	int row_size;
 	int col_size;
 
-	print_debug_str("s_table_field_dimension_new() Start\n");
+	print_debug_str("s_table_field_dimension() Start\n");
 
 	//
 	// Test: Empty field
