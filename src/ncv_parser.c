@@ -84,26 +84,27 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_end) {
 
 	//
-	// count the columns in the first row
+	// Count the columns in the first row.
 	//
 	if (csv_parser->do_count && csv_parser->current_row == 0) {
 		csv_parser->no_columns++;
 	}
 
 	//
-	// the function is called every time a field ends, so we update the current column number
+	// The function is called every time a field ends, so we update the
+	// current column number.
 	//
 	csv_parser->current_column++;
 
 	if (is_row_end) {
 
 		//
-		// if the row ends we update the current row
+		// If the row ends we update the current row.
 		//
 		csv_parser->current_row++;
 
 		//
-		// compare the column number of the first row with that of the current
+		// Compare the column number of the first row with that of the current.
 		//
 		if (csv_parser->current_row > 1) {
 
@@ -113,7 +114,7 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 		}
 
 		//
-		// reset the column number for the next row
+		// Reset the column number for the next row.
 		//
 		csv_parser->current_column = 0;
 	}
@@ -127,34 +128,34 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, s_table *table) {
 
 	//
-	// if we do not count, we copy
+	// If we do not count, we copy.
 	//
 	if (!csv_parser->do_count) {
 
 		//
-		// add the terminating \0 to the field
+		// Add the terminating \0 to the field.
 		//
 		*csv_parser->ptr_field = W_STR_TERM;
 
 		//
-		// copy the field data to the table
+		// Copy the field data to the table.
 		//
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, csv_parser->field);
 
 		//
-		// reset the field pointer for the next field
+		// Reset the field pointer for the next field.
 		//
 		csv_parser->ptr_field = csv_parser->field;
 	}
 
 	//
-	// reset the line pointer
+	// Reset the line pointer.
 	//
 	csv_parser->ptr_line++;
 	csv_parser->is_escaped = BOOL_UNDEF;
 
 	//
-	// update the column and row counters
+	// Update the column and row counters.
 	//
 	count_columns_and_rows(csv_parser, is_row_end);
 }
@@ -167,7 +168,7 @@ static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, 
 static void copy_field_char(s_csv_parser *csv_parser) {
 
 	//
-	// if we count fields and records copying is unnecessary
+	// If we count fields and records copying is unnecessary.
 	//
 	if (!csv_parser->do_count) {
 		*csv_parser->ptr_field = *csv_parser->ptr_line;
@@ -188,21 +189,22 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 	while (true) {
 
 		//
-		// process csv file line by line
+		// Process csv file line by line.
 		//
 		if ((csv_parser->ptr_line = fgetws(csv_parser->line, MAX_LINE, file)) == NULL) {
+			print_debug_str("parse_csv_file() No more lines available!\n");
 			break;
 		}
 
 		print_debug("parse_csv_file() line: '%ls'\n", csv_parser->line);
 
 		//
-		// process the current line char by char
+		// Process the current line char by char.
 		//
 		while (true) {
 
 			//
-			// if the escape flag is undefined, determine the value
+			// If the escape flag is undefined, determine its value.
 			//
 			if (csv_parser->is_escaped == BOOL_UNDEF) {
 				if (*csv_parser->ptr_line == W_QUOTE) {
@@ -216,7 +218,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			}
 
 			//
-			// ignore windows stuff
+			// Ignore windows stuff.
 			//
 			if (*csv_parser->ptr_line == W_CR) {
 				csv_parser->ptr_line++;
@@ -229,14 +231,14 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			if (csv_parser->is_escaped == BOOL_FLASE) {
 
 				//
-				// found delimiter
+				// Found: delimiter
 				//
 				if (*csv_parser->ptr_line == delim) {
 					process_column_end(csv_parser, false, table);
 					continue;
 
 					//
-					// found new line or string terminator
+					// Found: new line or string terminator
 					//
 				} else if (*csv_parser->ptr_line == W_NEW_LINE || *csv_parser->ptr_line == W_STR_TERM) {
 					process_column_end(csv_parser, true, table);
@@ -252,29 +254,29 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 					csv_parser->ptr_line++;
 
 					//
-					// found quote followed by delimiter
+					// Found: quote followed by delimiter
 					//
 					if (*csv_parser->ptr_line == delim) {
 						process_column_end(csv_parser, false, table);
 						continue;
 
 						//
-						// found quote followed by new line or string terminator
+						// Found quote followed by new line or string terminator.
 						//
 					} else if (*csv_parser->ptr_line == W_NEW_LINE || *csv_parser->ptr_line == W_STR_TERM) {
 						process_column_end(csv_parser, true, table);
 						break;
 
 						//
-						// found quote followed by char which is not quote,
-						// delimiter, new line or string terminator
+						// Found quote followed by char which is not quote,
+						// delimiter, new line or string terminator.
 						//
 					} else if (*csv_parser->ptr_line != W_QUOTE) {
 						print_exit("parse_csv_file() Invalid line: %ls\n", csv_parser->line);
 					}
 
 					//
-					// found new line inside quote, so we have a multi line field
+					// Found new line inside quote, so we have a multi line field.
 					//
 				} else if (*csv_parser->ptr_line == W_NEW_LINE) {
 					copy_field_char(csv_parser);
@@ -283,7 +285,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			}
 
 			//
-			// copy the parsing char to the field
+			// Copy the parsing char to the field
 			//
 			copy_field_char(csv_parser);
 		}
@@ -303,7 +305,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 void parser_process_file(const char *filename, const wchar_t delim, s_table *table) {
 
 	//
-	// open the csv file
+	// Open the csv file.
 	//
 	print_debug("parser_process_file() Reading file: %s\n", filename);
 
@@ -313,7 +315,7 @@ void parser_process_file(const char *filename, const wchar_t delim, s_table *tab
 	}
 
 	//
-	// parse the csv file to get the number of columns and rows
+	// Parse the csv file to get the number of columns and rows.
 	//
 	s_csv_parser csv_parser;
 	s_csv_parser_init(&csv_parser, true);
@@ -322,19 +324,26 @@ void parser_process_file(const char *filename, const wchar_t delim, s_table *tab
 	print_debug("parser_process_file() No rows: %d no columns: %d\n", csv_parser.current_row, csv_parser.no_columns);
 
 	//
-	// rewind the file
+	// If the file is empty, there is nothing to do.
+	//
+	if (csv_parser.current_row == 0 && csv_parser.no_columns == 0) {
+		print_exit("parser_process_file() File is empty: %s\n", filename);
+	}
+
+	//
+	// Rewind the file.
 	//
 	if (fseek(file, 0L, SEEK_SET) == -1) {
 		print_exit("parser_process_file() Unable to rewind file %s due to: %s\n", filename, strerror(errno));
 	}
 
 	//
-	// allocate memory for the number of rows and columns
+	// Allocate memory for the number of rows and columns.
 	//
 	s_table_init(table, csv_parser.current_row, csv_parser.no_columns);
 
 	//
-	// parse the csv file again to copy the fields to the table structure
+	// Parse the csv file again to copy the fields to the table structure.
 	//
 	s_csv_parser_init(&csv_parser, false);
 	parse_csv_file(file, delim, &csv_parser, table);

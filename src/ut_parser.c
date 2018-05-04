@@ -22,7 +22,7 @@ static void test_parser() {
 	parser_process_file("res/test1.csv", W_DELIM, &table);
 
 	//
-	// check all fields "by hand"
+	// Check all fields "by hand"
 	//
 	ut_check_wchar_str(table.fields[0][0], L"f00");
 	ut_check_wchar_str(table.fields[0][1], L"f01");
@@ -45,7 +45,7 @@ static void test_parser() {
 	ut_check_wchar_str(table.fields[4][2], L"");
 
 	//
-	// check the meta data
+	// Check the meta data
 	//
 	ut_check_int(table.width[0], 9, "col width: 0");
 	ut_check_int(table.width[1], 6, "col width: 1");
@@ -74,7 +74,7 @@ static void test_parser_empty() {
 	parser_process_file("res/empty.csv", W_DELIM, &table);
 
 	//
-	// check all fields "by hand"
+	// Check all fields "by hand"
 	//
 	ut_check_wchar_str(table.fields[0][0], L"");
 	ut_check_wchar_str(table.fields[0][1], L"");
@@ -83,7 +83,7 @@ static void test_parser_empty() {
 	ut_check_wchar_str(table.fields[1][1], L"");
 
 	//
-	// check the meta data
+	// Check the meta data
 	//
 	ut_check_int(table.width[0], 1, "col empty: 0");
 	ut_check_int(table.width[1], 1, "col empty: 1");
