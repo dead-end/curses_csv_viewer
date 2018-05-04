@@ -67,7 +67,7 @@ $(TEST): $(OBJ_LIBS) $(OBJ_TEST)
 
 unit_test: $(TEST)
 	for ut_test in $(TEST) ; do \
-		./$$ut_test ; \
+		./$$ut_test || exit 1 ; \
     done
 
 all: $(EXEC) unit_test
