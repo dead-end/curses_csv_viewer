@@ -31,6 +31,7 @@ typedef struct s_table_part {
 	//
 	// the index of the row / column that is truncated. The value is equal to
 	// start or end
+	// TODO: -1
 	//
 	int truncated;
 
@@ -38,6 +39,8 @@ typedef struct s_table_part {
 	// the size of the truncated row / column
 	//
 	int size;
+
+	int direction;
 
 } s_table_part;
 
@@ -95,10 +98,6 @@ typedef struct s_start_dir {
 //
 // functions that are used throughout the program
 //
-
-void curses_init();
-
-void curses_finish();
 
 void curses_loop(const s_table *table);
 
