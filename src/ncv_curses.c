@@ -9,52 +9,6 @@
 #include "ncv_curses.h"
 
 /***************************************************************************
- * The function initializes the ncurses.
- **************************************************************************/
-
-void curses_init() {
-
-	if (initscr() == NULL) {
-		print_exit_str("curses_init() Unable to init screen!\n");
-	}
-
-	//
-	// Allow KEY_RESIZE to be read on SIGWINCH
-	//
-	keypad(stdscr, TRUE);
-
-	if (has_colors()) {
-
-		if (start_color() != OK) {
-			print_exit_str("curses_init() Unable to init colors!\n");
-		}
-
-		if (init_pair(1, COLOR_WHITE, COLOR_BLUE) != OK) {
-			print_exit_str("curses_init() Unable to init color pair!\n");
-		}
-
-		if (bkgd(COLOR_PAIR(1)) != OK) {
-			print_exit_str("curses_init() Unable to set background color pair!\n");
-		}
-	}
-
-	// scrollok(stdscr, FALSE);
-
-	//
-	// Switch off cursor by default
-	//
-	curs_set(0);
-}
-
-/***************************************************************************
- * A cleanup function for the ncurses stuff.
- **************************************************************************/
-
-void curses_finish() {
-	endwin();
-}
-
-/***************************************************************************
  * The method updates one of the two field part structures for a given
  * field. The index of the field can be a row or a column index. The given
  * size can be a row height or a column width.
@@ -62,6 +16,10 @@ void curses_finish() {
 
 void s_field_part_update(const s_table_part *table_part, const int index, const int size, s_field_part *field_part) {
 
+	//
+	// The value of truncated is -1 if no row / column is truncated, so the
+	// table fits in the window.
+	//
 	if (index == table_part->truncated) {
 
 		//
@@ -82,7 +40,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 	} else {
 
 		//
-		// if the field is not truncated, the size is row height or the
+		// If the field is not truncated, the size is row height or the
 		// column width
 		//
 		field_part->start = 0;
@@ -111,6 +69,7 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	table_part->start = index_start;
 	table_part->truncated = -1;
 	table_part->size = 0;
+	table_part->direction = direction;
 
 	for (table_part->end = index_start; 0 <= table_part->end && table_part->end < num; table_part->end += direction) {
 
@@ -156,8 +115,12 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 		table_part->end = tmp;
 	}
 
-	print_debug("s_table_part_update() start: %d end: %d truncated: %d size: %d\n", table_part->start, table_part->end, table_part->truncated, table_part->size);
+
+
+	print_debug("s_table_part_update() start: %d end: %d truncated: %d size: %d dir: %d\n", table_part->start, table_part->end, table_part->truncated, table_part->size, table_part->direction);
 }
+
+
 
 /***************************************************************************
  * The function is repeatedly called with a pointer to a field string and
@@ -394,7 +357,78 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 	refresh();
 }
 
-#define update(sd, s, d) sd.start = s; sd.dir = d
+/***************************************************************************
+ * The function reverses the direction of a table part in certain
+ * situations.
+ **************************************************************************/
+
+bool adjust_dir_on_resize(s_table_part *table_part, const int last) {
+
+	//
+	// If a row / column is truncated everything is ok
+	//
+	if (table_part->truncated != -1) {
+		return false;
+	}
+
+	if (table_part->start == 0 && table_part->end != last && table_part->direction == DIR_BACKWARD) {
+		table_part->direction = DIR_FORWARD;
+		return true;
+	}
+
+	if (table_part->start != 0 && table_part->end == last && table_part->direction == DIR_FORWARD) {
+		table_part->direction = DIR_BACKWARD;
+		return true;
+	}
+
+	return false;
+}
+
+#define is_before_start(i,p) (i < (p)->start || (i == (p)->start && (p)->start == (p)->truncated))
+
+#define is_after_end(i,p) (i > (p)->end || (i == (p)->end && (p)->end == (p)->truncated))
+
+#define s_table_part_start(p) (p->direction == DIR_FORWARD ? p->start : p->end)
+
+/***************************************************************************
+ *
+ **************************************************************************/
+
+void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, int win_y, int win_x, s_field *cursor) {
+
+	//
+	// update the visible part of the table
+	//
+
+	s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, win_y);
+	s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, win_x);
+
+	//
+	// Adjust rows
+	//
+	if (adjust_dir_on_resize(row_table_part, table->no_rows - 1)) {
+		s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, win_y);
+
+	} else if (is_before_start(cursor->row, row_table_part)) {
+		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, win_y);
+
+	} else if (is_after_end(cursor->row, row_table_part)) {
+		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, win_y);
+	}
+
+	//
+	// Adjust columns
+	//
+	if (adjust_dir_on_resize(col_table_part, table->no_columns - 1)) {
+		s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, win_x);
+
+	} else if (is_before_start(cursor->col, col_table_part)) {
+		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, win_x);
+
+	} else if (is_after_end(cursor->col, col_table_part)) {
+		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, win_x);
+	}
+}
 
 /***************************************************************************
  *
@@ -411,31 +445,19 @@ void curses_loop(const s_table *table) {
 	s_field cursor;
 	cursor.row = 0;
 	cursor.col = 0;
-	bool updated = true;
-
-	s_start_dir col_start_dir;
-	col_start_dir.start = 0;
-	update(col_start_dir, 0, DIR_FORWARD);
-
-	s_start_dir row_start_dir;
-	update(row_start_dir, 0, DIR_FORWARD);
 
 	getmaxyx(stdscr, win_y, win_x);
 
 	print_debug_str("curses_loop() start\n");
 
+	s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_y);
+	s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_x);
+
 	while (true) {
 
-		if (updated) {
-			updated = false;
-
-			//
-			// update the visible part of the table
-			//
-			s_table_part_update(&row_table_part, table->height, row_start_dir.start, table->no_rows, row_start_dir.dir, win_y);
-			s_table_part_update(&col_table_part, table->width, col_start_dir.start, table->no_columns, col_start_dir.dir, win_x);
-		}
-
+		//
+		//
+		// TODO: print only if necessary (example: input sdfsd)
 		erase();
 		print_table(table, &row_table_part, &col_table_part, &cursor);
 
@@ -447,48 +469,40 @@ void curses_loop(const s_table *table) {
 		} else if (keyInput == 'q' || keyInput == 'Q') {
 			break;
 
-		} else if (keyInput == KEY_LEFT) {
-			if (cursor.col - 1 >= 0) {
-				cursor.col--;
-
-				if (cursor.col <= col_table_part.start) {
-					update(col_start_dir, cursor.col, DIR_FORWARD);
-				}
-
-				updated = true;
-			}
-
-		} else if (keyInput == KEY_RIGHT) {
-			if (cursor.col + 1 < table->no_columns) {
-				cursor.col++;
-
-				if (cursor.col >= col_table_part.end) {
-					update(col_start_dir, cursor.col, DIR_BACKWARD);
-				}
-
-				updated = true;
-			}
-
 		} else if (keyInput == KEY_UP) {
 			if (cursor.row - 1 >= 0) {
 				cursor.row--;
 
-				if (cursor.row <= row_table_part.start) {
-					update(row_start_dir, cursor.row, DIR_FORWARD);
+				if (is_before_start(cursor.row, &row_table_part)) {
+					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_y);
 				}
-
-				updated = true;
 			}
 
 		} else if (keyInput == KEY_DOWN) {
 			if (cursor.row + 1 < table->no_rows) {
 				cursor.row++;
 
-				if (cursor.row >= row_table_part.end) {
-					update(row_start_dir, cursor.row, DIR_BACKWARD);
+				if (is_after_end(cursor.row, &row_table_part)) {
+					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_BACKWARD, win_y);
 				}
+			}
 
-				updated = true;
+		} else if (keyInput == KEY_LEFT) {
+			if (cursor.col - 1 >= 0) {
+				cursor.col--;
+
+				if (is_before_start(cursor.col, &col_table_part)) {
+					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_x);
+				}
+			}
+
+		} else if (keyInput == KEY_RIGHT) {
+			if (cursor.col + 1 < table->no_columns) {
+				cursor.col++;
+
+				if (is_after_end(cursor.col, &col_table_part)) {
+					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_BACKWARD, win_x);
+				}
 			}
 
 		} else if (keyInput == KEY_RESIZE) {
@@ -498,7 +512,8 @@ void curses_loop(const s_table *table) {
 			//
 			getmaxyx(stdscr, win_y, win_x);
 			print_debug("curses_loop() new win size y: %d x: %d\n", win_y, win_x);
-			updated = true;
+
+			do_resize(table, &row_table_part, &col_table_part, win_y, win_x, &cursor);
 		}
 	}
 
