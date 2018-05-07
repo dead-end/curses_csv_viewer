@@ -17,8 +17,8 @@
 void s_field_part_update(const s_table_part *table_part, const int index, const int size, s_field_part *field_part) {
 
 	//
-	// The value of truncated is -1 if no row / column is truncated, so the
-	// table fits in the window.
+	// If the value of the struct member truncated is -1, the row / column
+	// is not truncated and the table fits in the window.
 	//
 	if (index == table_part->truncated) {
 
@@ -26,7 +26,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 		// We have to distinguish whether the first or the last row / column
 		// is truncated.
 		//
-		if (table_part->truncated == table_part->start) {
+		if (table_part->truncated == table_part->first) {
 			field_part->start = size - table_part->size;
 		} else {
 			field_part->start = 0;
@@ -66,17 +66,17 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	int precursor = 1;
 	int sum;
 
-	table_part->start = index_start;
+	table_part->first = index_start;
 	table_part->truncated = -1;
 	table_part->size = 0;
 	table_part->direction = direction;
 
-	for (table_part->end = index_start; 0 <= table_part->end && table_part->end < num; table_part->end += direction) {
+	for (table_part->last = index_start; 0 <= table_part->last && table_part->last < num; table_part->last += direction) {
 
 		//
 		// Sum up widths / heights with their borders.
 		//
-		sum = precursor + sizes[table_part->end] + 1;
+		sum = precursor + sizes[table_part->last] + 1;
 
 		//
 		// If sum of width / heights is the window size we are finished.
@@ -89,7 +89,7 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 			// the end has to be truncated.
 			//
 		} else if (sum > win_size) {
-			table_part->truncated = table_part->end;
+			table_part->truncated = table_part->last;
 			table_part->size = win_size - precursor - 1;
 			break;
 
@@ -102,25 +102,23 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	// If the end member is not inside the boundaries, the window is larger
 	// than necessary.
 	//
-	if (table_part->end < 0 || table_part->end >= num) {
-		table_part->end -= direction;
+	if (table_part->last < 0 || table_part->last >= num) {
+		table_part->last -= direction;
 	}
 
 	//
-	// If the direction is backwards swap the start and end.
+	// If the direction is backwards swap the first and the last.
 	//
 	if (direction == DIR_BACKWARD) {
-		const int tmp = table_part->start;
-		table_part->start = table_part->end;
-		table_part->end = tmp;
+		const int tmp = table_part->first;
+		table_part->first = table_part->last;
+		table_part->last = tmp;
 	}
 
 
 
-	print_debug("s_table_part_update() start: %d end: %d truncated: %d size: %d dir: %d\n", table_part->start, table_part->end, table_part->truncated, table_part->size, table_part->direction);
+	print_debug("s_table_part_update() first: %d last: %d truncated: %d size: %d dir: %d\n", table_part->first, table_part->last, table_part->truncated, table_part->size, table_part->direction);
 }
-
-
 
 /***************************************************************************
  * The function is repeatedly called with a pointer to a field string and
@@ -204,7 +202,7 @@ wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *c
  * The function prints the content of a field. The field may be truncated.
  **************************************************************************/
 
-void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col) {
+static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col) {
 
 	print_debug("print_field() win row: %d win col: %d field: '%ls'\n", win_row, win_col, ptr);
 
@@ -240,7 +238,7 @@ void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_f
 }
 
 /***************************************************************************
- * The function adds 'size' space chars as a padding to the current
+ * The macro adds 'size' space chars as a padding to the current
  * position.
  **************************************************************************/
 
@@ -253,9 +251,9 @@ void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_f
 static void print_horizontal_border(const s_table *table, const s_table_part *col_table_part, const chtype left, const chtype middle, const chtype right) {
 	s_field_part col_field_part;
 
-	for (int col = col_table_part->start; col <= col_table_part->end; col++) {
+	for (int col = col_table_part->first; col <= col_table_part->last; col++) {
 
-		if (col == col_table_part->start) {
+		if (col == col_table_part->first) {
 			addch(left);
 		} else {
 			addch(middle);
@@ -283,12 +281,12 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 
 	bool is_cursor;
 
-	for (int table_row = row_table_part->start; table_row <= row_table_part->end; table_row++) {
+	for (int table_row = row_table_part->first; table_row <= row_table_part->last; table_row++) {
 
 		win_col = 1;
 		s_field_part_update(row_table_part, table_row, table->height[table_row], &row_field_part);
 
-		for (int table_col = col_table_part->start; table_col <= col_table_part->end; table_col++) {
+		for (int table_col = col_table_part->first; table_col <= col_table_part->last; table_col++) {
 
 			s_field_part_update(col_table_part, table_col, table->width[table_col], &col_field_part);
 
@@ -331,7 +329,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 		//
 		// horizontal border for the first row
 		//
-		if (table_row == row_table_part->start) {
+		if (table_row == row_table_part->first) {
 			move(win_row - 1, 0);
 			print_horizontal_border(table, col_table_part, ACS_ULCORNER, ACS_TTEE, ACS_URCORNER);
 		}
@@ -340,7 +338,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 		// for every row a horizontal border
 		//
 		move(win_row + row_field_part.size, 0);
-		if (table_row == row_table_part->end) {
+		if (table_row == row_table_part->last) {
 			print_horizontal_border(table, col_table_part, ACS_LLCORNER, ACS_BTEE, ACS_LRCORNER);
 		} else {
 			print_horizontal_border(table, col_table_part, ACS_LTEE, ACS_PLUS, ACS_RTEE);
@@ -362,7 +360,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
  * situations.
  **************************************************************************/
 
-bool adjust_dir_on_resize(s_table_part *table_part, const int last) {
+static bool adjust_dir_on_resize(s_table_part *table_part, const int last) {
 
 	//
 	// If a row / column is truncated everything is ok
@@ -371,12 +369,18 @@ bool adjust_dir_on_resize(s_table_part *table_part, const int last) {
 		return false;
 	}
 
-	if (table_part->start == 0 && table_part->end != last && table_part->direction == DIR_BACKWARD) {
+	//
+	// On enlarging of the window the fist table row / column has completely appeared.
+	//
+	if (table_part->first == 0 && table_part->last != last && table_part->direction == DIR_BACKWARD) {
 		table_part->direction = DIR_FORWARD;
 		return true;
 	}
 
-	if (table_part->start != 0 && table_part->end == last && table_part->direction == DIR_FORWARD) {
+	//
+	// On enlarging of the window the last table row / column has completely appeared.
+	//
+	if (table_part->first != 0 && table_part->last == last && table_part->direction == DIR_FORWARD) {
 		table_part->direction = DIR_BACKWARD;
 		return true;
 	}
@@ -384,11 +388,11 @@ bool adjust_dir_on_resize(s_table_part *table_part, const int last) {
 	return false;
 }
 
-#define is_before_start(i,p) (i < (p)->start || (i == (p)->start && (p)->start == (p)->truncated))
+#define is_index_before_first(i,p) (i < (p)->first || (i == (p)->first && (p)->first == (p)->truncated))
 
-#define is_after_end(i,p) (i > (p)->end || (i == (p)->end && (p)->end == (p)->truncated))
+#define is_index_after_last(i,p) (i > (p)->last || (i == (p)->last && (p)->last == (p)->truncated))
 
-#define s_table_part_start(p) (p->direction == DIR_FORWARD ? p->start : p->end)
+#define s_table_part_start(p) (p->direction == DIR_FORWARD ? p->first : p->last)
 
 /***************************************************************************
  *
@@ -409,10 +413,10 @@ void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part 
 	if (adjust_dir_on_resize(row_table_part, table->no_rows - 1)) {
 		s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, win_y);
 
-	} else if (is_before_start(cursor->row, row_table_part)) {
+	} else if (is_index_before_first(cursor->row, row_table_part)) {
 		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, win_y);
 
-	} else if (is_after_end(cursor->row, row_table_part)) {
+	} else if (is_index_after_last(cursor->row, row_table_part)) {
 		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, win_y);
 	}
 
@@ -422,10 +426,10 @@ void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part 
 	if (adjust_dir_on_resize(col_table_part, table->no_columns - 1)) {
 		s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, win_x);
 
-	} else if (is_before_start(cursor->col, col_table_part)) {
+	} else if (is_index_before_first(cursor->col, col_table_part)) {
 		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, win_x);
 
-	} else if (is_after_end(cursor->col, col_table_part)) {
+	} else if (is_index_after_last(cursor->col, col_table_part)) {
 		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, win_x);
 	}
 }
@@ -473,7 +477,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.row - 1 >= 0) {
 				cursor.row--;
 
-				if (is_before_start(cursor.row, &row_table_part)) {
+				if (is_index_before_first(cursor.row, &row_table_part)) {
 					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_y);
 				}
 			}
@@ -482,7 +486,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.row + 1 < table->no_rows) {
 				cursor.row++;
 
-				if (is_after_end(cursor.row, &row_table_part)) {
+				if (is_index_after_last(cursor.row, &row_table_part)) {
 					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_BACKWARD, win_y);
 				}
 			}
@@ -491,7 +495,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.col - 1 >= 0) {
 				cursor.col--;
 
-				if (is_before_start(cursor.col, &col_table_part)) {
+				if (is_index_before_first(cursor.col, &col_table_part)) {
 					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_x);
 				}
 			}
@@ -500,7 +504,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.col + 1 < table->no_columns) {
 				cursor.col++;
 
-				if (is_after_end(cursor.col, &col_table_part)) {
+				if (is_index_after_last(cursor.col, &col_table_part)) {
 					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_BACKWARD, win_x);
 				}
 			}

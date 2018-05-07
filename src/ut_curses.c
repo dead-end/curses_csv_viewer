@@ -14,13 +14,13 @@
  * values.
  **************************************************************************/
 
-static void check_table_part(const s_table_part *table_part, const int start, const int end, const int truncated, const int size, const char *msg) {
+static void check_table_part(const s_table_part *table_part, const int first, const int last, const int truncated, const int size, const char *msg) {
 
 	print_debug("check_table_part() %s\n", msg);
 
-	ut_check_int(table_part->start, start, "s_table_part: start");
+	ut_check_int(table_part->first, first, "s_table_part: first");
 
-	ut_check_int(table_part->end, end, "s_table_part: end");
+	ut_check_int(table_part->last, last, "s_table_part: last");
 
 	ut_check_int(table_part->truncated, truncated, "s_table_part: truncated");
 
@@ -127,34 +127,34 @@ static void test_field_part_update() {
 	//
 	// truncated right
 	//
-	table_part.start = 0;
-	table_part.end = 2;
+	table_part.first = 0;
+	table_part.last = 2;
 	table_part.truncated = 2;
 	table_part.size = 2;
 
 	s_field_part_update(&table_part, 0, 4, &field_part);
-	ut_check_int(field_part.start, 0, "start");
-	ut_check_int(field_part.size, 4, "size");
+	ut_check_int(field_part.start, 0, "test 1 - start");
+	ut_check_int(field_part.size, 4, "test 2 - size");
 
 	s_field_part_update(&table_part, 2, 4, &field_part);
-	ut_check_int(field_part.start, 0, "start");
-	ut_check_int(field_part.size, 2, "size");
+	ut_check_int(field_part.start, 0, "test 3 - start");
+	ut_check_int(field_part.size, 2, "test 4 - size");
 
 	//
 	// truncated left
 	//
-	table_part.start = 0;
-	table_part.end = 2;
+	table_part.first = 0;
+	table_part.last = 2;
 	table_part.truncated = 0;
 	table_part.size = 2;
 
 	s_field_part_update(&table_part, 0, 4, &field_part);
-	ut_check_int(field_part.start, 2, "start");
-	ut_check_int(field_part.size, 2, "size");
+	ut_check_int(field_part.start, 2, "test 5 - start");
+	ut_check_int(field_part.size, 2, "test 6 - size");
 
 	s_field_part_update(&table_part, 2, 4, &field_part);
-	ut_check_int(field_part.start, 0, "start");
-	ut_check_int(field_part.size, 4, "size");
+	ut_check_int(field_part.start, 0, "test 7 - start");
+	ut_check_int(field_part.size, 4, "test 8 - size");
 
 	print_debug_str("test_table_part() End\n");
 }
@@ -162,7 +162,7 @@ static void test_field_part_update() {
 /***************************************************************************
  * The function checks the get_field_line function for a truncated field. It
  * is repeatedly called and returns a truncated and padded line of a fixed
- *  width.
+ * width.
  **************************************************************************/
 
 #define FIELD_SIZE 2
