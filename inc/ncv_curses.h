@@ -19,27 +19,32 @@
 typedef struct s_table_part {
 
 	//
-	// the index of the first row / column that is visible
+	// The index of the first row / column that is visible.
 	//
-	int start;
+	int first;
 
 	//
-	// the index of the last row / column that is visible
+	// The index of the last row / column that is visible.
 	//
-	int end;
+	int last;
 
 	//
-	// the index of the row / column that is truncated. The value is equal to
-	// start or end
-	// TODO: -1
+	// The index of the row / column that is truncated. The value is equal to
+	// start or end or -1 of none of them is truncated.
 	//
 	int truncated;
 
 	//
-	// the size of the truncated row / column
+	// The size of the truncated row / column. If truncated is -1 size is 0.
 	//
 	int size;
 
+	//
+	// One of the values first or last is given and the other value is
+	// computed with a direction. If first is given, direction is forward
+	// and last is computed. If last is give, the direction is backward
+	// and first is computed.
+	//
 	int direction;
 
 } s_table_part;
