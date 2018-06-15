@@ -8,7 +8,63 @@
 #include "ncv_table.h"
 #include "ncv_curses.h"
 
-//static const chtype UR_CORNER[4] = { ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS };
+/***************************************************************************
+ * The struc describes the 4 shapes of a corner. This can be a:
+ * - corner
+ * - top / bottom tee
+ * - left / right tee
+ * - plus.
+ **************************************************************************/
+
+typedef struct s_corner {
+	chtype corner;
+	chtype tb_tee;
+	chtype lr_tee;
+	chtype plus;
+
+	int row;
+	int col;
+} s_corner;
+
+static s_corner UL_CORNER;
+static s_corner UR_CORNER;
+static s_corner LR_CORNER;
+static s_corner LL_CORNER;
+
+/***************************************************************************
+ * The function and the macro are used to setup the corner definitions
+ **************************************************************************/
+
+#define s_corner_init(c,CO,TB,LR,PL,ROW,COL) c.corner = CO; c.tb_tee = TB; c.lr_tee = LR; c.plus = PL; c.row = ROW; c.col = COL
+
+static void s_corner_inits(const s_table *table) {
+
+	s_corner_init(UL_CORNER, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS, 0, 0);
+	s_corner_init(UR_CORNER, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS, 0, table->no_columns - 1);
+	s_corner_init(LL_CORNER, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS, table->no_rows - 1, 0);
+	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, table->no_rows - 1, table->no_columns - 1);
+}
+
+/***************************************************************************
+ *
+ **************************************************************************/
+
+static chtype getCorner(const int table_row, const int table_col, const s_corner *corner) {
+
+	if (table_row == corner->row) {
+		if (table_col == corner->col) {
+			return corner->corner;
+		} else {
+			return corner->tb_tee;
+		}
+	} else {
+		if (table_col == corner->col) {
+			return corner->lr_tee;
+		} else {
+			return corner->plus;
+		}
+	}
+}
 
 /***************************************************************************
  * The method updates the row /column field part for a given field.
@@ -383,7 +439,7 @@ void print_table_old(const s_table *table, const s_table_part *row_table_part, c
  */
 #define get_row_col_offset(p, i) (((p)->direction == DIR_FORWARD || ((p)->truncated == -1 && i == (p)->first)) ? 1 : 0)
 
-static chtype getCorner(const int table_row, const int row_cond, const int table_col, const int col_cond, const chtype yy, const chtype yn, const chtype ny, const chtype nn) {
+chtype getCorner_old(const int table_row, const int row_cond, const int table_col, const int col_cond, const chtype yy, const chtype yn, const chtype ny, const chtype nn) {
 
 	if (table_row == row_cond) {
 		if (table_col == col_cond) {
@@ -400,18 +456,30 @@ static chtype getCorner(const int table_row, const int row_cond, const int table
 	}
 }
 
-#define not_truncated_and_first(p, i) (p)->truncated == -1 && i == (p)->first
+
+
+//#define not_truncated_and_first(p, i) (p)->truncated == -1 && i == (p)->first
 
 #define not_truncated(p) (p)->truncated == -1
 
+#define is_truncated(p) (p)->truncated != -1
+
+#define table_row_start(t) 0
+#define table_row_end(t) ((t)->no_rows - 1)
+#define table_col_start(t) 0
+#define table_col_end(t) ((t)->no_columns - 1)
+
+
+#define is_table_row_end(t,r) ((t)->no_rows - 1 == (r))
+#define is_table_col_end(t,c) ((t)->no_columns - 1 == (c))
+
+#define is_table_row_start(r) (0 == (r))
+#define is_table_col_start(c) (0 == (c))
 
 static void print_table(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
 	int win_row = 0;
 	int win_col;
-
-//	int row_off;
-//	int col_off;
 
 	int win_row_off;
 	int win_col_off;
@@ -523,94 +591,119 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 				}
 			}
 
+//			//
+//			// corners
+//			//
+//			if (row_table_part->direction == DIR_FORWARD && col_table_part->direction == DIR_FORWARD) {
+//
+//				// 00
+//				corner = getCorner(table_row, 0, table_col, 0, &UL_CORNER);
+//				mvaddch(win_row, win_col, corner);
+//
+//				if (not_truncated(row_table_part) && table_row == row_table_part->last) {
+//					corner = getCorner(table_row, table->no_rows - 1, table_col, 0, &LL_CORNER);
+//					mvaddch(win_row_off + row_field_part.size, win_col, corner);
+//				}
+//
+//				if (not_truncated(col_table_part) && table_col == col_table_part->last) {
+//					corner = getCorner(table_row, 0, table_col, table->no_columns - 1, &UR_CORNER);
+//					mvaddch(win_row, win_col_off + col_field_part.size, corner);
+//				}
+//
+//				if (not_truncated(row_table_part) && table_row == row_table_part->last && not_truncated(col_table_part) && table_col == col_table_part->last) {
+//					corner = getCorner(table_row, table->no_rows - 1, table_col, table->no_columns - 1, &LR_CORNER);
+//					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
+//				}
+//			}
+
 			//
 			// corners
 			//
 			if (row_table_part->direction == DIR_FORWARD && col_table_part->direction == DIR_FORWARD) {
 
 				// 00
-				corner = getCorner(table_row, 0, table_col, 0, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS);
+				corner = getCorner(table_row, table_col, &UL_CORNER);
 				mvaddch(win_row, win_col, corner);
 
 				if (not_truncated(row_table_part) && table_row == row_table_part->last) {
-					corner = getCorner(table_row, table->no_rows - 1, table_col, 0, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &LL_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col, corner);
 				}
 
 				if (not_truncated(col_table_part) && table_col == col_table_part->last) {
-					corner = getCorner(table_row, 0, table_col, table->no_columns - 1, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &UR_CORNER);
 					mvaddch(win_row, win_col_off + col_field_part.size, corner);
 				}
 
 				if (not_truncated(row_table_part) && table_row == row_table_part->last && not_truncated(col_table_part) && table_col == col_table_part->last) {
-					corner = getCorner(table_row, table->no_rows - 1, table_col, table->no_columns - 1, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &LR_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
 			}
 
 			if (row_table_part->direction == DIR_FORWARD && col_table_part->direction == DIR_BACKWARD) {
 
-				corner = getCorner(table_row, 0, table_col, table->no_columns - 1, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS);
+				corner = getCorner(table_row, table_col, &UR_CORNER);
 				mvaddch(win_row, win_col_off + col_field_part.size, corner);
 
 
 				if (not_truncated(row_table_part) && table_row == row_table_part->last) {
-					corner = getCorner(table_row, table->no_rows - 1, table_col, table->no_columns - 1, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &LR_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
 
 				// 00
 				if (not_truncated(col_table_part) && table_col == col_table_part->first) {
-					corner = getCorner(table_row, 0, table_col, 0, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &UL_CORNER);
 					mvaddch(win_row, win_col, corner);
 				}
 
 				if (not_truncated(row_table_part) && table_row == row_table_part->last && not_truncated(col_table_part) && table_col == col_table_part->first) {
-					corner = getCorner(table_row, table->no_rows - 1, table_col, 0, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &LL_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col, corner);
 				}
 			}
 
 			if (row_table_part->direction == DIR_BACKWARD && col_table_part->direction == DIR_FORWARD) {
 
-				corner = getCorner(table_row, table->no_rows - 1, table_col, 0, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS);
+				corner = getCorner(table_row, table_col, &LL_CORNER);
 				mvaddch(win_row_off + row_field_part.size, win_col, corner);
 
 				// 00
 				if (not_truncated(row_table_part) && table_row == row_table_part->first) {
-					corner = getCorner(table_row, 0, table_col, 0, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &UL_CORNER);
 					mvaddch(win_row, win_col, corner);
 				}
 
 				if (not_truncated(col_table_part) && table_col == col_table_part->last) {
-					corner = getCorner(table_row, table->no_rows - 1, table_col, table->no_columns - 1, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &LR_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
 
 				if (not_truncated(row_table_part) && table_row == row_table_part->first && not_truncated(col_table_part) && table_col == col_table_part->last) {
-					corner = getCorner(table_row, 0, table_col, table->no_columns - 1, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &UR_CORNER);
 					mvaddch(win_row, win_col_off + col_field_part.size, corner);
 				}
 			}
 
 			if (row_table_part->direction == DIR_BACKWARD && col_table_part->direction == DIR_BACKWARD) {
 
-				corner = getCorner(table_row, table->no_rows - 1, table_col, table->no_columns - 1, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS);
+				corner = getCorner(table_row, table_col, &LR_CORNER);
 				mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 
 				if (not_truncated(row_table_part) && table_row == row_table_part->first) {
-					corner = getCorner(table_row, 0, table_col, table->no_columns - 1, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &UR_CORNER);
 					mvaddch(win_row, win_col_off + col_field_part.size, corner);
 				}
 
 				if (not_truncated(col_table_part) && table_col == col_table_part->first) {
-					corner = getCorner(table_row, table->no_rows - 1, table_col, 0, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &LL_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col, corner);
 				}
 
 				// 00
 				if (not_truncated(row_table_part) && table_row == row_table_part->first && not_truncated(col_table_part) && table_col == col_table_part->first) {
-					corner = getCorner(table_row, 0, table_col, 0, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS);
+					corner = getCorner(table_row, table_col, &UL_CORNER);
 					mvaddch(win_row, win_col, corner);
 				}
 			}
@@ -747,6 +840,9 @@ void curses_loop(const s_table *table) {
 	s_field cursor;
 	cursor.row = 0;
 	cursor.col = 0;
+
+	// TODO: init
+	s_corner_inits(table);
 
 	getmaxyx(stdscr, win_y, win_x);
 
