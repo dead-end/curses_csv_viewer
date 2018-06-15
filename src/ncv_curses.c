@@ -35,7 +35,9 @@ static s_corner LL_CORNER;
  * The function and the macro are used to setup the corner definitions
  **************************************************************************/
 
-#define s_corner_init(c,CO,TB,LR,PL,ROW,COL) c.corner = CO; c.tb_tee = TB; c.lr_tee = LR; c.plus = PL; c.row = ROW; c.col = COL
+#define s_corner_init(c,CO,TB,LR,PL,ROW,COL) \
+	c.corner = CO; c.tb_tee = TB; c.lr_tee = LR; c.plus = PL; \
+	c.row = ROW; c.col = COL
 
 static void s_corner_inits(const s_table *table) {
 
@@ -316,165 +318,12 @@ static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part
 	}
 }
 
-/***************************************************************************
- * The macro adds 'size' space chars as a padding to the current
- * position.
- **************************************************************************/
-// TODO: deprecated
-#define add_hline(s,c) for (int k = 0; k < (s); k++) addch(c)
-
-/***************************************************************************
- *
- **************************************************************************/
-// TODO: deprecated
-static void print_horizontal_border(const s_table *table, const s_table_part *col_table_part, const chtype left, const chtype middle, const chtype right) {
-	s_field_part col_field_part;
-
-	for (int col = col_table_part->first; col <= col_table_part->last; col++) {
-
-		if (col == col_table_part->first) {
-			addch(left);
-		} else {
-			addch(middle);
-		}
-
-		s_field_part_update(col_table_part, col, table->width[col], &col_field_part);
-
-		add_hline(col_field_part.size, ACS_HLINE);
-	}
-
-	addch(right);
-}
-
-/***************************************************************************
- *
- **************************************************************************/
-// TODO: deprecated
-void print_table_old(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
-
-	int win_row = 1;
-	int win_col;
-
-	s_field_part row_field_part;
-	s_field_part col_field_part;
-
-	bool is_cursor;
-
-	for (int table_row = row_table_part->first; table_row <= row_table_part->last; table_row++) {
-
-		win_col = 1;
-		s_field_part_update(row_table_part, table_row, table->height[table_row], &row_field_part);
-
-		for (int table_col = col_table_part->first; table_col <= col_table_part->last; table_col++) {
-
-			s_field_part_update(col_table_part, table_col, table->width[table_col], &col_field_part);
-
-			if (win_col == 1) {
-				move(win_row, 0);
-				vline(ACS_VLINE, row_field_part.size);
-			}
-
-			move(win_row, win_col + col_field_part.size);
-			vline(ACS_VLINE, row_field_part.size);
-
-			print_debug("row index: %d start: %d size: %d\n", table_row, row_field_part.start, row_field_part.size);
-			print_debug("col index: %d start: %d size: %d\n", table_col, col_field_part.start, col_field_part.size);
-
-			if (row_field_part.size > 0 && col_field_part.size > 0) {
-
-				if (table_row == 0) {
-					attron(A_BOLD);
-				}
-
-				is_cursor = table_row == cursor->row && table_col == cursor->col;
-				if (is_cursor) {
-					attron(A_REVERSE);
-				}
-
-				print_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row, win_col);
-
-				if (is_cursor) {
-					attroff(A_REVERSE);
-				}
-
-				if (table_row == 0) {
-					attroff(A_BOLD);
-				}
-			}
-
-			win_col += col_field_part.size + 1;
-		}
-
-		//
-		// horizontal border for the first row
-		//
-		if (table_row == row_table_part->first) {
-			move(win_row - 1, 0);
-			print_horizontal_border(table, col_table_part, ACS_ULCORNER, ACS_TTEE, ACS_URCORNER);
-		}
-
-		//
-		// for every row a horizontal border
-		//
-		move(win_row + row_field_part.size, 0);
-		if (table_row == row_table_part->last) {
-			print_horizontal_border(table, col_table_part, ACS_LLCORNER, ACS_BTEE, ACS_LRCORNER);
-		} else {
-			print_horizontal_border(table, col_table_part, ACS_LTEE, ACS_PLUS, ACS_RTEE);
-		}
-
-		win_row += row_field_part.size + 1;
-	}
-
-	//
-	// without moving the cursor at the end a flickering occurs, when the
-	// window is resized
-	//
-	move(0, 0);
-	refresh();
-}
-
 /**
  * top or left starts with border => field has an offset
  */
 #define get_row_col_offset(p, i) (((p)->direction == DIR_FORWARD || ((p)->truncated == -1 && i == (p)->first)) ? 1 : 0)
 
-chtype getCorner_old(const int table_row, const int row_cond, const int table_col, const int col_cond, const chtype yy, const chtype yn, const chtype ny, const chtype nn) {
-
-	if (table_row == row_cond) {
-		if (table_col == col_cond) {
-			return yy;
-		} else {
-			return yn;
-		}
-	} else {
-		if (table_col == col_cond) {
-			return ny;
-		} else {
-			return nn;
-		}
-	}
-}
-
-
-
-//#define not_truncated_and_first(p, i) (p)->truncated == -1 && i == (p)->first
-
 #define not_truncated(p) (p)->truncated == -1
-
-#define is_truncated(p) (p)->truncated != -1
-
-#define table_row_start(t) 0
-#define table_row_end(t) ((t)->no_rows - 1)
-#define table_col_start(t) 0
-#define table_col_end(t) ((t)->no_columns - 1)
-
-
-#define is_table_row_end(t,r) ((t)->no_rows - 1 == (r))
-#define is_table_col_end(t,c) ((t)->no_columns - 1 == (c))
-
-#define is_table_row_start(r) (0 == (r))
-#define is_table_col_start(c) (0 == (c))
 
 static void print_table(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
@@ -493,8 +342,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 	s_field_part col_field_part;
 
 	chtype corner;
-
-	//print_debug("%d", cursor->col);
 
 	for (int table_row = row_table_part->first; table_row <= row_table_part->last; table_row++) {
 
@@ -591,31 +438,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 				}
 			}
 
-//			//
-//			// corners
-//			//
-//			if (row_table_part->direction == DIR_FORWARD && col_table_part->direction == DIR_FORWARD) {
-//
-//				// 00
-//				corner = getCorner(table_row, 0, table_col, 0, &UL_CORNER);
-//				mvaddch(win_row, win_col, corner);
-//
-//				if (not_truncated(row_table_part) && table_row == row_table_part->last) {
-//					corner = getCorner(table_row, table->no_rows - 1, table_col, 0, &LL_CORNER);
-//					mvaddch(win_row_off + row_field_part.size, win_col, corner);
-//				}
-//
-//				if (not_truncated(col_table_part) && table_col == col_table_part->last) {
-//					corner = getCorner(table_row, 0, table_col, table->no_columns - 1, &UR_CORNER);
-//					mvaddch(win_row, win_col_off + col_field_part.size, corner);
-//				}
-//
-//				if (not_truncated(row_table_part) && table_row == row_table_part->last && not_truncated(col_table_part) && table_col == col_table_part->last) {
-//					corner = getCorner(table_row, table->no_rows - 1, table_col, table->no_columns - 1, &LR_CORNER);
-//					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
-//				}
-//			}
-
 			//
 			// corners
 			//
@@ -652,7 +474,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
 
-				// 00
 				if (not_truncated(col_table_part) && table_col == col_table_part->first) {
 					corner = getCorner(table_row, table_col, &UL_CORNER);
 					mvaddch(win_row, win_col, corner);
@@ -669,7 +490,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 				corner = getCorner(table_row, table_col, &LL_CORNER);
 				mvaddch(win_row_off + row_field_part.size, win_col, corner);
 
-				// 00
 				if (not_truncated(row_table_part) && table_row == row_table_part->first) {
 					corner = getCorner(table_row, table_col, &UL_CORNER);
 					mvaddch(win_row, win_col, corner);
@@ -701,7 +521,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					mvaddch(win_row_off + row_field_part.size, win_col, corner);
 				}
 
-				// 00
 				if (not_truncated(row_table_part) && table_row == row_table_part->first && not_truncated(col_table_part) && table_col == col_table_part->first) {
 					corner = getCorner(table_row, table_col, &UL_CORNER);
 					mvaddch(win_row, win_col, corner);
