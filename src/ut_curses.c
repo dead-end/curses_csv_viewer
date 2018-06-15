@@ -44,7 +44,7 @@ static void test_table_part_update() {
 	//
 	int sizes_1[3] = { 4, 1, 3 };
 	s_table_part_update(&table_part, sizes_1, 0, 3, DIR_FORWARD, 10);
-	check_table_part(&table_part, 0, 2, 2, 1, "test 1");
+	check_table_part(&table_part, 0, 2, 2, 2, "test 1");
 
 	//
 	// 1234567890 <- win size
@@ -62,7 +62,7 @@ static void test_table_part_update() {
 	//
 	int sizes_3[3] = { 4, 2, 3 };
 	s_table_part_update(&table_part, sizes_3, 0, 3, DIR_FORWARD, 10);
-	check_table_part(&table_part, 0, 2, 2, 0, "test 3");
+	check_table_part(&table_part, 0, 2, 2, 1, "test 3");
 
 	//
 	// 12345678901234567890 <- win size
@@ -80,7 +80,7 @@ static void test_table_part_update() {
 	//
 	int sizes_5[3] = { 3, 1, 4 };
 	s_table_part_update(&table_part, sizes_5, 2, 3, DIR_BACKWARD, 10);
-	check_table_part(&table_part, 0, 2, 0, 1, "test 5");
+	check_table_part(&table_part, 0, 2, 0, 2, "test 5");
 
 	//
 	//   1234567890 <- win size
@@ -98,7 +98,7 @@ static void test_table_part_update() {
 	//
 	int sizes_7[3] = { 3, 2, 4 };
 	s_table_part_update(&table_part, sizes_7, 2, 3, DIR_BACKWARD, 10);
-	check_table_part(&table_part, 0, 2, 0, 0, "test 7");
+	check_table_part(&table_part, 0, 2, 0, 1, "test 7");
 
 	//
 	// 12345678901234567890 <- win size
