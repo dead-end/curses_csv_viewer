@@ -323,18 +323,31 @@ static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part
  */
 #define get_row_col_offset(p, i) (((p)->direction == DIR_FORWARD || ((p)->truncated == -1 && i == (p)->first)) ? 1 : 0)
 
-#define not_truncated(p) (p)->truncated == -1
+/**
+ *
+ */
+#define is_not_truncated(p) ((p)->truncated == -1)
 
 static void print_table(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
-	int win_row = 0;
-	int win_col;
+	//
+	// The absolute coordinates of the field with its borders in the window.
+	//
+	s_field win_field;
+	win_field.row = 0;
 
+	//
+	// The absolute coordinates of the fields text. This depend on the left / top
+	// border, which can be a normal or an additional border
+	//
 	int win_row_off;
 	int win_col_off;
 
-	int row_diff;
-	int col_diff;
+	//
+	// The variable for the number of borders for a field, which is 1 by default and 2 if the
+	// field is first or last and not truncated.
+	//
+	s_field num_borders;
 
 	bool is_cursor;
 
@@ -345,7 +358,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 
 	for (int table_row = row_table_part->first; table_row <= row_table_part->last; table_row++) {
 
-		win_col = 0;
+		win_field.col = 0;
 
 		print_debug("calling: s_field_part_update row: %d\n", table_row);
 		s_field_part_update(row_table_part, table_row, table->height[table_row], &row_field_part);
@@ -355,14 +368,18 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			print_debug("calling: s_field_part_update col: %d\n", table_col);
 			s_field_part_update(col_table_part, table_col, table->width[table_col], &col_field_part);
 
-			row_diff = 0;
-			col_diff = 0;
+			//
+			// Each field has at least one border
+			//
+			num_borders.row = 1;
+			num_borders.col = 1;
 
 			//
-			// offset left / top
+			// The offset from the left / top. It depends on whether the field starts with a
+			// border or not and it determines where to write data with mvaddwstr, for example.
 			//
-			win_row_off = win_row + get_row_col_offset(row_table_part, table_row);
-			win_col_off = win_col + get_row_col_offset(col_table_part, table_col);
+			win_row_off = win_field.row + get_row_col_offset(row_table_part, table_row);
+			win_col_off = win_field.col + get_row_col_offset(col_table_part, table_col);
 
 			print_debug("dir row: %d col: %d\n", row_table_part->direction, col_table_part->direction);
 
@@ -380,7 +397,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					attron(A_REVERSE);
 				}
 
-				//print_debug("calling: print_field row: %d col: %d row off: %d, col off: %d\n", table_row, table_col, row_off, col_off);
 				print_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_row_off, win_col_off);
 
 				if (is_cursor) {
@@ -393,48 +409,40 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			}
 
 			//
-			// row
+			// row borders
 			//
 			if (row_table_part->direction == DIR_FORWARD) {
-				mvhline(win_row, win_col_off, ACS_HLINE, col_field_part.size);
-				row_diff++;
+				mvhline(win_field.row, win_col_off, ACS_HLINE, col_field_part.size);
 
-				if (row_table_part->truncated == -1 && table_row == row_table_part->last) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->last) {
 					mvhline(win_row_off + row_field_part.size, win_col_off, ACS_HLINE, col_field_part.size);
-					row_diff++;
+					num_borders.row++;
 				}
-			}
-
-			if (row_table_part->direction == DIR_BACKWARD) {
+			} else {
 				mvhline(win_row_off + row_field_part.size, win_col_off, ACS_HLINE, col_field_part.size);
-				row_diff++;
 
-				if (row_table_part->truncated == -1 && table_row == row_table_part->first) {
-					mvhline(win_row, win_col_off, ACS_HLINE, col_field_part.size);
-					row_diff++;
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->first) {
+					mvhline(win_field.row, win_col_off, ACS_HLINE, col_field_part.size);
+					num_borders.row++;
 				}
 			}
 
 			//
-			// col
+			// col borders
 			//
 			if (col_table_part->direction == DIR_FORWARD) {
-				mvvline(win_row_off, win_col, ACS_VLINE, row_field_part.size);
-				col_diff++;
+				mvvline(win_row_off, win_field.col, ACS_VLINE, row_field_part.size);
 
-				if (col_table_part->truncated == -1 && table_col == col_table_part->last) {
+				if (is_not_truncated(col_table_part) && table_col == col_table_part->last) {
 					mvvline(win_row_off, win_col_off + col_field_part.size, ACS_VLINE, row_field_part.size);
-					col_diff++;
+					num_borders.col++;
 				}
-			}
-
-			if (col_table_part->direction == DIR_BACKWARD) {
+			} else {
 				mvvline(win_row_off, win_col_off + col_field_part.size, ACS_VLINE, row_field_part.size);
-				col_diff++;
 
-				if (col_table_part->truncated == -1 && table_col == col_table_part->first) {
-					mvvline(win_row_off, win_col, ACS_VLINE, row_field_part.size);
-					col_diff++;
+				if (is_not_truncated(col_table_part) && table_col == col_table_part->first) {
+					mvvline(win_row_off, win_field.col, ACS_VLINE, row_field_part.size);
+					num_borders.col++;
 				}
 			}
 
@@ -443,21 +451,20 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			//
 			if (row_table_part->direction == DIR_FORWARD && col_table_part->direction == DIR_FORWARD) {
 
-				// 00
 				corner = getCorner(table_row, table_col, &UL_CORNER);
-				mvaddch(win_row, win_col, corner);
+				mvaddch(win_field.row, win_field.col, corner);
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->last) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->last) {
 					corner = getCorner(table_row, table_col, &LL_CORNER);
-					mvaddch(win_row_off + row_field_part.size, win_col, corner);
+					mvaddch(win_row_off + row_field_part.size, win_field.col, corner);
 				}
 
-				if (not_truncated(col_table_part) && table_col == col_table_part->last) {
+				if (is_not_truncated(col_table_part) && table_col == col_table_part->last) {
 					corner = getCorner(table_row, table_col, &UR_CORNER);
-					mvaddch(win_row, win_col_off + col_field_part.size, corner);
+					mvaddch(win_field.row, win_col_off + col_field_part.size, corner);
 				}
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->last && not_truncated(col_table_part) && table_col == col_table_part->last) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->last && is_not_truncated(col_table_part) && table_col == col_table_part->last) {
 					corner = getCorner(table_row, table_col, &LR_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
@@ -466,43 +473,43 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			if (row_table_part->direction == DIR_FORWARD && col_table_part->direction == DIR_BACKWARD) {
 
 				corner = getCorner(table_row, table_col, &UR_CORNER);
-				mvaddch(win_row, win_col_off + col_field_part.size, corner);
+				mvaddch(win_field.row, win_col_off + col_field_part.size, corner);
 
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->last) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->last) {
 					corner = getCorner(table_row, table_col, &LR_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
 
-				if (not_truncated(col_table_part) && table_col == col_table_part->first) {
+				if (is_not_truncated(col_table_part) && table_col == col_table_part->first) {
 					corner = getCorner(table_row, table_col, &UL_CORNER);
-					mvaddch(win_row, win_col, corner);
+					mvaddch(win_field.row, win_field.col, corner);
 				}
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->last && not_truncated(col_table_part) && table_col == col_table_part->first) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->last && is_not_truncated(col_table_part) && table_col == col_table_part->first) {
 					corner = getCorner(table_row, table_col, &LL_CORNER);
-					mvaddch(win_row_off + row_field_part.size, win_col, corner);
+					mvaddch(win_row_off + row_field_part.size, win_field.col, corner);
 				}
 			}
 
 			if (row_table_part->direction == DIR_BACKWARD && col_table_part->direction == DIR_FORWARD) {
 
 				corner = getCorner(table_row, table_col, &LL_CORNER);
-				mvaddch(win_row_off + row_field_part.size, win_col, corner);
+				mvaddch(win_row_off + row_field_part.size, win_field.col, corner);
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->first) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->first) {
 					corner = getCorner(table_row, table_col, &UL_CORNER);
-					mvaddch(win_row, win_col, corner);
+					mvaddch(win_field.row, win_field.col, corner);
 				}
 
-				if (not_truncated(col_table_part) && table_col == col_table_part->last) {
+				if (is_not_truncated(col_table_part) && table_col == col_table_part->last) {
 					corner = getCorner(table_row, table_col, &LR_CORNER);
 					mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 				}
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->first && not_truncated(col_table_part) && table_col == col_table_part->last) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->first && is_not_truncated(col_table_part) && table_col == col_table_part->last) {
 					corner = getCorner(table_row, table_col, &UR_CORNER);
-					mvaddch(win_row, win_col_off + col_field_part.size, corner);
+					mvaddch(win_field.row, win_col_off + col_field_part.size, corner);
 				}
 			}
 
@@ -511,29 +518,29 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 				corner = getCorner(table_row, table_col, &LR_CORNER);
 				mvaddch(win_row_off + row_field_part.size, win_col_off + col_field_part.size, corner);
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->first) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->first) {
 					corner = getCorner(table_row, table_col, &UR_CORNER);
-					mvaddch(win_row, win_col_off + col_field_part.size, corner);
+					mvaddch(win_field.row, win_col_off + col_field_part.size, corner);
 				}
 
-				if (not_truncated(col_table_part) && table_col == col_table_part->first) {
+				if (is_not_truncated(col_table_part) && table_col == col_table_part->first) {
 					corner = getCorner(table_row, table_col, &LL_CORNER);
-					mvaddch(win_row_off + row_field_part.size, win_col, corner);
+					mvaddch(win_row_off + row_field_part.size, win_field.col, corner);
 				}
 
-				if (not_truncated(row_table_part) && table_row == row_table_part->first && not_truncated(col_table_part) && table_col == col_table_part->first) {
+				if (is_not_truncated(row_table_part) && table_row == row_table_part->first && is_not_truncated(col_table_part) && table_col == col_table_part->first) {
 					corner = getCorner(table_row, table_col, &UL_CORNER);
-					mvaddch(win_row, win_col, corner);
+					mvaddch(win_field.row, win_field.col, corner);
 				}
 			}
 
 			print_debug("row index: %d start: %d size: %d\n", table_row, row_field_part.start, row_field_part.size);
 			print_debug("col index: %d start: %d size: %d\n", table_col, col_field_part.start, col_field_part.size);
 
-			win_col += col_field_part.size + col_diff;
+			win_field.col += col_field_part.size + num_borders.col;
 		}
 
-		win_row += row_field_part.size + row_diff;
+		win_field.row += row_field_part.size + num_borders.row;
 	}
 
 	//
