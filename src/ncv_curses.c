@@ -70,7 +70,8 @@ static void print_corner(const int table_row, const int table_col, const s_corne
 	}
 
 	//
-	// If the index of the corner is null we start at win_field.
+	// If the index of the corner is null we start at win_field, if not we
+	// use win_field_end
 	//
 	if (0 == corner->row) {
 		row = win_field.row;
