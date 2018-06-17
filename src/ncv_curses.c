@@ -9,23 +9,38 @@
 #include "ncv_curses.h"
 
 /***************************************************************************
- * The struc describes the 4 shapes of a corner. This can be a:
- * - corner
- * - top / bottom tee
- * - left / right tee
- * - plus.
+ * Each field can have up to 4 corners. Each corner can have 4 shapes. The
+ * shapes are:
+ *
+ * - The field corner can be a corner of the table (example: ┌)
+ * - The field corner can be top / bottom tee element (example: ┬)
+ * - The field corner can be left / right tee element (example: ├)
+ * - The field corner can be plus (example: ┼)
+ *
+ * Additionally it has a row and a column. This is the row and column if the
+ * field corner is a corner of the table.
  **************************************************************************/
 
 typedef struct s_corner {
+
+	//
+	// The 4 shapes of the field corner.
+	//
 	chtype corner;
 	chtype tb_tee;
 	chtype lr_tee;
 	chtype plus;
 
+	//
+	// The row and column if the field corner is a table corner.
+	//
 	int row;
 	int col;
 } s_corner;
 
+//
+// The 4 corners of a field:
+//
 static s_corner UL_CORNER;
 static s_corner UR_CORNER;
 static s_corner LR_CORNER;
@@ -48,13 +63,28 @@ static void s_corner_inits(const s_table *table) {
 }
 
 /***************************************************************************
- *win_field.row, win_field_end.col
+ * The function prints a corner char for a field.
+ *
+ * The parameters table_row and table_col are the row and column of the
+ * field in the table.
+ *
+ * The corner struct contains the shapes of the corner.
+ *
+ * The win_field struct contains the coordinates of the upper left corner of
+ * the field in the window.
+ *
+ * The win_field_end struct contains the coordinates of the lower right
+ * corner of the field in the window.
  **************************************************************************/
 
 static void print_corner(const int table_row, const int table_col, const s_corner *corner, const s_field win_field, const s_field win_field_end) {
 	chtype ch;
 	int row, col;
 
+	//
+	// The row and column of the field determines the shape of the field
+	// corner.
+	//
 	if (table_row == corner->row) {
 		if (table_col == corner->col) {
 			ch = corner->corner;
@@ -70,8 +100,8 @@ static void print_corner(const int table_row, const int table_col, const s_corne
 	}
 
 	//
-	// If the index of the corner is null we start at win_field, if not we
-	// use win_field_end
+	// The row and column of the corner also determines if we have to add the
+	// field width / height to determine the position of the corner.
 	//
 	if (0 == corner->row) {
 		row = win_field.row;
@@ -85,6 +115,9 @@ static void print_corner(const int table_row, const int table_col, const s_corne
 		col = win_field_end.col;
 	}
 
+	//
+	// Print the corner char.
+	//
 	mvaddch(row, col, ch);
 }
 
