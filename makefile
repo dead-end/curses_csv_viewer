@@ -24,7 +24,8 @@ LIBS     = $(shell ncursesw5-config --libs)
 SRC_LIBS += $(SRC_DIR)/ncv_table.c
 SRC_LIBS += $(SRC_DIR)/ncv_parser.c
 SRC_LIBS += $(SRC_DIR)/ncv_curses.c
-SRC_LIBS += $(SRC_DIR)/ncv_common.c 
+SRC_LIBS += $(SRC_DIR)/ncv_common.c
+SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 
 OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
 
