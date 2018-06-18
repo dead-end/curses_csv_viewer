@@ -4,58 +4,13 @@
 
 #include <locale.h>
 #include <unistd.h>
-#include <ncursesw/ncurses.h>
+//#include <ncursesw/ncurses.h>
 
 #include "ncv_common.h"
+#include "ncv_ncurses.h"
 #include "ncv_table.h"
 #include "ncv_parser.h"
 #include "ncv_curses.h"
-
-/***************************************************************************
- * The function initializes the ncurses.
- **************************************************************************/
-
-void curses_init() {
-
-	if (initscr() == NULL) {
-		print_exit_str("curses_init() Unable to init screen!\n");
-	}
-
-	//
-	// Allow KEY_RESIZE to be read on SIGWINCH
-	//
-	keypad(stdscr, TRUE);
-
-	if (has_colors()) {
-
-		if (start_color() != OK) {
-			print_exit_str("curses_init() Unable to init colors!\n");
-		}
-
-		if (init_pair(1, COLOR_WHITE, COLOR_BLUE) != OK) {
-			print_exit_str("curses_init() Unable to init color pair!\n");
-		}
-
-		if (bkgd(COLOR_PAIR(1)) != OK) {
-			print_exit_str("curses_init() Unable to set background color pair!\n");
-		}
-	}
-
-	// scrollok(stdscr, FALSE);
-
-	//
-	// Switch off cursor by default
-	//
-	curs_set(0);
-}
-
-/***************************************************************************
- * A cleanup function for the ncurses stuff.
- **************************************************************************/
-
-void curses_finish() {
-	endwin();
-}
 
 /***************************************************************************
  * The function writes the program usage. It is called with an error flag.
@@ -171,11 +126,11 @@ int main(const int argc, char * const argv[]) {
 	s_table_dump(&table);
 #endif
 
-	curses_init();
+	ncurses_init();
 
 	curses_loop(&table);
 
-	curses_finish();
+	ncurses_finish();
 
 	//
 	// free the allocated memory
