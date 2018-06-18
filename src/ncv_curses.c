@@ -63,21 +63,21 @@ static void s_corner_inits(const s_table *table) {
 }
 
 /***************************************************************************
- * The function prints a corner char for a field.
+ * The function prints a corner char of a field.
  *
- * The parameters table_row and table_col are the row and column of the
- * field in the table.
- *
- * The corner struct contains the shapes of the corner.
+ * The index struct contains the row and column of the field in the table.
  *
  * The win_field struct contains the coordinates of the upper left corner of
  * the field in the window.
  *
  * The win_field_end struct contains the coordinates of the lower right
  * corner of the field in the window.
+ *
+ * The corner struct contains the shapes of the corner. It determines which
+ * one of the 4 corners are printed (e.g. UL_CORNER)
  **************************************************************************/
 
-static void print_corner(const int table_row, const int table_col, const s_corner *corner, const s_field win_field, const s_field win_field_end) {
+static void print_corner(const s_field *idx, const s_field *win_field, const s_field *win_field_end, const s_corner *corner) {
 	chtype ch;
 	int row, col;
 
@@ -85,14 +85,14 @@ static void print_corner(const int table_row, const int table_col, const s_corne
 	// The row and column of the field determines the shape of the field
 	// corner.
 	//
-	if (table_row == corner->row) {
-		if (table_col == corner->col) {
+	if (idx->row == corner->row) {
+		if (idx->col == corner->col) {
 			ch = corner->corner;
 		} else {
 			ch = corner->tb_tee;
 		}
 	} else {
-		if (table_col == corner->col) {
+		if (idx->col == corner->col) {
 			ch = corner->lr_tee;
 		} else {
 			ch = corner->plus;
@@ -104,15 +104,15 @@ static void print_corner(const int table_row, const int table_col, const s_corne
 	// field width / height to determine the position of the corner.
 	//
 	if (0 == corner->row) {
-		row = win_field.row;
+		row = win_field->row;
 	} else {
-		row = win_field_end.row;
+		row = win_field_end->row;
 	}
 
 	if (0 == corner->col) {
-		col = win_field.col;
+		col = win_field->col;
 	} else {
-		col = win_field_end.col;
+		col = win_field_end->col;
 	}
 
 	//
@@ -420,17 +420,22 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 	s_field_part row_field_part;
 	s_field_part col_field_part;
 
-	for (int table_row = row_table_part->first; table_row <= row_table_part->last; table_row++) {
+	//
+	// The variable contains the row and column of the current field to be printed.
+	//
+	s_field idx;
+
+	for (idx.row = row_table_part->first; idx.row <= row_table_part->last; idx.row++) {
 
 		win_field.col = 0;
 
-		print_debug("calling: s_field_part_update row: %d\n", table_row);
-		s_field_part_update(row_table_part, table_row, table->height[table_row], &row_field_part);
+		print_debug("calling: s_field_part_update row: %d\n", idx.row);
+		s_field_part_update(row_table_part, idx.row, table->height[idx.row], &row_field_part);
 
-		for (int table_col = col_table_part->first; table_col <= col_table_part->last; table_col++) {
+		for (idx.col = col_table_part->first; idx.col <= col_table_part->last; idx.col++) {
 
-			print_debug("calling: s_field_part_update col: %d\n", table_col);
-			s_field_part_update(col_table_part, table_col, table->width[table_col], &col_field_part);
+			print_debug("calling: s_field_part_update col: %d\n", idx.col);
+			s_field_part_update(col_table_part, idx.col, table->width[idx.col], &col_field_part);
 
 			//
 			// Each field has at least one border
@@ -441,8 +446,8 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			//
 			// If the field has a left / top border add one
 			//
-			win_text.row = win_field.row + get_row_col_offset(row_table_part, table_row);
-			win_text.col = win_field.col + get_row_col_offset(col_table_part, table_col);
+			win_text.row = win_field.row + get_row_col_offset(row_table_part, idx.row);
+			win_text.col = win_field.col + get_row_col_offset(col_table_part, idx.row);
 
 			//
 			// Add the field size to the text coordinate to get the end.
@@ -457,22 +462,22 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			//
 			if (row_field_part.size > 0 && col_field_part.size > 0) {
 
-				if (table_row == 0) {
+				if (idx.row == 0) {
 					attron(A_BOLD);
 				}
 
-				is_cursor = table_row == cursor->row && table_col == cursor->col;
+				is_cursor = idx.row == cursor->row && idx.col == cursor->col;
 				if (is_cursor) {
 					attron(A_REVERSE);
 				}
 
-				print_field(table->fields[table_row][table_col], &row_field_part, &col_field_part, win_text.row, win_text.col);
+				print_field(table->fields[idx.row][idx.col], &row_field_part, &col_field_part, win_text.row, win_text.col);
 
 				if (is_cursor) {
 					attroff(A_REVERSE);
 				}
 
-				if (table_row == 0) {
+				if (idx.row == 0) {
 					attroff(A_BOLD);
 				}
 			}
@@ -483,14 +488,14 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			if (row_table_part->direction == DIR_FORWARD) {
 				mvhline(win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 
-				if (not_truncated_and_last(row_table_part, table_row)) {
+				if (not_truncated_and_last(row_table_part, idx.row)) {
 					mvhline(win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			} else {
 				mvhline(win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 
-				if (not_truncated_and_first(row_table_part, table_row)) {
+				if (not_truncated_and_first(row_table_part, idx.row)) {
 					mvhline(win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
@@ -502,14 +507,14 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			if (col_table_part->direction == DIR_FORWARD) {
 				mvvline(win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 
-				if (not_truncated_and_last(col_table_part, table_col)) {
+				if (not_truncated_and_last(col_table_part, idx.col)) {
 					mvvline(win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			} else {
 				mvvline(win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 
-				if (not_truncated_and_first(col_table_part, table_col)) {
+				if (not_truncated_and_first(col_table_part, idx.col)) {
 					mvvline(win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
@@ -525,18 +530,18 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					//
 					// corners - row: FORWARD / column: FORWARD
 					//
-					print_corner(table_row, table_col, &UL_CORNER, win_field, win_field_end);
+					print_corner(&idx, &win_field, &win_field_end, &UL_CORNER);
 
-					if (not_truncated_and_last(row_table_part, table_row)) {
-						print_corner(table_row, table_col, &LL_CORNER, win_field, win_field_end);
+					if (not_truncated_and_last(row_table_part, idx.row)) {
+						print_corner(&idx, &win_field, &win_field_end, &LL_CORNER);
 					}
 
-					if (not_truncated_and_last(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &UR_CORNER, win_field, win_field_end);
+					if (not_truncated_and_last(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &UR_CORNER);
 					}
 
-					if (not_truncated_and_last(row_table_part, table_row) && not_truncated_and_last(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &LR_CORNER, win_field, win_field_end);
+					if (not_truncated_and_last(row_table_part, idx.row) && not_truncated_and_last(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &LR_CORNER);
 					}
 
 				} else {
@@ -544,18 +549,18 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					//
 					// corners - row: FORWARD / column: BACKWARD
 					//
-					print_corner(table_row, table_col, &UR_CORNER, win_field, win_field_end);
+					print_corner(&idx, &win_field, &win_field_end, &UR_CORNER);
 
-					if (not_truncated_and_last(row_table_part, table_row)) {
-						print_corner(table_row, table_col, &LR_CORNER, win_field, win_field_end);
+					if (not_truncated_and_last(row_table_part, idx.row)) {
+						print_corner(&idx, &win_field, &win_field_end, &LR_CORNER);
 					}
 
-					if (not_truncated_and_first(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &UL_CORNER, win_field, win_field_end);
+					if (not_truncated_and_first(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &UL_CORNER);
 					}
 
-					if (not_truncated_and_last(row_table_part, table_row) && not_truncated_and_first(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &LL_CORNER, win_field, win_field_end);
+					if (not_truncated_and_last(row_table_part, idx.row) && not_truncated_and_first(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &LL_CORNER);
 					}
 				}
 
@@ -566,18 +571,18 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					//
 					// corners - row: BACKWARD / column: FORWARD
 					//
-					print_corner(table_row, table_col, &LL_CORNER, win_field, win_field_end);
+					print_corner(&idx, &win_field, &win_field_end, &LL_CORNER);
 
-					if (not_truncated_and_first(row_table_part, table_row)) {
-						print_corner(table_row, table_col, &UL_CORNER, win_field, win_field_end);
+					if (not_truncated_and_first(row_table_part, idx.row)) {
+						print_corner(&idx, &win_field, &win_field_end, &UL_CORNER);
 					}
 
-					if (not_truncated_and_last(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &LR_CORNER, win_field, win_field_end);
+					if (not_truncated_and_last(col_table_part, idx.row)) {
+						print_corner(&idx, &win_field, &win_field_end, &LR_CORNER);
 					}
 
-					if (not_truncated_and_first(row_table_part, table_row) && not_truncated_and_last(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &UR_CORNER, win_field, win_field_end);
+					if (not_truncated_and_first(row_table_part, idx.row) && not_truncated_and_last(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &UR_CORNER);
 					}
 
 				} else {
@@ -585,24 +590,24 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					//
 					// corners - row: BACKWARD / column: BACKWARD
 					//
-					print_corner(table_row, table_col, &LR_CORNER, win_field, win_field_end);
+					print_corner(&idx, &win_field, &win_field_end, &LR_CORNER);
 
-					if (not_truncated_and_first(row_table_part, table_row)) {
-						print_corner(table_row, table_col, &UR_CORNER, win_field, win_field_end);
+					if (not_truncated_and_first(row_table_part, idx.row)) {
+						print_corner(&idx, &win_field, &win_field_end, &UR_CORNER);
 					}
 
-					if (not_truncated_and_first(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &LL_CORNER, win_field, win_field_end);
+					if (not_truncated_and_first(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &LL_CORNER);
 					}
 
-					if (not_truncated_and_first(row_table_part, table_row) && not_truncated_and_first(col_table_part, table_col)) {
-						print_corner(table_row, table_col, &UL_CORNER, win_field, win_field_end);
+					if (not_truncated_and_first(row_table_part, idx.row) && not_truncated_and_first(col_table_part, idx.col)) {
+						print_corner(&idx, &win_field, &win_field_end, &UL_CORNER);
 					}
 				}
 			}
 
-			print_debug("row index: %d start: %d size: %d\n", table_row, row_field_part.start, row_field_part.size);
-			print_debug("col index: %d start: %d size: %d\n", table_col, col_field_part.start, col_field_part.size);
+			print_debug("row index: %d start: %d size: %d\n", idx.row, row_field_part.start, row_field_part.size);
+			print_debug("col index: %d start: %d size: %d\n", idx.col, col_field_part.start, col_field_part.size);
 
 			win_field.col += col_field_part.size + num_borders.col;
 		}
