@@ -577,7 +577,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 						print_corner(&idx, &win_field, &win_field_end, &UL_CORNER);
 					}
 
-					if (not_truncated_and_last(col_table_part, idx.row)) {
+					if (not_truncated_and_last(col_table_part, idx.col)) {
 						print_corner(&idx, &win_field, &win_field_end, &LR_CORNER);
 					}
 
