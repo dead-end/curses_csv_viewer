@@ -7,6 +7,7 @@
 #include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_curses.h"
+#include "ncv_ncurses.h"
 
 /***************************************************************************
  * Each field can have up to 4 corners. Each corner can have 4 shapes. The
@@ -51,8 +52,8 @@ static s_corner LL_CORNER;
  **************************************************************************/
 
 #define s_corner_init(c,CO,TB,LR,PL,ROW,COL) \
-	c.corner = CO; c.tb_tee = TB; c.lr_tee = LR; c.plus = PL; \
-	c.row = ROW; c.col = COL
+		c.corner = CO; c.tb_tee = TB; c.lr_tee = LR; c.plus = PL; \
+		c.row = ROW; c.col = COL
 
 static void s_corner_inits(const s_table *table) {
 
@@ -459,6 +460,9 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 	//
 	s_field idx;
 
+	//
+	//
+	//
 	bool row_cond;
 	bool col_cond;
 
@@ -484,7 +488,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			// If the field has a left / top border the offset is 1, else 0.
 			//
 			win_text.row = win_field.row + get_row_col_offset(row_table_part, idx.row);
-			win_text.col = win_field.col + get_row_col_offset(col_table_part, idx.row);
+			win_text.col = win_field.col + get_row_col_offset(col_table_part, idx.col);
 
 			//
 			// Add the field size to the text coordinate to get the end.
@@ -499,24 +503,21 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			//
 			if (row_field_part.size > 0 && col_field_part.size > 0) {
 
-				if (idx.row == 0) {
-					attron(A_BOLD);
-				}
-
 				is_cursor = idx.row == cursor->row && idx.col == cursor->col;
-				if (is_cursor) {
-					attron(A_REVERSE);
+
+				if (is_cursor && idx.row == 0) {
+					ncurses_set_attr(attr_cursor_header);
+
+				} else if (is_cursor) {
+					ncurses_set_attr(attr_cursor);
+
+				} else if (idx.row == 0) {
+					ncurses_set_attr(attr_header);
 				}
 
 				print_field(table->fields[idx.row][idx.col], &row_field_part, &col_field_part, win_text.row, win_text.col);
 
-				if (is_cursor) {
-					attroff(A_REVERSE);
-				}
-
-				if (idx.row == 0) {
-					attroff(A_BOLD);
-				}
+				ncurses_unset_attr();
 			}
 
 			//
