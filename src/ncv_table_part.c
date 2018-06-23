@@ -6,7 +6,10 @@
 #include "ncv_table_part.h"
 
 /***************************************************************************
- * The method updates the row /column table part for the table.
+ * The method updates the row /column table part for the table. It is called
+ * with a start_index and a direction. It computes the end_index and checks
+ * whether the end field is truncated. In this case the truncated size is
+ * computed.
  *
  * The sizes parameter is an array with the row heights or the column
  * widths.
@@ -87,6 +90,14 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 /***************************************************************************
  * The function reverses the direction of a table part in certain
  * situations.
+ *
+ * Example:
+ *
+ * You have a table with 10 fields. Visible are fields 5-8. If you enlarge
+ * the window you can make visible fields 5-9 and then 5-10. If you keep on
+ * enlarging the window you have to check whether there are fields that are
+ * not visible at the other end. In this example you can make visible fields
+ * 4-10 and then 3-10 and so on until all fields are visible.
  **************************************************************************/
 
 bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
@@ -99,7 +110,8 @@ bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
 	}
 
 	//
-	// On enlarging of the window the fist table row / column has completely appeared.
+	// On enlarging of the window the fist table row / column has completely
+	// appeared. Check if there are fields at the end that are not visible.
 	//
 	if (table_part->first == 0 && table_part->last != table_end && table_part->direction == DIR_BACKWARD) {
 		table_part->direction = DIR_FORWARD;
@@ -107,7 +119,9 @@ bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
 	}
 
 	//
-	// On enlarging of the window the last table row / column has completely appeared.
+	// On enlarging of the window the last table row / column has completely
+	// appeared. Check if there are fields at the beginning that are not
+	// visible.
 	//
 	if (table_part->first != 0 && table_part->last == table_end && table_part->direction == DIR_FORWARD) {
 		table_part->direction = DIR_BACKWARD;
