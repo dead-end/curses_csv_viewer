@@ -56,19 +56,19 @@ typedef struct s_table_part {
  **************************************************************************/
 
 //
-// The marco is called with a table part and an index and it checks whether
+// The macro is called with a table part and an index and it checks whether
 // the given index is before the table part first value.
 //
 #define is_index_before_first(p,i) (i < (p)->first || (i == (p)->first && (p)->first == (p)->truncated))
 
 //
-// The marco is called with a table part and an index and it checks whether
+// The macro is called with a table part and an index and it checks whether
 // the given index is before the table part last value.
 //
 #define is_index_after_last(p,i) (i > (p)->last || (i == (p)->last && (p)->last == (p)->truncated))
 
 //
-// The marco is called with a table part and returns the first or the last
+// The macro is called with a table part and returns the first or the last
 // table part index depending on the direction.
 //
 #define s_table_part_start(p) ((p)->direction == DIR_FORWARD ? (p)->first : (p)->last)
