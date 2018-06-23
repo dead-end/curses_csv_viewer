@@ -5,49 +5,7 @@
 #ifndef INC_NCV_CURSES_H_
 #define INC_NCV_CURSES_H_
 
-//
-// constances that affect for loop directions
-//
-#define DIR_FORWARD 1
-#define DIR_BACKWARD -1
-
-/***************************************************************************
- * The table has two s_table_part structures, one for the row and one for
- * the column. The structure defines which part of the table is visible.
- ***************************************************************************/
-
-typedef struct s_table_part {
-
-	//
-	// The index of the first row / column that is visible.
-	//
-	int first;
-
-	//
-	// The index of the last row / column that is visible.
-	//
-	int last;
-
-	//
-	// The index of the row / column that is truncated. The value is equal to
-	// start or end or -1 of none of them is truncated.
-	//
-	int truncated;
-
-	//
-	// The size of the truncated row / column. If truncated is -1 size is 0.
-	//
-	int size;
-
-	//
-	// One of the values first or last is given and the other value is
-	// computed with a direction. If first is given, direction is forward
-	// and last is computed. If last is give, the direction is backward
-	// and first is computed.
-	//
-	int direction;
-
-} s_table_part;
+#include "ncv_table_part.h"
 
 /***************************************************************************
  * A field has two s_field_part structure, one for the row and one for the
@@ -85,18 +43,6 @@ typedef struct s_field {
 } s_field;
 
 /***************************************************************************
- *
- **************************************************************************/
-
-typedef struct s_start_dir {
-
-	int start;
-
-	int dir;
-
-} s_start_dir;
-
-/***************************************************************************
  * Function definitions
  **************************************************************************/
 
@@ -112,9 +58,6 @@ void curses_loop(const s_table *table);
 
 void s_field_part_update(const s_table_part *table_part, const int size, const int index, s_field_part *field_part);
 
-void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int index_max, const int direction, const int win_size);
-
 wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *col_field_part);
-
 
 #endif /* INC_NCV_CURSES_H_ */

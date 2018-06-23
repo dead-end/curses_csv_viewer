@@ -10,8 +10,8 @@
 #include "ncv_ncurses.h"
 
 /***************************************************************************
- * Each field can have up to 4 corners. Each corner can have 4 shapes. The
- * shapes are:
+ * Each field can have up to 4 corner chars. Each corner can have 4 shapes.
+ * The shapes are:
  *
  * - The field corner can be a corner of the table (example: ┌)
  * - The field corner can be top / bottom tee element (example: ┬)
@@ -32,6 +32,7 @@ typedef struct s_corner {
 	chtype lr_tee;
 	chtype plus;
 
+	// TODO: rename
 	//
 	// The row and column if the field corner is a table corner.
 	//
@@ -211,85 +212,6 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 }
 
 /***************************************************************************
- * The method updates the row /column table part for the table.
- *
- * The sizes parameter is an array with the row heights or the column
- * widths.
- *
- * The index_start can be the first or the last index depending on the
- * direction.
- *
- * The num parameter defines the number of rows or columns.
- *
- * The direction can be DIR_FORWARD or DIR_BACKWARD.
- *
- * The win_size parameter is the size of the window.
- **************************************************************************/
-
-void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int num, const int direction, const int win_size) {
-
-	int precursor = 0;
-	int sum;
-
-	table_part->first = index_start;
-	table_part->truncated = -1;
-	table_part->size = 0;
-	table_part->direction = direction;
-
-	for (table_part->last = index_start; 0 <= table_part->last && table_part->last < num; table_part->last += direction) {
-
-		//
-		// Sum up widths / heights with their borders.
-		//
-		sum = precursor + sizes[table_part->last] + 1;
-
-		//
-		// If sum of width / heights with a border is the win_size - 1 it
-		// fits in the window with an additional border.
-		//
-		// Example:
-		// (border)(field)(border)(field)(additional-border)
-		//
-		if (sum == win_size - 1) {
-			break;
-
-			//
-			// If the sum of width / heights is larger than or equal to the
-			// window size, the part has to be truncated.
-			//
-		} else if (sum >= win_size) {
-			table_part->truncated = table_part->last;
-			table_part->size = win_size - precursor - 1;
-			break;
-		}
-
-		precursor = sum;
-	}
-
-	//
-	// If the end member is not inside the boundaries, the window is larger
-	// than necessary.
-	//
-	if (table_part->last < 0) {
-		table_part->last = 0;
-
-	} else if (table_part->last >= num) {
-		table_part->last = num - 1;
-	}
-
-	//
-	// If the direction is backwards swap the first and the last.
-	//
-	if (direction == DIR_BACKWARD) {
-		const int tmp = table_part->first;
-		table_part->first = table_part->last;
-		table_part->last = tmp;
-	}
-
-	print_debug("s_table_part_update() first: %d last: %d truncated: %d size: %d dir: %d\n", table_part->first, table_part->last, table_part->truncated, table_part->size, table_part->direction);
-}
-
-/***************************************************************************
  * The function is repeatedly called with a pointer to a field string and
  * copies the chars of the current field line to the buffer. The buffer has
  * a fixed size (col_field_part->size +1) and is padded with spaces. If the
@@ -410,16 +332,6 @@ static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part
  * top or left starts with border => field has an offset
  */
 #define get_row_col_offset(p, i) (((p)->direction == DIR_FORWARD || ((p)->truncated == -1 && i == (p)->first)) ? 1 : 0)
-
-/**
- * The macro ensures that a table part is not truncated and the current index is "first".
- */
-#define not_truncated_and_first(p, i) ((p)->truncated == -1 && (i) == (p)->first)
-
-/**
- * The macro ensures that a table part is not truncated and the current index is "last".
- */
-#define not_truncated_and_last(p, i) ((p)->truncated == -1 && (i) == (p)->last)
 
 /**
  *
@@ -626,55 +538,6 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 }
 
 /***************************************************************************
- * The function reverses the direction of a table part in certain
- * situations.
- **************************************************************************/
-
-static bool adjust_dir_on_resize(s_table_part *table_part, const int last) {
-
-	//
-	// If a row / column is truncated everything is ok
-	//
-	if (table_part->truncated != -1) {
-		return false;
-	}
-
-	//
-	// On enlarging of the window the fist table row / column has completely appeared.
-	//
-	if (table_part->first == 0 && table_part->last != last && table_part->direction == DIR_BACKWARD) {
-		table_part->direction = DIR_FORWARD;
-		return true;
-	}
-
-	//
-	// On enlarging of the window the last table row / column has completely appeared.
-	//
-	if (table_part->first != 0 && table_part->last == last && table_part->direction == DIR_FORWARD) {
-		table_part->direction = DIR_BACKWARD;
-		return true;
-	}
-
-	return false;
-}
-
-/**
- * The marco is called with an index and a table part
- */
-#define is_index_before_first(i,p) (i < (p)->first || (i == (p)->first && (p)->first == (p)->truncated))
-
-/**
- * The marco is called with an index and a table part
- */
-#define is_index_after_last(i,p) (i > (p)->last || (i == (p)->last && (p)->last == (p)->truncated))
-
-/**
- * The marco is called with a table part and returns the first or the last
- * table part index depending on the direction.
- */
-#define s_table_part_start(p) ((p)->direction == DIR_FORWARD ? (p)->first : (p)->last)
-
-/***************************************************************************
  *
  **************************************************************************/
 
@@ -695,13 +558,13 @@ void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part 
 		//
 		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
 		//
-	} else if (is_index_before_first(cursor->row, row_table_part)) {
+	} else if (is_index_before_first(row_table_part, cursor->row)) {
 		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, win_y);
 
 		//
 		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
 		//
-	} else if (is_index_after_last(cursor->row, row_table_part)) {
+	} else if (is_index_after_last(row_table_part, cursor->row)) {
 		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, win_y);
 	}
 
@@ -714,13 +577,13 @@ void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part 
 		//
 		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
 		//
-	} else if (is_index_before_first(cursor->col, col_table_part)) {
+	} else if (is_index_before_first(col_table_part, cursor->col)) {
 		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, win_x);
 
 		//
 		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
 		//
-	} else if (is_index_after_last(cursor->col, col_table_part)) {
+	} else if (is_index_after_last(col_table_part, cursor->col)) {
 		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, win_x);
 	}
 }
@@ -756,7 +619,7 @@ void curses_loop(const s_table *table) {
 		//
 		//
 		// TODO: print only if necessary (example: input sdfsd)
-		erase();
+		//	erase();
 		print_table(table, &row_table_part, &col_table_part, &cursor);
 
 		keyInput = getch();
@@ -771,7 +634,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.row - 1 >= 0) {
 				cursor.row--;
 
-				if (is_index_before_first(cursor.row, &row_table_part)) {
+				if (is_index_before_first(&row_table_part, cursor.row)) {
 					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_y);
 				}
 			}
@@ -780,7 +643,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.row + 1 < table->no_rows) {
 				cursor.row++;
 
-				if (is_index_after_last(cursor.row, &row_table_part)) {
+				if (is_index_after_last(&row_table_part, cursor.row)) {
 					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_BACKWARD, win_y);
 				}
 			}
@@ -789,7 +652,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.col - 1 >= 0) {
 				cursor.col--;
 
-				if (is_index_before_first(cursor.col, &col_table_part)) {
+				if (is_index_before_first(&col_table_part, cursor.col)) {
 					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_x);
 				}
 			}
@@ -798,7 +661,7 @@ void curses_loop(const s_table *table) {
 			if (cursor.col + 1 < table->no_columns) {
 				cursor.col++;
 
-				if (is_index_after_last(cursor.col, &col_table_part)) {
+				if (is_index_after_last(&col_table_part, cursor.col)) {
 					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_BACKWARD, win_x);
 				}
 			}
