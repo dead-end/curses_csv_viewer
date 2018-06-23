@@ -21,10 +21,11 @@ LIBS     = $(shell ncursesw5-config --libs)
 # LIBS
 ############################################################################
 
-SRC_LIBS += $(SRC_DIR)/ncv_table.c
-SRC_LIBS += $(SRC_DIR)/ncv_parser.c
-SRC_LIBS += $(SRC_DIR)/ncv_curses.c
 SRC_LIBS += $(SRC_DIR)/ncv_common.c
+SRC_LIBS += $(SRC_DIR)/ncv_parser.c
+SRC_LIBS += $(SRC_DIR)/ncv_table.c
+SRC_LIBS += $(SRC_DIR)/ncv_table_part.c
+SRC_LIBS += $(SRC_DIR)/ncv_curses.c
 SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 
 OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
@@ -45,9 +46,10 @@ OBJ_MAIN = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_MAIN)))
 # TEST
 ############################################################################
 
-SRC_TEST += $(SRC_DIR)/ut_curses.c 
 SRC_TEST += $(SRC_DIR)/ut_parser.c 
 SRC_TEST += $(SRC_DIR)/ut_table.c
+SRC_TEST += $(SRC_DIR)/ut_table_part.c 
+SRC_TEST += $(SRC_DIR)/ut_curses.c 
 
 TEST     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
 
