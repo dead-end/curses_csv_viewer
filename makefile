@@ -56,6 +56,16 @@ TEST     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
 OBJ_TEST = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_TEST)))
 
 ############################################################################
+# DEMO
+############################################################################
+
+SRC_DEMO += $(SRC_DIR)/demo_windows.c 
+
+DEMO     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_DEMO)))
+
+OBJ_DEMO = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_DEMO)))
+
+############################################################################
 # Definitions of the build commands.
 ############################################################################
 
@@ -73,7 +83,10 @@ unit_test: $(TEST)
 		./$$ut_test || exit 1 ; \
     done
 
-all: $(EXEC) unit_test
+$(DEMO): $(OBJ_LIBS) $(OBJ_DEMO)
+	gcc -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS) 
+
+all: $(EXEC) unit_test $(DEMO)
 	
 ############################################################################
 # Definition of the cleanup and run task.
