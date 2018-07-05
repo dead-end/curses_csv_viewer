@@ -79,7 +79,7 @@ static void s_corner_inits(const s_table *table) {
  * one of the 4 corners are printed (e.g. UL_CORNER)
  **************************************************************************/
 
-static void print_corner(const s_field *idx, const s_field *win_field, const s_field *win_field_end, const s_corner *corner) {
+static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const s_corner *corner) {
 	chtype ch;
 	int row, col;
 
@@ -120,7 +120,7 @@ static void print_corner(const s_field *idx, const s_field *win_field, const s_f
 	//
 	// Print the corner char.
 	//
-	mvaddch(row, col, ch);
+	mvwaddch(win, row, col, ch);
 }
 
 /***************************************************************************
@@ -128,32 +128,32 @@ static void print_corner(const s_field *idx, const s_field *win_field, const s_f
  * most 4.
  **************************************************************************/
 
-void print_corners(const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_cond, const bool col_cond, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn) {
+void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_cond, const bool col_cond, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn) {
 
 	//
 	// This corner is always printed.
 	//
-	print_corner(idx, win_field, win_field_end, yy);
+	print_corner(win, idx, win_field, win_field_end, yy);
 
 	//
 	// if the row is not truncated an additional border is printed.
 	//
 	if (row_cond) {
-		print_corner(idx, win_field, win_field_end, ny);
+		print_corner(win, idx, win_field, win_field_end, ny);
 	}
 
 	//
 	// if the column is not truncated an additional border is printed.
 	//
 	if (col_cond) {
-		print_corner(idx, win_field, win_field_end, yn);
+		print_corner(win, idx, win_field, win_field_end, yn);
 	}
 
 	//
 	// if the row and column is not truncated an additional border is printed.
 	//
 	if (row_cond && col_cond) {
-		print_corner(idx, win_field, win_field_end, nn);
+		print_corner(win, idx, win_field, win_field_end, nn);
 	}
 }
 
@@ -293,7 +293,7 @@ wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *c
  * The function prints the content of a field. The field may be truncated.
  **************************************************************************/
 
-static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col) {
+static void print_field(WINDOW *win, wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const int win_row, const int win_col) {
 
 	print_debug("print_field() win row: %d win col: %d field: '%ls'\n", win_row, win_col, ptr);
 
@@ -323,7 +323,7 @@ static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part
 		// Skip the first lines if necessary,
 		//
 		if (field_line >= row_field_part->start) {
-			mvaddwstr(win_row + field_line - row_field_part->start, win_col, buffer);
+			mvwaddwstr(win, win_row + field_line - row_field_part->start, win_col, buffer);
 		}
 	}
 }
@@ -336,7 +336,7 @@ static void print_field(wchar_t *ptr, s_field_part *row_field_part, s_field_part
 /**
  *
  */
-static void print_table(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
+static void print_table(WINDOW *win, const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
 	//
 	// The absolute coordinates of the field with its borders in the window.
@@ -427,7 +427,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					ncurses_set_attr(attr_header);
 				}
 
-				print_field(table->fields[idx.row][idx.col], &row_field_part, &col_field_part, win_text.row, win_text.col);
+				print_field(win, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, win_text.row, win_text.col);
 
 				ncurses_unset_attr();
 			}
@@ -436,17 +436,17 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			// row borders
 			//
 			if (row_table_part->direction == DIR_FORWARD) {
-				mvhline(win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
+				mvwhline(win, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_last(row_table_part, idx.row)) {
-					mvhline(win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
+					mvwhline(win, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			} else {
-				mvhline(win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
+				mvwhline(win, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_first(row_table_part, idx.row)) {
-					mvhline(win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
+					mvwhline(win, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			}
@@ -455,17 +455,17 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 			// col borders
 			//
 			if (col_table_part->direction == DIR_FORWARD) {
-				mvvline(win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
+				mvwvline(win, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_last(col_table_part, idx.col)) {
-					mvvline(win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
+					mvwvline(win, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			} else {
-				mvvline(win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
+				mvwvline(win, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_first(col_table_part, idx.col)) {
-					mvvline(win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
+					mvwvline(win, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			}
@@ -483,7 +483,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					row_cond = is_not_truncated_and_last(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_last(col_table_part, idx.col);
 
-					print_corners(&idx, &win_field, &win_field_end, row_cond, col_cond, &UL_CORNER, &LL_CORNER, &UR_CORNER, &LR_CORNER);
+					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &UL_CORNER, &LL_CORNER, &UR_CORNER, &LR_CORNER);
 
 				} else {
 
@@ -493,7 +493,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					row_cond = is_not_truncated_and_last(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_first(col_table_part, idx.col);
 
-					print_corners(&idx, &win_field, &win_field_end, row_cond, col_cond, &UR_CORNER, &LR_CORNER, &UL_CORNER, &LL_CORNER);
+					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &UR_CORNER, &LR_CORNER, &UL_CORNER, &LL_CORNER);
 				}
 
 			} else {
@@ -506,7 +506,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					row_cond = is_not_truncated_and_first(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_last(col_table_part, idx.col);
 
-					print_corners(&idx, &win_field, &win_field_end, row_cond, col_cond, &LL_CORNER, &UL_CORNER, &LR_CORNER, &UR_CORNER);
+					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &LL_CORNER, &UL_CORNER, &LR_CORNER, &UR_CORNER);
 
 				} else {
 
@@ -516,7 +516,7 @@ static void print_table(const s_table *table, const s_table_part *row_table_part
 					row_cond = is_not_truncated_and_first(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_first(col_table_part, idx.col);
 
-					print_corners(&idx, &win_field, &win_field_end, row_cond, col_cond, &LR_CORNER, &UR_CORNER, &LL_CORNER, &UL_CORNER);
+					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &LR_CORNER, &UR_CORNER, &LL_CORNER, &UL_CORNER);
 				}
 			}
 
@@ -620,7 +620,7 @@ void curses_loop(const s_table *table) {
 		//
 		// TODO: print only if necessary (example: input sdfsd)
 		//	erase();
-		print_table(table, &row_table_part, &col_table_part, &cursor);
+		print_table(stdscr, table, &row_table_part, &col_table_part, &cursor);
 
 		keyInput = getch();
 
