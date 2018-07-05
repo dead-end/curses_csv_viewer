@@ -61,23 +61,27 @@ void ncurses_init() {
 			print_exit_str("ncurses_init() Unable to init colors!\n");
 		}
 
-		if (init_pair(1, COLOR_WHITE, COLOR_BLUE) != OK) {
+		if (init_pair(CP_TABLE, COLOR_WHITE, COLOR_BLUE) != OK) {
 			print_exit_str("ncurses_init() Unable to init color pair!\n");
 		}
 
-		if (init_pair(2, COLOR_YELLOW, COLOR_CYAN) != OK) {
+		if (init_pair(CP_TABLE_HEADER, COLOR_YELLOW, COLOR_BLUE) != OK) {
 			print_exit_str("ncurses_init() Unable to init color pair!\n");
 		}
 
-		if (init_pair(3, COLOR_WHITE, COLOR_CYAN) != OK) {
+		if (init_pair(CP_CURSOR, COLOR_WHITE, COLOR_CYAN) != OK) {
 			print_exit_str("ncurses_init() Unable to init color pair!\n");
 		}
 
-		if (init_pair(4, COLOR_YELLOW, COLOR_BLUE) != OK) {
+		if (init_pair(CP_CURSOR_HEADER, COLOR_YELLOW, COLOR_CYAN) != OK) {
 			print_exit_str("ncurses_init() Unable to init color pair!\n");
 		}
 
-		if (bkgd(COLOR_PAIR(1)) != OK) {
+		if (init_pair(CP_STATUS, COLOR_BLACK, COLOR_WHITE) != OK) {
+			print_exit_str("ncurses_init() Unable to init color pair!\n");
+		}
+
+		if (wbkgd(stdscr, COLOR_PAIR(1)) != OK) {
 			print_exit_str("ncurses_init() Unable to set background color pair!\n");
 		}
 
@@ -85,11 +89,11 @@ void ncurses_init() {
 		// define the globale attributes, that can be used throughout the
 		// program.
 		//
-		attr_header = COLOR_PAIR(4) | A_BOLD;
+		attr_header = COLOR_PAIR(CP_TABLE_HEADER) | A_BOLD;
 
-		attr_cursor = COLOR_PAIR(3) | A_BOLD;
+		attr_cursor = COLOR_PAIR(CP_CURSOR) | A_BOLD;
 
-		attr_cursor_header = COLOR_PAIR(2) | A_BOLD;
+		attr_cursor_header = COLOR_PAIR(CP_CURSOR_HEADER) | A_BOLD;
 	}
 
 	// TODO: define attributes when no colors are available.

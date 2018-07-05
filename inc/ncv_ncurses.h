@@ -6,6 +6,20 @@
 #define INC_NCV_NCURSES_H_
 
 //
+// Color pairs
+//
+
+#define CP_TABLE 1
+
+#define CP_TABLE_HEADER 2
+
+#define CP_CURSOR 3
+
+#define CP_CURSOR_HEADER 4
+
+#define CP_STATUS 5
+
+//
 // gloabl attributes
 //
 int attr_header;
