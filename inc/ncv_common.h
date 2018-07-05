@@ -44,12 +44,31 @@
 #define W_CR       L'\r'
 #define W_DELIM    L','
 
+/***************************************************************************
+ * Definitions of enums and structs
+ **************************************************************************/
+
 //
 // A boolean type that can be undefined.
 //
 enum bool_defined {
 	BOOL_TRUE, BOOL_FLASE, BOOL_UNDEF
 };
+
+//
+// The struct defines a field with rows and columns.
+//
+typedef struct s_field {
+
+	int row;
+
+	int col;
+
+} s_field;
+
+/***************************************************************************
+ * Function definitions
+ **************************************************************************/
 
 //
 // Unrelated utility functions.
