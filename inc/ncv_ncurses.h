@@ -5,6 +5,8 @@
 #ifndef INC_NCV_NCURSES_H_
 #define INC_NCV_NCURSES_H_
 
+#include <ncursesw/ncurses.h>
+
 //
 // Color pairs
 //
@@ -29,14 +31,27 @@ int attr_cursor;
 int attr_cursor_header;
 
 //
+// The windows of the program
+//
+WINDOW* win_header;
+WINDOW* win_main;
+WINDOW* win_footer;
+
+//
 // exported functions
 //
-void ncurses_set_attr(const int attr);
-
-void ncurses_unset_attr();
-
 void ncurses_init();
 
 void ncurses_finish();
+
+void ncurses_resize_wins(const int win_y, const int win_x);
+
+void ncurses_refresh_all(const int win_y, const int win_x);
+
+void ncurses_set_attr(WINDOW *win, const int attr);
+
+void ncurses_unset_attr(WINDOW *win);
+
+
 
 #endif /* INC_NCV_NCURSES_H_ */
