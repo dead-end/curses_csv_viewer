@@ -91,28 +91,28 @@ void ncurses_resize_wins(const int win_y, const int win_x) {
 	}
 
 	//
-	// With a min height of 2, the main window is shown.
+	// With a min height of 2, the table window is shown.
 	//
 	if (win_y >= 2) {
 
 		//
 		// If the height is 2, the footer is not visible and does not affect
-		// the height of the main window.
+		// the height of the table window.
 		//
 		int y = (win_y == 2 ? 1 : win_y - 2);
 
 		//
 		// If win_y == 2 then the footer disappeared.
 		//
-		if (wresize(win_main, y, win_x) != OK) {
-			print_exit("ncurses_resize_wins() Unable to resize main window with y: %d x: %d\n", y, win_x);
+		if (wresize(win_table, y, win_x) != OK) {
+			print_exit("ncurses_resize_wins() Unable to resize table window with y: %d x: %d\n", y, win_x);
 		}
 
 		//
-		// Ensure that the main window is not pushed outside the window. If so,
+		// Ensure that the table window is not pushed outside the window. If so,
 		// move it back.
 		//
-		ncurses_win_move(win_main, 1, 0);
+		ncurses_win_move(win_table, 1, 0);
 	}
 
 	//
@@ -148,8 +148,8 @@ void ncurses_refresh_all(const int win_y, const int win_x) {
 			print_exit_str("ncurses_refresh_all() Unable to refresh the header win!\n");
 		}
 
-		if (win_y >= 2 && wnoutrefresh(win_main) != OK) {
-			print_exit_str("ncurses_refresh_all() Unable to refresh the main win!\n");
+		if (win_y >= 2 && wnoutrefresh(win_table) != OK) {
+			print_exit_str("ncurses_refresh_all() Unable to refresh the table win!\n");
 		}
 
 		if (win_y >= 3 && wnoutrefresh(win_footer) != OK) {
@@ -167,7 +167,7 @@ void ncurses_refresh_all(const int win_y, const int win_x) {
 
 /***************************************************************************
  * The function creates and initializes the three windows:
- *   header, main, footer
+ *   header, table, footer
  **************************************************************************/
 
 static void ncurses_init_wins(const int win_y, const int win_x) {
@@ -176,8 +176,8 @@ static void ncurses_init_wins(const int win_y, const int win_x) {
 		print_exit_str("ncurses_init_wins() Unable to create header win!\n");
 	}
 
-	if ((win_main = newwin(win_y - 2, win_x, 1, 0)) == NULL) {
-		print_exit_str("ncurses_init_wins() Unable to create main header win!\n");
+	if ((win_table = newwin(win_y - 2, win_x, 1, 0)) == NULL) {
+		print_exit_str("ncurses_init_wins() Unable to create table header win!\n");
 	}
 
 	if ((win_footer = newwin(1, win_x, win_y - 1, 0)) == NULL) {
@@ -189,8 +189,8 @@ static void ncurses_init_wins(const int win_y, const int win_x) {
 			print_exit_str("ncurses_init_wins() Unable to set bg for header win!\n");
 		}
 
-		if (wbkgd(win_main, COLOR_PAIR(CP_TABLE))) {
-			print_exit_str("ncurses_init_wins() Unable to set bg for main win!\n");
+		if (wbkgd(win_table, COLOR_PAIR(CP_TABLE))) {
+			print_exit_str("ncurses_init_wins() Unable to set bg for table win!\n");
 		}
 
 		if (wbkgd(win_footer, COLOR_PAIR(CP_STATUS))) {

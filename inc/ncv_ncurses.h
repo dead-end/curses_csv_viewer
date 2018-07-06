@@ -34,7 +34,7 @@ int attr_cursor_header;
 // The windows of the program
 //
 WINDOW* win_header;
-WINDOW* win_main;
+WINDOW* win_table;
 WINDOW* win_footer;
 
 //
@@ -51,7 +51,5 @@ void ncurses_refresh_all(const int win_y, const int win_x);
 void ncurses_set_attr(WINDOW *win, const int attr);
 
 void ncurses_unset_attr(WINDOW *win);
-
-
 
 #endif /* INC_NCV_NCURSES_H_ */
