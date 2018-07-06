@@ -17,7 +17,7 @@
 /**
  *
  */
-static void print_table(WINDOW *win, const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
+static void win_table_content_print(WINDOW *win, const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
 	//
 	// The absolute coordinates of the field with its borders in the window.
@@ -99,18 +99,18 @@ static void print_table(WINDOW *win, const s_table *table, const s_table_part *r
 				is_cursor = idx.row == cursor->row && idx.col == cursor->col;
 
 				if (is_cursor && idx.row == 0) {
-					ncurses_set_attr(attr_cursor_header);
+					ncurses_set_attr(win_table, attr_cursor_header);
 
 				} else if (is_cursor) {
-					ncurses_set_attr(attr_cursor);
+					ncurses_set_attr(win_table, attr_cursor);
 
 				} else if (idx.row == 0) {
-					ncurses_set_attr(attr_header);
+					ncurses_set_attr(win_table, attr_header);
 				}
 
 				print_field(win, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text);
 
-				ncurses_unset_attr();
+				ncurses_unset_attr(win_table);
 			}
 
 			//
@@ -209,20 +209,13 @@ static void print_table(WINDOW *win, const s_table *table, const s_table_part *r
 
 		win_field.row += row_field_part.size + num_borders.row;
 	}
-
-	//
-	// without moving the cursor at the end a flickering occurs, when the
-	// window is resized
-	//
-	move(0, 0);
-	refresh();
 }
 
 /***************************************************************************
  *
  **************************************************************************/
 
-void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, int win_y, int win_x, s_field *cursor) {
+void win_table_content_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, int win_y, int win_x, s_field *cursor) {
 
 	//
 	// update the visible part of the table
@@ -275,8 +268,11 @@ void do_resize(const s_table *table, s_table_part *row_table_part, s_table_part 
 
 void curses_loop(const s_table *table) {
 
+	bool update = true;
 	int keyInput;
+
 	int win_x, win_y;
+	int win_table_x, win_table_y;
 
 	s_table_part row_table_part;
 	s_table_part col_table_part;
@@ -285,28 +281,46 @@ void curses_loop(const s_table *table) {
 	cursor.row = 0;
 	cursor.col = 0;
 
-	// TODO: init
+	//
+	// Update the corners with the table sizes
+	//
 	s_corner_inits(table);
 
 	getmaxyx(stdscr, win_y, win_x);
+	print_debug("curses_loop() win stdscr  y: %d x: %d\n", win_y, win_x);
+
+	getmaxyx(win_table, win_table_y, win_table_x);
+	print_debug("curses_loop() win table y: %d x: %d\n", win_table_y, win_table_x);
 
 	print_debug_str("curses_loop() start\n");
 
-	s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_y);
-	s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_x);
+	s_table_part_update(&row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, win_table_y);
+	s_table_part_update(&col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, win_table_x);
 
 	while (true) {
 
 		//
+		// Print and refresh only if something changed.
 		//
-		// TODO: print only if necessary (example: input sdfsd)
-		//	erase();
-		print_table(stdscr, table, &row_table_part, &col_table_part, &cursor);
+		if (update) {
+			win_table_content_print(win_table, table, &row_table_part, &col_table_part, &cursor);
+			ncurses_refresh_all(win_y, win_x);
+			update = false;
+		}
+
+		//
+		// without moving the cursor at the end a flickering occurs, when the
+		// window is resized
+		//
+		move(0, 0);
 
 		keyInput = getch();
 
+		//
+		// ignore when there was a timeout - no data
+		//
 		if (keyInput == ERR) {
-			continue; /* ignore when there was a timeout - no data */
+			continue;
 
 		} else if (keyInput == 'q' || keyInput == 'Q') {
 			break;
@@ -316,8 +330,10 @@ void curses_loop(const s_table *table) {
 				cursor.row--;
 
 				if (is_index_before_first(&row_table_part, cursor.row)) {
-					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_y);
+					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_FORWARD, win_table_y);
 				}
+
+				update = true;
 			}
 
 		} else if (keyInput == KEY_DOWN) {
@@ -325,8 +341,10 @@ void curses_loop(const s_table *table) {
 				cursor.row++;
 
 				if (is_index_after_last(&row_table_part, cursor.row)) {
-					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_BACKWARD, win_y);
+					s_table_part_update(&row_table_part, table->height, cursor.row, table->no_rows, DIR_BACKWARD, win_table_y);
 				}
+
+				update = true;
 			}
 
 		} else if (keyInput == KEY_LEFT) {
@@ -334,8 +352,10 @@ void curses_loop(const s_table *table) {
 				cursor.col--;
 
 				if (is_index_before_first(&col_table_part, cursor.col)) {
-					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_x);
+					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_FORWARD, win_table_x);
 				}
+
+				update = true;
 			}
 
 		} else if (keyInput == KEY_RIGHT) {
@@ -343,19 +363,29 @@ void curses_loop(const s_table *table) {
 				cursor.col++;
 
 				if (is_index_after_last(&col_table_part, cursor.col)) {
-					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_BACKWARD, win_x);
+					s_table_part_update(&col_table_part, table->width, cursor.col, table->no_columns, DIR_BACKWARD, win_table_x);
 				}
+
+				update = true;
 			}
 
 		} else if (keyInput == KEY_RESIZE) {
 
 			//
-			// on resize of the window, get the new sizes
+			// On resize of the terminal, get the new size and resize all wins.
 			//
 			getmaxyx(stdscr, win_y, win_x);
-			print_debug("curses_loop() new win size y: %d x: %d\n", win_y, win_x);
+			print_debug("curses_loop() win stdscr  y: %d x: %d\n", win_y, win_x);
+			ncurses_resize_wins(win_y, win_x);
 
-			do_resize(table, &row_table_part, &col_table_part, win_y, win_x, &cursor);
+			//
+			// Resize the table content based on the new win_table size.
+			//
+			getmaxyx(win_table, win_table_y, win_table_x);
+			print_debug("curses_loop() win table y: %d x: %d\n", win_table_y, win_table_x);
+			win_table_content_resize(table, &row_table_part, &col_table_part, win_table_y, win_table_x, &cursor);
+
+			update = true;
 		}
 	}
 
