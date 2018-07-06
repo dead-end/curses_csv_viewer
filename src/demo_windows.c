@@ -65,7 +65,7 @@ static void refresh_all(const int win_y, const int win_x) {
  * The function moves the window to the new position, if it
  * has changed.
  */
-void win_move(WINDOW *win, const int to_y, const int to_x) {
+static void win_move(WINDOW *win, const int to_y, const int to_x) {
 	int from_y, from_x;
 
 	//
@@ -91,7 +91,7 @@ void win_move(WINDOW *win, const int to_y, const int to_x) {
 /**
  * The function resizes all windows. The footer window has to be moved.
  */
-void do_resize_windows(const int win_y, const int win_x) {
+static void do_resize_windows(const int win_y, const int win_x) {
 
 	if (win_x == 0 || win_y == 0) {
 		return;
