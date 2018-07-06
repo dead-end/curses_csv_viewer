@@ -6,7 +6,7 @@
 #include "ncv_corners.h"
 
 /***************************************************************************
- * The function and the macro are used to setup the corner definitions.
+ * The macro initializes a s_corner struct.
  **************************************************************************/
 
 #define s_corner_init(c,CO,TB,LR,PL,ROW,COL) \
@@ -16,6 +16,12 @@
 		c.plus = PL; \
 		c.table_corner_row = ROW; \
 		c.table_corner_col = COL
+
+/***************************************************************************
+ * The function initializes all s_corner structs. It uses the no_rows and
+ * no_columns of the table, so it has to be updated when every the table
+ * changes.
+ **************************************************************************/
 
 void s_corner_inits(const s_table *table) {
 
@@ -89,8 +95,7 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
  * most 4.
  **************************************************************************/
 
-// TODO: rename the parameters
-void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_cond, const bool col_cond, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn) {
+void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn) {
 
 	//
 	// This corner is always printed.
@@ -100,21 +105,21 @@ void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, co
 	//
 	// if the row is not truncated an additional border is printed.
 	//
-	if (row_cond) {
+	if (row_untruncated) {
 		print_corner(win, idx, win_field, win_field_end, ny);
 	}
 
 	//
 	// if the column is not truncated an additional border is printed.
 	//
-	if (col_cond) {
+	if (col_untruncated) {
 		print_corner(win, idx, win_field, win_field_end, yn);
 	}
 
 	//
 	// if the row and column is not truncated an additional border is printed.
 	//
-	if (row_cond && col_cond) {
+	if (row_untruncated && col_untruncated) {
 		print_corner(win, idx, win_field, win_field_end, nn);
 	}
 }
