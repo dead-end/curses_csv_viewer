@@ -128,7 +128,7 @@ int main(const int argc, char * const argv[]) {
 
 	ncurses_init();
 
-	curses_loop(&table);
+	curses_loop(&table, filename);
 
 	ncurses_finish();
 
