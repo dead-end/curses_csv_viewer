@@ -260,7 +260,6 @@ void ncurses_init() {
 
 	// TODO: remove
 	mvwaddstr(win_header, 0, 0, "header");
-	mvwaddstr(win_footer, 0, 0, "footer");
 
 	// TODO: define attributes when no colors are available.
 
