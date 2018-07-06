@@ -7,7 +7,7 @@
 #include <string.h>
 
 WINDOW* win_header;
-WINDOW* win_main;
+WINDOW* win_table;
 WINDOW* win_footer;
 
 #define STR_SIZE 20
@@ -21,7 +21,7 @@ static void print_str(const int x, const char* value, const int win_x) {
 
 	if (x + (int) strlen(value) <= win_x) {
 		mvwaddstr(win_header, 0, x, value);
-		mvwaddstr(win_main, 0, x, value);
+		mvwaddstr(win_table, 0, x, value);
 		mvwaddstr(win_footer, 0, x, value);
 	}
 }
@@ -44,7 +44,7 @@ static void refresh_all(const int win_y, const int win_x) {
 			return;
 		}
 
-		if (win_y >= 2 && wnoutrefresh(win_main) != OK) {
+		if (win_y >= 2 && wnoutrefresh(win_table) != OK) {
 			fprintf(stderr, "Unable to refresh the main win!\n");
 			return;
 		}
@@ -117,12 +117,12 @@ static void do_resize_windows(const int win_y, const int win_x) {
 		//
 		// If win_y == 2 then the footer disappeared.
 		//
-		if (wresize(win_main, y, win_x) != OK) {
+		if (wresize(win_table, y, win_x) != OK) {
 			fprintf(stderr, "Unable to resize main window!\n");
 			exit(1);
 		}
 
-		win_move(win_main, 1, 0);
+		win_move(win_table, 1, 0);
 	}
 
 	//
@@ -155,18 +155,18 @@ int main() {
 	getmaxyx(stdscr, win_y, win_x);
 
 	win_header = newwin(1, win_x, 0, 0);
-	win_main = newwin(win_y - 2, win_x, 1, 0);
+	win_table = newwin(win_y - 2, win_x, 1, 0);
 	win_footer = newwin(1, win_x, win_y - 1, 0);
 
 	wbkgd(win_header, COLOR_PAIR(1));
-	wbkgd(win_main, COLOR_PAIR(2));
+	wbkgd(win_table, COLOR_PAIR(2));
 	wbkgd(win_footer, COLOR_PAIR(1));
 
 	curs_set(0);
 	keypad(stdscr, TRUE);
 
 	mvwaddstr(win_header, 0, 0, "header");
-	mvwaddstr(win_main, 0, 0, "main");
+	mvwaddstr(win_table, 0, 0, "main");
 	mvwaddstr(win_footer, 0, 0, "footer");
 
 	snprintf(string, STR_SIZE, "x: %03d y: %03d", win_x, win_y);
