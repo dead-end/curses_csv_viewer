@@ -11,7 +11,7 @@
 
 #define BUFFER_SIZE 256
 
-void footer_content_resize(const char *filename, const s_table *table, const s_field *cursor) {
+void win_footer_content_print(const char *filename, const s_table *table, const s_field *cursor) {
 	char buf[BUFFER_SIZE];
 	int max_width, width;
 
