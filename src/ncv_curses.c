@@ -10,14 +10,91 @@
 #include "ncv_ncurses.h"
 #include "ncv_footer.h"
 
-/**
+/***************************************************************************
+ * The function initializes the cursor and the row / column table parts.
+ **************************************************************************/
+
+static void win_table_content_init(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor) {
+
+	print_debug_str("win_table_content_init() Initialize win table\n");
+
+	//
+	// Set the initial cursor position.
+	//
+	cursor->row = 0;
+	cursor->col = 0;
+
+	//
+	// Initialize the row / column table parts.
+	//
+	s_table_part_update(row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+	s_table_part_update(col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+}
+
+/***************************************************************************
+ * The function is called on resizing the win table. It updates the row /
+ * column table parts depending on the new win table size and the cursor
+ * position. It has to be ensured that the (field) cursor is always visible
+ * after resizing the win.
+ **************************************************************************/
+
+static void win_table_content_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor) {
+
+	//
+	// update the visible part of the table
+	//
+	s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, getmaxy(win_table));
+	s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, getmaxx(win_table));
+
+	//
+	// Adjust rows (see function doc: adjust_dir_on_resize)
+	//
+	if (adjust_dir_on_resize(row_table_part, table->no_rows - 1)) {
+		s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, getmaxy(win_table));
+
+		//
+		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
+		//
+	} else if (is_index_before_first(row_table_part, cursor->row)) {
+		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+
+		//
+		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
+		//
+	} else if (is_index_after_last(row_table_part, cursor->row)) {
+		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+	}
+
+	//
+	// Adjust columns (see function doc: adjust_dir_on_resize)
+	//
+	if (adjust_dir_on_resize(col_table_part, table->no_columns - 1)) {
+		s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, getmaxx(win_table));
+
+		//
+		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
+		//
+	} else if (is_index_before_first(col_table_part, cursor->col)) {
+		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+
+		//
+		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
+		//
+	} else if (is_index_after_last(col_table_part, cursor->col)) {
+		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+	}
+}
+
+/***************************************************************************
  * top or left starts with border => field has an offset
- */
+ **************************************************************************/
+
 #define get_row_col_offset(p, i) (((p)->direction == DIR_FORWARD || ((p)->truncated == -1 && i == (p)->first)) ? 1 : 0)
 
-/**
+/***************************************************************************
  *
- */
+ **************************************************************************/
+
 static void win_table_content_print(WINDOW *win, const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
 	//
@@ -213,79 +290,8 @@ static void win_table_content_print(WINDOW *win, const s_table *table, const s_t
 }
 
 /***************************************************************************
- *
- **************************************************************************/
-
-static void win_table_content_init(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor) {
-
-	print_debug_str("win_table_content_init() Initialize win table\n");
-
-	//
-	// Set the initial cursor position.
-	//
-	cursor->row = 0;
-	cursor->col = 0;
-
-	//
-	// Initialize the row / column table parts.
-	//
-	s_table_part_update(row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-	s_table_part_update(col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, getmaxx(win_table));
-}
-
-/***************************************************************************
- *
- **************************************************************************/
-
-static void win_table_content_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor) {
-
-	//
-	// update the visible part of the table
-	//
-	s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, getmaxy(win_table));
-	s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, getmaxx(win_table));
-
-	//
-	// Adjust rows
-	//
-	if (adjust_dir_on_resize(row_table_part, table->no_rows - 1)) {
-		s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, getmaxy(win_table));
-
-		//
-		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
-		//
-	} else if (is_index_before_first(row_table_part, cursor->row)) {
-		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-
-		//
-		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
-		//
-	} else if (is_index_after_last(row_table_part, cursor->row)) {
-		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
-	}
-
-	//
-	// Adjust columns
-	//
-	if (adjust_dir_on_resize(col_table_part, table->no_columns - 1)) {
-		s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, getmaxx(win_table));
-
-		//
-		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
-		//
-	} else if (is_index_before_first(col_table_part, cursor->col)) {
-		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
-
-		//
-		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
-		//
-	} else if (is_index_after_last(col_table_part, cursor->col)) {
-		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
-	}
-}
-
-/***************************************************************************
- *
+ * The function processes the arrow keys for the win table, which moves the
+ * (field) cursor. It returns a bool value, to indicate an update.
  **************************************************************************/
 
 bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor, const int key_input) {
@@ -352,7 +358,7 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
 
 void curses_loop(const s_table *table, const char *filename) {
 
-	bool update = true;
+	bool do_print = true;
 	bool do_continue = true;
 	int key_input;
 
@@ -375,11 +381,11 @@ void curses_loop(const s_table *table, const char *filename) {
 		//
 		// Print and refresh only if something changed.
 		//
-		if (update) {
+		if (do_print) {
 			win_table_content_print(win_table, table, &row_table_part, &col_table_part, &cursor);
 			win_footer_content_print(filename, table, &cursor);
 			ncurses_refresh_all();
-			update = false;
+			do_print = false;
 		}
 
 		//
@@ -407,7 +413,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		case KEY_DOWN:
 		case KEY_LEFT:
 		case KEY_RIGHT:
-			update = win_table_content_mv_cursor(table, &row_table_part, &col_table_part, &cursor, key_input);
+			do_print = win_table_content_mv_cursor(table, &row_table_part, &col_table_part, &cursor, key_input);
 			break;
 
 		case KEY_RESIZE:
@@ -422,8 +428,7 @@ void curses_loop(const s_table *table, const char *filename) {
 			//
 			win_table_content_resize(table, &row_table_part, &col_table_part, &cursor);
 
-			update = true;
-
+			do_print = true;
 			break;
 		}
 	}
