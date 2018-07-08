@@ -73,7 +73,11 @@ static void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
  * The function resizes all windows. The footer window has to be moved.
  **************************************************************************/
 
-void ncurses_resize_wins(const int win_y, const int win_x) {
+void ncurses_resize_wins() {
+	int win_y, win_x;
+
+	getmaxyx(stdscr, win_y, win_x);
+	print_debug("ncurses_resize_wins() win stdscr  y: %d x: %d\n", win_y, win_x);
 
 	//
 	// A width / height of 0 is not allowed for wresize.
@@ -136,7 +140,11 @@ void ncurses_resize_wins(const int win_y, const int win_x) {
  * too small, some windows disappear.
  **************************************************************************/
 
-void ncurses_refresh_all(const int win_y, const int win_x) {
+void ncurses_refresh_all() {
+	int win_y, win_x;
+
+	getmaxyx(stdscr, win_y, win_x);
+	print_debug("ncurses_refresh_all() win stdscr  y: %d x: %d\n", win_y, win_x);
 
 	if (win_x > 0) {
 

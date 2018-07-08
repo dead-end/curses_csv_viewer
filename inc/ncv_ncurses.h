@@ -44,9 +44,9 @@ void ncurses_init();
 
 void ncurses_finish();
 
-void ncurses_resize_wins(const int win_y, const int win_x);
+void ncurses_resize_wins();
 
-void ncurses_refresh_all(const int win_y, const int win_x);
+void ncurses_refresh_all();
 
 void ncurses_set_attr(WINDOW *win, const int attr);
 
