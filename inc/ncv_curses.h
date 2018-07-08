@@ -13,6 +13,6 @@
  * Function definitions
  **************************************************************************/
 
-void curses_loop(const s_table *table);
+void curses_loop(const s_table *table, const char *filename);
 
 #endif /* INC_NCV_CURSES_H_ */
