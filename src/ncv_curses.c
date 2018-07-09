@@ -86,6 +86,75 @@ static void win_table_content_resize(const s_table *table, s_table_part *row_tab
 }
 
 /***************************************************************************
+ * The function processes the arrow keys for the win table, which moves the
+ * (field) cursor. It returns a bool value, to indicate an update.
+ **************************************************************************/
+
+bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor, const int key_input) {
+
+	bool result = false;
+
+	print_debug("win_table_content_mv_cursor() old cursor position row: %d col: %d\n", cursor->row, cursor->col);
+
+	switch (key_input) {
+
+	case KEY_UP:
+		if (cursor->row - 1 >= 0) {
+			cursor->row--;
+
+			if (is_index_before_first(row_table_part, cursor->row)) {
+				s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+			}
+
+			result = true;
+		}
+		break;
+
+	case KEY_DOWN:
+		if (cursor->row + 1 < table->no_rows) {
+			cursor->row++;
+
+			if (is_index_after_last(row_table_part, cursor->row)) {
+				s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+			}
+
+			result = true;
+		}
+		break;
+
+	case KEY_LEFT:
+		if (cursor->col - 1 >= 0) {
+			cursor->col--;
+
+			if (is_index_before_first(col_table_part, cursor->col)) {
+				s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+			}
+
+			result = true;
+		}
+
+		break;
+
+	case KEY_RIGHT:
+		if (cursor->col + 1 < table->no_columns) {
+			cursor->col++;
+
+			if (is_index_after_last(col_table_part, cursor->col)) {
+				s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+			}
+
+			result = true;
+		}
+
+		break;
+	}
+
+	print_debug("win_table_content_mv_cursor() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
+
+	return result;
+}
+
+/***************************************************************************
  * top or left starts with border => field has an offset
  **************************************************************************/
 
@@ -287,69 +356,6 @@ static void win_table_content_print(WINDOW *win, const s_table *table, const s_t
 
 		win_field.row += row_field_part.size + num_borders.row;
 	}
-}
-
-/***************************************************************************
- * The function processes the arrow keys for the win table, which moves the
- * (field) cursor. It returns a bool value, to indicate an update.
- **************************************************************************/
-
-bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor, const int key_input) {
-
-	switch (key_input) {
-
-	case KEY_UP:
-		if (cursor->row - 1 >= 0) {
-			cursor->row--;
-
-			if (is_index_before_first(row_table_part, cursor->row)) {
-				s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-			}
-
-			return true;
-		}
-		break;
-
-	case KEY_DOWN:
-		if (cursor->row + 1 < table->no_rows) {
-			cursor->row++;
-
-			if (is_index_after_last(row_table_part, cursor->row)) {
-				s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
-			}
-
-			return true;
-		}
-		break;
-
-	case KEY_LEFT:
-		if (cursor->col - 1 >= 0) {
-			cursor->col--;
-
-			if (is_index_before_first(col_table_part, cursor->col)) {
-				s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
-			}
-
-			return true;
-		}
-
-		break;
-
-	case KEY_RIGHT:
-		if (cursor->col + 1 < table->no_columns) {
-			cursor->col++;
-
-			if (is_index_after_last(col_table_part, cursor->col)) {
-				s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
-			}
-
-			return true;
-		}
-
-		break;
-	}
-
-	return false;
 }
 
 /***************************************************************************
