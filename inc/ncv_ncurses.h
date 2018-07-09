@@ -5,12 +5,9 @@
 #ifndef INC_NCV_NCURSES_H_
 #define INC_NCV_NCURSES_H_
 
-#include <ncursesw/ncurses.h>
-
 //
 // Color pairs
 //
-
 #define CP_TABLE 1
 
 #define CP_TABLE_HEADER 2

@@ -8,6 +8,7 @@
 //
 // Common includes
 //
+#include <ncursesw/ncurses.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <wchar.h>

@@ -3,13 +3,19 @@
  *
  */
 
-#include <ncursesw/ncurses.h>
-
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 #include "ncv_table.h"
 
+/***************************************************************************
+ *
+ **************************************************************************/
+
 #define BUFFER_SIZE 256
+
+/***************************************************************************
+ *
+ **************************************************************************/
 
 void win_footer_content_print(const char *filename, const s_table *table, const s_field *cursor) {
 	char buf[BUFFER_SIZE];

@@ -5,7 +5,6 @@
 #ifndef INC_NCV_FIELD_H_
 #define INC_NCV_FIELD_H_
 
-#include <ncursesw/ncurses.h>
 #include "ncv_common.h"
 #include "ncv_table_part.h"
 

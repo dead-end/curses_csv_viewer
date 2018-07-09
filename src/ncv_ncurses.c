@@ -2,8 +2,6 @@
  * file: ncv_ncurses.c
  */
 
-#include <ncursesw/ncurses.h>
-
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 

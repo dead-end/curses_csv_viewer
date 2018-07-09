@@ -2,8 +2,6 @@
  * file: ncv_curses.c
  */
 
-#include <ncursesw/ncurses.h>
-
 #include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_curses.h"
@@ -90,7 +88,7 @@ static void win_table_content_resize(const s_table *table, s_table_part *row_tab
  * (field) cursor. It returns a bool value, to indicate an update.
  **************************************************************************/
 
-bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor, const int key_input) {
+static bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor, const int key_input) {
 
 	bool result = false;
 

@@ -4,7 +4,6 @@
 
 #include <locale.h>
 #include <unistd.h>
-//#include <ncursesw/ncurses.h>
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
