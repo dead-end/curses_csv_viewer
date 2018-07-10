@@ -275,6 +275,11 @@ void ncurses_init() {
 	// Switch off cursor by default
 	//
 	curs_set(0);
+
+	//
+	// Switch off echoing until the filter chars are inputed.
+	//
+	noecho();
 }
 
 /***************************************************************************
