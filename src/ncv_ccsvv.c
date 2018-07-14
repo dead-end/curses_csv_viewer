@@ -127,9 +127,14 @@ int main(const int argc, char * const argv[]) {
 
 	ncurses_init();
 
+	// TODO: ordentlich
+	if (on_exit(ncurses_finish, NULL) != 0) {
+		print_exit_str("Unable to register exit function!\n");
+	}
+
 	curses_loop(&table, filename);
 
-	ncurses_finish();
+	// ncurses_finish();
 
 	//
 	// free the allocated memory
