@@ -7,6 +7,7 @@
 #include "ncv_curses.h"
 #include "ncv_ncurses.h"
 #include "ncv_footer.h"
+#include "ncv_filter.h"
 
 /***************************************************************************
  * The function initializes the cursor and the row / column table parts.
@@ -410,6 +411,7 @@ void curses_loop(const s_table *table, const char *filename) {
 
 		case 'q':
 		case 'Q':
+		case CTRL('q'):
 			do_continue = false;
 			break;
 
@@ -433,6 +435,11 @@ void curses_loop(const s_table *table, const char *filename) {
 			win_table_content_resize(table, &row_table_part, &col_table_part, &cursor);
 
 			do_print = true;
+			break;
+
+
+		case CTRL('f'):
+			filter_loop();
 			break;
 		}
 	}

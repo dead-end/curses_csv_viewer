@@ -15,7 +15,7 @@ CC       = gcc
 DEBUG    = -DDEBUG -g
 WARNINGS = -Wall -Wextra -Wpedantic -Werror
 CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11
-LIBS     = $(shell ncursesw5-config --libs)
+LIBS     = $(shell ncursesw5-config --libs) -lformw 
 
 ############################################################################
 # LIBS
@@ -30,6 +30,7 @@ SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 SRC_LIBS += $(SRC_DIR)/ncv_corners.c
 SRC_LIBS += $(SRC_DIR)/ncv_field.c
 SRC_LIBS += $(SRC_DIR)/ncv_footer.c
+SRC_LIBS += $(SRC_DIR)/ncv_filter.c
 
 OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
 
