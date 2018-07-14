@@ -6,6 +6,10 @@
 #include "ncv_ncurses.h"
 #include "ncv_filter.h"
 
+#define HEADER_LABEL " ccsvv 0.1"
+
+#define HEADER_MIN_SIZE 10
+
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
  * after they are switched on.
@@ -46,7 +50,7 @@ void ncurses_unset_attr(WINDOW *win) {
  * has changed.
  **************************************************************************/
 
-static void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
+void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 	int from_y, from_x;
 
 	//
@@ -94,6 +98,8 @@ void ncurses_resize_wins() {
 		return;
 	}
 
+	// TODO: header_resize()
+
 	//
 	// The terminal has a min height of 1, so the header is always shown and
 	// always at the same position.
@@ -102,57 +108,11 @@ void ncurses_resize_wins() {
 		if (wresize(win_header, 1, win_x - WIN_FILTER_SIZE) != OK) {
 			print_exit("ncurses_resize_wins() Unable to resize header window with y: 1 x: %d\n", win_x);
 		}
-		mvwaddstr(win_header, 0, 0, " ccsvv 0.1");
+		wclear(win_header);
 
-		//
-		// The filter window has a constant size. If the stdscr is too small
-		// ncurses resizes the window.
-		//
-		if (getmaxy(win_filter) != WIN_FILTER_SIZE && wresize(win_filter, 1, WIN_FILTER_SIZE) != OK) {
-			print_exit_str("ncurses_resize_wins() Unable to resize filter window\n");
+		if (win_x - HEADER_MIN_SIZE - WIN_FILTER_SIZE > 0) {
+			mvwaddstr(win_header, 0, 0, " ccsvv 0.1");
 		}
-
-		ncurses_win_move(win_filter, 0, win_x - WIN_FILTER_SIZE);
-	}
-
-	//
-	// With a min height of 2, the table window is shown.
-	//
-	if (win_y >= 2) {
-
-		//
-		// If the height is 2, the footer is not visible and does not affect
-		// the height of the table window.
-		//
-		int y = (win_y == 2 ? 1 : win_y - 2);
-
-		//
-		// If win_y == 2 then the footer disappeared.
-		//
-		if (wresize(win_table, y, win_x) != OK) {
-			print_exit("ncurses_resize_wins() Unable to resize table window with y: %d x: %d\n", y, win_x);
-		}
-
-		//
-		// Ensure that the table window is not pushed outside the window. If so,
-		// move it back.
-		//
-		ncurses_win_move(win_table, 1, 0);
-	}
-
-	//
-	// The footer is only visible if the terminal has at least 3 lines.
-	//
-	if (win_y >= 3) {
-
-		if (wresize(win_footer, 1, win_x) != OK) {
-			print_exit("ncurses_resize_wins() Unable to resize footer window with y: 1 x: %d\n", win_x);
-		}
-
-		//
-		// Move the footer to the bottom of the terminal.
-		//
-		ncurses_win_move(win_footer, win_y - 1, 0);
 	}
 }
 
