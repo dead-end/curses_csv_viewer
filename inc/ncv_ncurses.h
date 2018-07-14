@@ -5,6 +5,14 @@
 #ifndef INC_NCV_NCURSES_H_
 #define INC_NCV_NCURSES_H_
 
+//TODO: Does it work???
+//
+// Check for control modifier
+//
+#ifndef CTRL
+#define CTRL(c) ((c) & 037)
+#endif
+
 //
 // Color pairs
 //
@@ -17,6 +25,8 @@
 #define CP_CURSOR_HEADER 4
 
 #define CP_STATUS 5
+
+//#define CP_STATUS_INPUT 6
 
 //
 // gloabl attributes
@@ -31,6 +41,7 @@ int attr_cursor_header;
 // The windows of the program
 //
 WINDOW* win_header;
+WINDOW* win_filter;
 WINDOW* win_table;
 WINDOW* win_footer;
 

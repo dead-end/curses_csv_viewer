@@ -4,6 +4,7 @@
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
+#include "ncv_filter.h"
 
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
@@ -46,7 +47,15 @@ void ncurses_unset_attr(WINDOW *win) {
  **************************************************************************/
 
 static void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
+	int result;
 	int from_y, from_x;
+
+	//
+	// Ensure that the target is valid.
+	//
+	if (to_y < 0 || to_x < 0) {
+		print_exit("ncurses_win_move() Win position is not valid - y: %d x: %d\n", to_y, to_x);
+	}
 
 	//
 	// Check whether the position changed.
@@ -62,8 +71,8 @@ static void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 	//
 	// Do the actual moving.
 	//
-	if (mvwin(win, to_y, to_x) != OK) {
-		print_exit_str("ncurses_win_move() Unable to move window!\n");
+	if ((result = mvwin(win, to_y, to_x)) != OK) {
+		print_exit("ncurses_win_move() Unable to move window: %d\n", result);
 	}
 }
 
@@ -88,9 +97,13 @@ void ncurses_resize_wins() {
 	// The terminal has a min height of 1, so the header is always shown and
 	// always at the same position.
 	//
-	if (wresize(win_header, 1, win_x) != OK) {
+
+	//TODO: ensure that win_x - WIN_FILTER_SIZE > 0
+	if (wresize(win_header, 1, win_x - WIN_FILTER_SIZE) != OK) {
 		print_exit("ncurses_resize_wins() Unable to resize header window with y: 1 x: %d\n", win_x);
 	}
+
+	ncurses_win_move(win_filter, 0, win_x - WIN_FILTER_SIZE);
 
 	//
 	// With a min height of 2, the table window is shown.
@@ -154,6 +167,10 @@ void ncurses_refresh_all() {
 			print_exit_str("ncurses_refresh_all() Unable to refresh the header win!\n");
 		}
 
+		if (win_y >= 1 && wnoutrefresh(win_filter) != OK) {
+			print_exit_str("ncurses_refresh_all() Unable to refresh the header win!\n");
+		}
+
 		if (win_y >= 2 && wnoutrefresh(win_table) != OK) {
 			print_exit_str("ncurses_refresh_all() Unable to refresh the table win!\n");
 		}
@@ -178,7 +195,12 @@ void ncurses_refresh_all() {
 
 static void ncurses_init_wins(const int win_y, const int win_x) {
 
-	if ((win_header = newwin(1, win_x, 0, 0)) == NULL) {
+	// TODO: Ensure that win_x - WIN_FILTER_SIZE > 0
+	if ((win_header = newwin(1, win_x - WIN_FILTER_SIZE, 0, 0)) == NULL) {
+		print_exit_str("ncurses_init_wins() Unable to create header win!\n");
+	}
+
+	if ((win_filter = newwin(1, WIN_FILTER_SIZE, 0, win_x - WIN_FILTER_SIZE)) == NULL) {
 		print_exit_str("ncurses_init_wins() Unable to create header win!\n");
 	}
 
@@ -195,11 +217,15 @@ static void ncurses_init_wins(const int win_y, const int win_x) {
 			print_exit_str("ncurses_init_wins() Unable to set bg for header win!\n");
 		}
 
-		if (wbkgd(win_table, COLOR_PAIR(CP_TABLE))) {
+		if (wbkgd(win_filter, COLOR_PAIR(CP_STATUS)) != OK) {
+			print_exit_str("ncurses_init_wins() Unable to set bg for header win!\n");
+		}
+
+		if (wbkgd(win_table, COLOR_PAIR(CP_TABLE)) != OK) {
 			print_exit_str("ncurses_init_wins() Unable to set bg for table win!\n");
 		}
 
-		if (wbkgd(win_footer, COLOR_PAIR(CP_STATUS))) {
+		if (wbkgd(win_footer, COLOR_PAIR(CP_STATUS)) != OK) {
 			print_exit_str("ncurses_init_wins() Unable to set bg for footer win!\n");
 		}
 	}
@@ -265,7 +291,8 @@ void ncurses_init() {
 	ncurses_init_wins(win_y, win_x);
 
 	// TODO: remove
-	mvwaddstr(win_header, 0, 0, "header");
+	mvwaddstr(win_header, 0, 0, " ccsvv 0.1");
+	filter_init(win_filter);
 
 	// TODO: define attributes when no colors are available.
 
@@ -287,5 +314,19 @@ void ncurses_init() {
  **************************************************************************/
 
 void ncurses_finish() {
+
+	filter_free();
+
+	//
+	// Delete windows
+	//
+	delwin(win_header);
+	delwin(win_filter);
+	delwin(win_table);
+	delwin(win_footer);
+
+	//
+	// Finish ncurses
+	//
 	endwin();
 }
