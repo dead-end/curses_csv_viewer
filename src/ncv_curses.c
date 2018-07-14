@@ -358,6 +358,41 @@ static void win_table_content_print(WINDOW *win, const s_table *table, const s_t
 }
 
 /***************************************************************************
+ * The function is called on resizing the terminal window.
+ **************************************************************************/
+
+void table_win_resize() {
+	int win_y, win_x;
+
+	getmaxyx(stdscr, win_y, win_x);
+
+	//
+	// With a min height of 2, the table window is shown.
+	//
+	if (win_y >= 2) {
+
+		//
+		// If the height is 2, the footer is not visible and does not affect
+		// the height of the table window.
+		//
+		int y = (win_y == 2 ? 1 : win_y - 2);
+
+		//
+		// If win_y == 2 then the footer disappeared.
+		//
+		if (wresize(win_table, y, win_x) != OK) {
+			print_exit("ncurses_resize_wins() Unable to resize table window with y: %d x: %d\n", y, win_x);
+		}
+
+		//
+		// Ensure that the table window is not pushed outside the window. If so,
+		// move it back.
+		//
+		ncurses_win_move(win_table, 1, 0);
+	}
+}
+
+/***************************************************************************
  *
  **************************************************************************/
 
@@ -388,7 +423,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		//
 		if (do_print) {
 			win_table_content_print(win_table, table, &row_table_part, &col_table_part, &cursor);
-			win_footer_content_print(filename, table, &cursor);
+			footer_content_print(filename, table, &cursor);
 			ncurses_refresh_all();
 			do_print = false;
 		}
@@ -428,6 +463,12 @@ void curses_loop(const s_table *table, const char *filename) {
 			// On resize of the terminal, get the new size and resize all wins.
 			//
 			ncurses_resize_wins();
+
+			table_win_resize();
+
+			filter_resize();
+
+			footer_resize();
 
 			//
 			// Resize the table content based on the new win_table size.
