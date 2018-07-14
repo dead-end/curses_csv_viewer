@@ -75,3 +75,26 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
 		mvwaddstr(win_footer, 0, 0, buf);
 	}
 }
+
+/***************************************************************************
+ * The function is called on resizing the terminal window.
+ **************************************************************************/
+
+void win_footer_resize() {
+	//
+	// The footer is only visible if the terminal has at least 3 rows. One
+	// row for the header and one row for the table and one row for the
+	// footer.
+	//
+	if (getmaxy(stdscr) >= 3) {
+
+		if (wresize(win_footer, 1, getmaxx(stdscr)) != OK) {
+			print_exit("ncurses_resize_wins() Unable to resize footer window with y: 1 x: %d\n", getmaxx(stdscr));
+		}
+
+		//
+		// Move the footer to the bottom of the terminal.
+		//
+		ncurses_win_move(win_footer, getmaxy(stdscr) - 1, 0);
+	}
+}
