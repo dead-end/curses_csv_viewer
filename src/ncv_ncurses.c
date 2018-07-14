@@ -47,7 +47,6 @@ void ncurses_unset_attr(WINDOW *win) {
  **************************************************************************/
 
 static void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
-	int result;
 	int from_y, from_x;
 
 	//
@@ -71,8 +70,10 @@ static void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 	//
 	// Do the actual moving.
 	//
-	if ((result = mvwin(win, to_y, to_x)) != OK) {
-		print_exit("ncurses_win_move() Unable to move window: %d\n", result);
+	if (mvwin(win, to_y, to_x) != OK) {
+		print_debug("ncurses_win_move() stdscr max y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
+		print_debug("ncurses_win_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
+		print_exit_str("ncurses_win_move() Unable to move window\n");
 	}
 }
 
@@ -97,13 +98,22 @@ void ncurses_resize_wins() {
 	// The terminal has a min height of 1, so the header is always shown and
 	// always at the same position.
 	//
+	if (win_x - WIN_FILTER_SIZE > 0) {
+		if (wresize(win_header, 1, win_x - WIN_FILTER_SIZE) != OK) {
+			print_exit("ncurses_resize_wins() Unable to resize header window with y: 1 x: %d\n", win_x);
+		}
+		mvwaddstr(win_header, 0, 0, " ccsvv 0.1");
 
-	//TODO: ensure that win_x - WIN_FILTER_SIZE > 0
-	if (wresize(win_header, 1, win_x - WIN_FILTER_SIZE) != OK) {
-		print_exit("ncurses_resize_wins() Unable to resize header window with y: 1 x: %d\n", win_x);
+		//
+		// The filter window has a constant size. If the stdscr is too small
+		// ncurses resizes the window.
+		//
+		if (getmaxy(win_filter) != WIN_FILTER_SIZE && wresize(win_filter, 1, WIN_FILTER_SIZE) != OK) {
+			print_exit_str("ncurses_resize_wins() Unable to resize filter window\n");
+		}
+
+		ncurses_win_move(win_filter, 0, win_x - WIN_FILTER_SIZE);
 	}
-
-	ncurses_win_move(win_filter, 0, win_x - WIN_FILTER_SIZE);
 
 	//
 	// With a min height of 2, the table window is shown.
@@ -168,7 +178,7 @@ void ncurses_refresh_all() {
 		}
 
 		if (win_y >= 1 && wnoutrefresh(win_filter) != OK) {
-			print_exit_str("ncurses_refresh_all() Unable to refresh the header win!\n");
+			print_exit_str("ncurses_refresh_all() Unable to refresh the filter win!\n");
 		}
 
 		if (win_y >= 2 && wnoutrefresh(win_table) != OK) {
@@ -320,6 +330,7 @@ void ncurses_finish() {
 	//
 	// Delete windows
 	//
+	//TODO: error handling
 	delwin(win_header);
 	delwin(win_filter);
 	delwin(win_table);
