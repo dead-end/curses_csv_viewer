@@ -18,7 +18,7 @@
  * enough space, the filename is shorten or completely left out.
  **************************************************************************/
 
-void win_footer_content_print(const char *filename, const s_table *table, const s_field *cursor) {
+void footer_content_print(const char *filename, const s_table *table, const s_field *cursor) {
 	char buf[BUFFER_SIZE];
 	int max_width, strlen_row_col, strlen_filename;
 
@@ -80,7 +80,7 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
  * The function is called on resizing the terminal window.
  **************************************************************************/
 
-void win_footer_resize() {
+void footer_resize() {
 	//
 	// The footer is only visible if the terminal has at least 3 rows. One
 	// row for the header and one row for the table and one row for the
