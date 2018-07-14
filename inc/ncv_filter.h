@@ -18,6 +18,8 @@
 
 void filter_init(WINDOW *win);
 
+void filter_resize();
+
 void filter_free();
 
 void filter_loop();

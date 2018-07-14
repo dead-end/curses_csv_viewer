@@ -40,7 +40,7 @@ void filter_init(WINDOW *filter_win) {
 	}
 
 	//
-	// Create the form and post it.
+	// Create the filter form.
 	//
 	filter_form = new_form(field);
 	if (filter_form == NULL) {
@@ -87,6 +87,37 @@ void filter_init(WINDOW *filter_win) {
 }
 
 /***************************************************************************
+ * The function is called on resizing the terminal window. The filter window
+ * has a constant size. So it has to be ensured that the terminal window is
+ * large enough.
+ *
+ * If the terminal window is smaller the window is resized by ncurses and
+ * has to be given the correct size.
+ **************************************************************************/
+
+void filter_resize() {
+
+	//
+	// Ensure that the window is large enough for the filter window.
+	//
+	if (getmaxx(stdscr) - WIN_FILTER_SIZE > 0) {
+
+		//
+		// The filter window has a constant size. If the stdscr is too small
+		// ncurses resizes the window.
+		//
+		if (getmaxy(win_filter) != WIN_FILTER_SIZE && wresize(win_filter, 1, WIN_FILTER_SIZE) != OK) {
+			print_exit_str("ncurses_resize_wins() Unable to resize filter window\n");
+		}
+
+		//
+		// Move the filter window to the new position.
+		//
+		ncurses_win_move(win_filter, 0, getmaxx(stdscr) - WIN_FILTER_SIZE);
+	}
+}
+
+/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 
@@ -116,8 +147,6 @@ void filter_free() {
 void filter_loop() {
 	wint_t chr;
 	int key_type;
-
-	//form_driver(filter_form, REQ_FIRST_FIELD);
 
 	wmove(win_filter, 0, FILTER_FIELD_LABEL_LEN);
 	curs_set(1);
@@ -172,6 +201,7 @@ void filter_loop() {
 			default:
 				break;
 			}
+
 			break;
 		case OK:
 			switch (chr) {
