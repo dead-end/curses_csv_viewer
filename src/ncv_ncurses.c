@@ -4,11 +4,8 @@
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
+#include "ncv_header.h"
 #include "ncv_filter.h"
-
-#define HEADER_LABEL " ccsvv 0.1"
-
-#define HEADER_MIN_SIZE 10
 
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
@@ -78,41 +75,6 @@ void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 		print_debug("ncurses_win_move() stdscr max y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
 		print_debug("ncurses_win_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
 		print_exit_str("ncurses_win_move() Unable to move window\n");
-	}
-}
-
-/***************************************************************************
- * The function resizes all windows. The footer window has to be moved.
- **************************************************************************/
-
-void ncurses_resize_wins() {
-	int win_y, win_x;
-
-	getmaxyx(stdscr, win_y, win_x);
-	print_debug("ncurses_resize_wins() win stdscr  y: %d x: %d\n", win_y, win_x);
-
-	//
-	// A width / height of 0 is not allowed for wresize.
-	//
-	if (win_x == 0 || win_y == 0) {
-		return;
-	}
-
-	// TODO: header_resize()
-
-	//
-	// The terminal has a min height of 1, so the header is always shown and
-	// always at the same position.
-	//
-	if (win_x - WIN_FILTER_SIZE > 0) {
-		if (wresize(win_header, 1, win_x - WIN_FILTER_SIZE) != OK) {
-			print_exit("ncurses_resize_wins() Unable to resize header window with y: 1 x: %d\n", win_x);
-		}
-		wclear(win_header);
-
-		if (win_x - HEADER_MIN_SIZE - WIN_FILTER_SIZE > 0) {
-			mvwaddstr(win_header, 0, 0, " ccsvv 0.1");
-		}
 	}
 }
 
@@ -264,8 +226,8 @@ void ncurses_init() {
 
 	ncurses_init_wins(win_y, win_x);
 
-	// TODO: remove
-	mvwaddstr(win_header, 0, 0, " ccsvv 0.1");
+	header_init();
+
 	filter_init(win_filter);
 
 	// TODO: define attributes when no colors are available.
