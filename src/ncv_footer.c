@@ -81,6 +81,7 @@ void footer_content_print(const char *filename, const s_table *table, const s_fi
  **************************************************************************/
 
 void footer_resize() {
+
 	//
 	// The footer is only visible if the terminal has at least 3 rows. One
 	// row for the header and one row for the table and one row for the
