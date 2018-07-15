@@ -6,8 +6,9 @@
 #include "ncv_table.h"
 #include "ncv_curses.h"
 #include "ncv_ncurses.h"
-#include "ncv_footer.h"
+#include "ncv_header.h"
 #include "ncv_filter.h"
+#include "ncv_footer.h"
 
 /***************************************************************************
  * The function initializes the cursor and the row / column table parts.
@@ -462,11 +463,12 @@ void curses_loop(const s_table *table, const char *filename) {
 			//
 			// On resize of the terminal, get the new size and resize all wins.
 			//
-			ncurses_resize_wins();
 
 			table_win_resize();
 
 			filter_resize();
+
+			header_resize();
 
 			footer_resize();
 
