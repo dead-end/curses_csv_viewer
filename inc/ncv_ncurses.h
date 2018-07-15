@@ -26,6 +26,8 @@
 
 #define CP_STATUS 5
 
+#define CP_FIELD 6
+
 //#define CP_STATUS_INPUT 6
 
 //

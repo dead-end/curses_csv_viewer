@@ -247,6 +247,10 @@ void ncurses_init() {
 			print_exit_str("ncurses_init() Unable to init color pair!\n");
 		}
 
+		if (init_pair(CP_FIELD, COLOR_YELLOW, COLOR_BLACK) != OK) {
+			print_exit_str("ncurses_init() Unable to init color pair!\n");
+		}
+
 		//
 		// define the globale attributes, that can be used throughout the
 		// program.
