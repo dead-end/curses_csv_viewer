@@ -36,8 +36,10 @@ void header_resize() {
 	// always at the same position.
 	//
 	if (getmaxx(stdscr) - WIN_FILTER_SIZE > 0) {
-		if (wresize(win_header, 1, getmaxx(stdscr) - WIN_FILTER_SIZE) != OK) {
-			print_exit("header_resize() Unable to resize header window with y: 1 x: %d\n", getmaxx(stdscr));
+
+		if (!ncurses_win_resize(win_header, 1, getmaxx(stdscr) - WIN_FILTER_SIZE)) {
+			print_debug_str("header_resize() Window size has not changed!\n");
+			return;
 		}
 
 		wclear(win_header);
