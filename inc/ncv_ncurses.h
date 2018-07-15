@@ -64,4 +64,6 @@ void ncurses_unset_attr(WINDOW *win);
 
 void ncurses_win_move(WINDOW *win, const int to_y, const int to_x);
 
+bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x);
+
 #endif /* INC_NCV_NCURSES_H_ */

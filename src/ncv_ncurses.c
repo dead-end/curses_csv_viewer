@@ -79,6 +79,39 @@ void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 }
 
 /***************************************************************************
+ *
+ **************************************************************************/
+
+bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
+	int from_y, from_x;
+	int result;
+
+	//
+	// Ensure that the target is valid.
+	//
+	if (to_y < 1 || to_x < 1) {
+		print_exit("ncurses_win_resize() Win size is not valid - y: %d x: %d\n", to_y, to_x);
+	}
+
+	//
+	// Check whether the position changed.
+	//
+	getmaxyx(win, from_y, from_x);
+	print_debug("ncurses_win_resize() Win size from y: %d x: %d to y: %d x: %d\n", from_y, from_x, to_y, to_x);
+
+	if (from_y == to_y && from_x == to_x) {
+		print_debug_str("ncurses_win_resize() Win size has not changed\n");
+		return false;
+	}
+
+	if ((result = wresize(win, to_y, to_x)) != OK) {
+		print_exit("ncurses_win_resize() Unable to resize window (result: %d)\n", result);
+	}
+
+	return true;
+}
+
+/***************************************************************************
  * The function refreshes all windows that are visible. If the terminal is
  * too small, some windows disappear.
  **************************************************************************/
