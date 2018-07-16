@@ -1,12 +1,9 @@
 /*
- * ncv_filter.h
- *
- *  Created on: 12.07.2018
- *      Author: besen
+ * ncv_win_filter.h
  */
 
-#ifndef INC_NCV_FILTER_H_
-#define INC_NCV_FILTER_H_
+#ifndef INC_NCV_WIN_FILTER_H_
+#define INC_NCV_WIN_FILTER_H_
 
 #define FILTER_FIELD_ROWS 1
 #define FILTER_FIELD_COLS 32
@@ -24,4 +21,4 @@ void filter_free();
 
 void filter_loop();
 
-#endif /* INC_NCV_FILTER_H_ */
+#endif /* INC_NCV_WIN_FILTER_H_ */
