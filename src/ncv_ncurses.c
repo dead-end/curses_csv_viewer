@@ -4,8 +4,8 @@
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
-#include "ncv_header.h"
-#include "ncv_filter.h"
+#include "ncv_win_header.h"
+#include "ncv_win_filter.h"
 
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
@@ -104,6 +104,7 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 		return false;
 	}
 
+	//TODO: use ncurses function
 	if ((result = wresize(win, to_y, to_x)) != OK) {
 		print_exit("ncurses_win_resize() Unable to resize window (result: %d)\n", result);
 	}
