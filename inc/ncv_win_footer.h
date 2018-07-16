@@ -9,8 +9,8 @@
 //
 // exported functions
 //
-void footer_content_print(const char* filename, const s_table *table, const s_field *cursor);
+void win_footer_content_print(const char* filename, const s_table *table, const s_field *cursor);
 
-void footer_resize();
+void win_footer_resize();
 
 #endif /* INC_NCV_FOOTER_H_ */

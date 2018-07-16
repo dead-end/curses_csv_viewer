@@ -18,7 +18,7 @@
  * size is OK, the label is printed.
  **************************************************************************/
 
-void header_init() {
+void win_header_init() {
 
 	if (getmaxx(stdscr) - HEADER_MIN_SIZE - WIN_FILTER_SIZE > 0) {
 		mvwaddstr(win_header, 0, 0, HEADER_LABEL);
@@ -29,7 +29,7 @@ void header_init() {
  * The function is called on resizing the terminal window.
  **************************************************************************/
 
-void header_resize() {
+void win_header_resize() {
 
 	//
 	// The terminal has a min height of 1, so the header is always shown and
@@ -38,7 +38,7 @@ void header_resize() {
 	if (getmaxx(stdscr) - WIN_FILTER_SIZE > 0) {
 
 		if (!ncurses_win_resize(win_header, 1, getmaxx(stdscr) - WIN_FILTER_SIZE)) {
-			print_debug_str("header_resize() Window size has not changed!\n");
+			print_debug_str("win_header_resize() Window size has not changed!\n");
 			return;
 		}
 

@@ -8,8 +8,8 @@
 //
 // exported functions
 //
-void header_init();
+void win_header_init();
 
-void header_resize();
+void win_header_resize();
 
 #endif /* INC_NCV_WIN_HEADER_H_ */
