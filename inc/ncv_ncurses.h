@@ -28,17 +28,6 @@
 
 #define CP_FIELD 6
 
-//#define CP_STATUS_INPUT 6
-
-//
-// gloabl attributes
-//
-int attr_header;
-
-int attr_cursor;
-
-int attr_cursor_header;
-
 //
 // The windows of the program
 //
@@ -48,8 +37,12 @@ WINDOW* win_table;
 WINDOW* win_footer;
 
 //
-// exported functions
+// Exported functions and macros.
 //
+#define ncurses_attr_color(c,a) (has_colors() ? c : a)
+
+void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt);
+
 void ncurses_init();
 
 void ncurses_finish();
