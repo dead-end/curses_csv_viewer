@@ -1,10 +1,10 @@
 /*
- * ncv_header.c
+ * ncv_win_header.c
  */
 
+#include "ncv_win_filter.h"
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
-#include "ncv_filter.h"
 
 //
 // Definition of the label

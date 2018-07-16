@@ -1,9 +1,9 @@
 /*
- * ncv_header.c
+ * ncv_win_filter.c
  */
+#include "ncv_win_filter.h"
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
-#include "ncv_filter.h"
 
 /***************************************************************************
  * The necessary field / form / window variables are defined as static.
@@ -110,6 +110,7 @@ void filter_resize() {
 		// The filter window has a constant size. If the stdscr is too small
 		// ncurses resizes the window.
 		//
+		//TODO: use ncurses function
 		if (getmaxy(win_filter) != WIN_FILTER_SIZE && wresize(win_filter, 1, WIN_FILTER_SIZE) != OK) {
 			print_exit_str("ncurses_resize_wins() Unable to resize filter window\n");
 		}

@@ -1,5 +1,5 @@
 /*
- * ncv_footer.c
+ * ncv_win_footer.c
  *
  */
 
@@ -89,6 +89,7 @@ void footer_resize() {
 	//
 	if (getmaxy(stdscr) >= 3) {
 
+		//TODO: use ncurses function
 		if (wresize(win_footer, 1, getmaxx(stdscr)) != OK) {
 			print_exit("ncurses_resize_wins() Unable to resize footer window with y: 1 x: %d\n", getmaxx(stdscr));
 		}
