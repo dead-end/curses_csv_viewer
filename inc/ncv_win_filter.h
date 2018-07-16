@@ -15,12 +15,12 @@
 
 #define WIN_FILTER_SIZE (FILTER_FIELD_COLS + FILTER_FIELD_LABEL_LEN + 1)
 
-void filter_init(WINDOW *win);
+void win_filter_init(WINDOW *win);
 
-void filter_resize();
+void win_filter_resize();
 
-void filter_free();
+void win_filter_free();
 
-void filter_loop();
+void win_filter_loop();
 
 #endif /* INC_NCV_WIN_FILTER_H_ */

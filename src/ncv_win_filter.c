@@ -19,7 +19,7 @@ static WINDOW *win_filter_sub;
  * The function initializes the filter window.
  **************************************************************************/
 
-void filter_init(WINDOW *filter_win) {
+void win_filter_init(WINDOW *filter_win) {
 	int result;
 
 	//
@@ -27,7 +27,7 @@ void filter_init(WINDOW *filter_win) {
 	//
 	field[0] = new_field(FILTER_FIELD_ROWS, FILTER_FIELD_COLS, 0, FILTER_FIELD_LABEL_LEN, 0, 0);
 	if (field[0] == NULL) {
-		print_exit_str("filter_init() Unable to create filter field!\n");
+		print_exit_str("win_filter_init() Unable to create filter field!\n");
 	}
 
 	field[1] = NULL;
@@ -36,11 +36,11 @@ void filter_init(WINDOW *filter_win) {
 	// Switch off autoskip for the field.
 	//
 	if ((result = field_opts_off(field[0], O_AUTOSKIP)) != E_OK) {
-		print_exit("filter_init() Unable to set option: O_AUTOSKIP result: %d\n", result);
+		print_exit("win_filter_init() Unable to set option: O_AUTOSKIP result: %d\n", result);
 	}
 
 	if ((result = set_field_back(field[0], COLOR_PAIR(CP_FIELD))) != E_OK) {
-		print_exit("filter_init() Unable to set field background result: %d\n", result);
+		print_exit("win_filter_init() Unable to set field background result: %d\n", result);
 	}
 
 	//
@@ -48,7 +48,7 @@ void filter_init(WINDOW *filter_win) {
 	//
 	filter_form = new_form(field);
 	if (filter_form == NULL) {
-		print_exit_str("filter_init() Unable to create filter form!\n");
+		print_exit_str("win_filter_init() Unable to create filter form!\n");
 	}
 
 	//
@@ -56,25 +56,25 @@ void filter_init(WINDOW *filter_win) {
 	//
 	win_filter_sub = derwin(filter_win, getmaxy(filter_win), getmaxx(filter_win), 0, 0);
 	if (win_filter_sub == NULL) {
-		print_exit("filter_init() Unable to create sub window with y: %d x: %d\n", getmaxy(filter_win), getmaxx(filter_win));
+		print_exit("win_filter_init() Unable to create sub window with y: %d x: %d\n", getmaxy(filter_win), getmaxx(filter_win));
 	}
 
 	//
 	// Set the form to the window and the sub window.
 	//
 	if ((result = set_form_win(filter_form, filter_win)) != E_OK) {
-		print_exit("filter_init() Unable to set form to the window: %d\n", result);
+		print_exit("win_filter_init() Unable to set form to the window: %d\n", result);
 	}
 
 	if ((result = set_form_sub(filter_form, win_filter_sub)) != E_OK) {
-		print_exit("filter_init() Unable to set form to the sub window: %d\n", result);
+		print_exit("win_filter_init() Unable to set form to the sub window: %d\n", result);
 	}
 
 	//
 	// Post the form. (E_NO_ROOM is returned if the window is too small)
 	//
 	if ((result = post_form(filter_form)) != E_OK) {
-		print_exit("filter_init() Unable to post filter form: %d\n", result);
+		print_exit("win_filter_init() Unable to post filter form: %d\n", result);
 	}
 
 	//
@@ -99,7 +99,7 @@ void filter_init(WINDOW *filter_win) {
  * has to be given the correct size.
  **************************************************************************/
 
-void filter_resize() {
+void win_filter_resize() {
 
 	//
 	// Ensure that the window is large enough for the filter window.
@@ -112,7 +112,7 @@ void filter_resize() {
 		//
 		//TODO: use ncurses function
 		if (getmaxy(win_filter) != WIN_FILTER_SIZE && wresize(win_filter, 1, WIN_FILTER_SIZE) != OK) {
-			print_exit_str("ncurses_resize_wins() Unable to resize filter window\n");
+			print_exit_str("win_filter_resize() Unable to resize filter window\n");
 		}
 
 		//
@@ -126,22 +126,22 @@ void filter_resize() {
  * The function frees the allocated resources.
  **************************************************************************/
 
-void filter_free() {
+void win_filter_free() {
 
 	if (unpost_form(filter_form) != E_OK) {
-		print_exit_str("filter_free() Unable to unpost form!\n");
+		print_exit_str("win_filter_free() Unable to unpost form!\n");
 	}
 
 	if (free_form(filter_form) != E_OK) {
-		print_exit_str("filter_free() Unable to free form!\n");
+		print_exit_str("win_filter_free() Unable to free form!\n");
 	}
 
 	if (free_field(field[0]) != E_OK) {
-		print_exit_str("filter_free() Unable to free field!\n");
+		print_exit_str("win_filter_free() Unable to free field!\n");
 	}
 
 	if (delwin(win_filter_sub) != E_OK) {
-		print_exit_str("filter_free() Unable to free sub window!\n");
+		print_exit_str("win_filter_free() Unable to free sub window!\n");
 	}
 }
 
@@ -149,7 +149,7 @@ void filter_free() {
  *
  **************************************************************************/
 
-void filter_loop() {
+void win_filter_loop() {
 	wint_t chr;
 	int key_type;
 
