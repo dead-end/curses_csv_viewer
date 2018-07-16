@@ -39,7 +39,7 @@ void win_filter_init(WINDOW *filter_win) {
 		print_exit("win_filter_init() Unable to set option: O_AUTOSKIP result: %d\n", result);
 	}
 
-	if ((result = set_field_back(field[0], COLOR_PAIR(CP_FIELD))) != E_OK) {
+	if ((result = set_field_back(field[0], ncurses_attr_color(COLOR_PAIR(CP_FIELD), A_UNDERLINE))) != E_OK) {
 		print_exit("win_filter_init() Unable to set field background result: %d\n", result);
 	}
 
