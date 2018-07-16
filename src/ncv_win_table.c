@@ -5,10 +5,69 @@
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
-#include "ncv_table.h"
-#include "ncv_table_part.h"
 #include "ncv_field.h"
 #include "ncv_corners.h"
+
+//
+// Define attributes that are dynamically set.
+//
+static int attr_header;
+
+static int attr_cursor;
+
+static int attr_cursor_header;
+
+/***************************************************************************
+ * The function initializes the table window.
+ **************************************************************************/
+
+void win_table_init() {
+
+	//
+	// Set the dynamic attributes depending on whether the terminal supports
+	// colors.
+	//
+	attr_header = ncurses_attr_color(COLOR_PAIR(CP_TABLE_HEADER) | A_BOLD, A_BOLD);
+
+	attr_cursor = ncurses_attr_color(COLOR_PAIR(CP_CURSOR) | A_BOLD, A_REVERSE);
+
+	attr_cursor_header = ncurses_attr_color(COLOR_PAIR(CP_CURSOR_HEADER) | A_BOLD, A_REVERSE | A_BOLD);
+}
+
+/***************************************************************************
+ * The function is called on resizing the terminal window.
+ **************************************************************************/
+
+void win_table_resize() {
+	int win_y, win_x;
+
+	print_debug_str("win_table_resize() Start resize.");
+
+	getmaxyx(stdscr, win_y, win_x);
+
+	//
+	// With a min height of 2, the table window is shown.
+	//
+	if (win_y >= 2) {
+
+		//
+		// If the height is 2, the footer is not visible and does not affect
+		// the height of the table window.
+		//
+		int y = (win_y == 2 ? 1 : win_y - 2);
+
+		//
+		// If win_y == 2 then the footer disappeared.
+		//
+		ncurses_win_resize(win_table, y, win_x);
+
+		//
+		// Ensure that the table window is not pushed outside the window. If so,
+		// move it back.
+		//
+		ncurses_win_move(win_table, 1, 0);
+	}
+}
 
 /***************************************************************************
  * The function initializes the cursor and the row / column table parts.
@@ -355,40 +414,5 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 		}
 
 		win_field.row += row_field_part.size + num_borders.row;
-	}
-}
-
-/***************************************************************************
- * The function is called on resizing the terminal window.
- **************************************************************************/
-
-void win_table_resize() {
-	int win_y, win_x;
-
-	print_debug_str("win_table_resize() Start resize.");
-
-	getmaxyx(stdscr, win_y, win_x);
-
-	//
-	// With a min height of 2, the table window is shown.
-	//
-	if (win_y >= 2) {
-
-		//
-		// If the height is 2, the footer is not visible and does not affect
-		// the height of the table window.
-		//
-		int y = (win_y == 2 ? 1 : win_y - 2);
-
-		//
-		// If win_y == 2 then the footer disappeared.
-		//
-		ncurses_win_resize(win_table, y, win_x);
-
-		//
-		// Ensure that the table window is not pushed outside the window. If so,
-		// move it back.
-		//
-		ncurses_win_move(win_table, 1, 0);
 	}
 }
