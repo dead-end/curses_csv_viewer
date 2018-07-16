@@ -1,5 +1,5 @@
 /*
- * ncv_footer.h
+ * ncv_win_footer.h
  *
  */
 

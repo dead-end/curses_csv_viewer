@@ -10,7 +10,7 @@
 //
 // Size of the string buffer.
 //
-#define BUFFER_SIZE 1024
+#define FOOTER_WIN_MAX 1024
 
 /***************************************************************************
  * The function prints the footer line, which consists of the current row /
@@ -19,7 +19,7 @@
  **************************************************************************/
 
 void win_footer_content_print(const char *filename, const s_table *table, const s_field *cursor) {
-	char buf[BUFFER_SIZE];
+	char buf[FOOTER_WIN_MAX];
 	int max_width, strlen_row_col, strlen_filename;
 
 	//
@@ -32,7 +32,7 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
 	//
 	// Try to print row / column infos
 	//
-	snprintf(buf, BUFFER_SIZE, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
+	snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
 	strlen_row_col = (int) strlen(buf);
 
 	//
@@ -48,7 +48,7 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
 	// Try to print complete filename. It is not checked whether the filename
 	// it self is larger than the BUFFER_SIZE.
 	//
-	snprintf(buf, BUFFER_SIZE, " File: %s ", filename);
+	snprintf(buf, FOOTER_WIN_MAX, " File: %s ", filename);
 	strlen_filename = (int) strlen(buf);
 
 	if (strlen_row_col + strlen_filename <= max_width) {
@@ -68,7 +68,7 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
 	//
 	// Try to print the short filename
 	//
-	snprintf(buf, BUFFER_SIZE, " File: %s ", short_name);
+	snprintf(buf, FOOTER_WIN_MAX, " File: %s ", short_name);
 	strlen_filename = (int) strlen(buf);
 
 	if (strlen_row_col + strlen_filename <= max_width) {
@@ -89,13 +89,14 @@ void win_footer_resize() {
 	//
 	if (getmaxy(stdscr) >= 3) {
 
-		//TODO: use ncurses function
-		if (wresize(win_footer, 1, getmaxx(stdscr)) != OK) {
-			print_exit("win_footer_resize() Unable to resize footer window with y: 1 x: %d\n", getmaxx(stdscr));
-		}
+		//
+		// Resize the window.
+		//
+		ncurses_win_resize(win_footer, 1, getmaxx(stdscr));
 
 		//
-		// Move the footer to the bottom of the terminal.
+		// Move the footer to the bottom of the terminal. This is necessary
+		// even if the size of the window does not change.
 		//
 		ncurses_win_move(win_footer, getmaxy(stdscr) - 1, 0);
 	}
