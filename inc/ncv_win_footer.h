@@ -2,9 +2,9 @@
  * ncv_footer.h
  *
  */
- 
-#ifndef INC_NCV_FOOTER_H_
-#define INC_NCV_FOOTER_H_
+
+#ifndef INC_NCV_WIN_FOOTER_H_
+#define INC_NCV_WIN_FOOTER_H_
 
 //
 // exported functions
