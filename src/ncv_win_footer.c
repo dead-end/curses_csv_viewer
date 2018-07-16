@@ -81,6 +81,7 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
  **************************************************************************/
 
 void win_footer_resize() {
+	print_debug_str("win_footer_resize() Start resize.");
 
 	//
 	// The footer is only visible if the terminal has at least 3 rows. One

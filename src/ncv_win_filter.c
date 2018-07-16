@@ -1,8 +1,8 @@
 /*
  * ncv_win_filter.c
  */
+
 #include "ncv_win_filter.h"
-#include "ncv_common.h"
 #include "ncv_ncurses.h"
 
 /***************************************************************************
@@ -100,6 +100,7 @@ void win_filter_init(WINDOW *filter_win) {
  **************************************************************************/
 
 void win_filter_resize() {
+	print_debug_str("win_filter_resize() Start resize.");
 
 	//
 	// Ensure that the window is large enough for the filter window.
@@ -110,9 +111,8 @@ void win_filter_resize() {
 		// The filter window has a constant size. If the stdscr is too small
 		// ncurses resizes the window.
 		//
-		//TODO: use ncurses function
-		if (getmaxy(win_filter) != WIN_FILTER_SIZE && wresize(win_filter, 1, WIN_FILTER_SIZE) != OK) {
-			print_exit_str("win_filter_resize() Unable to resize filter window\n");
+		if (getmaxy(win_filter) != WIN_FILTER_SIZE) {
+			ncurses_win_resize(win_filter, 1, WIN_FILTER_SIZE);
 		}
 
 		//

@@ -362,8 +362,10 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
  * The function is called on resizing the terminal window.
  **************************************************************************/
 
-void table_win_resize() {
+void win_table_resize() {
 	int win_y, win_x;
+
+	print_debug_str("win_table_resize() Start resize.");
 
 	getmaxyx(stdscr, win_y, win_x);
 
@@ -381,10 +383,7 @@ void table_win_resize() {
 		//
 		// If win_y == 2 then the footer disappeared.
 		//
-		//TODO: use ncurses function
-		if (wresize(win_table, y, win_x) != OK) {
-			print_exit("ncurses_resize_wins() Unable to resize table window with y: %d x: %d\n", y, win_x);
-		}
+		ncurses_win_resize(win_table, y, win_x);
 
 		//
 		// Ensure that the table window is not pushed outside the window. If so,

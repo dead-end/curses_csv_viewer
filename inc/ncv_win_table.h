@@ -16,6 +16,6 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
 
 void win_table_content_print(WINDOW *win, const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor);
 
-void table_win_resize();
+void win_table_resize();
 
 #endif /* INC_NCV_WIN_TABLE_H_ */

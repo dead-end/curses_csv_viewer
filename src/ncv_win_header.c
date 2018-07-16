@@ -39,6 +39,7 @@ void win_header_init() {
  **************************************************************************/
 
 void win_header_resize() {
+	print_debug_str("win_header_resize() Start resize.");
 
 	//
 	// The terminal has a min height of 1, so the header is always shown and
