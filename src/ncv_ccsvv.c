@@ -16,11 +16,24 @@
 #include "ncv_win_table.h"
 #include "ncv_win_footer.h"
 
+//
+// The table struct is defined static to be able to use it in the function
+// exit_callback().
+//
+static s_table table;
+
 /***************************************************************************
- * A cleanup function for the ncurses stuff.
+ * A cleanup function for the ncurses stuff. The important call, is the call
+ * of endwin() which resets the terminal. So the freeing function before
+ * should not fail.
  **************************************************************************/
 
 static void exit_callback() {
+
+	//
+	// Free table data
+	//
+	s_table_free(&table);
 
 	//
 	// Free window resources.
@@ -89,8 +102,6 @@ int main(const int argc, char * const argv[]) {
 	char *filename = NULL;
 	wchar_t delimiter = W_DELIM;
 
-	s_table table;
-
 	print_debug_str("main() Start\n");
 
 	//
@@ -155,7 +166,9 @@ int main(const int argc, char * const argv[]) {
 
 	ncurses_init();
 
-	// TODO: ordentlich
+	//
+	// Register exit callback.
+	//
 	if (on_exit(exit_callback, NULL) != 0) {
 		print_exit_str("Unable to register exit function!\n");
 	}
@@ -173,13 +186,7 @@ int main(const int argc, char * const argv[]) {
 
 	curses_loop(&table, filename);
 
-	//
-	// free the allocated memory
-	//
-
-	// TODO: exit_callback
-	s_table_free(&table);
-
 	print_debug_str("main() End\n");
+
 	return EXIT_SUCCESS;
 }
