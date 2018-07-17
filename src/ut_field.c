@@ -154,7 +154,7 @@ static void test_get_field_line() {
 
 int main() {
 
-	print_debug_str("ut_field.c - Start tests\n");
+	print_debug_str("ut_curses.c - Start tests\n");
 
 	setlocale(LC_ALL, "");
 
@@ -162,7 +162,7 @@ int main() {
 
 	test_get_field_line();
 
-	print_debug_str("ut_field.c - End tests\n");
+	print_debug_str("ut_curses.c - End tests\n");
 
 	return EXIT_SUCCESS;
 }
