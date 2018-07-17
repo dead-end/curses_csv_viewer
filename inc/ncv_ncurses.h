@@ -33,6 +33,8 @@
 //
 // Exported functions and macros.
 //
+void ncurses_init();
+
 #define ncurses_attr_color(c,a) (has_colors() ? c : a)
 
 void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt);
@@ -40,17 +42,6 @@ void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt);
 void ncurses_set_attr(WINDOW *win, const int attr);
 
 void ncurses_unset_attr(WINDOW *win);
-
-//
-// Common functions for the 4 windows.
-//
-void ncurses_init();
-
-void ncurses_free();
-
-void ncurses_resize();
-
-void ncurses_refresh();
 
 //
 // Window operations

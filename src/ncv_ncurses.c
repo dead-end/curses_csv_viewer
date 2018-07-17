@@ -5,11 +5,6 @@
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 
-#include "ncv_win_header.h"
-#include "ncv_win_filter.h"
-#include "ncv_win_table.h"
-#include "ncv_win_footer.h"
-
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
  * after they are switched on.
@@ -167,37 +162,6 @@ void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt) {
 }
 
 /***************************************************************************
- * The does the basic initialization of ncurses.
- **************************************************************************/
-
-static void ncurses_init_basic() {
-
-	//
-	// Start ncurses.
-	//
-	if (initscr() == NULL) {
-		print_exit_str("ncurses_init() Unable to init screen!\n");
-	}
-
-	//
-	// Allow KEY_RESIZE to be read on SIGWINCH
-	//
-	keypad(stdscr, TRUE);
-
-	//
-	// Switch off cursor by default
-	//
-	curs_set(0);
-
-	//
-	// Switch off echoing until the filter chars are inputed.
-	//
-	noecho();
-
-	print_debug("ncurses_init_basic() win - y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
-}
-
-/***************************************************************************
  * The initializes colors if the terminal supports colors.
  **************************************************************************/
 
@@ -244,90 +208,31 @@ static void ncurses_init_colors() {
 void ncurses_init() {
 
 	//
-	// ncurses initializations.
+	// Start ncurses.
 	//
-	ncurses_init_basic();
-
-	ncurses_init_colors();
-
-	//
-	// Initialize the four windows of the application.
-	//
-	win_header_init();
-
-	win_filter_init();
-
-	win_table_init();
-
-	win_footer_init();
-}
-
-/***************************************************************************
- * The function resizes all windows.
- **************************************************************************/
-
-void ncurses_resize() {
-
-	print_debug("ncurses_resize() New win y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
-
-	win_header_resize();
-
-	win_filter_resize();
-
-	win_table_resize();
-
-	win_footer_resize();
-}
-
-/***************************************************************************
- * The function refreshes all windows that are visible. If the terminal is
- * too small, some windows disappear.
- **************************************************************************/
-
-void ncurses_refresh() {
-
-	if (getmaxx(stdscr) > 0) {
-
-		if (wnoutrefresh(stdscr) != OK) {
-			print_exit_str("ncurses_refresh() Unable to refresh the stdscr!\n");
-		}
-
-		win_header_refresh_no();
-
-		win_filter_refresh_no();
-
-		win_table_refresh_no();
-
-		win_footer_refresh_no();
-
-		//
-		// Copy the updates to the terminal.
-		//
-		if (doupdate() != OK) {
-			print_exit_str("ncurses_refresh() Unable to update all wins!\n");
-		}
+	if (initscr() == NULL) {
+		print_exit_str("ncurses_init() Unable to init screen!\n");
 	}
-}
-
-/***************************************************************************
- * A cleanup function for the ncurses stuff.
- **************************************************************************/
-
-void ncurses_free() {
 
 	//
-	// Free window resources.
+	// Allow KEY_RESIZE to be read on SIGWINCH
 	//
-	win_header_free();
-
-	win_filter_free();
-
-	win_table_free();
-
-	win_footer_free();
+	keypad(stdscr, TRUE);
 
 	//
-	// Finish ncurses
+	// Switch off cursor by default
 	//
-	endwin();
+	curs_set(0);
+
+	//
+	// Switch off echoing until the filter chars are inputed.
+	//
+	noecho();
+
+	print_debug("ncurses_init() win - y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
+
+	//
+	// Initialize the colors
+	//
+	ncurses_init_colors();
 }
