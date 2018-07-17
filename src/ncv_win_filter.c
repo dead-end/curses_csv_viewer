@@ -213,12 +213,12 @@ void win_filter_free() {
 		print_exit_str("win_filter_free() Unable to unpost form!\n");
 	}
 
-	if (free_field(field[0]) != E_OK) {
-		print_exit_str("win_filter_free() Unable to free field!\n");
-	}
-
 	if (free_form(filter_form) != E_OK) {
 		print_exit_str("win_filter_free() Unable to free form!\n");
+	}
+
+	if (free_field(field[0]) != E_OK) {
+		print_exit_str("win_filter_free() Unable to free field!\n");
 	}
 
 	if (delwin(win_filter_sub) != E_OK) {
