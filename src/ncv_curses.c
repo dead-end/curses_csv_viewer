@@ -7,7 +7,7 @@
 #include "ncv_corners.h"
 #include "ncv_curses.h"
 #include "ncv_ncurses.h"
-#include "ncv_win_header.h"
+
 #include "ncv_win_filter.h"
 #include "ncv_win_table.h"
 #include "ncv_win_footer.h"
@@ -42,9 +42,9 @@ void curses_loop(const s_table *table, const char *filename) {
 		// Print and refresh only if something changed.
 		//
 		if (do_print) {
-			win_table_content_print(win_table, table, &row_table_part, &col_table_part, &cursor);
+			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
 			win_footer_content_print(filename, table, &cursor);
-			ncurses_refresh_all();
+			ncurses_refresh();
 			do_print = false;
 		}
 
@@ -80,16 +80,9 @@ void curses_loop(const s_table *table, const char *filename) {
 		case KEY_RESIZE:
 
 			//
-			// On resize of the terminal, get the new size and resize all wins.
+			// Resize the windows.
 			//
-
-			win_table_resize();
-
-			win_filter_resize();
-
-			win_header_resize();
-
-			win_footer_resize();
+			ncurses_resize();
 
 			//
 			// Resize the table content based on the new win_table size.
