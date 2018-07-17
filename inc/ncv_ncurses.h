@@ -5,6 +5,8 @@
 #ifndef INC_NCV_NCURSES_H_
 #define INC_NCV_NCURSES_H_
 
+#include "ncv_common.h"
+
 //TODO: Does it work???
 //
 // Check for control modifier
@@ -29,31 +31,31 @@
 #define CP_FIELD 6
 
 //
-// The windows of the program
-//
-WINDOW* win_header;
-WINDOW* win_filter;
-WINDOW* win_table;
-WINDOW* win_footer;
-
-//
 // Exported functions and macros.
 //
 #define ncurses_attr_color(c,a) (has_colors() ? c : a)
 
 void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt);
 
-void ncurses_init();
-
-void ncurses_finish();
-
-void ncurses_resize_wins();
-
-void ncurses_refresh_all();
-
 void ncurses_set_attr(WINDOW *win, const int attr);
 
 void ncurses_unset_attr(WINDOW *win);
+
+//
+// Common functions for the 4 windows.
+//
+void ncurses_init();
+
+void ncurses_free();
+
+void ncurses_resize();
+
+void ncurses_refresh();
+
+//
+// Window operations
+//
+WINDOW *ncurses_win_create(const int rows, const int cols, const int begin_y, const int begin_x);
 
 void ncurses_win_move(WINDOW *win, const int to_y, const int to_x);
 
