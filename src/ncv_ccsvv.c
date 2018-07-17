@@ -11,6 +11,34 @@
 #include "ncv_parser.h"
 #include "ncv_curses.h"
 
+#include "ncv_win_header.h"
+#include "ncv_win_filter.h"
+#include "ncv_win_table.h"
+#include "ncv_win_footer.h"
+
+/***************************************************************************
+ * A cleanup function for the ncurses stuff.
+ **************************************************************************/
+
+static void exit_callback() {
+
+	//
+	// Free window resources.
+	//
+	win_header_free();
+
+	win_filter_free();
+
+	win_table_free();
+
+	win_footer_free();
+
+	//
+	// Finish ncurses
+	//
+	endwin();
+}
+
 /***************************************************************************
  * The function writes the program usage. It is called with an error flag.
  * Depending on the flag the stream (stdout / stderr) is selected. The
@@ -128,17 +156,28 @@ int main(const int argc, char * const argv[]) {
 	ncurses_init();
 
 	// TODO: ordentlich
-	if (on_exit(ncurses_free, NULL) != 0) {
+	if (on_exit(exit_callback, NULL) != 0) {
 		print_exit_str("Unable to register exit function!\n");
 	}
 
-	curses_loop(&table, filename);
+	//
+	// Initialize the four windows of the application.
+	//
+	win_header_init();
 
-	// ncurses_finish();
+	win_filter_init();
+
+	win_table_init();
+
+	win_footer_init();
+
+	curses_loop(&table, filename);
 
 	//
 	// free the allocated memory
 	//
+
+	// TODO: exit_callback
 	s_table_free(&table);
 
 	print_debug_str("main() End\n");

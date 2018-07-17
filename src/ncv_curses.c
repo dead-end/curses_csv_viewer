@@ -8,9 +8,40 @@
 #include "ncv_curses.h"
 #include "ncv_ncurses.h"
 
+#include "ncv_win_header.h"
 #include "ncv_win_filter.h"
 #include "ncv_win_table.h"
 #include "ncv_win_footer.h"
+
+/***************************************************************************
+ * The function refreshes all windows that are visible. If the terminal is
+ * too small, some windows disappear.
+ **************************************************************************/
+
+static void refresh_wins() {
+
+	if (getmaxx(stdscr) > 0) {
+
+		if (wnoutrefresh(stdscr) != OK) {
+			print_exit_str("ncurses_refresh() Unable to refresh the stdscr!\n");
+		}
+
+		win_header_refresh_no();
+
+		win_filter_refresh_no();
+
+		win_table_refresh_no();
+
+		win_footer_refresh_no();
+
+		//
+		// Copy the updates to the terminal.
+		//
+		if (doupdate() != OK) {
+			print_exit_str("ncurses_refresh() Unable to update all wins!\n");
+		}
+	}
+}
 
 /***************************************************************************
  *
@@ -44,7 +75,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		if (do_print) {
 			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
 			win_footer_content_print(filename, table, &cursor);
-			ncurses_refresh();
+			refresh_wins();
 			do_print = false;
 		}
 
@@ -82,7 +113,13 @@ void curses_loop(const s_table *table, const char *filename) {
 			//
 			// Resize the windows.
 			//
-			ncurses_resize();
+			win_header_resize();
+
+			win_filter_resize();
+
+			win_table_resize();
+
+			win_footer_resize();
 
 			//
 			// Resize the table content based on the new win_table size.
