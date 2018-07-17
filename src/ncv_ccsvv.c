@@ -128,7 +128,7 @@ int main(const int argc, char * const argv[]) {
 	ncurses_init();
 
 	// TODO: ordentlich
-	if (on_exit(ncurses_finish, NULL) != 0) {
+	if (on_exit(ncurses_free, NULL) != 0) {
 		print_exit_str("Unable to register exit function!\n");
 	}
 
