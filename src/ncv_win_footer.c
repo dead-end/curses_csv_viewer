@@ -20,7 +20,7 @@
 //
 // Definition of the footer window.
 //
-static WINDOW* win_footer;
+static WINDOW* win_footer = NULL;
 
 /***************************************************************************
  * The function is called to initialize the footer window.
@@ -92,7 +92,7 @@ void win_footer_refresh_no() {
 
 void win_footer_free() {
 
-	if (delwin(win_footer) != OK) {
+	if (win_footer != NULL && delwin(win_footer) != OK) {
 		print_exit_str("win_footer_free() Unable to delete footer window!\n");
 	}
 }

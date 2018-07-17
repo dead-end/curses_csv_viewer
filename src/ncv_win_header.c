@@ -29,7 +29,7 @@
 //
 // Definition of the header window.
 //
-static WINDOW* win_header;
+static WINDOW* win_header = NULL;
 
 /***************************************************************************
  * The function prints the application label if the header window is large
@@ -124,7 +124,7 @@ void win_header_refresh_no() {
 
 void win_header_free() {
 
-	if (delwin(win_header) != OK) {
+	if (win_header != NULL && delwin(win_header) != OK) {
 		print_exit_str("win_header_free() Unable to delete header window!\n");
 	}
 }

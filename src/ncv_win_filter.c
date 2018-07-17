@@ -15,13 +15,13 @@
  * The necessary field / form / window variables are defined as static.
  **************************************************************************/
 
-static WINDOW* win_filter;
+static WINDOW* win_filter = NULL;
+
+static WINDOW *win_filter_sub = NULL;
 
 static FIELD *field[2];
 
-static FORM *filter_form;
-
-static WINDOW *win_filter_sub;
+static FORM *filter_form = NULL;
 
 /***************************************************************************
  * The function sets the associated windows of the form and posts the form.
@@ -209,23 +209,26 @@ void win_filter_refresh_no() {
 
 void win_filter_free() {
 
-	if (unpost_form(filter_form) != E_OK) {
-		print_exit_str("win_filter_free() Unable to unpost form!\n");
+	if (filter_form != NULL) {
+
+		if (unpost_form(filter_form) != E_OK) {
+			print_exit_str("win_filter_free() Unable to unpost form!\n");
+		}
+
+		if (free_form(filter_form) != E_OK) {
+			print_exit_str("win_filter_free() Unable to free form!\n");
+		}
+
+		if (free_field(field[0]) != E_OK) {
+			print_exit_str("win_filter_free() Unable to free field!\n");
+		}
 	}
 
-	if (free_form(filter_form) != E_OK) {
-		print_exit_str("win_filter_free() Unable to free form!\n");
-	}
-
-	if (free_field(field[0]) != E_OK) {
-		print_exit_str("win_filter_free() Unable to free field!\n");
-	}
-
-	if (delwin(win_filter_sub) != E_OK) {
+	if (win_filter_sub != NULL && delwin(win_filter_sub) != E_OK) {
 		print_exit_str("win_filter_free() Unable to free sub window!\n");
 	}
 
-	if (delwin(win_filter) != OK) {
+	if (win_filter != NULL && delwin(win_filter) != OK) {
 		print_exit_str("win_filter_free() Unable to delete filter window!\n");
 	}
 }

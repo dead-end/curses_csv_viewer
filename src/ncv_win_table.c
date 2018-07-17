@@ -17,7 +17,7 @@
 //
 // Definition of the table window.
 //
-static WINDOW* win_table;
+static WINDOW* win_table = NULL;
 
 //
 // Define attributes that are dynamically set.
@@ -118,7 +118,7 @@ void win_table_refresh_no() {
 
 void win_table_free() {
 
-	if (delwin(win_table) != OK) {
+	if (win_table != NULL && delwin(win_table) != OK) {
 		print_exit_str("win_table_free() Unable to delete the table window!\n");
 	}
 }
