@@ -9,6 +9,17 @@
 #include "ncv_corners.h"
 
 //
+// With a min height of 2, the table window is shown. One row for the header
+// and one row for the table.
+//
+#define WIN_TABLE_MIN_SIZE (getmaxy(stdscr) >= 2)
+
+//
+// Definition of the table window.
+//
+static WINDOW* win_table;
+
+//
 // Define attributes that are dynamically set.
 //
 static int attr_header;
@@ -22,6 +33,17 @@ static int attr_cursor_header;
  **************************************************************************/
 
 void win_table_init() {
+
+	//
+	// Create the table window. The size is the size of the stdscr
+	// subtracted by two lines, one for the header and one for the footer.
+	//
+	win_table = ncurses_win_create(getmaxy(stdscr) - 2, getmaxx(stdscr), 1, 0);
+
+	//
+	// Set the background of the table window.
+	//
+	ncurses_attr_back(win_table, COLOR_PAIR(CP_TABLE), A_NORMAL);
 
 	//
 	// Set the dynamic attributes depending on whether the terminal supports
@@ -41,14 +63,13 @@ void win_table_init() {
 void win_table_resize() {
 	int win_y, win_x;
 
-	print_debug_str("win_table_resize() Start resize.");
-
-	getmaxyx(stdscr, win_y, win_x);
-
 	//
-	// With a min height of 2, the table window is shown.
+	// Ensure the minimum size of the window.
 	//
-	if (win_y >= 2) {
+	if (WIN_TABLE_MIN_SIZE) {
+		print_debug_str("win_table_resize() Do resize the window!\n");
+
+		getmaxyx(stdscr, win_y, win_x);
 
 		//
 		// If the height is 2, the footer is not visible and does not affect
@@ -66,6 +87,39 @@ void win_table_resize() {
 		// move it back.
 		//
 		ncurses_win_move(win_table, 1, 0);
+	}
+}
+
+/***************************************************************************
+ * The function does a refresh with no update if the terminal is large
+ * enough.
+ **************************************************************************/
+
+void win_table_refresh_no() {
+
+	//
+	// Ensure the minimum size of the window.
+	//
+	if (WIN_TABLE_MIN_SIZE) {
+		print_debug_str("win_table_refresh_no() Do refresh the window!\n");
+
+		//
+		// Do the refresh.
+		//
+		if (wnoutrefresh(win_table) != OK) {
+			print_exit_str("win_table_refresh_no() Unable to refresh the window!\n");
+		}
+	}
+}
+
+/***************************************************************************
+ * The function frees the allocated resources.
+ **************************************************************************/
+
+void win_table_free() {
+
+	if (delwin(win_table) != OK) {
+		print_exit_str("win_table_free() Unable to delete the table window!\n");
 	}
 }
 
@@ -223,7 +277,7 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
  *
  **************************************************************************/
 
-void win_table_content_print(WINDOW *win, const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
+void win_table_content_print(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
 
 	//
 	// The absolute coordinates of the field with its borders in the window.
@@ -314,7 +368,7 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 					ncurses_set_attr(win_table, attr_header);
 				}
 
-				print_field(win, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text);
+				print_field(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text);
 
 				ncurses_unset_attr(win_table);
 			}
@@ -323,17 +377,17 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 			// row borders
 			//
 			if (row_table_part->direction == DIR_FORWARD) {
-				mvwhline(win, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
+				mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_last(row_table_part, idx.row)) {
-					mvwhline(win, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
+					mvwhline(win_table, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			} else {
-				mvwhline(win, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
+				mvwhline(win_table, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_first(row_table_part, idx.row)) {
-					mvwhline(win, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
+					mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			}
@@ -342,17 +396,17 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 			// col borders
 			//
 			if (col_table_part->direction == DIR_FORWARD) {
-				mvwvline(win, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
+				mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_last(col_table_part, idx.col)) {
-					mvwvline(win, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
+					mvwvline(win_table, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			} else {
-				mvwvline(win, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
+				mvwvline(win_table, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_first(col_table_part, idx.col)) {
-					mvwvline(win, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
+					mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			}
@@ -370,7 +424,7 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 					row_cond = is_not_truncated_and_last(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_last(col_table_part, idx.col);
 
-					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &UL_CORNER, &LL_CORNER, &UR_CORNER, &LR_CORNER);
+					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &UL_CORNER, &LL_CORNER, &UR_CORNER, &LR_CORNER);
 
 				} else {
 
@@ -380,7 +434,7 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 					row_cond = is_not_truncated_and_last(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_first(col_table_part, idx.col);
 
-					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &UR_CORNER, &LR_CORNER, &UL_CORNER, &LL_CORNER);
+					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &UR_CORNER, &LR_CORNER, &UL_CORNER, &LL_CORNER);
 				}
 
 			} else {
@@ -393,7 +447,7 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 					row_cond = is_not_truncated_and_first(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_last(col_table_part, idx.col);
 
-					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &LL_CORNER, &UL_CORNER, &LR_CORNER, &UR_CORNER);
+					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &LL_CORNER, &UL_CORNER, &LR_CORNER, &UR_CORNER);
 
 				} else {
 
@@ -403,7 +457,7 @@ void win_table_content_print(WINDOW *win, const s_table *table, const s_table_pa
 					row_cond = is_not_truncated_and_first(row_table_part, idx.row);
 					col_cond = is_not_truncated_and_first(col_table_part, idx.col);
 
-					print_corners(win, &idx, &win_field, &win_field_end, row_cond, col_cond, &LR_CORNER, &UR_CORNER, &LL_CORNER, &UL_CORNER);
+					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &LR_CORNER, &UR_CORNER, &LL_CORNER, &UL_CORNER);
 				}
 			}
 

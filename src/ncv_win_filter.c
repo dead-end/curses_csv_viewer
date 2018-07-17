@@ -5,9 +5,17 @@
 #include "ncv_win_filter.h"
 #include "ncv_ncurses.h"
 
+//
+// The filter window has a fixed size, so the stdscr should have at least
+// that size.
+//
+#define WIN_FILTER_MIN_SIZE (getmaxx(stdscr) - WIN_FILTER_SIZE > 0)
+
 /***************************************************************************
  * The necessary field / form / window variables are defined as static.
  **************************************************************************/
+
+static WINDOW* win_filter;
 
 static FIELD *field[2];
 
@@ -16,11 +24,55 @@ static FORM *filter_form;
 static WINDOW *win_filter_sub;
 
 /***************************************************************************
+ * The function sets the associated windows of the form and posts the form.
+ * It is called with a reset flag. This does an unpost as a first step.
+ **************************************************************************/
+
+static void set_form_win_and_post(const bool reset) {
+	int result;
+
+	//
+	// On reset do an unpost at the beginning.
+	//
+	if (reset && (result = unpost_form(filter_form)) != E_OK) {
+		print_exit("set_form_win_and_post() Unable to set form to the window! (result: %d)\n", result);
+	}
+
+	//
+	// Set the form to the window and the sub window.
+	//
+	if ((result = set_form_win(filter_form, win_filter)) != E_OK) {
+		print_exit("set_form_win_and_post() Unable to set form to the window! (result: %d)\n", result);
+	}
+
+	if ((result = set_form_sub(filter_form, win_filter_sub)) != E_OK) {
+		print_exit("set_form_win_and_post() Unable to set form to the sub window! (result: %d)\n", result);
+	}
+
+	//
+	// Post the form. (E_NO_ROOM is returned if the window is too small)
+	//
+	if ((result = post_form(filter_form)) != E_OK) {
+		print_exit("set_form_win_and_post() Unable to post filter form! (result: %d)\n", result);
+	}
+}
+
+/***************************************************************************
  * The function initializes the filter window.
  **************************************************************************/
 
-void win_filter_init(WINDOW *filter_win) {
+void win_filter_init() {
 	int result;
+
+	//
+	// Create the filter window. The window has one row and a fixed width.
+	//
+	win_filter = ncurses_win_create(1, WIN_FILTER_SIZE, 0, getmaxx(stdscr) - WIN_FILTER_SIZE);
+
+	//
+	// Set the background of the filter window.
+	//
+	ncurses_attr_back(win_filter, COLOR_PAIR(CP_STATUS), A_REVERSE);
 
 	//
 	// Create the field and set the position after the label.
@@ -39,6 +91,17 @@ void win_filter_init(WINDOW *filter_win) {
 		print_exit("win_filter_init() Unable to set option: O_AUTOSKIP result: %d\n", result);
 	}
 
+	//
+	// Switch off O_BLANK which deletes the content of the field if the first
+	// char is changed.
+	//
+	if ((result = field_opts_off(field[0], O_BLANK)) != E_OK) {
+		print_exit("win_filter_init() Unable to set option: O_AUTOSKIP result: %d\n", result);
+	}
+
+	//
+	// Set the background of the field.
+	//
 	if ((result = set_field_back(field[0], ncurses_attr_color(COLOR_PAIR(CP_FIELD), A_UNDERLINE))) != E_OK) {
 		print_exit("win_filter_init() Unable to set field background result: %d\n", result);
 	}
@@ -54,40 +117,24 @@ void win_filter_init(WINDOW *filter_win) {
 	//
 	// Create a sub win for the form.
 	//
-	win_filter_sub = derwin(filter_win, getmaxy(filter_win), getmaxx(filter_win), 0, 0);
+	win_filter_sub = derwin(win_filter, getmaxy(win_filter), getmaxx(win_filter), 0, 0);
 	if (win_filter_sub == NULL) {
-		print_exit("win_filter_init() Unable to create sub window with y: %d x: %d\n", getmaxy(filter_win), getmaxx(filter_win));
+		print_exit("win_filter_init() Unable to create sub window with y: %d x: %d\n", getmaxy(win_filter), getmaxx(win_filter));
 	}
 
-	//
-	// Set the form to the window and the sub window.
-	//
-	if ((result = set_form_win(filter_form, filter_win)) != E_OK) {
-		print_exit("win_filter_init() Unable to set form to the window: %d\n", result);
-	}
-
-	if ((result = set_form_sub(filter_form, win_filter_sub)) != E_OK) {
-		print_exit("win_filter_init() Unable to set form to the sub window: %d\n", result);
-	}
-
-	//
-	// Post the form. (E_NO_ROOM is returned if the window is too small)
-	//
-	if ((result = post_form(filter_form)) != E_OK) {
-		print_exit("win_filter_init() Unable to post filter form: %d\n", result);
-	}
+	set_form_win_and_post(false);
 
 	//
 	// Add the filter label
 	//
-	mvwaddstr(filter_win, 0, 0, FILTER_FIELD_LABEL);
+	mvwaddstr(win_filter, 0, 0, FILTER_FIELD_LABEL);
 
 	//
 	// Refresh the wins
 	//
+	//TODO: control and comment
 	refresh();
-	wrefresh(filter_win);
-
+	wrefresh(win_filter);
 }
 
 /***************************************************************************
@@ -95,30 +142,64 @@ void win_filter_init(WINDOW *filter_win) {
  * has a constant size. So it has to be ensured that the terminal window is
  * large enough.
  *
- * If the terminal window is smaller the window is resized by ncurses and
+ * If the terminal window is smaller, the window is resized by ncurses and
  * has to be given the correct size.
  **************************************************************************/
 
 void win_filter_resize() {
-	print_debug_str("win_filter_resize() Start resize.");
 
 	//
-	// Ensure that the window is large enough for the filter window.
+	// Ensure the minimum size of the window.
 	//
-	if (getmaxx(stdscr) - WIN_FILTER_SIZE > 0) {
+	if (WIN_FILTER_MIN_SIZE) {
+		print_debug_str("win_filter_resize() Do resize the window!\n");
 
 		//
 		// The filter window has a constant size. If the stdscr is too small
-		// ncurses resizes the window.
+		// ncurses has resized the window.
 		//
-		if (getmaxy(win_filter) != WIN_FILTER_SIZE) {
+		if (getmaxx(win_filter) != WIN_FILTER_SIZE) {
+			print_debug_str("win_filter_resize() Resize win_filter!\n");
+
 			ncurses_win_resize(win_filter, 1, WIN_FILTER_SIZE);
+
+			//
+			// Reset the form.
+			//
+			set_form_win_and_post(true);
 		}
+
+		//
+		// Add the filter label
+		//
+		mvwaddstr(win_filter, 0, 0, FILTER_FIELD_LABEL);
 
 		//
 		// Move the filter window to the new position.
 		//
 		ncurses_win_move(win_filter, 0, getmaxx(stdscr) - WIN_FILTER_SIZE);
+	}
+}
+
+/***************************************************************************
+ * The function does a refresh with no update if the terminal is large
+ * enough.
+ **************************************************************************/
+
+void win_filter_refresh_no() {
+
+	//
+	// Ensure the minimum size of the window.
+	//
+	if (WIN_FILTER_MIN_SIZE) {
+		print_debug_str("win_filter_refresh_no() Do refresh the window!\n");
+
+		//
+		// Do the refresh.
+		//
+		if (wnoutrefresh(win_filter) != OK) {
+			print_exit_str("win_filter_refresh_no() Unable to refresh the window!\n");
+		}
 	}
 }
 
@@ -132,16 +213,20 @@ void win_filter_free() {
 		print_exit_str("win_filter_free() Unable to unpost form!\n");
 	}
 
-	if (free_form(filter_form) != E_OK) {
-		print_exit_str("win_filter_free() Unable to free form!\n");
-	}
-
 	if (free_field(field[0]) != E_OK) {
 		print_exit_str("win_filter_free() Unable to free field!\n");
 	}
 
+	if (free_form(filter_form) != E_OK) {
+		print_exit_str("win_filter_free() Unable to free form!\n");
+	}
+
 	if (delwin(win_filter_sub) != E_OK) {
 		print_exit_str("win_filter_free() Unable to free sub window!\n");
+	}
+
+	if (delwin(win_filter) != OK) {
+		print_exit_str("win_filter_free() Unable to delete filter window!\n");
 	}
 }
 
@@ -226,6 +311,10 @@ void win_filter_loop() {
 			default:
 				form_driver_w(filter_form, OK, (wchar_t) chr);
 				wrefresh(win_filter);
+
+				form_driver(filter_form, REQ_NEXT_FIELD);
+				form_driver(filter_form, REQ_END_FIELD);
+				print_debug("win_filter_loop() Field content: %s\n", field_buffer(field[0], 0));
 				break;
 			}
 			break;
