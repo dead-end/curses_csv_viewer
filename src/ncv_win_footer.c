@@ -92,6 +92,8 @@ void win_footer_refresh_no() {
 
 void win_footer_free() {
 
+	print_debug_str("win_footer_free() Removing footer window.\n");
+
 	if (win_footer != NULL && delwin(win_footer) != OK) {
 		print_exit_str("win_footer_free() Unable to delete footer window!\n");
 	}

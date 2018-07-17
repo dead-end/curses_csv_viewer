@@ -124,6 +124,8 @@ void win_header_refresh_no() {
 
 void win_header_free() {
 
+	print_debug_str("win_header_free() Removing header window.\n");
+
 	if (win_header != NULL && delwin(win_header) != OK) {
 		print_exit_str("win_header_free() Unable to delete header window!\n");
 	}

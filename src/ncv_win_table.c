@@ -118,6 +118,8 @@ void win_table_refresh_no() {
 
 void win_table_free() {
 
+	print_debug_str("win_table_free() Removing table window.\n");
+
 	if (win_table != NULL && delwin(win_table) != OK) {
 		print_exit_str("win_table_free() Unable to delete the table window!\n");
 	}

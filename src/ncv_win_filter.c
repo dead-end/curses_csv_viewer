@@ -209,6 +209,8 @@ void win_filter_refresh_no() {
 
 void win_filter_free() {
 
+	print_debug_str("win_header_free() Removing filter windows, forms and fields.\n");
+
 	if (filter_form != NULL) {
 
 		if (unpost_form(filter_form) != E_OK) {
