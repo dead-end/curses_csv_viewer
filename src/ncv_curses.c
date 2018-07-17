@@ -4,6 +4,7 @@
 
 #include "ncv_common.h"
 #include "ncv_table_part.h"
+//TODO: move to win_table
 #include "ncv_corners.h"
 #include "ncv_curses.h"
 #include "ncv_ncurses.h"
@@ -18,7 +19,7 @@
  * too small, some windows disappear.
  **************************************************************************/
 
-static void refresh_wins() {
+static void wins_refresh() {
 
 	if (getmaxx(stdscr) > 0) {
 
@@ -44,6 +45,21 @@ static void refresh_wins() {
 }
 
 /***************************************************************************
+ * The function resizes all windows.
+ **************************************************************************/
+
+static void wins_resize() {
+
+	win_header_resize();
+
+	win_filter_resize();
+
+	win_table_resize();
+
+	win_footer_resize();
+}
+
+/***************************************************************************
  *
  **************************************************************************/
 
@@ -53,14 +69,17 @@ void curses_loop(const s_table *table, const char *filename) {
 	bool do_continue = true;
 	int key_input;
 
+	//TODO: move to win_table
 	s_table_part row_table_part;
 	s_table_part col_table_part;
 
+	//TODO: struct y,x,visible - where??? win_table (cursor is part of win_table)
 	s_field cursor;
 
 	//
 	// Update the corners with the table sizes
 	//
+	//TODO: move to win_table
 	s_corner_inits(table);
 
 	win_table_content_init(table, &row_table_part, &col_table_part, &cursor);
@@ -75,7 +94,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		if (do_print) {
 			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
 			win_footer_content_print(filename, table, &cursor);
-			refresh_wins();
+			wins_refresh();
 			do_print = false;
 		}
 
@@ -85,6 +104,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		//
 		move(0, 0);
 
+		// TODO: get_wch(&chr);
 		key_input = getch();
 
 		switch (key_input) {
@@ -113,13 +133,7 @@ void curses_loop(const s_table *table, const char *filename) {
 			//
 			// Resize the windows.
 			//
-			win_header_resize();
-
-			win_filter_resize();
-
-			win_table_resize();
-
-			win_footer_resize();
+			wins_resize();
 
 			//
 			// Resize the table content based on the new win_table size.
