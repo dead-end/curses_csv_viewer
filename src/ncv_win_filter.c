@@ -128,13 +128,6 @@ void win_filter_init() {
 	// Add the filter label
 	//
 	mvwaddstr(win_filter, 0, 0, FILTER_FIELD_LABEL);
-
-	//
-	// Refresh the wins
-	//
-	//TODO: control and comment
-	refresh();
-	wrefresh(win_filter);
 }
 
 /***************************************************************************
