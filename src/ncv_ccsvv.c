@@ -87,7 +87,9 @@ static void print_usage(const bool has_error, const char* msg) {
 	// print the usage information
 	//
 	fprintf(stream, "ccsvv [] -f FILE\n");
-	fprintf(stream, "\t -f FILE The csv filename \n");
+	fprintf(stream, "\t -f <FILE>      The name of the csv file.\n");
+	fprintf(stream, "\t -d <DELIMITER> An alternative delimiter character.\n");
+	fprintf(stream, "\t -m             Do not use colors (monochrome)\n");
 
 	exit(status);
 }
@@ -101,14 +103,20 @@ int main(const int argc, char * const argv[]) {
 	int c;
 	char *filename = NULL;
 	wchar_t delimiter = W_DELIM;
+	bool monochrom = false;
 
 	print_debug_str("main() Start\n");
 
 	//
 	// parse the command line options
 	//
-	while ((c = getopt(argc, argv, "f:d:")) != -1) {
+	while ((c = getopt(argc, argv, "mf:d:")) != -1) {
 		switch (c) {
+
+		case 'm':
+			monochrom = true;
+			print_debug_str("Use monochrom.\n");
+			break;
 
 		case 'f':
 			filename = optarg;
@@ -164,7 +172,7 @@ int main(const int argc, char * const argv[]) {
 	s_table_dump(&table);
 #endif
 
-	ncurses_init();
+	ncurses_init(monochrom);
 
 	//
 	// Register exit callback.

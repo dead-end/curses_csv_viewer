@@ -5,6 +5,12 @@
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 
+//
+// The color mode configuration. On true colors are used if the terminal
+// supports colors. On false monochrome mode is used.
+//
+static bool use_colors;
+
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
  * after they are switched on.
@@ -150,6 +156,21 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 }
 
 /***************************************************************************
+ * The function is called with two attributes one for color mode and an
+ * alternative attribute if monochrome mode is configured or the terminal
+ * does not support colors.
+ **************************************************************************/
+
+chtype ncurses_attr_color(const chtype color, const chtype alt) {
+
+	if (use_colors && has_colors()) {
+		return color;
+	} else {
+		return alt;
+	}
+}
+
+/***************************************************************************
  * The function sets the background of a window depending on whether the
  * terminal has colors or not.
  **************************************************************************/
@@ -205,7 +226,9 @@ static void ncurses_init_colors() {
  * The function initializes the ncurses.
  **************************************************************************/
 
-void ncurses_init() {
+void ncurses_init(const bool monochrom) {
+
+	use_colors = !monochrom;
 
 	//
 	// Start ncurses.

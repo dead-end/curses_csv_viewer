@@ -33,9 +33,9 @@
 //
 // Exported functions and macros.
 //
-void ncurses_init();
+void ncurses_init(const bool monochrom);
 
-#define ncurses_attr_color(c,a) (has_colors() ? c : a)
+chtype ncurses_attr_color(const chtype color, const chtype alt);
 
 void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt);
 
