@@ -166,6 +166,7 @@ int main(const int argc, char * const argv[]) {
 	//
 	// start processing the csv file
 	//
+	//TODO: call with FILE * (maybe stdin)
 	parser_process_file(filename, delimiter, &table);
 
 #ifdef DEBUG
