@@ -29,8 +29,10 @@ SRC_LIBS += $(SRC_DIR)/ncv_curses.c
 SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 SRC_LIBS += $(SRC_DIR)/ncv_corners.c
 SRC_LIBS += $(SRC_DIR)/ncv_field.c
-SRC_LIBS += $(SRC_DIR)/ncv_footer.c
-SRC_LIBS += $(SRC_DIR)/ncv_filter.c
+SRC_LIBS += $(SRC_DIR)/ncv_win_header.c
+SRC_LIBS += $(SRC_DIR)/ncv_win_filter.c
+SRC_LIBS += $(SRC_DIR)/ncv_win_table.c
+SRC_LIBS += $(SRC_DIR)/ncv_win_footer.c
 
 OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
 
