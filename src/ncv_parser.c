@@ -302,17 +302,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
  * the file system cache so the IO overhead should be limited.
  **************************************************************************/
 
-void parser_process_file(const char *filename, const wchar_t delim, s_table *table) {
-
-	//
-	// Open the csv file.
-	//
-	print_debug("parser_process_file() Reading file: %s\n", filename);
-
-	FILE *file = fopen(filename, "r");
-	if (file == NULL) {
-		print_exit("parser_process_file() Unable to open file %s due to: %s\n", filename, strerror(errno));
-	}
+void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 
 	//
 	// Parse the csv file to get the number of columns and rows.
@@ -327,14 +317,14 @@ void parser_process_file(const char *filename, const wchar_t delim, s_table *tab
 	// If the file is empty, there is nothing to do.
 	//
 	if (csv_parser.current_row == 0 && csv_parser.no_columns == 0) {
-		print_exit("parser_process_file() File is empty: %s\n", filename);
+		print_exit_str("parser_process_file() File is empty!\n");
 	}
 
 	//
 	// Rewind the file.
 	//
 	if (fseek(file, 0L, SEEK_SET) == -1) {
-		print_exit("parser_process_file() Unable to rewind file %s due to: %s\n", filename, strerror(errno));
+		print_exit("parser_process_file() Unable to rewind file due to: %s\n", strerror(errno));
 	}
 
 	//
@@ -346,7 +336,36 @@ void parser_process_file(const char *filename, const wchar_t delim, s_table *tab
 	// Parse the csv file again to copy the fields to the table structure.
 	//
 	s_csv_parser_init(&csv_parser, false);
-	parse_csv_file(file, delim, &csv_parser, table);
 
-	fclose(file);
+	parse_csv_file(file, delim, &csv_parser, table);
+}
+
+/***************************************************************************
+ * The function is a wrapper around the parser_process_file() function, that
+ * is responsible for opening and closing the file.
+ **************************************************************************/
+
+void parser_process_filename(const char *filename, const wchar_t delim, s_table *table) {
+
+	//
+	// Open the csv file.
+	//
+	print_debug("parser_process_filename() Reading file: %s\n", filename);
+
+	FILE *file = fopen(filename, "r");
+	if (file == NULL) {
+		print_exit("parser_process_filename() Unable to open file %s due to: %s\n", filename, strerror(errno));
+	}
+
+	//
+	// Delegate the processing.
+	//
+	parser_process_file(file, delim, table);
+
+	//
+	// Close the file.
+	//
+	if (fclose(file) != 0) {
+		print_exit("parser_process_filename() Unable to close file %s due to: %s\n", filename, strerror(errno));
+	}
 }
