@@ -7,6 +7,7 @@
 #include "ncv_ncurses.h"
 #include "ncv_field.h"
 #include "ncv_corners.h"
+#include "ncv_win_table.h"
 
 //
 // With a min height of 2, the table window is shown. One row for the header
@@ -113,6 +114,27 @@ void win_table_refresh_no() {
 }
 
 /***************************************************************************
+ * The function does a refresh with if the terminal is large enough.
+ **************************************************************************/
+
+void win_table_refresh() {
+
+	//
+	// Ensure the minimum size of the window.
+	//
+	if (WIN_TABLE_MIN_SIZE) {
+		print_debug_str("win_table_refresh() Do refresh the window!\n");
+
+		//
+		// Do the refresh.
+		//
+		if (wrefresh(win_table) != OK) {
+			print_exit_str("win_table_refresh() Unable to refresh the window!\n");
+		}
+	}
+}
+
+/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 
@@ -129,7 +151,7 @@ void win_table_free() {
  * The function initializes the cursor and the row / column table parts.
  **************************************************************************/
 
-void win_table_content_init(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor) {
+void win_table_content_init(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_cursor *cursor) {
 
 	print_debug_str("win_table_content_init() Initialize win table\n");
 
@@ -138,6 +160,7 @@ void win_table_content_init(const s_table *table, s_table_part *row_table_part, 
 	//
 	cursor->row = 0;
 	cursor->col = 0;
+	cursor->visible = true;
 
 	//
 	// Initialize the row / column table parts.
@@ -153,7 +176,7 @@ void win_table_content_init(const s_table *table, s_table_part *row_table_part, 
  * after resizing the win.
  **************************************************************************/
 
-void win_table_content_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor) {
+void win_table_content_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_cursor *cursor) {
 
 	//
 	// update the visible part of the table
@@ -205,7 +228,7 @@ void win_table_content_resize(const s_table *table, s_table_part *row_table_part
  * (field) cursor. It returns a bool value, to indicate an update.
  **************************************************************************/
 
-bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_field *cursor, const int key_input) {
+bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_cursor *cursor, const int key_input) {
 
 	bool result = false;
 
@@ -279,7 +302,7 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
  *
  **************************************************************************/
 
-void win_table_content_print(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_field *cursor) {
+void win_table_content_print(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_cursor *cursor) {
 
 	//
 	// The absolute coordinates of the field with its borders in the window.
@@ -360,10 +383,10 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 
 				is_cursor = idx.row == cursor->row && idx.col == cursor->col;
 
-				if (is_cursor && idx.row == 0) {
+				if (is_cursor && cursor->visible && idx.row == 0) {
 					ncurses_set_attr(win_table, attr_cursor_header);
 
-				} else if (is_cursor) {
+				} else if (is_cursor && cursor->visible) {
 					ncurses_set_attr(win_table, attr_cursor);
 
 				} else if (idx.row == 0) {
