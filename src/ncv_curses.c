@@ -74,7 +74,7 @@ void curses_loop(const s_table *table, const char *filename) {
 	s_table_part col_table_part;
 
 	//TODO: struct y,x,visible - where??? win_table (cursor is part of win_table)
-	s_field cursor;
+	s_cursor cursor;
 
 	//
 	// Update the corners with the table sizes
@@ -145,7 +145,17 @@ void curses_loop(const s_table *table, const char *filename) {
 
 
 		case CTRL('f'):
+
+			cursor.visible = false;
+			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
+			win_table_refresh();
+
 			win_filter_loop();
+
+			cursor.visible = true;
+			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
+			win_table_refresh();
+
 			break;
 		}
 	}
