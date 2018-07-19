@@ -252,6 +252,11 @@ void ncurses_init(const bool monochrom) {
 	//
 	noecho();
 
+	//
+	// Disable line buffering.
+	//
+	cbreak();
+
 	print_debug("ncurses_init() win - y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
 
 	//
