@@ -5,6 +5,8 @@
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 #include "ncv_table.h"
+#include "ncv_win_table.h"
+
 
 //
 // Size of the string buffer.
@@ -105,7 +107,7 @@ void win_footer_free() {
  * enough space, the filename is shorten or completely left out.
  **************************************************************************/
 
-void win_footer_content_print(const char *filename, const s_table *table, const s_field *cursor) {
+void win_footer_content_print(const char *filename, const s_table *table, const s_cursor *cursor) {
 	char buf[FOOTER_WIN_MAX];
 	int max_width, strlen_row_col, strlen_filename;
 
