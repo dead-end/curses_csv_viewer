@@ -73,7 +73,6 @@ void curses_loop(const s_table *table, const char *filename) {
 	s_table_part row_table_part;
 	s_table_part col_table_part;
 
-	//TODO: struct y,x,visible - where??? win_table (cursor is part of win_table)
 	s_cursor cursor;
 
 	//
