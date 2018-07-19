@@ -105,6 +105,11 @@ int main(const int argc, char * const argv[]) {
 	wchar_t delimiter = W_DELIM;
 	bool monochrom = false;
 
+	//
+	// import the locale from the environment to allow proper wchar_t's
+	//
+	setlocale(LC_ALL, "");
+
 	print_debug_str("main() Start\n");
 
 	//
@@ -157,11 +162,6 @@ int main(const int argc, char * const argv[]) {
 	if (filename == NULL) {
 		print_usage(true, "No csv filename defined!");
 	}
-
-	//
-	// import the locale from the environment to allow proper wchar_t's
-	//
-	setlocale(LC_ALL, "");
 
 	//
 	// start processing the csv file
