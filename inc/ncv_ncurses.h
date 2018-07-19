@@ -7,9 +7,8 @@
 
 #include "ncv_common.h"
 
-//TODO: Does it work???
 //
-// Check for control modifier
+// Check for control modifier. Usage: CTRL('f')
 //
 #ifndef CTRL
 #define CTRL(c) ((c) & 037)
