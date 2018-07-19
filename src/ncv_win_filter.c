@@ -74,6 +74,8 @@ void win_filter_init() {
 	//
 	ncurses_attr_back(win_filter, COLOR_PAIR(CP_STATUS), A_REVERSE);
 
+	keypad(win_filter, TRUE);
+
 	//
 	// Create the field and set the position after the label.
 	//
@@ -236,7 +238,9 @@ void win_filter_loop() {
 	wint_t chr;
 	int key_type;
 
-	wmove(win_filter, 0, FILTER_FIELD_LABEL_LEN);
+	//
+	// Switch on cursor.
+	//
 	curs_set(1);
 	wrefresh(win_filter);
 
@@ -244,7 +248,13 @@ void win_filter_loop() {
 	// Loop through to get user requests
 	//
 	while (true) {
-		key_type = get_wch(&chr);
+
+		//
+		// Read the wchar from the filter window. This triggers a refresh.
+		//
+		key_type = wget_wch(win_filter, &chr);
+
+		//key_type = wget_wch(stdscr, &chr);
 
 		switch (key_type) {
 		case KEY_CODE_YES:
@@ -252,41 +262,30 @@ void win_filter_loop() {
 
 			case KEY_DC:
 				form_driver_w(filter_form, KEY_CODE_YES, REQ_DEL_CHAR);
-				wrefresh(win_filter);
 				break;
 
 			case KEY_BACKSPACE:
 				form_driver_w(filter_form, KEY_CODE_YES, REQ_DEL_PREV);
-				wrefresh(win_filter);
 				break;
 
 			case KEY_LEFT:
 				form_driver_w(filter_form, KEY_CODE_YES, REQ_LEFT_CHAR);
-				wrefresh(win_filter);
 				break;
 
 			case KEY_RIGHT:
 				form_driver_w(filter_form, KEY_CODE_YES, REQ_RIGHT_CHAR);
-				wrefresh(win_filter);
 				break;
 
 			case KEY_HOME:
 				form_driver_w(filter_form, KEY_CODE_YES, REQ_BEG_FIELD);
-				wrefresh(win_filter);
 				break;
 
 			case KEY_END:
 				form_driver_w(filter_form, KEY_CODE_YES, REQ_END_FIELD);
-				wrefresh(win_filter);
-				break;
-
-				//TODO: where
-			case KEY_ENTER:
-				curs_set(0);
-				return;
 				break;
 
 			default:
+				print_debug("win_filter_loop() Found key code: %d\n", chr);
 				break;
 			}
 
@@ -294,27 +293,39 @@ void win_filter_loop() {
 		case OK:
 			switch (chr) {
 
-			//TODO: where
+			//
+			// Enter chars
+			//
 			case KEY_ENTER:
+			case 10:
+				print_debug("win_filter_loop() Found enter char: %d\n", chr);
 				curs_set(0);
 				return;
 				break;
 
-				// ESC
+				//
+				// ESC chars
+				//
+			case CTRL('f'):
 			case 27:
+				print_debug("win_filter_loop() Found esc char: %d\n", chr);
 				curs_set(0);
 				return;
 				break;
 
 			default:
-				form_driver_w(filter_form, OK, (wchar_t) chr);
-				wrefresh(win_filter);
+				print_debug("win_filter_loop() ### chr: %d\n", chr);
 
-				form_driver(filter_form, REQ_NEXT_FIELD);
-				form_driver(filter_form, REQ_END_FIELD);
+				form_driver_w(filter_form, OK, (wchar_t) chr);
+				form_driver_w(filter_form, KEY_CODE_YES, REQ_VALIDATION);
+
 				print_debug("win_filter_loop() Field content: %s\n", field_buffer(field[0], 0));
 				break;
 			}
+			break;
+		case ERR:
+			print_exit_str("win_filter_loop() ### ERROR!\n")
+			;
 			break;
 		}
 	}
