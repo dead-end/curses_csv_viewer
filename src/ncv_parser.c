@@ -192,6 +192,14 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 		// Process csv file line by line.
 		//
 		if ((csv_parser->ptr_line = fgetws(csv_parser->line, MAX_LINE, file)) == NULL) {
+
+			//
+			// Check for read errors.
+			//
+			if (ferror(file)) {
+				print_exit("parse_csv_file() Error on reading input: %s\n", strerror(errno));
+			}
+
 			print_debug_str("parse_csv_file() No more lines available!\n");
 			break;
 		}
