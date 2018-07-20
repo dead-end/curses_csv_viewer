@@ -107,7 +107,7 @@ void win_footer_free() {
  * enough space, the filename is shorten or completely left out.
  **************************************************************************/
 
-void win_footer_content_print(const char *filename, const s_table *table, const s_cursor *cursor) {
+void win_footer_content_print(char *filename, const s_table *table, const s_cursor *cursor) {
 	char buf[FOOTER_WIN_MAX];
 	int max_width, strlen_row_col, strlen_filename;
 
@@ -132,6 +132,13 @@ void win_footer_content_print(const char *filename, const s_table *table, const 
 	}
 
 	mvwaddstr(win_footer, 0, max_width - strlen_row_col, buf);
+
+	//
+	// If we read the csv file from stdin, no filename is defined.
+	//
+	if (filename == NULL) {
+		filename = "<STDIN>";
+	}
 
 	//
 	// Try to print complete filename. It is not checked whether the filename
