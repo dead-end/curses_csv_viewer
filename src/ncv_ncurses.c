@@ -11,6 +11,8 @@
 //
 static bool use_colors;
 
+static SCREEN *screen = NULL;
+
 /***************************************************************************
  * The two static variables are used to be able to switch off attribute
  * after they are switched on.
@@ -223,19 +225,56 @@ static void ncurses_init_colors() {
 }
 
 /***************************************************************************
+ * The function initializes the ncurses screen. If the csv file is read from
+ * stdin, a new screen has to be created.
+ **************************************************************************/
+
+void ncurses_initscr(const bool use_initscr) {
+
+	if (use_initscr) {
+
+		//
+		// Use the standard ncurses initsrc.
+		//
+		if (initscr() == NULL) {
+			print_exit_str("ncurses_initscr() Unable to init screen (initscr())!\n");
+		}
+
+	} else {
+
+		//
+		// Leave stdin untouched and create a terminal input for ncurses.
+		//
+		FILE* term_in = fopen("/dev/tty", "r");
+		if (term_in == NULL) {
+			print_exit_str("ncurses_initscr() Unable to open tty!\n");
+		}
+
+		//
+		// Create a screen (which has to be freed).
+		//
+		screen = newterm(NULL, stdout, term_in);
+		if (screen == NULL) {
+			print_exit_str("ncurses_initscr() Unable create new terminal screen!\n");
+		}
+
+		set_term(screen);
+	}
+}
+
+/***************************************************************************
  * The function initializes the ncurses.
  **************************************************************************/
 
-void ncurses_init(const bool monochrom) {
+void ncurses_init(const bool monochrom, const bool use_initscr) {
 
 	use_colors = !monochrom;
 
 	//
-	// Start ncurses.
+	// Initialize ncurses with initscr or a new terminal screen. If we read
+	// the csv file from stdin, the latter is required.
 	//
-	if (initscr() == NULL) {
-		print_exit_str("ncurses_init() Unable to init screen!\n");
-	}
+	ncurses_initscr(use_initscr);
 
 	//
 	// Allow KEY_RESIZE to be read on SIGWINCH
@@ -263,4 +302,27 @@ void ncurses_init(const bool monochrom) {
 	// Initialize the colors
 	//
 	ncurses_init_colors();
+}
+
+/***************************************************************************
+ * The function frees the ncurses resources.
+ **************************************************************************/
+
+void ncurses_free() {
+
+	//
+	// Reset the terminal.
+	//
+	if (!isendwin()) {
+		print_debug_str("ncurses_free() Calling: endwin()\n");
+		endwin();
+	}
+
+	//
+	// Delete screen, if one is present after calling endwin (see man page)
+	//
+	if (screen != NULL) {
+		print_debug_str("ncurses_free() Delete screen.\n");
+		delscreen(screen);
+	}
 }

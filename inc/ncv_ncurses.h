@@ -32,7 +32,9 @@
 //
 // Exported functions and macros.
 //
-void ncurses_init(const bool monochrom);
+void ncurses_init(const bool monochrom, const bool use_initscr);
+
+void ncurses_free();
 
 chtype ncurses_attr_color(const chtype color, const chtype alt);
 
