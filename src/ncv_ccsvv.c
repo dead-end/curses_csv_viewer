@@ -49,7 +49,37 @@ static void exit_callback() {
 	//
 	// Finish ncurses
 	//
-	endwin();
+	ncurses_free();
+}
+
+/***************************************************************************
+ * The function reads the csv file, either from a file or from stdin. If
+ * stdin is used, the content is written to a temp file for the processing.
+ * This is necessary, because the file is parsed twice and you cannot rewind
+ * stdin.
+ **************************************************************************/
+
+void process_csv_file(const char *filename, const wchar_t delimiter, s_table *table) {
+
+
+	if (filename != NULL) {
+
+		//
+		// If a csv file name is configured, use that file.
+		//
+		parser_process_filename(filename, delimiter, table);
+
+	} else {
+
+		//
+		// If no csv file name is configured, we use stdin.
+		//
+		FILE *tmp = stdin_2_tmp();
+
+		parser_process_file(tmp, delimiter, table);
+
+		fclose(tmp);
+	}
 }
 
 /***************************************************************************
@@ -157,23 +187,15 @@ int main(const int argc, char * const argv[]) {
 	}
 
 	//
-	// ensure that the required command line options are defined.
+	// Process the csv file
 	//
-	if (filename == NULL) {
-		print_usage(true, "No csv filename defined!");
-	}
-
-	//
-	// start processing the csv file
-	//
-	//TODO: call with FILE * (maybe stdin)
-	parser_process_file(filename, delimiter, &table);
+	process_csv_file(filename, delimiter, &table);
 
 #ifdef DEBUG
 	s_table_dump(&table);
 #endif
 
-	ncurses_init(monochrom);
+	ncurses_init(monochrom, (filename != NULL));
 
 	//
 	// Register exit callback.
