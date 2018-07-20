@@ -37,6 +37,8 @@
 
 #define MAX_LINE 1024
 
+#define BUF_SIZE 4096
+
 //
 // Some wchar character constants.
 //
@@ -76,6 +78,8 @@ typedef struct s_field {
 // Unrelated utility functions.
 //
 void *xmalloc(const size_t size);
+
+FILE *stdin_2_tmp();
 
 //
 // Functions that can be used for unit tests.

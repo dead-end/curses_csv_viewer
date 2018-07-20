@@ -21,6 +21,63 @@ void *xmalloc(const size_t size) {
 }
 
 /***************************************************************************
+ * The function creates a temp file and copies the input from stdin to that
+ * file. It uses read instead of fread, because the latter does not work
+ * with fgetws() and rewind().
+ **************************************************************************/
+
+FILE *stdin_2_tmp() {
+	ssize_t bytes_read, bytes_write;
+	char buf[BUF_SIZE];
+	FILE *tmp;
+
+	//
+	// Create a temp file
+	//
+	if ((tmp = tmpfile()) == NULL) {
+		print_exit("stdin_2_tmp() Unable to create tmp file: %s\n", strerror(errno));
+	}
+
+	int in = fileno(stdin);
+	int out = fileno(tmp);
+
+	//
+	// Copy the data until we encounter the end of input or an error.
+	//
+	while ((bytes_read = read(in, buf, BUF_SIZE)) > 0) {
+
+		bytes_write = write(out, buf, bytes_read);
+
+		//
+		// Check for write errors.
+		//
+		if (bytes_write != bytes_read) {
+			if (bytes_write == -1) {
+				print_exit("stdin_2_tmp() Unable to write to temp file: %s\n", strerror (errno));
+			} else {
+				print_exit_str("stdin_2_tmp() Could not write the whole buffer!\n");
+			}
+		}
+	}
+
+	//
+	// Check for read errors.
+	//
+	if (bytes_read == -1) {
+		print_exit("stdin_2_tmp() Could not read from stdin: %s\n", strerror (errno));
+	}
+
+	//
+	// Rewind the file.
+	//
+	if (fseek(tmp, 0L, SEEK_SET) == -1) {
+		print_exit("stdin_2_tmp() Unable to rewind file due to: %s\n", strerror(errno));
+	}
+
+	return tmp;
+}
+
+/***************************************************************************
  * The function is used for unit tests. It checks whether an int parameter
  * has the expected value or not.
  **************************************************************************/
