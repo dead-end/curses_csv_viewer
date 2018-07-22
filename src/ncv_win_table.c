@@ -167,6 +167,11 @@ void win_table_content_init(const s_table *table, s_table_part *row_table_part, 
 	//
 	s_table_part_update(row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, getmaxy(win_table));
 	s_table_part_update(col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+
+	//
+	// Initialize the corners
+	//
+	s_corner_inits(table->no_rows, table->no_columns);
 }
 
 /***************************************************************************

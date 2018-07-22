@@ -53,7 +53,7 @@ s_corner LL_CORNER;
  * Function definitions
  **************************************************************************/
 
-void s_corner_inits(const s_table *table);
+void s_corner_inits(const int no_rows, const int no_columns);
 
 void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn);
 

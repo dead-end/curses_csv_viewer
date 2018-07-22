@@ -23,12 +23,12 @@
  * changes.
  **************************************************************************/
 
-void s_corner_inits(const s_table *table) {
+void s_corner_inits(const int no_rows, const int no_columns) {
 
 	s_corner_init(UL_CORNER, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS, 0, 0);
-	s_corner_init(UR_CORNER, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS, 0, table->no_columns - 1);
-	s_corner_init(LL_CORNER, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS, table->no_rows - 1, 0);
-	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, table->no_rows - 1, table->no_columns - 1);
+	s_corner_init(UR_CORNER, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS, 0, no_columns - 1);
+	s_corner_init(LL_CORNER, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS, no_rows - 1, 0);
+	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, no_rows - 1, no_columns - 1);
 }
 
 /***************************************************************************
