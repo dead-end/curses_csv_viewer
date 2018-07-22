@@ -1,13 +1,9 @@
 /*
  * file: ut_table.c
  */
-
-#include <locale.h>
-
 #include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_parser.h"
-#include "ncv_curses.h"
 
 /***************************************************************************
  * The test checks the s_table_field_dimension function, which computes the

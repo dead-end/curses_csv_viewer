@@ -2,12 +2,9 @@
  * file: ut_parser.c
  */
 
-#include <locale.h>
-
 #include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_parser.h"
-#include "ncv_curses.h"
 
 /***************************************************************************
  * The function reads and parses a csv file. All fields are compared with

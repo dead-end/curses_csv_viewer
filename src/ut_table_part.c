@@ -2,14 +2,11 @@
  * file: ut_curses.c
  */
 
-#include <locale.h>
-
 #include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_table_part.h"
 #include "ncv_field.h"
 #include "ncv_parser.h"
-#include "ncv_curses.h"
 
 /***************************************************************************
  * The function checks whether a s_table_part struct has the expected
