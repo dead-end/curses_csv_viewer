@@ -60,6 +60,24 @@ static void wins_resize() {
 }
 
 /***************************************************************************
+ * The function switches on / off the cursor visibility.
+ **************************************************************************/
+
+static void cursor_visibility(const s_table *table, s_cursor *cursor, const bool is_visible) {
+
+	//
+	// Check if visibility changed.
+	//
+	if (cursor->visible == is_visible) {
+		return;
+	}
+
+	cursor->visible = is_visible;
+	win_table_content_print(table, cursor);
+	win_table_refresh();
+}
+
+/***************************************************************************
  *
  **************************************************************************/
 
@@ -135,15 +153,9 @@ void ui_loop(const s_table *table, const char *filename) {
 
 		case CTRL('f'):
 
-			cursor.visible = false;
-			win_table_content_print(table, &cursor);
-			win_table_refresh();
-
+			cursor_visibility(table, &cursor, false);
 			win_filter_loop();
-
-			cursor.visible = true;
-			win_table_content_print(table, &cursor);
-			win_table_refresh();
+			cursor_visibility(table, &cursor, true);
 
 			break;
 		}
