@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <locale.h>
 
 //
 // Definition of the print_debug macro. It uses stdout not to restain curses.
