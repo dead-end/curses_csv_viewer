@@ -2,8 +2,8 @@
  * file: ncv_curses.h
  */
 
-#ifndef INC_NCV_CURSES_H_
-#define INC_NCV_CURSES_H_
+#ifndef INC_NCV_UI_LOOP_H_
+#define INC_NCV_UI_LOOP_H_
 
 #include "ncv_table.h"
 
@@ -11,6 +11,6 @@
  * Function definitions
  **************************************************************************/
 
-void curses_loop(const s_table *table, const char *filename);
+void ui_loop(const s_table *table, const char *filename);
 
-#endif /* INC_NCV_CURSES_H_ */
+#endif /* INC_NCV_UI_LOOP_H_ */
