@@ -68,13 +68,9 @@ void curses_loop(const s_table *table, const char *filename) {
 	bool do_continue = true;
 	int key_input;
 
-	//TODO: move to win_table
-	s_table_part row_table_part;
-	s_table_part col_table_part;
-
 	s_cursor cursor;
 
-	win_table_content_init(table, &row_table_part, &col_table_part, &cursor);
+	win_table_content_init(table, &cursor);
 
 	print_debug_str("curses_loop() start\n");
 
@@ -84,7 +80,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		// Print and refresh only if something changed.
 		//
 		if (do_print) {
-			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
+			win_table_content_print(table, &cursor);
 			win_footer_content_print(filename, table, &cursor);
 			wins_refresh();
 			do_print = false;
@@ -117,7 +113,7 @@ void curses_loop(const s_table *table, const char *filename) {
 		case KEY_DOWN:
 		case KEY_LEFT:
 		case KEY_RIGHT:
-			do_print = win_table_content_mv_cursor(table, &row_table_part, &col_table_part, &cursor, key_input);
+			do_print = win_table_content_mv_cursor(table, &cursor, key_input);
 			break;
 
 		case KEY_RESIZE:
@@ -130,7 +126,7 @@ void curses_loop(const s_table *table, const char *filename) {
 			//
 			// Resize the table content based on the new win_table size.
 			//
-			win_table_content_resize(table, &row_table_part, &col_table_part, &cursor);
+			win_table_content_resize(table, &cursor);
 
 			do_print = true;
 			break;
@@ -139,13 +135,13 @@ void curses_loop(const s_table *table, const char *filename) {
 		case CTRL('f'):
 
 			cursor.visible = false;
-			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
+			win_table_content_print(table, &cursor);
 			win_table_refresh();
 
 			win_filter_loop();
 
 			cursor.visible = true;
-			win_table_content_print(table, &row_table_part, &col_table_part, &cursor);
+			win_table_content_print(table, &cursor);
 			win_table_refresh();
 
 			break;

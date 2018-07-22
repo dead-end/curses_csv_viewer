@@ -29,6 +29,13 @@ static int attr_cursor;
 
 static int attr_cursor_header;
 
+//
+// The two table parts define the visible part of the table.
+//
+static s_table_part row_table_part;
+
+static s_table_part col_table_part;
+
 /***************************************************************************
  * The function initializes the table window.
  **************************************************************************/
@@ -151,7 +158,7 @@ void win_table_free() {
  * The function initializes the cursor and the row / column table parts.
  **************************************************************************/
 
-void win_table_content_init(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_cursor *cursor) {
+void win_table_content_init(const s_table *table, s_cursor *cursor) {
 
 	print_debug_str("win_table_content_init() Initialize win table\n");
 
@@ -165,8 +172,8 @@ void win_table_content_init(const s_table *table, s_table_part *row_table_part, 
 	//
 	// Initialize the row / column table parts.
 	//
-	s_table_part_update(row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-	s_table_part_update(col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+	s_table_part_update(&row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+	s_table_part_update(&col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, getmaxx(win_table));
 
 	//
 	// Initialize the corners
@@ -181,50 +188,50 @@ void win_table_content_init(const s_table *table, s_table_part *row_table_part, 
  * after resizing the win.
  **************************************************************************/
 
-void win_table_content_resize(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_cursor *cursor) {
+void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 
 	//
 	// update the visible part of the table
 	//
-	s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, getmaxy(win_table));
-	s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, getmaxx(win_table));
+	s_table_part_update(&row_table_part, table->height, s_table_part_start(&row_table_part), table->no_rows, row_table_part.direction, getmaxy(win_table));
+	s_table_part_update(&col_table_part, table->width, s_table_part_start(&col_table_part), table->no_columns, col_table_part.direction, getmaxx(win_table));
 
 	//
 	// Adjust rows (see function doc: adjust_dir_on_resize)
 	//
-	if (adjust_dir_on_resize(row_table_part, table->no_rows - 1)) {
-		s_table_part_update(row_table_part, table->height, s_table_part_start(row_table_part), table->no_rows, row_table_part->direction, getmaxy(win_table));
+	if (adjust_dir_on_resize(&row_table_part, table->no_rows - 1)) {
+		s_table_part_update(&row_table_part, table->height, s_table_part_start(&row_table_part), table->no_rows, row_table_part.direction, getmaxy(win_table));
 
 		//
 		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
 		//
-	} else if (is_index_before_first(row_table_part, cursor->row)) {
-		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+	} else if (is_index_before_first(&row_table_part, cursor->row)) {
+		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
 
 		//
 		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
 		//
-	} else if (is_index_after_last(row_table_part, cursor->row)) {
-		s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+	} else if (is_index_after_last(&row_table_part, cursor->row)) {
+		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
 	}
 
 	//
 	// Adjust columns (see function doc: adjust_dir_on_resize)
 	//
-	if (adjust_dir_on_resize(col_table_part, table->no_columns - 1)) {
-		s_table_part_update(col_table_part, table->width, s_table_part_start(col_table_part), table->no_columns, col_table_part->direction, getmaxx(win_table));
+	if (adjust_dir_on_resize(&col_table_part, table->no_columns - 1)) {
+		s_table_part_update(&col_table_part, table->width, s_table_part_start(&col_table_part), table->no_columns, col_table_part.direction, getmaxx(win_table));
 
 		//
 		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
 		//
-	} else if (is_index_before_first(col_table_part, cursor->col)) {
-		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+	} else if (is_index_before_first(&col_table_part, cursor->col)) {
+		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
 
 		//
 		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
 		//
-	} else if (is_index_after_last(col_table_part, cursor->col)) {
-		s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+	} else if (is_index_after_last(&col_table_part, cursor->col)) {
+		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
 	}
 }
 
@@ -233,7 +240,7 @@ void win_table_content_resize(const s_table *table, s_table_part *row_table_part
  * (field) cursor. It returns a bool value, to indicate an update.
  **************************************************************************/
 
-bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_part, s_table_part *col_table_part, s_cursor *cursor, const int key_input) {
+bool win_table_content_mv_cursor(const s_table *table, s_cursor *cursor, const int key_input) {
 
 	bool result = false;
 
@@ -245,8 +252,8 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
 		if (cursor->row - 1 >= 0) {
 			cursor->row--;
 
-			if (is_index_before_first(row_table_part, cursor->row)) {
-				s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+			if (is_index_before_first(&row_table_part, cursor->row)) {
+				s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
 			}
 
 			result = true;
@@ -257,8 +264,8 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
 		if (cursor->row + 1 < table->no_rows) {
 			cursor->row++;
 
-			if (is_index_after_last(row_table_part, cursor->row)) {
-				s_table_part_update(row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+			if (is_index_after_last(&row_table_part, cursor->row)) {
+				s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
 			}
 
 			result = true;
@@ -269,8 +276,8 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
 		if (cursor->col - 1 >= 0) {
 			cursor->col--;
 
-			if (is_index_before_first(col_table_part, cursor->col)) {
-				s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+			if (is_index_before_first(&col_table_part, cursor->col)) {
+				s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
 			}
 
 			result = true;
@@ -282,8 +289,8 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
 		if (cursor->col + 1 < table->no_columns) {
 			cursor->col++;
 
-			if (is_index_after_last(col_table_part, cursor->col)) {
-				s_table_part_update(col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+			if (is_index_after_last(&col_table_part, cursor->col)) {
+				s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
 			}
 
 			result = true;
@@ -301,13 +308,13 @@ bool win_table_content_mv_cursor(const s_table *table, s_table_part *row_table_p
  * top or left starts with border => field has an offset
  **************************************************************************/
 
-#define get_row_col_offset(p, i) (((p)->direction == DIR_FORWARD || ((p)->truncated == -1 && i == (p)->first)) ? 1 : 0)
+#define get_row_col_offset(p, i) (((p).direction == DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
 
 /***************************************************************************
  *
  **************************************************************************/
 
-void win_table_content_print(const s_table *table, const s_table_part *row_table_part, const s_table_part *col_table_part, const s_cursor *cursor) {
+void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 	//
 	// The absolute coordinates of the field with its borders in the window.
@@ -349,17 +356,17 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 	bool row_cond;
 	bool col_cond;
 
-	for (idx.row = row_table_part->first; idx.row <= row_table_part->last; idx.row++) {
+	for (idx.row = row_table_part.first; idx.row <= row_table_part.last; idx.row++) {
 
 		win_field.col = 0;
 
 		print_debug("calling: s_field_part_update row: %d\n", idx.row);
-		s_field_part_update(row_table_part, idx.row, table->height[idx.row], &row_field_part);
+		s_field_part_update(&row_table_part, idx.row, table->height[idx.row], &row_field_part);
 
-		for (idx.col = col_table_part->first; idx.col <= col_table_part->last; idx.col++) {
+		for (idx.col = col_table_part.first; idx.col <= col_table_part.last; idx.col++) {
 
 			print_debug("calling: s_field_part_update col: %d\n", idx.col);
-			s_field_part_update(col_table_part, idx.col, table->width[idx.col], &col_field_part);
+			s_field_part_update(&col_table_part, idx.col, table->width[idx.col], &col_field_part);
 
 			//
 			// Each field has at least one border
@@ -379,7 +386,7 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 			win_field_end.row = win_text.row + row_field_part.size;
 			win_field_end.col = win_text.col + col_field_part.size;
 
-			print_debug("dir row: %d col: %d\n", row_table_part->direction, col_table_part->direction);
+			print_debug("dir row: %d col: %d\n", row_table_part.direction, col_table_part.direction);
 
 			//
 			//
@@ -406,17 +413,17 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 			//
 			// row borders
 			//
-			if (row_table_part->direction == DIR_FORWARD) {
+			if (row_table_part.direction == DIR_FORWARD) {
 				mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 
-				if (is_not_truncated_and_last(row_table_part, idx.row)) {
+				if (is_not_truncated_and_last(&row_table_part, idx.row)) {
 					mvwhline(win_table, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			} else {
 				mvwhline(win_table, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
 
-				if (is_not_truncated_and_first(row_table_part, idx.row)) {
+				if (is_not_truncated_and_first(&row_table_part, idx.row)) {
 					mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
@@ -425,17 +432,17 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 			//
 			// col borders
 			//
-			if (col_table_part->direction == DIR_FORWARD) {
+			if (col_table_part.direction == DIR_FORWARD) {
 				mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 
-				if (is_not_truncated_and_last(col_table_part, idx.col)) {
+				if (is_not_truncated_and_last(&col_table_part, idx.col)) {
 					mvwvline(win_table, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			} else {
 				mvwvline(win_table, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
 
-				if (is_not_truncated_and_first(col_table_part, idx.col)) {
+				if (is_not_truncated_and_first(&col_table_part, idx.col)) {
 					mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
@@ -444,15 +451,15 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 			//
 			// print the field corners
 			//
-			if (row_table_part->direction == DIR_FORWARD) {
+			if (row_table_part.direction == DIR_FORWARD) {
 
-				if (col_table_part->direction == DIR_FORWARD) {
+				if (col_table_part.direction == DIR_FORWARD) {
 
 					//
 					// corners - row: FORWARD / column: FORWARD
 					//
-					row_cond = is_not_truncated_and_last(row_table_part, idx.row);
-					col_cond = is_not_truncated_and_last(col_table_part, idx.col);
+					row_cond = is_not_truncated_and_last(&row_table_part, idx.row);
+					col_cond = is_not_truncated_and_last(&col_table_part, idx.col);
 
 					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &UL_CORNER, &LL_CORNER, &UR_CORNER, &LR_CORNER);
 
@@ -461,21 +468,21 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 					//
 					// corners - row: FORWARD / column: BACKWARD
 					//
-					row_cond = is_not_truncated_and_last(row_table_part, idx.row);
-					col_cond = is_not_truncated_and_first(col_table_part, idx.col);
+					row_cond = is_not_truncated_and_last(&row_table_part, idx.row);
+					col_cond = is_not_truncated_and_first(&col_table_part, idx.col);
 
 					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &UR_CORNER, &LR_CORNER, &UL_CORNER, &LL_CORNER);
 				}
 
 			} else {
 
-				if (col_table_part->direction == DIR_FORWARD) {
+				if (col_table_part.direction == DIR_FORWARD) {
 
 					//
 					// corners - row: BACKWARD / column: FORWARD
 					//
-					row_cond = is_not_truncated_and_first(row_table_part, idx.row);
-					col_cond = is_not_truncated_and_last(col_table_part, idx.col);
+					row_cond = is_not_truncated_and_first(&row_table_part, idx.row);
+					col_cond = is_not_truncated_and_last(&col_table_part, idx.col);
 
 					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &LL_CORNER, &UL_CORNER, &LR_CORNER, &UR_CORNER);
 
@@ -484,8 +491,8 @@ void win_table_content_print(const s_table *table, const s_table_part *row_table
 					//
 					// corners - row: BACKWARD / column: BACKWARD
 					//
-					row_cond = is_not_truncated_and_first(row_table_part, idx.row);
-					col_cond = is_not_truncated_and_first(col_table_part, idx.col);
+					row_cond = is_not_truncated_and_first(&row_table_part, idx.row);
+					col_cond = is_not_truncated_and_first(&col_table_part, idx.col);
 
 					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &LR_CORNER, &UR_CORNER, &LL_CORNER, &UL_CORNER);
 				}
