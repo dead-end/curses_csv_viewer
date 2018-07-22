@@ -4,8 +4,7 @@
 
 #include "ncv_common.h"
 #include "ncv_table_part.h"
-//TODO: move to win_table
-#include "ncv_corners.h"
+
 #include "ncv_curses.h"
 #include "ncv_ncurses.h"
 
@@ -74,12 +73,6 @@ void curses_loop(const s_table *table, const char *filename) {
 	s_table_part col_table_part;
 
 	s_cursor cursor;
-
-	//
-	// Update the corners with the table sizes
-	//
-	//TODO: move to win_table
-	s_corner_inits(table);
 
 	win_table_content_init(table, &row_table_part, &col_table_part, &cursor);
 
