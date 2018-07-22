@@ -14,37 +14,26 @@ static bool use_colors;
 static SCREEN *screen = NULL;
 
 /***************************************************************************
- * The two static variables are used to be able to switch off attribute
- * after they are switched on.
+ * The function switches on attributes and saves them in the struct, to be
+ * able to switch the off later.
  **************************************************************************/
 
-// TODO: not a good idea
-static int attr_last;
-
-static bool attr_unset;
-
-/***************************************************************************
- * The function switches on attributes and saves them in a static variable,
- * to be able to switch the off later.
- **************************************************************************/
-
-//TODO: win
-void ncurses_set_attr(WINDOW *win, const int attr) {
+void ncurses_attr_on(WINDOW *win, s_attr_reset *attr_reset, const int attr) {
 
 	wattron(win, attr);
-	attr_last = attr;
-	attr_unset = true;
+	attr_reset->reset = attr;
+	attr_reset->do_reset = true;
 }
 
 /***************************************************************************
- * The function switches off the attributes saved in the static variable.
+ * The function switches off the attributes saved in the struct.
  **************************************************************************/
-//TODO: win
-void ncurses_unset_attr(WINDOW *win) {
 
-	if (attr_unset) {
-		wattroff(win, attr_last);
-		attr_unset = false;
+void ncurses_attr_off(WINDOW *win, s_attr_reset *attr_reset) {
+
+	if (attr_reset->do_reset) {
+		wattroff(win, attr_reset->reset);
+		attr_reset->do_reset = false;
 	}
 }
 
