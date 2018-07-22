@@ -281,7 +281,8 @@ void ncurses_init(const bool monochrom, const bool use_initscr) {
 	noecho();
 
 	//
-	// Disable line buffering.
+	// Disable line buffering. With cbreak <crtl>-c and <ctrl>-q are not
+	// processed. This can be done with raw()
 	//
 	cbreak();
 
