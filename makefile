@@ -22,13 +22,13 @@ LIBS     = $(shell ncursesw5-config --libs) -lformw
 ############################################################################
 
 SRC_LIBS += $(SRC_DIR)/ncv_common.c
+SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 SRC_LIBS += $(SRC_DIR)/ncv_parser.c
 SRC_LIBS += $(SRC_DIR)/ncv_table.c
 SRC_LIBS += $(SRC_DIR)/ncv_table_part.c
-SRC_LIBS += $(SRC_DIR)/ncv_curses.c
-SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 SRC_LIBS += $(SRC_DIR)/ncv_corners.c
 SRC_LIBS += $(SRC_DIR)/ncv_field.c
+SRC_LIBS += $(SRC_DIR)/ncv_ui_loop.c
 SRC_LIBS += $(SRC_DIR)/ncv_win_header.c
 SRC_LIBS += $(SRC_DIR)/ncv_win_filter.c
 SRC_LIBS += $(SRC_DIR)/ncv_win_table.c
