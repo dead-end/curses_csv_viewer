@@ -1,6 +1,8 @@
 #ifndef INC_NCV_TABLE_H_
 #define INC_NCV_TABLE_H_
 
+#include "ncv_common.h"
+
 //
 // The table structure contains the csv data.
 //
