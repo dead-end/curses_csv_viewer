@@ -2,12 +2,13 @@
  * file: ncv_curses.c
  */
 
-#include "ncv_common.h"
-#include "ncv_table_part.h"
 
-#include "ncv_curses.h"
+#include "ncv_common.h"
 #include "ncv_ncurses.h"
 
+#include "ncv_table_part.h"
+
+#include "ncv_ui_loop.h"
 #include "ncv_win_header.h"
 #include "ncv_win_filter.h"
 #include "ncv_win_table.h"
@@ -62,7 +63,7 @@ static void wins_resize() {
  *
  **************************************************************************/
 
-void curses_loop(const s_table *table, const char *filename) {
+void ui_loop(const s_table *table, const char *filename) {
 
 	bool do_print = true;
 	bool do_continue = true;
