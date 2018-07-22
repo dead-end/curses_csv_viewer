@@ -2,15 +2,11 @@
  * file: ncv_ccsvv.c
  */
 
-#include <locale.h>
-#include <unistd.h>
-
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 #include "ncv_table.h"
 #include "ncv_parser.h"
-#include "ncv_curses.h"
-
+#include "ncv_ui_loop.h"
 #include "ncv_win_header.h"
 #include "ncv_win_filter.h"
 #include "ncv_win_table.h"
@@ -215,7 +211,7 @@ int main(const int argc, char * const argv[]) {
 
 	win_footer_init();
 
-	curses_loop(&table, filename);
+	ui_loop(&table, filename);
 
 	print_debug_str("main() End\n");
 
