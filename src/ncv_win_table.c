@@ -37,6 +37,20 @@ static s_table_part row_table_part;
 static s_table_part col_table_part;
 
 /***************************************************************************
+ * The macro is called with a s_cursor and a s_field. If checks whether the
+ * field is the cursor field of the table.
+ **************************************************************************/
+
+#define is_field_cursor(c,i) ((i)->row == (c)->row && (i)->col == (c)->col)
+
+/***************************************************************************
+ * The macro is called with a s_field. If checks whether the field is a
+ * header field.
+ **************************************************************************/
+
+#define is_field_header(i) ((i)->row == 0)
+
+/***************************************************************************
  * The function initializes the table window.
  **************************************************************************/
 
@@ -340,8 +354,6 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	//
 	s_field num_borders;
 
-	bool is_cursor;
-
 	s_field_part row_field_part;
 	s_field_part col_field_part;
 
@@ -351,10 +363,15 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	s_field idx;
 
 	//
-	//
+	//TODO: comment
 	//
 	bool row_cond;
 	bool col_cond;
+
+	//
+	// A struct to set / reset attributes. On set it stores the restore values.
+	//
+	s_attr_reset attr_reset;
 
 	for (idx.row = row_table_part.first; idx.row <= row_table_part.last; idx.row++) {
 
@@ -389,25 +406,33 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			print_debug("dir row: %d col: %d\n", row_table_part.direction, col_table_part.direction);
 
 			//
-			//
+			// Print the field content. It is possible that the visible part of the field
+			// only consists of a border, so the field size has to be checked first.
 			//
 			if (row_field_part.size > 0 && col_field_part.size > 0) {
 
-				is_cursor = idx.row == cursor->row && idx.col == cursor->col;
+				//
+				// Check whether cursor / header attribute have to be set.
+				//
+				if (is_field_cursor(cursor, &idx) && cursor->visible) {
 
-				if (is_cursor && cursor->visible && idx.row == 0) {
-					ncurses_set_attr(win_table, attr_cursor_header);
+					if (is_field_header(&idx)) {
+						ncurses_attr_on(win_table, &attr_reset, attr_cursor_header);
+					} else {
+						ncurses_attr_on(win_table, &attr_reset, attr_cursor);
+					}
 
-				} else if (is_cursor && cursor->visible) {
-					ncurses_set_attr(win_table, attr_cursor);
+				} else if (is_field_header(&idx)) {
+					ncurses_attr_on(win_table, &attr_reset, attr_header);
 
-				} else if (idx.row == 0) {
-					ncurses_set_attr(win_table, attr_header);
 				}
 
 				print_field(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text);
 
-				ncurses_unset_attr(win_table);
+				//
+				// Restore attribues if necessary.
+				//
+				ncurses_attr_off(win_table, &attr_reset);
 			}
 
 			//
