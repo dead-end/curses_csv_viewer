@@ -135,27 +135,6 @@ void win_table_refresh_no() {
 }
 
 /***************************************************************************
- * The function does a refresh with if the terminal is large enough.
- **************************************************************************/
-
-void win_table_refresh() {
-
-	//
-	// Ensure the minimum size of the window.
-	//
-	if (WIN_TABLE_MIN_SIZE) {
-		print_debug_str("win_table_refresh() Do refresh the window!\n");
-
-		//
-		// Do the refresh.
-		//
-		if (wrefresh(win_table) != OK) {
-			print_exit_str("win_table_refresh() Unable to refresh the window!\n");
-		}
-	}
-}
-
-/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 
@@ -254,13 +233,20 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
  * (field) cursor. It returns a bool value, to indicate an update.
  **************************************************************************/
 
-bool win_table_content_mv_cursor(const s_table *table, s_cursor *cursor, const int key_input) {
+bool win_table_process_input(const s_table *table, s_cursor *cursor, const int key_type, const wint_t chr) {
 
 	bool result = false;
 
-	print_debug("win_table_content_mv_cursor() old cursor position row: %d col: %d\n", cursor->row, cursor->col);
+	//
+	// Currently only arrows are processed
+	//
+	if (key_type != KEY_CODE_YES) {
+		return false;
+	}
 
-	switch (key_input) {
+	print_debug("win_table_process_input() old cursor position row: %d col: %d\n", cursor->row, cursor->col);
+
+	switch (chr) {
 
 	case KEY_UP:
 		if (cursor->row - 1 >= 0) {
@@ -311,9 +297,13 @@ bool win_table_content_mv_cursor(const s_table *table, s_cursor *cursor, const i
 		}
 
 		break;
+
+	default:
+		print_debug("win_table_process_input() Found key code: %d\n", chr);
+		break;
 	}
 
-	print_debug("win_table_content_mv_cursor() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
+	print_debug("win_table_process_input() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
 
 	return result;
 }
