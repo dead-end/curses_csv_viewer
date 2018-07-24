@@ -2,7 +2,6 @@
  * file: ncv_curses.c
  */
 
-
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 
@@ -29,11 +28,15 @@ static void wins_refresh() {
 
 		win_header_refresh_no();
 
-		win_filter_refresh_no();
-
 		win_table_refresh_no();
 
 		win_footer_refresh_no();
+
+		//
+		// The filter window is the last window to update. It is currently
+		// the only window that uses the ncurses cursor.
+		//
+		win_filter_refresh_no();
 
 		//
 		// Copy the updates to the terminal.
@@ -60,22 +63,12 @@ static void wins_resize() {
 }
 
 /***************************************************************************
- * The function switches on / off the cursor visibility.
+ * The mode enumeration.
  **************************************************************************/
 
-static void cursor_visibility(const s_table *table, s_cursor *cursor, const bool is_visible) {
-
-	//
-	// Check if visibility changed.
-	//
-	if (cursor->visible == is_visible) {
-		return;
-	}
-
-	cursor->visible = is_visible;
-	win_table_content_print(table, cursor);
-	win_table_refresh();
-}
+enum MODE {
+	TABLE, FILTER
+};
 
 /***************************************************************************
  *
@@ -83,15 +76,22 @@ static void cursor_visibility(const s_table *table, s_cursor *cursor, const bool
 
 void ui_loop(const s_table *table, const char *filename) {
 
+	enum MODE mode = TABLE;
+	bool is_processed = false;
+
+	WINDOW *win = stdscr;
+
 	bool do_print = true;
 	bool do_continue = true;
-	int key_input;
+
+	wint_t chr;
+	int key_type;
 
 	s_cursor cursor;
 
 	win_table_content_init(table, &cursor);
 
-	print_debug_str("curses_loop() start\n");
+	print_debug_str("ui_loop() start\n");
 
 	while (do_continue) {
 
@@ -111,55 +111,123 @@ void ui_loop(const s_table *table, const char *filename) {
 		//
 		move(0, 0);
 
-		// TODO: get_wch(&chr);
-		key_input = getch();
+		key_type = wget_wch(win, &chr);
+		is_processed = false;
 
-		switch (key_input) {
+		switch (key_type) {
+
+		case KEY_CODE_YES:
+			switch (chr) {
+
+			case KEY_RESIZE:
+
+				//
+				// Resize the windows.
+				//
+				wins_resize();
+
+				//
+				// Resize the table content based on the new win_table size.
+				//
+				win_table_content_resize(table, &cursor);
+
+				do_print = true;
+				is_processed = true;
+
+				break;
+
+			default:
+				print_debug("ui_loop() Found key code: %d\n", chr);
+				break;
+			}
+
+			break;
+		case OK:
+			switch (chr) {
+
+			//
+			// ESC char
+			//
+			case 27:
+				print_debug("ui_loop() Found esc char: %d\n", chr);
+				if (mode != TABLE) {
+					mode = TABLE;
+					cursor.visible = true;
+					curs_set(0);
+					do_print = true;
+					win = stdscr;
+				}
+				is_processed = true;
+				break;
+
+				//
+				// Enter chars
+				//
+			case KEY_ENTER:
+			case 10:
+				print_debug("ui_loop() Found enter char: %d\n", chr);
+				if (mode != TABLE) {
+					mode = TABLE;
+					cursor.visible = true;
+					curs_set(0);
+					do_print = true;
+					win = stdscr;
+				}
+				is_processed = true;
+				print_debug("ui_loop() Filter: %s", win_filter_get_filter());
+				break;
+
+				//
+				// Quit program
+				//
+			case CTRL('x'):
+				print_debug_str("ui_loop() Found <ctrl>-x\n");
+				do_continue = false;
+				is_processed = true;
+				break;
+
+			case CTRL('f'):
+				print_debug_str("ui_loop() Found <ctrl>-f\n");
+				if (mode != FILTER) {
+					mode = FILTER;
+					cursor.visible = false;
+					curs_set(1);
+					do_print = true;
+					win = win_filter_get_win();
+				}
+				is_processed = true;
+				break;
+
+			default:
+				print_debug("ui_loop() Found char: %d\n", chr);
+				break;
+			}
+			break;
 
 		case ERR:
-			//
-			// ignore when there was a timeout - no data
-			//
+
+			print_exit_str("ui_loop() ### ERROR!\n")
+			;
 			break;
+		}
 
-		case 'q':
-		case 'Q':
-		case CTRL('q'):
-			do_continue = false;
-			break;
+		//
+		// Delegate the input processing
+		//
+		if (!is_processed) {
 
-		case KEY_UP:
-		case KEY_DOWN:
-		case KEY_LEFT:
-		case KEY_RIGHT:
-			do_print = win_table_content_mv_cursor(table, &cursor, key_input);
-			break;
+			switch (mode) {
 
-		case KEY_RESIZE:
+			case TABLE:
+				do_print = win_table_process_input(table, &cursor, key_type, chr);
+				break;
 
-			//
-			// Resize the windows.
-			//
-			wins_resize();
-
-			//
-			// Resize the table content based on the new win_table size.
-			//
-			win_table_content_resize(table, &cursor);
-
-			do_print = true;
-			break;
-
-
-		case CTRL('f'):
-
-			cursor_visibility(table, &cursor, false);
-			win_filter_loop();
-			cursor_visibility(table, &cursor, true);
-
-			break;
+			case FILTER:
+				win_filter_process_input(key_type, chr);
+				break;
+			}
 		}
 	}
 
-	print_debug_str("curses_loop() end\n");
+	print_debug_str("ui_loop() end\n");
 }
