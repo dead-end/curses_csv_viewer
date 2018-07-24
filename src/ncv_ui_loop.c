@@ -71,6 +71,50 @@ enum MODE {
 };
 
 /***************************************************************************
+ * The function changes the mode of the application if necessary. In this
+ * case the ncurses cursor and the table cursor are enabled / disabled. The
+ * function returns true if the mode changed.
+ **************************************************************************/
+
+static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current, const enum MODE mode_new) {
+
+	//
+	// Check if the application has already the mode.
+	//
+	if ((*mode_current) == mode_new) {
+		print_debug_str("change_mode() Mode has not changed.\n");
+		return false;
+	}
+
+	//
+	// Change the mode.
+	//
+	*mode_current = mode_new;
+
+	//
+	// Set the visibility of the cursor and the window to use.
+	//
+	switch (mode_new) {
+
+	case TABLE:
+		print_debug_str("change_mode() Switch mode to: TABLE\n");
+		cursor->visible = true;
+		curs_set(0);
+		*win = stdscr;
+		break;
+
+	case FILTER:
+		print_debug_str("change_mode() Switch mode to: FILTER\n");
+		cursor->visible = false;
+		curs_set(1);
+		*win = win_filter_get_win();
+		break;
+	}
+
+	return true;
+}
+
+/***************************************************************************
  *
  **************************************************************************/
 
@@ -91,9 +135,9 @@ void ui_loop(const s_table *table, const char *filename) {
 
 	win_table_content_init(table, &cursor);
 
-	print_debug_str("ui_loop() start\n");
-
 	while (do_continue) {
+
+		print_debug("ui_loop() mode: %d do_print: %d rows: %d cols: %d\n", mode, do_print, getmaxy(win), getmaxx(win));
 
 		//
 		// Print and refresh only if something changed.
@@ -106,8 +150,8 @@ void ui_loop(const s_table *table, const char *filename) {
 		}
 
 		//
-		// without moving the cursor at the end a flickering occurs, when the
-		// window is resized
+		// Without moving the cursor at the end a flickering occurs, when the
+		// window is resized.
 		//
 		move(0, 0);
 
@@ -150,13 +194,7 @@ void ui_loop(const s_table *table, const char *filename) {
 			//
 			case 27:
 				print_debug("ui_loop() Found esc char: %d\n", chr);
-				if (mode != TABLE) {
-					mode = TABLE;
-					cursor.visible = true;
-					curs_set(0);
-					do_print = true;
-					win = stdscr;
-				}
+				do_print = change_mode(&win, &cursor, &mode, TABLE);
 				is_processed = true;
 				break;
 
@@ -166,15 +204,19 @@ void ui_loop(const s_table *table, const char *filename) {
 			case KEY_ENTER:
 			case 10:
 				print_debug("ui_loop() Found enter char: %d\n", chr);
-				if (mode != TABLE) {
-					mode = TABLE;
-					cursor.visible = true;
-					curs_set(0);
-					do_print = true;
-					win = stdscr;
-				}
+				do_print = change_mode(&win, &cursor, &mode, TABLE);
 				is_processed = true;
-				print_debug("ui_loop() Filter: %s", win_filter_get_filter());
+
+				print_debug("ui_loop() Filter: %s\n", win_filter_get_filter());
+				break;
+
+				//
+				// Switch to FILTER mode
+				//
+			case CTRL('f'):
+				print_debug_str("ui_loop() Found <ctrl>-f\n");
+				do_print = change_mode(&win, &cursor, &mode, FILTER);
+				is_processed = true;
 				break;
 
 				//
@@ -186,22 +228,11 @@ void ui_loop(const s_table *table, const char *filename) {
 				is_processed = true;
 				break;
 
-			case CTRL('f'):
-				print_debug_str("ui_loop() Found <ctrl>-f\n");
-				if (mode != FILTER) {
-					mode = FILTER;
-					cursor.visible = false;
-					curs_set(1);
-					do_print = true;
-					win = win_filter_get_win();
-				}
-				is_processed = true;
-				break;
-
 			default:
 				print_debug("ui_loop() Found char: %d\n", chr);
 				break;
 			}
+
 			break;
 
 		case ERR:
