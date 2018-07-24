@@ -5,6 +5,8 @@
 #ifndef INC_NCV_WIN_FILTER_H_
 #define INC_NCV_WIN_FILTER_H_
 
+#include "ncv_common.h"
+
 #define FILTER_FIELD_ROWS 1
 #define FILTER_FIELD_COLS 32
 
@@ -21,6 +23,10 @@ void win_filter_refresh_no();
 
 void win_filter_free();
 
-void win_filter_loop();
+WINDOW *win_filter_get_win();
+
+void win_filter_process_input(const int key_type, const wint_t chr);
+
+char *win_filter_get_filter();
 
 #endif /* INC_NCV_WIN_FILTER_H_ */
