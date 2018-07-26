@@ -241,7 +241,6 @@ WINDOW *win_filter_get_win() {
 /***************************************************************************
  * The function returns the content of the filter field.
  **************************************************************************/
-// TODO: maybe convert to wchar_t *
 
 char *win_filter_get_filter() {
 	return field_buffer(field[0], 0);
