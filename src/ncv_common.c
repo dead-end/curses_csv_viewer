@@ -78,6 +78,87 @@ FILE *stdin_2_tmp() {
 }
 
 /***************************************************************************
+ * The function converts a multi byte char string to a wide char string. The
+ * result is stored in a newly allocated wide char string and has to be
+ * freed by the calling function.
+ **************************************************************************/
+
+wchar_t *convert_mbs_2_wchars(const char *mbs) {
+	size_t mbslen;
+	wchar_t *result;
+
+	//
+	// Calculate the wchar_t string length.
+	//
+	mbslen = mbstowcs(NULL, mbs, 0);
+	if (mbslen == (size_t) -1) {
+		print_exit_str("convert_mbs_2_wchars() Unable to calculate wchar_t string size!");
+	}
+
+	//
+	// Allocate memory for the wchar_t string.
+	//
+	result = calloc(mbslen + 1, sizeof(wchar_t));
+	if (result == NULL) {
+		print_exit_str("convert_mbs_2_wchars() Unable allocate memory for the wchar_t string!");
+	}
+
+	//
+	// Convert the multi byte string
+	//
+	if (mbstowcs(result, mbs, mbslen + 1) == (size_t) -1) {
+		print_exit_str("convert_mbs_2_wchars() Unable to convert the multi byte string!");
+	}
+
+	return result;
+}
+
+/***************************************************************************
+ * The function converts a multi byte char string to a wide char string.
+ **************************************************************************/
+
+size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
+
+	size_t result = mbstowcs(buffer, mbs, buf_size);
+
+	if (result == (size_t) -1) {
+		print_exit_str("mbchar_2_wchar() Encountered an invalid multibyte sequence!\n");
+	}
+
+	if (result >= (size_t) buf_size) {
+		print_exit("mbchar_2_wchar() Buffer too small (required: %zu provided: %zu)\n", result, (size_t ) buf_size)
+	;
+	}
+
+	return result;
+}
+
+/***************************************************************************
+ * The function removes leading and tailing spaces. The process changes the
+ * argument string.
+ **************************************************************************/
+
+char *trim(char *str) {
+	char *ptr;
+
+	//
+	// skip leading white spaces
+	//
+	for (ptr = str; isspace(*ptr); ptr++)
+		;
+
+	//
+	// skip tailing white spaces by overwriting them with '\0'
+	//
+	size_t len = strlen(ptr);
+	for (int i = len - 1; i >= 0 && isspace(ptr[i]); i--) {
+		ptr[i] = '\0';
+	}
+
+	return ptr;
+}
+
+/***************************************************************************
  * The function is used for unit tests. It checks whether an int parameter
  * has the expected value or not.
  **************************************************************************/

@@ -18,6 +18,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <locale.h>
+#include <ctype.h>
 
 //
 // Definition of the print_debug macro. It uses stdout not to restain curses.
@@ -82,6 +83,13 @@ typedef struct s_field {
 void *xmalloc(const size_t size);
 
 FILE *stdin_2_tmp();
+
+// TODO: NOT USED
+wchar_t *convert_mbs_2_wchars(const char *mbs);
+
+size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size);
+
+char *trim(char *str);
 
 //
 // Functions that can be used for unit tests.
