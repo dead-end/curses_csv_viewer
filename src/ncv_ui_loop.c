@@ -117,11 +117,15 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 /***************************************************************************
  *
  **************************************************************************/
+//TODO: where defined ???
+#define FILTER_BUF_SIZE (FILTER_FIELD_COLS + 1)
 
 void ui_loop(const s_table *table, const char *filename) {
 
 	enum MODE mode = TABLE;
 	bool is_processed = false;
+
+	wchar_t filter_buf[FILTER_BUF_SIZE];
 
 	WINDOW *win = stdscr;
 
@@ -207,7 +211,10 @@ void ui_loop(const s_table *table, const char *filename) {
 				do_print = change_mode(&win, &cursor, &mode, TABLE);
 				is_processed = true;
 
-				print_debug("ui_loop() Filter: %s\n", win_filter_get_filter());
+				// TODO: update / filter table
+				win_filter_get_filter(filter_buf, FILTER_BUF_SIZE);
+				print_debug("ui_loop() Filter (wc): -%ls-\n", filter_buf);
+
 				break;
 
 				//
