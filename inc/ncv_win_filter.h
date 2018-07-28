@@ -27,6 +27,6 @@ WINDOW *win_filter_get_win();
 
 void win_filter_process_input(const int key_type, const wint_t chr);
 
-char *win_filter_get_filter();
+void win_filter_get_filter(wchar_t *buffer, const int buf_size);
 
 #endif /* INC_NCV_WIN_FILTER_H_ */

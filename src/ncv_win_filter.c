@@ -239,11 +239,33 @@ WINDOW *win_filter_get_win() {
 }
 
 /***************************************************************************
- * The function returns the content of the filter field.
+ * The function copies the content of the filter field to the given wchar_t
+ * buffer.
  **************************************************************************/
 
-char *win_filter_get_filter() {
-	return field_buffer(field[0], 0);
+void win_filter_get_filter(wchar_t *buffer, const int buf_size) {
+	char *raw_field = field_buffer(field[0], 0);
+	size_t raw_len = strlen(raw_field);
+	char str[raw_len + 1];
+
+	//
+	// Create a copy of the field content that can be modified (trimmed).
+	//
+	strncpy(str, raw_field, raw_len);
+	str[raw_len] = '\0';
+
+	//
+	// The field content is filled with blanks, which has to be trimmed
+	// before the copying.
+	//
+	char *trimed = trim(str);
+
+	//
+	// Convert and copy.
+	//
+	mbs_2_wchars(trim(trimed), buffer, buf_size);
+
+	print_debug("win_filter_get_filter() Filter: '%ls'\n", buffer);
 }
 
 /***************************************************************************
