@@ -39,6 +39,13 @@ typedef struct s_corner {
 	//
 	int table_corner_row;
 	int table_corner_col;
+
+	//
+	// If the row / col of the corner is at the field end, we have to add
+	// the field width to get the corner position.
+	//
+	bool field_start_row;
+	bool field_start_col;
 } s_corner;
 
 //
@@ -55,6 +62,7 @@ s_corner LL_CORNER;
 
 void s_corner_inits(const int no_rows, const int no_columns);
 
-void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn);
+void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn,
+		const s_corner *nn);
 
 #endif /* INC_NCV_CORNERS_H_ */

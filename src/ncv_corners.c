@@ -9,13 +9,15 @@
  * The macro initializes a s_corner struct.
  **************************************************************************/
 
-#define s_corner_init(c,CO,TB,LR,PL,ROW,COL) \
+#define s_corner_init(c,CO,TB,LR,PL,ROW,COL,ROW_START,COL_START) \
 		c.corner = CO; \
 		c.tb_tee = TB; \
 		c.lr_tee = LR; \
 		c.plus = PL; \
 		c.table_corner_row = ROW; \
-		c.table_corner_col = COL
+		c.table_corner_col = COL; \
+		c.field_start_row = ROW_START; \
+		c.field_start_col = COL_START
 
 /***************************************************************************
  * The function initializes all s_corner structs. It uses the no_rows and
@@ -25,10 +27,10 @@
 
 void s_corner_inits(const int no_rows, const int no_columns) {
 
-	s_corner_init(UL_CORNER, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS, 0, 0);
-	s_corner_init(UR_CORNER, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS, 0, no_columns - 1);
-	s_corner_init(LL_CORNER, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS, no_rows - 1, 0);
-	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, no_rows - 1, no_columns - 1);
+	s_corner_init(UL_CORNER, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS, 0, 0, true, true);
+	s_corner_init(UR_CORNER, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS, 0, no_columns - 1, true, false);
+	s_corner_init(LL_CORNER, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS, no_rows - 1, 0, false, true);
+	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, no_rows - 1, no_columns - 1, false, false);
 }
 
 /***************************************************************************
@@ -69,16 +71,16 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
 	}
 
 	//
-	// The row and column of the corner also determines if we have to add the
-	// field width / height to determine the position of the corner.
+	// If the row / col of the corner is at the field end, we have to add
+	// the field width to get the corner position.
 	//
-	if (0 == corner->table_corner_row) {
+	if (corner->field_start_row) {
 		row = win_field->row;
 	} else {
 		row = win_field_end->row;
 	}
 
-	if (0 == corner->table_corner_col) {
+	if (corner->field_start_col) {
 		col = win_field->col;
 	} else {
 		col = win_field_end->col;
@@ -95,7 +97,8 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
  * most 4.
  **************************************************************************/
 
-void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn, const s_corner *nn) {
+void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn,
+		const s_corner *nn) {
 
 	//
 	// This corner is always printed.
