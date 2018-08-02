@@ -3,7 +3,58 @@
  *
  */
 
-#include "ncv_corners.h"
+#include "ncv_common.h"
+#include "ncv_table_part.h"
+
+/***************************************************************************
+ * Each field can have between 1 and 4 visible corner chars. Each corner can
+ * have 4 shapes. The shapes are:
+ *
+ * - The field corner can be a corner of the table (example: ┌)
+ * - The field corner can be top / bottom tee element (example: ┬)
+ * - The field corner can be left / right tee element (example: ├)
+ * - The field corner can be plus (example: ┼)
+ **************************************************************************/
+
+typedef struct s_corner {
+
+	//
+	// The 4 shapes of the field corner.
+	//
+	chtype corner;
+	chtype tb_tee;
+	chtype lr_tee;
+	chtype plus;
+
+	//
+	// The row and column of the field, where the corner member of the struct
+	// is applied. This is the row and column of the corresponding table
+	// corner.
+	//
+
+	//
+	// The parameter hold the index of the border. It is used to check whether
+	// the current field is a corner field.
+	//
+	int table_corner_row;
+	int table_corner_col;
+
+	//
+	// If the row / col of the corner is at the field end, we have to add
+	// the field width to get the corner position.
+	//
+	bool field_start_row;
+	bool field_start_col;
+
+} s_corner;
+
+//
+// The 4 corners of a field with their position.
+//
+static s_corner UL_CORNER;
+static s_corner UR_CORNER;
+static s_corner LR_CORNER;
+static s_corner LL_CORNER;
 
 /***************************************************************************
  * The macro initializes a s_corner struct.
@@ -97,32 +148,113 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
  * most 4.
  **************************************************************************/
 
-void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner *yy, const s_corner *ny, const s_corner *yn,
-		const s_corner *nn) {
+void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner corners[4]) {
 
 	//
 	// This corner is always printed.
 	//
-	print_corner(win, idx, win_field, win_field_end, yy);
+	print_corner(win, idx, win_field, win_field_end, &corners[0]);
 
 	//
-	// if the row is not truncated an additional border is printed.
+	// if the row is not truncated an additional corner is printed.
 	//
 	if (row_untruncated) {
-		print_corner(win, idx, win_field, win_field_end, ny);
+		print_corner(win, idx, win_field, win_field_end, &corners[1]);
 	}
 
 	//
-	// if the column is not truncated an additional border is printed.
+	// if the column is not truncated an additional corner is printed.
 	//
 	if (col_untruncated) {
-		print_corner(win, idx, win_field, win_field_end, yn);
+		print_corner(win, idx, win_field, win_field_end, &corners[2]);
 	}
 
 	//
-	// if the row and column is not truncated an additional border is printed.
+	// if the row and column is not truncated an additional corner is printed.
 	//
 	if (row_untruncated && col_untruncated) {
-		print_corner(win, idx, win_field, win_field_end, nn);
+		print_corner(win, idx, win_field, win_field_end, &corners[3]);
+	}
+}
+
+/***************************************************************************
+ * The function checks whether a table part is truncated and the index is
+ * the index of the untruncated end.
+ **************************************************************************/
+
+static bool is_not_truncated_and_border(const s_table_part *table_part, const int idx) {
+
+	//
+	// If the table part is truncated (index >= 0) we are ready.
+	//
+	if (table_part->truncated != -1) {
+		return false;
+	}
+
+	//
+	// If the direction is DIR_FORWARD, the first corner is always visible.
+	// If the table part is untruncated and the last corner is also visible.
+	//
+	if (table_part->direction == DIR_FORWARD) {
+		return table_part->last == idx;
+
+	} else {
+		return table_part->first == idx;
+	}
+}
+
+/***************************************************************************
+ * The function is called to print a corner char. One of the four corners
+ * is always visible. Which one depends on the table_part directions. It is
+ * the first element of the s_corner corners[4] array. Two are visible if
+ * the row or the col is not truncated and four are visible if both are not
+ * truncated.
+ **************************************************************************/
+
+void s_corner_print(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const s_table_part *row_table_part, const s_table_part *col_table_part) {
+
+	const bool row_untruncated = is_not_truncated_and_border(row_table_part, idx->row);
+	const bool col_untruncated = is_not_truncated_and_border(col_table_part, idx->col);
+
+	//
+	// print the field corners
+	//
+	if (row_table_part->direction == DIR_FORWARD) {
+
+		if (col_table_part->direction == DIR_FORWARD) {
+
+			//
+			// corners - row: FORWARD / column: FORWARD
+			//
+			const s_corner corners[4] = { UL_CORNER, LL_CORNER, UR_CORNER, LR_CORNER };
+			print_corners(win, idx, win_field, win_field_end, row_untruncated, col_untruncated, corners);
+
+		} else {
+
+			//
+			// corners - row: FORWARD / column: BACKWARD
+			//
+			const s_corner corners[4] = { UR_CORNER, LR_CORNER, UL_CORNER, LL_CORNER };
+			print_corners(win, idx, win_field, win_field_end, row_untruncated, col_untruncated, corners);
+		}
+
+	} else {
+
+		if (col_table_part->direction == DIR_FORWARD) {
+
+			//
+			// corners - row: BACKWARD / column: FORWARD
+			//
+			const s_corner corners[4] = { LL_CORNER, UL_CORNER, LR_CORNER, UR_CORNER };
+			print_corners(win, idx, win_field, win_field_end, row_untruncated, col_untruncated, corners);
+
+		} else {
+
+			//
+			// corners - row: BACKWARD / column: BACKWARD
+			//
+			const s_corner corners[4] = { LR_CORNER, UR_CORNER, LL_CORNER, UL_CORNER };
+			print_corners(win, idx, win_field, win_field_end, row_untruncated, col_untruncated, corners);
+		}
 	}
 }
