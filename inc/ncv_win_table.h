@@ -38,6 +38,6 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 void win_table_content_print(const s_table *table, const s_cursor *cursor);
 
-WINDOW *win_table_mode_on();
+WINDOW *win_table_get_win();
 
 #endif /* INC_NCV_WIN_TABLE_H_ */

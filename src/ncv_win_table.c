@@ -317,7 +317,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 /***************************************************************************
  *
  **************************************************************************/
-
+// TODO: Comments
 void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 	//
@@ -351,12 +351,6 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	// The variable contains the row and column of the current field to be printed.
 	//
 	s_field idx;
-
-	//
-	//TODO: comment
-	//
-	bool row_cond;
-	bool col_cond;
 
 	//
 	// A struct to set / reset attributes. On set it stores the restore values.
@@ -466,52 +460,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			//
 			// print the field corners
 			//
-			if (row_table_part.direction == DIR_FORWARD) {
-
-				if (col_table_part.direction == DIR_FORWARD) {
-
-					//
-					// corners - row: FORWARD / column: FORWARD
-					//
-					row_cond = is_not_truncated_and_last(&row_table_part, idx.row);
-					col_cond = is_not_truncated_and_last(&col_table_part, idx.col);
-
-					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &UL_CORNER, &LL_CORNER, &UR_CORNER, &LR_CORNER);
-
-				} else {
-
-					//
-					// corners - row: FORWARD / column: BACKWARD
-					//
-					row_cond = is_not_truncated_and_last(&row_table_part, idx.row);
-					col_cond = is_not_truncated_and_first(&col_table_part, idx.col);
-
-					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &UR_CORNER, &LR_CORNER, &UL_CORNER, &LL_CORNER);
-				}
-
-			} else {
-
-				if (col_table_part.direction == DIR_FORWARD) {
-
-					//
-					// corners - row: BACKWARD / column: FORWARD
-					//
-					row_cond = is_not_truncated_and_first(&row_table_part, idx.row);
-					col_cond = is_not_truncated_and_last(&col_table_part, idx.col);
-
-					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &LL_CORNER, &UL_CORNER, &LR_CORNER, &UR_CORNER);
-
-				} else {
-
-					//
-					// corners - row: BACKWARD / column: BACKWARD
-					//
-					row_cond = is_not_truncated_and_first(&row_table_part, idx.row);
-					col_cond = is_not_truncated_and_first(&col_table_part, idx.col);
-
-					print_corners(win_table, &idx, &win_field, &win_field_end, row_cond, col_cond, &LR_CORNER, &UR_CORNER, &LL_CORNER, &UL_CORNER);
-				}
-			}
+			s_corner_print(win_table, &idx, &win_field, &win_field_end, &row_table_part, &col_table_part);
 
 			print_debug("row index: %d start: %d size: %d\n", idx.row, row_field_part.start, row_field_part.size);
 			print_debug("col index: %d start: %d size: %d\n", idx.col, col_field_part.start, col_field_part.size);
@@ -521,4 +470,12 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 		win_field.row += row_field_part.size + num_borders.row;
 	}
+}
+
+/***************************************************************************
+ *
+ **************************************************************************/
+//TODO: Necessary ???
+WINDOW *win_table_get_win() {
+	return win_table;
 }
