@@ -18,6 +18,8 @@ static void test_parser() {
 
 	parser_process_filename("res/test1.csv", W_DELIM, &table);
 
+	s_table_reset_filter(&table);
+
 	//
 	// Check all fields "by hand"
 	//
@@ -69,6 +71,8 @@ static void test_parser_empty() {
 	print_debug_str("test_parser_empty() Start\n");
 
 	parser_process_filename("res/empty.csv", W_DELIM, &table);
+
+	s_table_reset_filter(&table);
 
 	//
 	// Check all fields "by hand"
