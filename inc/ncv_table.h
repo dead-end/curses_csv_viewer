@@ -6,12 +6,20 @@
 //
 // The table structure contains the csv data.
 //
+/***************************************************************************
+ * Function definitions
+ **************************************************************************/
 typedef struct s_table {
 
 	//
-	// the number of columns and rows
+	// The number of columns and rows of the table. The parameter __no_rows
+	// holds the correct number, while no_rows holds the filtered number of
+	// rows.
 	//
 	int no_columns;
+
+	int __no_rows;
+
 	int no_rows;
 
 	//
@@ -20,13 +28,20 @@ typedef struct s_table {
 	int *width;
 
 	//
-	// an array with heights of the rows
+	// An array with heights of the rows. Again height has the heights of
+	// the filtered rows.
 	//
+	int *__height;
+
 	int *height;
 
 	//
-	// a two dimensional array with the fields of the csv file
+	// A two dimensional array with the fields of the csv file. The
+	// parameter __fields has the data, while fields has pointers to the
+	// row data.
 	//
+	wchar_t ***__fields;
+
 	wchar_t ***fields;
 
 } s_table;
@@ -41,6 +56,10 @@ void s_table_free(s_table *table);
 void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *str);
 
 void s_table_field_dimension(wchar_t *str, int *width, int *height);
+
+void s_table_reset_filter(s_table *table);
+
+void s_table_do_filter(s_table *table, const wchar_t *filter);
 
 void s_table_dump(const s_table *table);
 

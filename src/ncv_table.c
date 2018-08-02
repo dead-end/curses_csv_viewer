@@ -20,7 +20,7 @@
 
 void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 
-	table->no_rows = no_rows;
+	table->__no_rows = no_rows;
 	table->no_columns = no_columns;
 
 	print_debug("s_table_init() Allocate memory for rows: %d columns: %d\n", no_rows, no_columns);
@@ -37,25 +37,28 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	//
 	// Allocate and initialize an array for the heights of the rows.
 	//
-	table->height = xmalloc(sizeof(int) * no_rows);
+	table->__height = xmalloc(sizeof(int) * no_rows);
 
 	for (int row = 0; row < no_rows; row++) {
-		table->height[row] = MIN_WIDTH_HEIGHT;
+		table->__height[row] = MIN_WIDTH_HEIGHT;
 	}
+
+	table->height = xmalloc(sizeof(int) * no_rows);
 
 	//
 	// Allocate a two dimensional array for the fields. The fields are not
 	// initialized.
 	//
-	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
+	table->__fields = xmalloc(sizeof(wchar_t**) * no_rows);
 
 	for (int row = 0; row < no_rows; row++) {
-		table->fields[row] = xmalloc(sizeof(wchar_t*) * no_columns);
-
-		//		for (int column = 0; column < no_columns; column++) {
-		//			table->fields[row][column] = NULL;
-		//		}
+		table->__fields[row] = xmalloc(sizeof(wchar_t*) * no_columns);
 	}
+
+	//
+	// Allocate memory for the row pointers.
+	//
+	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
 }
 
 /***************************************************************************
@@ -71,25 +74,73 @@ void s_table_free(s_table *table) {
 	// Free the arrays with the widths and heights of the columns and rows.
 	//
 	free(table->width);
+	free(table->__height);
 	free(table->height);
 
 	//
 	// Iterate through the two dimensional array with the fields and the
 	// actual field content.
 	//
-	for (int row = 0; row < table->no_rows; row++) {
+	for (int row = 0; row < table->__no_rows; row++) {
 		for (int column = 0; column < table->no_columns; column++) {
 
 			//
 			// Free the field content.
 			//
-			free(table->fields[row][column]);
+			free(table->__fields[row][column]);
 		}
 
-		free(table->fields[row]);
+		free(table->__fields[row]);
 	}
 
+	free(table->__fields);
 	free(table->fields);
+}
+
+/***************************************************************************
+ * If the table is not filtered, the function resets the number of rows, the
+ * heights and the field pointers.
+ **************************************************************************/
+
+void s_table_reset_filter(s_table *table) {
+
+	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
+
+	for (int row = 0; row < table->__no_rows; row++) {
+		table->fields[row] = table->__fields[row];
+		table->height[row] = table->__height[row];
+	}
+
+	table->no_rows = table->__no_rows;
+}
+
+/***************************************************************************
+ * The function filters the table data.
+ **************************************************************************/
+
+void s_table_do_filter(s_table *table, const wchar_t *filter) {
+
+	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", filter);
+
+	table->no_rows = 0;
+
+	for (int row = 0; row < table->__no_rows; row++) {
+		for (int column = 0; column < table->no_columns; column++) {
+
+			//
+			// If the field content matches the filter, set the field pointer
+			// the height and update the number of rows.
+			//
+			if (wcsstr(table->__fields[row][column], filter) != NULL) {
+
+				table->fields[table->no_rows] = table->__fields[row];
+				table->height[table->no_rows] = table->__height[row];
+				table->no_rows++;
+
+				break;
+			}
+		}
+	}
 }
 
 /***************************************************************************
@@ -165,9 +216,9 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	//
 	// Copy the field content with allocated memory.
 	//
-	table->fields[row][column] = wcsdup(str);
+	table->__fields[row][column] = wcsdup(str);
 
-	if (table->fields[row][column] == NULL) {
+	if (table->__fields[row][column] == NULL) {
 		print_exit_str("s_table_copy() Unable to allocate memory!\n");
 	}
 
@@ -179,21 +230,21 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	s_table_field_dimension(str, &col_size, &row_size);
 
 	print_debug("s_table_copy() row: %d column: %d field: %ls\n", row, column, str);
-	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->height[row]);
+	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);
 	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
+
+	//
+	// Update the row height if necessary.
+	//
+	if (row_size > table->__height[row]) {
+		table->__height[row] = row_size;
+	}
 
 	//
 	// Update the column width if necessary.
 	//
 	if (col_size > table->width[column]) {
 		table->width[column] = col_size;
-	}
-
-	//
-	// Update the row height if necessary.
-	//
-	if (row_size > table->height[row]) {
-		table->height[row] = row_size;
 	}
 }
 
@@ -207,9 +258,9 @@ void s_table_dump(const s_table *table) {
 	//
 	// Print the fields.
 	//
-	for (int row = 0; row < table->no_rows; row++) {
+	for (int row = 0; row < table->__no_rows; row++) {
 		for (int column = 0; column < table->no_columns; column++) {
-			print_debug("s_table_dump() row: %d column: %d '%ls'\n", row, column, table->fields[row][column]);
+			print_debug("s_table_dump() row: %d column: %d '%ls'\n", row, column, table->__fields[row][column]);
 		}
 		print_debug_str("s_table_dump()\n");
 	}
@@ -224,7 +275,7 @@ void s_table_dump(const s_table *table) {
 	//
 	// Print the row heights.
 	//
-	for (int row = 0; row < table->no_rows; row++) {
-		print_debug("s_table_dump() row: %d height: %d\n", row, table->height[row]);
+	for (int row = 0; row < table->__no_rows; row++) {
+		print_debug("s_table_dump() row: %d height: %d\n", row, table->__height[row]);
 	}
 }
