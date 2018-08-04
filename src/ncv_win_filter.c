@@ -269,6 +269,15 @@ void win_filter_get_filter(wchar_t *buffer, const int buf_size) {
 }
 
 /***************************************************************************
+ * The function deletes the content of the filter field.
+ **************************************************************************/
+
+void win_filter_clear_filter() {
+
+	set_field_buffer(field[0], 0, "");
+}
+
+/***************************************************************************
  * The function processes the input from the user. The error handling of
  * key_type is done by the calling function.
  **************************************************************************/
