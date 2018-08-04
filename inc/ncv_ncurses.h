@@ -11,7 +11,7 @@
 // Check for control modifier. Usage: CTRL('f')
 //
 #ifndef CTRL
-#define CTRL(c) ((c) & 037)
+#define CTRL(x) ((x) & 0x1f)
 #endif
 
 //
