@@ -7,7 +7,6 @@
 #include "ncv_table.h"
 #include "ncv_win_table.h"
 
-
 //
 // Size of the string buffer.
 //
@@ -121,7 +120,32 @@ void win_footer_content_print(char *filename, const s_table *table, const s_curs
 	//
 	// Try to print row / column infos
 	//
-	snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
+	if (table->no_rows == 0) {
+
+		//
+		// If the filtered table has no rows, then it is emtpy :o)
+		//
+		snprintf(buf, FOOTER_WIN_MAX, " Table is empty ");
+
+	} else {
+
+		if (cursor->visible) {
+
+			//
+			// If the cursor is visible print cursor and table row and column
+			// number.
+			//
+			snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
+
+		} else {
+
+			//
+			// If the cursor is not visible simply print the row and column
+			// number.
+			//
+			snprintf(buf, FOOTER_WIN_MAX, " Row: %d Col: %d ", table->no_rows, table->no_columns);
+		}
+	}
 	strlen_row_col = (int) strlen(buf);
 
 	//
