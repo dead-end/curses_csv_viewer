@@ -44,6 +44,12 @@ typedef struct s_table {
 
 	wchar_t ***fields;
 
+	//
+	// A flag the tell whether the table has a header row. A header row is
+	// always part of a filtered header.
+	//
+	bool show_header;
+
 } s_table;
 
 //
@@ -62,5 +68,12 @@ void s_table_reset_filter(s_table *table);
 void s_table_do_filter(s_table *table, const wchar_t *filter);
 
 void s_table_dump(const s_table *table);
+
+/***************************************************************************
+ * The macro is called with a s_table and a s_field. If checks whether the
+ * field is a header field.
+ **************************************************************************/
+
+#define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
 
 #endif /* INC_NCV_TABLE_H_ */
