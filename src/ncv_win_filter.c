@@ -295,10 +295,20 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 
 		case KEY_DC:
 			form_driver_w(filter_form, KEY_CODE_YES, REQ_DEL_CHAR);
+
+			//
+			// If the field content has changed, do an update.
+			//
+			form_driver_w(filter_form, KEY_CODE_YES, REQ_VALIDATION);
 			break;
 
 		case KEY_BACKSPACE:
 			form_driver_w(filter_form, KEY_CODE_YES, REQ_DEL_PREV);
+
+			//
+			// If the field content has changed, do an update.
+			//
+			form_driver_w(filter_form, KEY_CODE_YES, REQ_VALIDATION);
 			break;
 
 		case KEY_LEFT:
