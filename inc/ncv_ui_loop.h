@@ -11,6 +11,6 @@
  * Function definitions
  **************************************************************************/
 
-void ui_loop(const s_table *table, const char *filename);
+void ui_loop(s_table *table, const char *filename);
 
 #endif /* INC_NCV_UI_LOOP_H_ */
