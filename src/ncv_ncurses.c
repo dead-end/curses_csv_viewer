@@ -286,6 +286,11 @@ void ncurses_init(const bool monochrom, const bool use_initscr) {
 	//
 	cbreak();
 
+	//
+	// Set the esc delay to 0. By default the value is greater than 0.
+	//
+	set_escdelay(0);
+
 	print_debug("ncurses_init() win - y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
 
 	//
