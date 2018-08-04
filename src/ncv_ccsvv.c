@@ -112,10 +112,14 @@ static void print_usage(const bool has_error, const char* msg) {
 	//
 	// print the usage information
 	//
-	fprintf(stream, "ccsvv [] -f FILE\n");
-	fprintf(stream, "\t -f <FILE>      The name of the csv file.\n");
-	fprintf(stream, "\t -d <DELIMITER> An alternative delimiter character.\n");
-	fprintf(stream, "\t -m             Do not use colors (monochrome)\n");
+	fprintf(stream, "ccsvv [-m] [-n] [-d delimiter] [file]\n");
+
+	fprintf(stream, "\t -m             Display the table with no colors (monochrome)\n");
+	fprintf(stream, "\t -n             Do not use header row\n");
+
+	fprintf(stream, "\t -d delimiter   An alternative delimiter character. The default character is ','.\n");
+
+	fprintf(stream, "\t [file]         The name of the csv file. If no file name is given, the csv file is read from stdin.\n");
 
 	exit(status);
 }
@@ -138,10 +142,12 @@ int main(const int argc, char * const argv[]) {
 
 	print_debug_str("main() Start\n");
 
+	table.show_header = true;
+
 	//
 	// parse the command line options
 	//
-	while ((c = getopt(argc, argv, "mf:d:")) != -1) {
+	while ((c = getopt(argc, argv, "mnd:")) != -1) {
 		switch (c) {
 
 		case 'm':
@@ -149,9 +155,9 @@ int main(const int argc, char * const argv[]) {
 			print_debug_str("Use monochrom.\n");
 			break;
 
-		case 'f':
-			filename = optarg;
-			print_debug("Found filename: %s\n", filename);
+		case 'n':
+			table.show_header = false;
+			print_debug_str("Do not show header.\n");
 			break;
 
 		case 'd':
@@ -178,9 +184,24 @@ int main(const int argc, char * const argv[]) {
 			break;
 
 		default:
-			print_usage(true, NULL);
+			print_usage(true, "Unknown option found!");
 		}
 	}
+
+	//
+	// Check if a file argument is present.
+	//
+	if (optind == argc - 1) {
+		filename = argv[optind];
+		print_debug("Found filename: %s\n", filename);
+
+		//
+		// Ensure that no more than one filename is present.
+		//
+	} else if (optind != argc) {
+		print_usage(true, "Unknown option found!");
+	}
+
 
 	//
 	// Process the csv file
