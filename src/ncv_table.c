@@ -133,7 +133,7 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
  **************************************************************************/
 
 void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) {
-	bool found = 0;
+	bool found = false;
 
 	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", filter);
 
@@ -150,18 +150,6 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) 
 	table->no_rows = 0;
 
 	for (int row = 0; row < table->__no_rows; row++) {
-
-		//
-		// If show header is configured, then the header line is always part
-		// of the filtered table.
-		//
-		if (row == 0 && table->show_header) {
-			table->fields[table->no_rows] = table->__fields[row];
-			table->height[table->no_rows] = table->__height[row];
-			table->no_rows++;
-
-			continue;
-		}
 
 		for (int column = 0; column < table->no_columns; column++) {
 
@@ -185,6 +173,17 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) 
 				break;
 			}
 		}
+
+		//
+		// If show header is configured, then the header line is always part
+		// of the filtered table. If nothing was found, the header line will
+		// be removed again as a last step.
+		//
+		if (row == 0 && table->show_header && table->no_rows == 0) {
+			table->fields[table->no_rows] = table->__fields[row];
+			table->height[table->no_rows] = table->__height[row];
+			table->no_rows++;
+		}
 	}
 
 	//
@@ -194,6 +193,13 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) 
 	if (!found) {
 		cursor->row = 0;
 		cursor->col = 0;
+
+		//
+		// If the whole table does not contain the filter, set it empty.
+		//
+		if (table->show_header) {
+			table->no_rows = 0;
+		}
 	}
 
 	print_debug("s_table_do_filter() cursor row: %d col: %d\n", cursor->row, cursor->col);
