@@ -8,19 +8,7 @@
 
 #include "ncv_table.h"
 #include "ncv_table_part.h"
-
-//
-// Structure for the cursor.
-//
-typedef struct s_cursor {
-
-	int row;
-
-	int col;
-
-	bool visible;
-
-} s_cursor;
+#include "ncv_cursor.h"
 
 void win_table_init();
 
@@ -30,9 +18,11 @@ void win_table_refresh_no();
 
 void win_table_free();
 
-void win_table_content_init(const s_table *table, s_cursor *cursor);
+void win_table_on_table_change(const s_table *table);
 
 void win_table_content_resize(const s_table *table, s_cursor *cursor);
+
+void win_table_set_cursor(const s_table *table, s_cursor *cursor);
 
 bool win_table_process_input(const s_table *table, s_cursor *cursor, const int key_type, const wint_t chr);
 

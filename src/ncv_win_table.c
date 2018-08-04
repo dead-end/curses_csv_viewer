@@ -141,24 +141,13 @@ void win_table_free() {
 }
 
 /***************************************************************************
- * The function initializes the cursor and the row / column table parts.
+ * The function is called if the number of rows / columns of the table
+ * changes. This happens on filtering and reseting the filter
  **************************************************************************/
 
-void win_table_content_init(const s_table *table, s_cursor *cursor) {
+void win_table_on_table_change(const s_table *table) {
 
-	print_debug_str("win_table_content_init() Initialize win table\n");
-
-	//
-	// Set the initial cursor position.
-	//
-	cursor->row = 0;
-	cursor->col = 0;
-
-	//
-	// Initialize the row / column table parts.
-	//
-	s_table_part_update(&row_table_part, table->height, 0, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-	s_table_part_update(&col_table_part, table->width, 0, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+	print_debug_str("win_table_on_table_change() Initialize win table\n");
 
 	//
 	// Initialize the corners
@@ -217,6 +206,35 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 		//
 	} else if (is_index_after_last(&col_table_part, cursor->col)) {
 		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+	}
+}
+
+/***************************************************************************
+ * The function sets the field cursor to a new position. By default the
+ * direction is set to DIR_FORWARD. After this it has to be checked whether
+ * the direction has to be changed.
+ **************************************************************************/
+
+void win_table_set_cursor(const s_table *table, s_cursor *cursor) {
+
+	//
+	// update the visible part of the table
+	//
+	s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+	s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+
+	//
+	// Adjust rows (see function doc: adjust_dir_on_resize)
+	//
+	if (adjust_dir_on_resize(&row_table_part, table->no_rows - 1)) {
+		s_table_part_update(&row_table_part, table->height, s_table_part_start(&row_table_part), table->no_rows, row_table_part.direction, getmaxy(win_table));
+	}
+
+	//
+	// Adjust columns (see function doc: adjust_dir_on_resize)
+	//
+	if (adjust_dir_on_resize(&col_table_part, table->no_columns - 1)) {
+		s_table_part_update(&col_table_part, table->width, s_table_part_start(&col_table_part), table->no_columns, col_table_part.direction, getmaxx(win_table));
 	}
 }
 
