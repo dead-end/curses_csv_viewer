@@ -2,6 +2,7 @@
 #define INC_NCV_TABLE_H_
 
 #include "ncv_common.h"
+#include "ncv_cursor.h"
 
 //
 // The table structure contains the csv data.
@@ -63,9 +64,9 @@ void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *st
 
 void s_table_field_dimension(wchar_t *str, int *width, int *height);
 
-void s_table_reset_filter(s_table *table);
+void s_table_reset_filter(s_table *table, s_cursor *cursor);
 
-void s_table_do_filter(s_table *table, const wchar_t *filter);
+void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter);
 
 void s_table_dump(const s_table *table);
 

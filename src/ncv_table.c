@@ -102,7 +102,7 @@ void s_table_free(s_table *table) {
  * heights and the field pointers.
  **************************************************************************/
 
-void s_table_reset_filter(s_table *table) {
+void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 
 	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
 
@@ -120,13 +120,20 @@ void s_table_reset_filter(s_table *table) {
 	}
 
 	table->no_rows = table->__no_rows;
+
+	//
+	// Init the cursor to the start position.
+	//
+	cursor->row = 0;
+	cursor->col = 0;
 }
 
 /***************************************************************************
  * The function filters the table data.
  **************************************************************************/
 
-void s_table_do_filter(s_table *table, const wchar_t *filter) {
+void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) {
+	bool found = 0;
 
 	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", filter);
 
@@ -136,7 +143,7 @@ void s_table_do_filter(s_table *table, const wchar_t *filter) {
 	//
 	if (wcslen(filter) == 0) {
 		print_debug_str("s_table_do_filter() Filter is empty, do a reset.\n");
-		s_table_reset_filter(table);
+		s_table_reset_filter(table, cursor);
 		return;
 	}
 
@@ -152,6 +159,7 @@ void s_table_do_filter(s_table *table, const wchar_t *filter) {
 			table->fields[table->no_rows] = table->__fields[row];
 			table->height[table->no_rows] = table->__height[row];
 			table->no_rows++;
+
 			continue;
 		}
 
@@ -165,12 +173,30 @@ void s_table_do_filter(s_table *table, const wchar_t *filter) {
 
 				table->fields[table->no_rows] = table->__fields[row];
 				table->height[table->no_rows] = table->__height[row];
+
+				if (!found) {
+					cursor->row = table->no_rows;
+					cursor->col = column;
+					found = true;
+				}
+
 				table->no_rows++;
 
 				break;
 			}
 		}
 	}
+
+	//
+	// If no field matches the filter set the cursor to 0/0. The makes only
+	// sense if show_header is true.
+	//
+	if (!found) {
+		cursor->row = 0;
+		cursor->col = 0;
+	}
+
+	print_debug("s_table_do_filter() cursor row: %d col: %d\n", cursor->row, cursor->col);
 }
 
 /***************************************************************************
