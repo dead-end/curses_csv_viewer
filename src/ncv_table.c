@@ -135,7 +135,7 @@ void s_table_do_filter(s_table *table, const wchar_t *filter) {
 	// function.
 	//
 	if (wcslen(filter) == 0) {
-		print_debug("s_table_do_filter() Filter is empty, do a reset.\n");
+		print_debug_str("s_table_do_filter() Filter is empty, do a reset.\n");
 		s_table_reset_filter(table);
 		return;
 	}
