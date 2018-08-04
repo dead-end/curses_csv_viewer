@@ -261,7 +261,15 @@ void ui_loop(s_table *table, const char *filename) {
 				break;
 
 			default:
-				print_debug("ui_loop() Found char: %d\n", chr);
+
+				//
+				// Ignore all other ctrl chars.
+				//
+				if (chr == CTRL(chr)) {
+					print_debug_str("ui_loop() Found <ctrl>-char\n");
+					is_processed = true;
+				}
+
 				break;
 			}
 
