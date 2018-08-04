@@ -106,6 +106,14 @@ void s_table_reset_filter(s_table *table) {
 
 	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
 
+	//
+	// Check if the table is already reset.
+	//
+	if (table->no_rows == table->__no_rows) {
+		print_debug_str("s_table_reset_filter() Table is already reset.\n");
+		return;
+	}
+
 	for (int row = 0; row < table->__no_rows; row++) {
 		table->fields[row] = table->__fields[row];
 		table->height[row] = table->__height[row];
@@ -122,9 +130,31 @@ void s_table_do_filter(s_table *table, const wchar_t *filter) {
 
 	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", filter);
 
+	//
+	// If the filter is empty, the filtering is a reset, so delegate to the
+	// function.
+	//
+	if (wcslen(filter) == 0) {
+		print_debug("s_table_do_filter() Filter is empty, do a reset.\n");
+		s_table_reset_filter(table);
+		return;
+	}
+
 	table->no_rows = 0;
 
 	for (int row = 0; row < table->__no_rows; row++) {
+
+		//
+		// If show header is configured, then the header line is always part
+		// of the filtered table.
+		//
+		if (row == 0 && table->show_header) {
+			table->fields[table->no_rows] = table->__fields[row];
+			table->height[table->no_rows] = table->__height[row];
+			table->no_rows++;
+			continue;
+		}
+
 		for (int column = 0; column < table->no_columns; column++) {
 
 			//
