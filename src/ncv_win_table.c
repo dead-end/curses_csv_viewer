@@ -44,13 +44,6 @@ static s_table_part col_table_part;
 #define is_field_cursor(c,i) ((i)->row == (c)->row && (i)->col == (c)->col)
 
 /***************************************************************************
- * The macro is called with a s_field. If checks whether the field is a
- * header field.
- **************************************************************************/
-
-#define is_field_header(i) ((i)->row == 0)
-
-/***************************************************************************
  * The function initializes the table window.
  **************************************************************************/
 
@@ -160,7 +153,6 @@ void win_table_content_init(const s_table *table, s_cursor *cursor) {
 	//
 	cursor->row = 0;
 	cursor->col = 0;
-	cursor->visible = true;
 
 	//
 	// Initialize the row / column table parts.
@@ -400,13 +392,13 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 				//
 				if (is_field_cursor(cursor, &idx) && cursor->visible) {
 
-					if (is_field_header(&idx)) {
+					if (s_table_is_field_header(table, &idx)) {
 						ncurses_attr_on(win_table, &attr_reset, attr_cursor_header);
 					} else {
 						ncurses_attr_on(win_table, &attr_reset, attr_cursor);
 					}
 
-				} else if (is_field_header(&idx)) {
+				} else if (s_table_is_field_header(table, &idx)) {
 					ncurses_attr_on(win_table, &attr_reset, attr_header);
 
 				}
