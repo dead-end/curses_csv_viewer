@@ -14,6 +14,14 @@
 #include "ncv_win_footer.h"
 
 /***************************************************************************
+ * The mode enumeration.
+ **************************************************************************/
+
+enum MODE {
+	MODE_TABLE, MODE_FILTER
+};
+
+/***************************************************************************
  * The function refreshes all windows that are visible. If the terminal is
  * too small, some windows disappear.
  **************************************************************************/
@@ -63,27 +71,18 @@ static void wins_resize() {
 }
 
 /***************************************************************************
- * The mode enumeration.
- **************************************************************************/
-
-enum MODE {
-	TABLE, FILTER
-};
-
-/***************************************************************************
  * The function changes the mode of the application if necessary. In this
- * case the ncurses cursor and the table cursor are enabled / disabled. The
- * function returns true if the mode changed.
+ * case the ncurses cursor and the table cursor are enabled / disabled.
  **************************************************************************/
 
-static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current, const enum MODE mode_new) {
+static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current, const enum MODE mode_new) {
 
 	//
 	// Check if the application has already the mode.
 	//
 	if ((*mode_current) == mode_new) {
 		print_debug_str("change_mode() Mode has not changed.\n");
-		return false;
+		return;
 	}
 
 	//
@@ -96,22 +95,20 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 	//
 	switch (mode_new) {
 
-	case TABLE:
+	case MODE_TABLE:
 		print_debug_str("change_mode() Switch mode to: TABLE\n");
 		cursor->visible = true;
 		curs_set(0);
 		*win = stdscr;
 		break;
 
-	case FILTER:
+	case MODE_FILTER:
 		print_debug_str("change_mode() Switch mode to: FILTER\n");
 		cursor->visible = false;
 		curs_set(1);
 		*win = win_filter_get_win();
 		break;
 	}
-
-	return true;
 }
 
 /***************************************************************************
@@ -120,9 +117,9 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 //TODO: where defined ???
 #define FILTER_BUF_SIZE (FILTER_FIELD_COLS + 1)
 
-void ui_loop(const s_table *table, const char *filename) {
+void ui_loop(s_table *table, const char *filename) {
 
-	enum MODE mode = TABLE;
+	enum MODE mode = MODE_TABLE;
 	bool is_processed = false;
 
 	wchar_t filter_buf[FILTER_BUF_SIZE];
@@ -137,7 +134,9 @@ void ui_loop(const s_table *table, const char *filename) {
 
 	s_cursor cursor;
 
-	win_table_content_init(table, &cursor);
+	s_table_reset_filter(table, &cursor);
+	win_table_on_table_change(table);
+	win_table_set_cursor(table, &cursor);
 
 	while (do_continue) {
 
@@ -198,8 +197,22 @@ void ui_loop(const s_table *table, const char *filename) {
 			//
 			case 27:
 				print_debug("ui_loop() Found esc char: %d\n", chr);
-				do_print = change_mode(&win, &cursor, &mode, TABLE);
 				is_processed = true;
+
+				if (mode == MODE_FILTER) {
+					change_mode(&win, &cursor, &mode, MODE_TABLE);
+
+					//
+					// Reset the filtering
+					//
+					win_filter_clear_filter();
+					s_table_reset_filter(table, &cursor);
+					win_table_on_table_change(table);
+					win_table_set_cursor(table, &cursor);
+					werase(win_table_get_win());
+					do_print = true;
+				}
+
 				break;
 
 				//
@@ -208,13 +221,21 @@ void ui_loop(const s_table *table, const char *filename) {
 			case KEY_ENTER:
 			case 10:
 				print_debug("ui_loop() Found enter char: %d\n", chr);
-				do_print = change_mode(&win, &cursor, &mode, TABLE);
 				is_processed = true;
 
-				// TODO: update / filter table
-				win_filter_get_filter(filter_buf, FILTER_BUF_SIZE);
-				print_debug("ui_loop() Filter (wc): -%ls-\n", filter_buf);
+				if (mode == MODE_FILTER) {
+					change_mode(&win, &cursor, &mode, MODE_TABLE);
 
+					//
+					// Do the filtering
+					//
+					win_filter_get_filter(filter_buf, FILTER_BUF_SIZE);
+					s_table_do_filter(table, &cursor, filter_buf);
+					win_table_on_table_change(table);
+					win_table_set_cursor(table, &cursor);
+					werase(win_table_get_win());
+					do_print = true;
+				}
 				break;
 
 				//
@@ -222,8 +243,12 @@ void ui_loop(const s_table *table, const char *filename) {
 				//
 			case CTRL('f'):
 				print_debug_str("ui_loop() Found <ctrl>-f\n");
-				do_print = change_mode(&win, &cursor, &mode, FILTER);
 				is_processed = true;
+
+				if (mode == MODE_TABLE) {
+					change_mode(&win, &cursor, &mode, MODE_FILTER);
+					do_print = true;
+				}
 				break;
 
 				//
@@ -256,11 +281,11 @@ void ui_loop(const s_table *table, const char *filename) {
 
 			switch (mode) {
 
-			case TABLE:
+			case MODE_TABLE:
 				do_print = win_table_process_input(table, &cursor, key_type, chr);
 				break;
 
-			case FILTER:
+			case MODE_FILTER:
 				win_filter_process_input(key_type, chr);
 				break;
 			}
