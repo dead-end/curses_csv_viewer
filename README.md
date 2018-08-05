@@ -27,11 +27,13 @@ ccsvv can deal with multi-line fields and supports unicode characters (wchar_t).
 ccsvv languages.csv
 ```
 ![table part](img/languages.png?raw=true "Show example")
+
 If the terminal does not support colors, ccsvv shows the table in a monochrome mode, which can be enforced by the `-m` command line option.
 ```
 ccsvv -m languages.csv
 ```
-![table part](img/languages.png?raw=true "Show monochrome example")
+![table part](img/mono.png?raw=true "Show monochrome example")
+
 ccsvv can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `sys`.
 ```
 ccsvv -nd : /etc/passwd
