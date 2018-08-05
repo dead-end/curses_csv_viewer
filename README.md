@@ -43,9 +43,9 @@ ccsvv -nd : /etc/passwd
 Most databases are able to store tables or queries in csv file. So ccsvv can be used to display such file. Here is an example of a sql statement that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
 
 ```sql
-SELECT 'Host', 'User', 'max_questions','max_updates','max_connections','max_    user_connections'
+SELECT 'Host', 'User', 'max_questions','max_updates','max_connections','max_user_connections'
  UNION ALL
- SELECT Host,User,max_questions,max_updates,max_connections,max_user_connecti    ons
+ SELECT Host,User,max_questions,max_updates,max_connections,max_user_connections
    INTO OUTFILE '/tmp/query.csv'
    FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
    LINES TERMINATED BY '\n'
