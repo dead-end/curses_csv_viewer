@@ -42,7 +42,7 @@ ccsvv -nd : /etc/passwd
 
 Most databases are able to store tables or queries in csv file. So ccsvv can be used to display such file. Here is an example of a sql statement that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
 
-```
+```sql
 SELECT 'Host', 'User', 'max_questions','max_updates','max_connections','max_    user_connections'
  UNION ALL
  SELECT Host,User,max_questions,max_updates,max_connections,max_user_connecti    ons
@@ -57,7 +57,7 @@ After creating the sql file you can call the following command to display the re
 ```
 sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
 ```
-
+![table part](img/query.png?raw=true "Show query example")
 
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
