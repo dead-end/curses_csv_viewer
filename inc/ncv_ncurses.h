@@ -15,6 +15,11 @@
 #endif
 
 //
+// CTRL chars are defined between 0 and 31 (0x1f)
+//
+#define is_ctrl_char(c) ((c) < 32)
+
+//
 // Color pairs
 //
 #define CP_TABLE 1

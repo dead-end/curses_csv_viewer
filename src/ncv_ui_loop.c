@@ -265,7 +265,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				// Ignore all other ctrl chars.
 				//
-				if (chr == CTRL(chr)) {
+				if (is_ctrl_char(chr)) {
 					print_debug_str("ui_loop() Found <ctrl>-char\n");
 					is_processed = true;
 				}
