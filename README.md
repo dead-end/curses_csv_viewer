@@ -21,6 +21,12 @@ ccsvv [-h] [-m] [-n] [-d delimiter ] [ file ]
   file            The name of the csv file. If no filename is defined, ccsvv reads
                   the csv data from stdin
 ```
+## Examples
+ccsvv can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `sys`.
+```
+ccsvv -nd : /etc/passwd
+```
+![table part](img/etc-passwd.png?raw=true "Show /etc/passwd")
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
 each column has a maximum width.
