@@ -1,6 +1,18 @@
 # ncurses_csv_viewer
 A CSV file viewer implemented with ncurses
 
+## Usage
+
+```
+ccsvv [-h] [-m] [-n] [-d delimiter ] [ file ]
+```
+
+| Option | Description |
+| :---: | :---: | 
+| `-h` | Shows the usage message. |
+| `-d delimiter` | Defines a delimiter character other than the default comma.|
+| `-m` | By default ccsvv uses colors if the terminal supports them. With this option ccsvv is forced to use a monochrom mode.|
+
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
 each column has a maximum width.
