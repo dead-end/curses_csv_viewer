@@ -5,14 +5,22 @@ A CSV file viewer implemented with ncurses
 
 ```
 ccsvv [-h] [-m] [-n] [-d delimiter ] [ file ]
+
+  -h              Shows the usage message.
+  
+  -d delimiter    Defines a delimiter character, other than the default comma.
+  
+  -m              By default ccsvv uses colors if the terminal supports them. With 
+                  this option ccsvv is forced to use a monochrom mode.
+                  
+  -n              By default ccsvv interpretes the first row of  the  table  as  a
+                  header.  The header row is highlighted. On filtering, the header
+                  is alway part of the result. With this option  special  role  of
+                  the first line is switched off.
+                  
+  file            The name of the csv file. If no filename is defined, ccsvv reads
+                  the csv data from stdin
 ```
-
-| Option | Description |
-| :---: | :---: | 
-| `-h` | Shows the usage message. |
-| `-d delimiter` | Defines a delimiter character other than the default comma.|
-| `-m` | By default ccsvv uses colors if the terminal supports them. With this option ccsvv is forced to use a monochrom mode.|
-
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
 each column has a maximum width.
