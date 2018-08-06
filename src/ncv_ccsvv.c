@@ -112,14 +112,18 @@ static void print_usage(const bool has_error, const char* msg) {
 	//
 	// print the usage information
 	//
-	fprintf(stream, "ccsvv [-m] [-n] [-d delimiter] [file]\n");
-
-	fprintf(stream, "\t -m             Display the table with no colors (monochrome)\n");
-	fprintf(stream, "\t -n             Do not use header row\n");
-
-	fprintf(stream, "\t -d delimiter   An alternative delimiter character. The default character is ','.\n");
-
-	fprintf(stream, "\t [file]         The name of the csv file. If no file name is given, the csv file is read from stdin.\n");
+	fprintf(stream, "ccsvv [-h] [-m] [-n] [-d delimiter] [file]\n\n");
+	fprintf(stream, "  -h            Shows this usage message.\n\n");
+	fprintf(stream, "  -d delimiter  Defines a delimiter character, other than the default comma.\n\n");
+	fprintf(stream, "  -m            By default ccsvv uses colors if the terminal supports them. With\n");
+	fprintf(stream, "                this option ccsvv is forced to use a monochrom mode.\n\n");
+	fprintf(stream, "  -n            By default ccsvv interpretes the first row of  the  table  as  a\n");
+	fprintf(stream, "                header.  The header row is highlighted and on filtering, it is\n");
+	fprintf(stream, "                alway part of the result, even if no field contains the filter\n");
+	fprintf(stream, "                string. With this option  special  role  of the first line is\n");
+	fprintf(stream, "                switched off.\n\n");
+	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
+	fprintf(stream, "                the csv data from stdin.\n");
 
 	exit(status);
 }
@@ -147,8 +151,12 @@ int main(const int argc, char * const argv[]) {
 	//
 	// parse the command line options
 	//
-	while ((c = getopt(argc, argv, "mnd:")) != -1) {
+	while ((c = getopt(argc, argv, "hmnd:")) != -1) {
 		switch (c) {
+
+		case 'h':
+			print_usage(false, NULL);
+			break;
 
 		case 'm':
 			monochrom = true;
