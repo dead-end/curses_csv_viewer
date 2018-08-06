@@ -1,5 +1,5 @@
 # ccsvv (curses csv viewer)
-A CSV file viewer implemented with ncurses
+A CSV file viewer implemented with ncurses.
 
 ## Usage
 
