@@ -54,7 +54,7 @@ SELECT Host, User, max_questions, max_updates, max_connections, max_user_connect
 
 After creating the sql file you can call the following command to display the result with ccsvv.
 
-```
+```bash
 sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
 ```
 ![Show query example](img/query.png)
