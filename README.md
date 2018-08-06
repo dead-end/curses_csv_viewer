@@ -6,21 +6,21 @@ ccsvv (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia
 ```
 ccsvv [-h] [-m] [-n] [-d delimiter] [file]
 
-  -h              Shows this usage message.
-  
-  -d delimiter    Defines a delimiter character, other than the default comma.
-  
-  -m              By default ccsvv uses colors if the terminal supports them. With 
-                  this option ccsvv is forced to use a monochrom mode.
-                  
-  -n              By default ccsvv interpretes the first row of  the  table  as  a
-                  header.  The header row is highlighted and on filtering, it is 
-                  alway part of the result, even if no field contains the filter
-                  string. With this option  special  role  of the first line is 
-                  switched off.
-                  
-  file            The name of the csv file. If no filename is defined, ccsvv reads
-                  the csv data from stdin.
+  -h            Shows this usage message.
+
+  -d delimiter  Defines a delimiter character, other than the default comma.
+
+  -m            By default ccsvv uses colors if the terminal supports them. With
+                this option ccsvv is forced to use a monochrom mode.
+
+  -n            By default ccsvv interpretes the first row of  the  table  as  a
+                header.  The header row is highlighted and on filtering, it is
+                alway part of the result, even if no field contains the filter
+                string. With this option  special  role  of the first line is
+                switched off.
+
+  file          The name of the csv file. If no filename is defined, ccsvv reads
+                the csv data from stdin.
 ```
 ## Examples
 ccsvv can deal with multi-line fields and supports unicode characters (wchar_t).
