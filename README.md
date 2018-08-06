@@ -32,13 +32,13 @@ If the terminal does not support colors, ccsvv shows the table in a monochrome m
 ```
 ccsvv -m languages.csv
 ```
-![table part](img/mono.png?raw=true "Show monochrome example")
+![Show monochrome example](img/mono.png)
 
 ccsvv can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `sys`.
 ```
 ccsvv -nd : /etc/passwd
 ```
-![table part](img/etc-passwd.png?raw=true "Show /etc/passwd")
+![Show /etc/passwd](img/etc-passwd.png)
 ## Example: Database
 Most databases are able to store tables dumps or queries in csv files, which can be displayed with ccsvv. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
 
@@ -57,7 +57,7 @@ After creating the sql file you can call the following command to display the re
 ```
 sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
 ```
-![table part](img/query.png?raw=true "Show query example")
+![Show query example](img/query.png)
 
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
