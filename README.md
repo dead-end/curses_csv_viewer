@@ -26,7 +26,7 @@ ccsvv can deal with multi-line fields and supports unicode characters (wchar_t).
 ```
 ccsvv languages.csv
 ```
-![table part](img/languages.png?raw=true "Show example")
+![Show example](img/languages.png)
 
 If the terminal does not support colors, ccsvv shows the table in a monochrome mode, which can be enforced by the `-m` command line option.
 ```
