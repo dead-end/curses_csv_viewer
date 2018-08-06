@@ -40,7 +40,7 @@ ccsvv -nd : /etc/passwd
 ```
 ![table part](img/etc-passwd.png?raw=true "Show /etc/passwd")
 ## Example: Database
-Most databases are able to store tables or queries in csv file, which can be displayed with ccsvv. The following example shows a sql statement for MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
+Most databases are able to store tables dumps or queries in csv files, which can be displayed with ccsvv. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
 
 ```sql
 SELECT 'Host', 'User', 'Max Questions', 'Max Updates', 'Max Connections', 'Max User Uonnections'
