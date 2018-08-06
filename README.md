@@ -1,5 +1,5 @@
-# ccsvv (curses csv viewer)
-A CSV file viewer implemented with ncurses.
+# ccsvv
+ccsvv (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table.
 
 ## Usage
 
