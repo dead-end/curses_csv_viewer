@@ -1,15 +1,39 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef INC_NCV_TABLE_H_
 #define INC_NCV_TABLE_H_
 
-#include "ncv_common.h"
 #include "ncv_cursor.h"
 
-//
-// The table structure contains the csv data.
-//
 /***************************************************************************
- * Function definitions
+ * The structure contains all the table related data, that is the csv data,
+ * the number of rows and columns, the height of the rows and the width of
+ * the columns. The members with the "__" contain the original data, while
+ * the members with the same name (may) contain filtered data.
  **************************************************************************/
+
 typedef struct s_table {
 
 	//
@@ -24,7 +48,8 @@ typedef struct s_table {
 	int no_rows;
 
 	//
-	// an array with the widths of the columns
+	// An array with the widths of the columns. This is unaffected from the
+	// filtering.
 	//
 	int *width;
 
@@ -53,9 +78,13 @@ typedef struct s_table {
 
 } s_table;
 
-//
-// The table related function
-//
+/***************************************************************************
+ * The macro is called with a s_table and a s_field. If checks whether the
+ * field is a header field.
+ **************************************************************************/
+
+#define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
+
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
@@ -70,11 +99,4 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter);
 
 void s_table_dump(const s_table *table);
 
-/***************************************************************************
- * The macro is called with a s_table and a s_field. If checks whether the
- * field is a header field.
- **************************************************************************/
-
-#define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
-
-#endif /* INC_NCV_TABLE_H_ */
+#endif
