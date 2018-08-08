@@ -25,6 +25,9 @@
 #ifndef INC_NCV_FIELD_H_
 #define INC_NCV_FIELD_H_
 
+#include "ncv_table.h"
+#include "ncv_table_part.h"
+
 /***************************************************************************
  * A field has two s_field_part structures, one for the row and one for the
  * column. The structure defines which part of the field is visible.
