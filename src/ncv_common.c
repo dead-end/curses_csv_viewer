@@ -1,5 +1,25 @@
 /*
- * file: ncv_common.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "ncv_common.h"
@@ -14,7 +34,7 @@ void *xmalloc(const size_t size) {
 	void *ptr = malloc(size);
 
 	if (ptr == NULL) {
-		print_exit("Unable to allocate: %zu bytes of memory!\n", size);
+		print_exit("xmalloc() Unable to allocate: %zu bytes of memory!\n", size);
 	}
 
 	return ptr;
@@ -23,7 +43,7 @@ void *xmalloc(const size_t size) {
 /***************************************************************************
  * The function creates a temp file and copies the input from stdin to that
  * file. It uses read instead of fread, because the latter does not work
- * with fgetws() and rewind().
+ * with rewind() and fgetws().
  **************************************************************************/
 
 FILE *stdin_2_tmp() {
@@ -52,6 +72,7 @@ FILE *stdin_2_tmp() {
 		// Check for write errors.
 		//
 		if (bytes_write != bytes_read) {
+
 			if (bytes_write == -1) {
 				print_exit("stdin_2_tmp() Unable to write to temp file: %s\n", strerror (errno));
 			} else {
@@ -79,55 +100,23 @@ FILE *stdin_2_tmp() {
 
 /***************************************************************************
  * The function converts a multi byte char string to a wide char string. The
- * result is stored in a newly allocated wide char string and has to be
- * freed by the calling function.
- **************************************************************************/
-
-wchar_t *convert_mbs_2_wchars(const char *mbs) {
-	size_t mbslen;
-	wchar_t *result;
-
-	//
-	// Calculate the wchar_t string length.
-	//
-	mbslen = mbstowcs(NULL, mbs, 0);
-	if (mbslen == (size_t) -1) {
-		print_exit_str("convert_mbs_2_wchars() Unable to calculate wchar_t string size!");
-	}
-
-	//
-	// Allocate memory for the wchar_t string.
-	//
-	result = calloc(mbslen + 1, sizeof(wchar_t));
-	if (result == NULL) {
-		print_exit_str("convert_mbs_2_wchars() Unable allocate memory for the wchar_t string!");
-	}
-
-	//
-	// Convert the multi byte string
-	//
-	if (mbstowcs(result, mbs, mbslen + 1) == (size_t) -1) {
-		print_exit_str("convert_mbs_2_wchars() Unable to convert the multi byte string!");
-	}
-
-	return result;
-}
-
-/***************************************************************************
- * The function converts a multi byte char string to a wide char string.
+ * buffer has to be large enough or the program terminates with an error.
  **************************************************************************/
 
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 
-	size_t result = mbstowcs(buffer, mbs, buf_size);
+	const size_t result = mbstowcs(buffer, mbs, buf_size);
 
 	if (result == (size_t) -1) {
-		print_exit_str("mbchar_2_wchar() Encountered an invalid multibyte sequence!\n");
+		print_exit_str("mbs_2_wchars() Encountered an invalid multibyte sequence!\n");
 	}
 
+	//
+	// If (result == buf_size) the terminating L'\0' is missing, which is an
+	// error.
+	//
 	if (result >= (size_t) buf_size) {
-		print_exit("mbchar_2_wchar() Buffer too small (required: %zu provided: %zu)\n", result, (size_t ) buf_size)
-	;
+		print_exit("mbs_2_wchars() Buffer too small (required: %zu provided: %zu)\n", result, (size_t ) buf_size);
 	}
 
 	return result;
@@ -196,7 +185,7 @@ void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2) {
 		print_exit("ut_check_wchar_str() Strings differ: '%ls' and: '%ls'\n", str1, str2);
 	}
 
-	print_debug("ut_check_wchar_str() OK - String are equal: '%ls'\n", str1);
+	print_debug("ut_check_wchar_str() OK - Strings are equal: '%ls'\n", str1);
 }
 
 /***************************************************************************
@@ -210,5 +199,5 @@ void ut_check_wchar_null(const wchar_t *str) {
 		print_exit("ut_check_wchar_null() Pointer is not null: '%ls'\n", str);
 	}
 
-	print_debug_str("ut_check_wchar_null() OK\n");
+	print_debug_str("ut_check_wchar_null() OK - String is null!\n");
 }
