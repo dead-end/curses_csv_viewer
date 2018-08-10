@@ -1,6 +1,25 @@
 /*
- * ncv_corners.c
+ * MIT License
  *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "ncv_common.h"
@@ -27,20 +46,14 @@ typedef struct s_corner {
 	chtype plus;
 
 	//
-	// The row and column of the field, where the corner member of the struct
-	// is applied. This is the row and column of the corresponding table
-	// corner.
-	//
-
-	//
-	// The parameter hold the index of the border. It is used to check whether
-	// the current field is a corner field.
+	// The parameters hold the indices of the border. It is used to check whether
+	// the current field is a corner field. In this case the shape is 'corner'.
 	//
 	int table_corner_row;
 	int table_corner_col;
 
 	//
-	// If the row / col of the corner is at the field end, we have to add
+	// If the row / column of the corner is at the field end, we have to add
 	// the field width to get the corner position.
 	//
 	bool field_start_row;
@@ -144,8 +157,7 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
 }
 
 /***************************************************************************
- * The function prints the corners of the field. This is at least 1 and at
- * most 4.
+ * The function prints the corners of the field. This can be 1, 2 or 4.
  **************************************************************************/
 
 void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner corners[4]) {
@@ -156,21 +168,21 @@ void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, co
 	print_corner(win, idx, win_field, win_field_end, &corners[0]);
 
 	//
-	// if the row is not truncated an additional corner is printed.
+	// If the row is not truncated an additional corner is printed.
 	//
 	if (row_untruncated) {
 		print_corner(win, idx, win_field, win_field_end, &corners[1]);
 	}
 
 	//
-	// if the column is not truncated an additional corner is printed.
+	// If the column is not truncated an additional corner is printed.
 	//
 	if (col_untruncated) {
 		print_corner(win, idx, win_field, win_field_end, &corners[2]);
 	}
 
 	//
-	// if the row and column is not truncated an additional corner is printed.
+	// If the row and column is not truncated an additional corner is printed.
 	//
 	if (row_untruncated && col_untruncated) {
 		print_corner(win, idx, win_field, win_field_end, &corners[3]);

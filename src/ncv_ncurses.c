@@ -1,5 +1,25 @@
 /*
- * file: ncv_ncurses.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "ncv_common.h"
@@ -185,31 +205,31 @@ static void ncurses_init_colors() {
 	}
 
 	if (start_color() != OK) {
-		print_exit_str("ncurses_init() Unable to init colors!\n");
+		print_exit_str("ncurses_init_colors() Unable to init colors!\n");
 	}
 
 	if (init_pair(CP_TABLE, COLOR_WHITE, COLOR_BLUE) != OK) {
-		print_exit_str("ncurses_init() Unable to init color pair!\n");
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
 	if (init_pair(CP_TABLE_HEADER, COLOR_YELLOW, COLOR_BLUE) != OK) {
-		print_exit_str("ncurses_init() Unable to init color pair!\n");
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
 	if (init_pair(CP_CURSOR, COLOR_WHITE, COLOR_CYAN) != OK) {
-		print_exit_str("ncurses_init() Unable to init color pair!\n");
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
 	if (init_pair(CP_CURSOR_HEADER, COLOR_YELLOW, COLOR_CYAN) != OK) {
-		print_exit_str("ncurses_init() Unable to init color pair!\n");
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
 	if (init_pair(CP_STATUS, COLOR_BLACK, COLOR_WHITE) != OK) {
-		print_exit_str("ncurses_init() Unable to init color pair!\n");
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
 	if (init_pair(CP_FIELD, COLOR_YELLOW, COLOR_BLACK) != OK) {
-		print_exit_str("ncurses_init() Unable to init color pair!\n");
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 }
 
