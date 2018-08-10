@@ -35,7 +35,7 @@ static void test_table_field_dimension() {
 	int row_size;
 	int col_size;
 
-	print_debug_str("s_table_field_dimension() Start\n");
+	print_debug_str("test_table_field_dimension() Start\n");
 
 	//
 	// Test: Empty field
@@ -65,7 +65,7 @@ static void test_table_field_dimension() {
 	ut_check_size(col_size, wcslen(L"привет привет"), "col: Multi lines");
 	ut_check_size(row_size, 3, "row: Multi lines");
 
-	print_debug_str("s_table_field_dimension() End\n");
+	print_debug_str("test_table_field_dimension() End\n");
 }
 
 /***************************************************************************
