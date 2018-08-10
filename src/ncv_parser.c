@@ -1,8 +1,27 @@
 /*
- * file: nvc_parser.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-#include "ncv_common.h"
 #include "ncv_table.h"
 
 /***************************************************************************
@@ -12,10 +31,10 @@
 typedef struct s_csv_parser {
 
 	//
-	// The csv file is parsed twice. The first time is used to count the columns
-	// and rows. After this the table structure is allocated and the second time
-	// the cvs fields are copied to the newly allocated structure. The flag
-	// shows whether we count or copy.
+	// The csv file is parsed twice. The first time is used to count the
+	// columns and rows. After this the table structure is allocated and the
+	// second time the cvs fields are copied to the newly allocated structure.
+	// The flag shows whether we count or copy.
 	//
 	bool do_count;
 
@@ -26,16 +45,21 @@ typedef struct s_csv_parser {
 	int current_column;
 
 	//
-	// The parameter contains the number of columns in the first row. The number
-	// of columns in all other rows have to be equal to this.
+	// The parameter contains the number of columns in the first row. The
+	// number of columns in all other rows have to be equal to this.
 	//
 	int no_columns;
 
 	//
-	// The csv file is read line by line. The parsing is done char by char. The
-	// pointer shows the current char to be parsed.
+	// The csv file is read line by line. The parameter contains the current
+	// line.
 	//
 	wchar_t line[MAX_LINE];
+
+	//
+	// The parsing is done char by char. The pointer points to the current char
+	// in the line.
+	//
 	wchar_t *ptr_line;
 
 	//
@@ -92,7 +116,9 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 
 	//
 	// The function is called every time a field ends, so we update the
-	// current column number.
+	// current column number. If the row ends, we need the number of columns
+	// to ensure that all rows have the same number of columns, before we
+	// reset the current number of columns.
 	//
 	csv_parser->current_column++;
 
@@ -312,10 +338,11 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 
 void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 
+	s_csv_parser csv_parser;
+
 	//
 	// Parse the csv file to get the number of columns and rows.
 	//
-	s_csv_parser csv_parser;
 	s_csv_parser_init(&csv_parser, true);
 	parse_csv_file(file, delim, &csv_parser, table);
 
@@ -344,7 +371,6 @@ void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 	// Parse the csv file again to copy the fields to the table structure.
 	//
 	s_csv_parser_init(&csv_parser, false);
-
 	parse_csv_file(file, delim, &csv_parser, table);
 }
 
