@@ -1,34 +1,58 @@
 /*
- * ncv_win_header.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 #include "ncv_win_filter.h"
 
-//
-// Definition of the label (and its size)
-//
+/***************************************************************************
+ * Definition of the label (and its size)
+ **************************************************************************/
+
 #define HEADER_LABEL " ccsvv 0.1"
 
 #define HEADER_LABEL_LEN 10
 
-//
-// The header window shares the first row with the filter window. The filter
-// window has a fixed size, so the header window has the remaining size.
-//
+/***************************************************************************
+ * The header window shares the first row with the filter window. The filter
+ * window has a fixed size, so the header window has the remaining size.
+ **************************************************************************/
+
 #define WIN_HEADER_SIZE (getmaxx(stdscr) - WIN_FILTER_SIZE)
 
-//
-// The terminal has a min height of 1, so the header is always shown and
-// always at the same position. The window is not shown if the terminal is
-// smaller than the filter window.
-//
+/***************************************************************************
+ * The terminal has a min height of 1, so the header is always shown and
+ * always at the same position. The window is not shown if the terminal is
+ * smaller than the filter window.
+ **************************************************************************/
+
 #define WIN_HEADER_MIN_SIZE (WIN_HEADER_SIZE > 0)
 
-//
-// Definition of the header window.
-//
+/***************************************************************************
+ * Definition of the header window.
+ **************************************************************************/
+
 static WINDOW* win_header = NULL;
 
 /***************************************************************************
