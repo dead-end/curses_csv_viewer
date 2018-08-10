@@ -1,12 +1,29 @@
 /*
- * file: ut_curses.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-#include "ncv_common.h"
 #include "ncv_table.h"
-#include "ncv_table_part.h"
 #include "ncv_field.h"
-#include "ncv_parser.h"
 
 /***************************************************************************
  * The function checks the s_field_part_update function, which computes the
@@ -18,14 +35,14 @@ static void test_field_part_update() {
 	s_table_part table_part;
 	s_field_part field_part;
 
-	print_debug_str("test_table_part() Start\n");
+	print_debug_str("test_field_part_update() Start\n");
 
 	//
 	// truncated right
 	//
 	table_part.first = 0;
 	table_part.last = 2;
-	table_part.truncated = 2;
+	table_part.truncated = table_part.last;
 	table_part.size = 2;
 
 	s_field_part_update(&table_part, 0, 4, &field_part);
@@ -41,7 +58,7 @@ static void test_field_part_update() {
 	//
 	table_part.first = 0;
 	table_part.last = 2;
-	table_part.truncated = 0;
+	table_part.truncated = table_part.first;
 	table_part.size = 2;
 
 	s_field_part_update(&table_part, 0, 4, &field_part);
@@ -52,7 +69,7 @@ static void test_field_part_update() {
 	ut_check_int(field_part.start, 0, "test 7 - start");
 	ut_check_int(field_part.size, 4, "test 8 - size");
 
-	print_debug_str("test_table_part() End\n");
+	print_debug_str("test_field_part_update() End\n");
 }
 
 /***************************************************************************
