@@ -1,8 +1,27 @@
 /*
- * file: ncv_table.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-#include "ncv_common.h"
 #include "ncv_table.h"
 
 /***************************************************************************
@@ -108,13 +127,18 @@ bool s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
 
 	//
-	// Check if the table is already reset.
+	// There is nothing to do if the number of rows of the filtered table is
+	// the number of the whole table. From comparing the number of rows you
+	// cannot tell whether the table is filtered or not.
 	//
 	if (table->no_rows == table->__no_rows) {
 		print_debug_str("s_table_reset_filter() Table is already reset.\n");
 		return false;
 	}
 
+	//
+	// Reset the row pointers and the row heights.
+	//
 	for (int row = 0; row < table->__no_rows; row++) {
 		table->fields[row] = table->__fields[row];
 		table->height[row] = table->__height[row];
@@ -165,6 +189,9 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) 
 				table->fields[table->no_rows] = table->__fields[row];
 				table->height[table->no_rows] = table->__height[row];
 
+				//
+				// Set the cursor to the first found field.
+				//
 				if (!found) {
 					cursor->row = table->no_rows;
 					cursor->col = column;
@@ -173,6 +200,9 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) 
 
 				table->no_rows++;
 
+				//
+				// Ignore the rest of the columns of the row.
+				//
 				break;
 			}
 		}
