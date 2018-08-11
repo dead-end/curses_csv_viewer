@@ -98,11 +98,12 @@ void s_table_free(s_table *table) {
 }
 
 /***************************************************************************
- * If the table is not filtered, the function resets the number of rows, the
- * heights and the field pointers.
+ * If the table is filtered, the function resets the number of rows, the
+ * heights and the field pointers. It returns true if the table was reset
+ * and false, if the table was already reset.
  **************************************************************************/
 
-void s_table_reset_filter(s_table *table, s_cursor *cursor) {
+bool s_table_reset_filter(s_table *table, s_cursor *cursor) {
 
 	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
 
@@ -111,7 +112,7 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	//
 	if (table->no_rows == table->__no_rows) {
 		print_debug_str("s_table_reset_filter() Table is already reset.\n");
-		return;
+		return false;
 	}
 
 	for (int row = 0; row < table->__no_rows; row++) {
@@ -126,6 +127,8 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	//
 	cursor->row = 0;
 	cursor->col = 0;
+
+	return true;
 }
 
 /***************************************************************************
