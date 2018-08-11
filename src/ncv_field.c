@@ -163,7 +163,7 @@ wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *c
  * The function prints the content of a field. The field may be truncated.
  **************************************************************************/
 
-void print_field(WINDOW *win, wchar_t *ptr, s_field_part *row_field_part, s_field_part *col_field_part, const s_field *win_row_col) {
+void print_field(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col) {
 
 	print_debug("print_field() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, ptr);
 
