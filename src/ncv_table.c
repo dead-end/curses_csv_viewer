@@ -32,6 +32,69 @@
 #define MIN_WIDTH_HEIGHT 1
 
 /***************************************************************************
+ * The function sets the filter string of the table. The function returns
+ * true if the filter string changed (set, updated or deleted). It accepts
+ * EMPTY_FILTER_STRING as a filter (which is NULL).
+ **************************************************************************/
+
+bool s_table_set_filter_string(s_table *table, const wchar_t *filter) {
+
+	if (table->filter != EMPTY_FILTER_STRING) {
+		print_debug("s_table_set_filter_string() Current filter string: '%ls'\n", table->filter);
+
+		//
+		// If the new filter string is empty delete the current.
+		//
+		if (filter == EMPTY_FILTER_STRING || wcslen(filter) == 0) {
+			print_debug_str("s_table_set_filter_string() Setting filter string to NULL\n");
+
+			free(table->filter);
+			table->filter = EMPTY_FILTER_STRING;
+
+			return true;
+		}
+
+		//
+		// Check if the filter does not changed.
+		//
+		if (wcscmp(table->filter, filter) == 0) {
+			print_debug("s_table_set_filter_string() Filter string did not change: %ls\n", filter);
+			return false;
+		}
+
+
+		//
+		// At this point, the current filter is set and the new filter is not
+		// empty.
+		//
+		free(table->filter);
+
+	} else {
+
+		//
+		// Check if the filter was not set and the new filter is empty.
+		//
+		if (filter == EMPTY_FILTER_STRING || wcslen(filter) == 0) {
+			print_debug_str("s_table_set_filter_string() Filter string was already NOT set\n");
+			return false;
+		}
+	}
+
+	//
+	// Duplicate the filter
+	//
+	table->filter = wcsdup(filter);
+
+	if (table->filter == NULL) {
+		print_exit_str("s_table_set_filter_string() Unable to allocate memory!\n");
+	}
+
+	print_debug("s_table_set_filter_string() New filter string: '%ls'\n", table->filter);
+
+	return true;
+}
+
+/***************************************************************************
  * The function initializes the internal structure of the table struct. The
  * main task is to allocate memory for the fields and the arrays for the
  * column widths and the row heights.
@@ -78,6 +141,11 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	// Allocate memory for the row pointers.
 	//
 	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
+
+	//
+	// Set filter string to NULL to indicate that the table is not filtered.
+	//
+	table->filter = EMPTY_FILTER_STRING;
 }
 
 /***************************************************************************
@@ -114,15 +182,21 @@ void s_table_free(s_table *table) {
 
 	free(table->__fields);
 	free(table->fields);
+
+	//
+	// Free filter if set.
+	//
+	if (table->filter != NULL) {
+		free(table->filter);
+	}
 }
 
 /***************************************************************************
  * If the table is filtered, the function resets the number of rows, the
- * heights and the field pointers. It returns true if the table was reset
- * and false, if the table was already reset.
+ * heights and the field pointers.
  **************************************************************************/
 
-bool s_table_reset_filter(s_table *table, s_cursor *cursor) {
+void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 
 	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
 
@@ -133,7 +207,7 @@ bool s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	//
 	if (table->no_rows == table->__no_rows) {
 		print_debug_str("s_table_reset_filter() Table is already reset.\n");
-		return false;
+		return;
 	}
 
 	//
@@ -151,28 +225,25 @@ bool s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	//
 	cursor->row = 0;
 	cursor->col = 0;
-
-	return true;
 }
 
 /***************************************************************************
  * The function filters the table data.
  **************************************************************************/
 
-void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) {
+void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	bool found = false;
 
-	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", filter);
-
 	//
-	// If the filter is empty, the filtering is a reset, so delegate to the
-	// function.
+	// If the new filter string is empty, do a reset.
 	//
-	if (wcslen(filter) == 0) {
+	if (!s_table_is_filtered(table)) {
 		print_debug_str("s_table_do_filter() Filter is empty, do a reset.\n");
 		s_table_reset_filter(table, cursor);
 		return;
 	}
+
+	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter);
 
 	table->no_rows = 0;
 
@@ -184,7 +255,7 @@ void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter) 
 			// If the field content matches the filter, set the field pointer
 			// the height and update the number of rows.
 			//
-			if (wcsstr(table->__fields[row][column], filter) != NULL) {
+			if (wcsstr(table->__fields[row][column], table->filter) != NULL) {
 
 				table->fields[table->no_rows] = table->__fields[row];
 				table->height[table->no_rows] = table->__height[row];

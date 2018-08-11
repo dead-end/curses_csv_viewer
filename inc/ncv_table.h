@@ -76,6 +76,13 @@ typedef struct s_table {
 	//
 	bool show_header;
 
+	//
+	// If a filter is applied to the table, the filter string is stored here.
+	// If no filter is used, the pointer should be EMPTY_FILTER_STRING (which
+	// is NULL).
+	//
+	wchar_t *filter;
+
 } s_table;
 
 /***************************************************************************
@@ -85,6 +92,15 @@ typedef struct s_table {
 
 #define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
 
+/***************************************************************************
+ * The macro checks whether the table is filtered, by looking at the filter
+ * string.
+ **************************************************************************/
+
+#define EMPTY_FILTER_STRING NULL
+
+#define s_table_is_filtered(t) (t->filter != EMPTY_FILTER_STRING)
+
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
@@ -93,9 +109,11 @@ void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *st
 
 void s_table_field_dimension(wchar_t *str, int *width, int *height);
 
-bool s_table_reset_filter(s_table *table, s_cursor *cursor);
+bool s_table_set_filter_string(s_table *table, const wchar_t *filter);
 
-void s_table_do_filter(s_table *table, s_cursor *cursor, const wchar_t *filter);
+void s_table_reset_filter(s_table *table, s_cursor *cursor);
+
+void s_table_do_filter(s_table *table, s_cursor *cursor);
 
 void s_table_dump(const s_table *table);
 
