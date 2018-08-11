@@ -151,21 +151,26 @@ void win_footer_content_print(char *filename, const s_table *table, const s_curs
 
 	} else {
 
-		if (cursor->visible) {
+		//
+		// Print cursor and row / column informations if they are present.
+		//
+		//   cursor row / num filtered rows / num rows
+		//   cursor col /                     num cols
+		//
+		if (s_table_is_filtered(table)) {
+			if (cursor->visible) {
+				snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d[%d] Col: %d/%d ", cursor->row + 1, table->no_rows, table->__no_rows, cursor->col + 1, table->no_columns);
 
-			//
-			// If the cursor is visible print cursor and table row and column
-			// number.
-			//
-			snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
-
+			} else {
+				snprintf(buf, FOOTER_WIN_MAX, " Row: %d[%d] Col: %d ", table->no_rows, table->__no_rows, table->no_columns);
+			}
 		} else {
+			if (cursor->visible) {
+				snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
 
-			//
-			// If the cursor is not visible simply print the row and column
-			// number.
-			//
-			snprintf(buf, FOOTER_WIN_MAX, " Row: %d Col: %d ", table->no_rows, table->no_columns);
+			} else {
+				snprintf(buf, FOOTER_WIN_MAX, " Row: %d Col: %d ", table->no_rows, table->no_columns);
+			}
 		}
 	}
 	strlen_row_col = (int) strlen(buf);
