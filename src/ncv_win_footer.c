@@ -1,26 +1,48 @@
 /*
- * ncv_win_footer.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-#include "ncv_common.h"
-#include "ncv_ncurses.h"
 #include "ncv_table.h"
+#include "ncv_ncurses.h"
 #include "ncv_win_table.h"
 
-//
-// Size of the string buffer.
-//
+/***************************************************************************
+ * Size of the string buffer.
+ **************************************************************************/
+
 #define FOOTER_WIN_MAX 1024
 
-//
-// The footer is only visible if the terminal has at least 3 rows. One row
-// for the header and one row for the table and one row for the footer.
-//
+/***************************************************************************
+ * The footer is only visible if the terminal has at least 3 rows. One row
+ * for the header and one row for the table and one row for the footer.
+ **************************************************************************/
+
 #define WIN_FOOTER_MIN_SIZE (getmaxy(stdscr) >= 3)
 
-//
-// Definition of the footer window.
-//
+/***************************************************************************
+ * Definition of the footer window.
+ **************************************************************************/
+
 static WINDOW* win_footer = NULL;
 
 /***************************************************************************
