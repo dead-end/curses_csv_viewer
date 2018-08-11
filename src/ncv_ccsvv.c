@@ -1,10 +1,29 @@
 /*
- * file: ncv_ccsvv.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-#include "ncv_common.h"
-#include "ncv_ncurses.h"
 #include "ncv_table.h"
+#include "ncv_ncurses.h"
 #include "ncv_parser.h"
 #include "ncv_ui_loop.h"
 #include "ncv_win_header.h"
@@ -12,10 +31,11 @@
 #include "ncv_win_table.h"
 #include "ncv_win_footer.h"
 
-//
-// The table struct is defined static to be able to use it in the function
-// exit_callback().
-//
+/***************************************************************************
+ * The table struct is defined static to be able to use it in the function
+ * exit_callback().
+ **************************************************************************/
+
 static s_table table;
 
 /***************************************************************************
@@ -89,7 +109,7 @@ static void print_usage(const bool has_error, const char* msg) {
 	int status;
 
 	//
-	// choose stdout / stderr depending on the error flag
+	// Choose stdout / stderr depending on the error flag.
 	//
 	if (has_error) {
 		status = EXIT_FAILURE;
@@ -100,7 +120,7 @@ static void print_usage(const bool has_error, const char* msg) {
 	}
 
 	//
-	// if the function call contains a message it is written
+	// If the function call contains a message it is written.
 	//
 	if (msg != NULL) {
 		if (has_error) {
@@ -110,20 +130,26 @@ static void print_usage(const bool has_error, const char* msg) {
 	}
 
 	//
-	// print the usage information
+	// Print the usage information.
 	//
 	fprintf(stream, "ccsvv [-h] [-m] [-n] [-d delimiter] [file]\n\n");
 	fprintf(stream, "  -h            Shows this usage message.\n\n");
 	fprintf(stream, "  -d delimiter  Defines a delimiter character, other than the default comma.\n\n");
 	fprintf(stream, "  -m            By default ccsvv uses colors if the terminal supports them. With\n");
 	fprintf(stream, "                this option ccsvv is forced to use a monochrom mode.\n\n");
-	fprintf(stream, "  -n            By default ccsvv interpretes the first row of  the  table  as  a\n");
-	fprintf(stream, "                header.  The header row is highlighted and on filtering, it is\n");
+	fprintf(stream, "  -n            By default ccsvv interpretes the first row of the table as a\n");
+	fprintf(stream, "                header. The header row is highlighted and on filtering, it is\n");
 	fprintf(stream, "                alway part of the result, even if no field contains the filter\n");
-	fprintf(stream, "                string. With this option  special  role  of the first line is\n");
+	fprintf(stream, "                string. With this option special role of the first line is\n");
 	fprintf(stream, "                switched off.\n\n");
 	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
 	fprintf(stream, "                the csv data from stdin.\n");
+	fprintf(stream, "\nCommands:\n\n");
+	fprintf(stream, "  ^C and ^Q     Terminate the program.\n\n");
+	fprintf(stream, "  ^F            Switches to filter input mode and allows to input a filter\n");
+	fprintf(stream, "                string.\n\n");
+	fprintf(stream, "  ^X            In filter mode, deletes the filter string.\n\n");
+	fprintf(stream, "  ESC           Delete filter string and reset the table.\n\n");
 
 	exit(status);
 }
@@ -140,7 +166,7 @@ int main(const int argc, char * const argv[]) {
 	bool monochrom = false;
 
 	//
-	// import the locale from the environment to allow proper wchar_t's
+	// Import the locale from the environment to allow proper wchar_t's.
 	//
 	setlocale(LC_ALL, "");
 
@@ -149,7 +175,7 @@ int main(const int argc, char * const argv[]) {
 	table.show_header = true;
 
 	//
-	// parse the command line options
+	// Parse the command line options.
 	//
 	while ((c = getopt(argc, argv, "hmnd:")) != -1) {
 		switch (c) {
@@ -171,7 +197,7 @@ int main(const int argc, char * const argv[]) {
 		case 'd':
 
 			//
-			// ensure that the delimiter consists of one character
+			// Ensure that the delimiter consists of one character.
 			//
 			if (strlen(optarg) != 1) {
 				print_usage(true, "Only a one character delimiter is allowed!");
