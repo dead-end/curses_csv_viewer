@@ -1,6 +1,25 @@
 /*
- * nvc_win_table.c
+ * MIT License
  *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "ncv_common.h"
@@ -9,29 +28,33 @@
 #include "ncv_corners.h"
 #include "ncv_win_table.h"
 
-//
-// With a min height of 2, the table window is shown. One row for the header
-// and one row for the table.
-//
+/***************************************************************************
+ * With a min height of 2, the table window is shown. One row for the header
+ * and one row for the table.
+ **************************************************************************/
+
 #define WIN_TABLE_MIN_SIZE (getmaxy(stdscr) >= 2)
 
-//
-// Definition of the table window.
-//
+/***************************************************************************
+ * Definition of the table window.
+ **************************************************************************/
+
 static WINDOW* win_table = NULL;
 
-//
-// Define attributes that are dynamically set.
-//
+/***************************************************************************
+ * Define attributes that are dynamically set.
+ **************************************************************************/
+
 static int attr_header;
 
 static int attr_cursor;
 
 static int attr_cursor_header;
 
-//
-// The two table parts define the visible part of the table.
-//
+/***************************************************************************
+ * The two table parts define the visible part of the table.
+ **************************************************************************/
+
 static s_table_part row_table_part;
 
 static s_table_part col_table_part;
@@ -325,9 +348,10 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 #define get_row_col_offset(p, i) (((p).direction == DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
 
 /***************************************************************************
- *
+ * The function prints the visible part of the table, including the table
+ * header (if present), the field cursor (if present).
  **************************************************************************/
-// TODO: Comments
+
 void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 	//
@@ -483,9 +507,9 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 }
 
 /***************************************************************************
- *
+ * The function returns the window for the table, which is static.
  **************************************************************************/
-//TODO: Necessary ???
+
 WINDOW *win_table_get_win() {
 	return win_table;
 }
