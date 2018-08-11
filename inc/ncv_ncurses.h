@@ -43,7 +43,10 @@
  * Define missing ncurses keys. For example ESC is missing.
  **************************************************************************/
 
-#define KEY_ESC 27
+#define NCV_KEY_ESC 27
+
+#define NCV_KEY_NEWLINE 10
+
 
 /***************************************************************************
  * The indices of color pairs
