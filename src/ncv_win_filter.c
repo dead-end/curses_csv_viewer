@@ -1,14 +1,35 @@
 /*
- * ncv_win_filter.c
+ * MIT License
+ *
+ * Copyright (c) 2018 dead-end
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #include "ncv_win_filter.h"
 #include "ncv_ncurses.h"
 
-//
-// The filter window has a fixed size, so the stdscr should have at least
-// that size.
-//
+/***************************************************************************
+ * The filter window has a fixed size, so the stdscr should have at least
+ * that size.
+ **************************************************************************/
+
 #define WIN_FILTER_MIN_SIZE (getmaxx(stdscr) - WIN_FILTER_SIZE > 0)
 
 /***************************************************************************
@@ -25,16 +46,17 @@ static FORM *filter_form = NULL;
 
 /***************************************************************************
  * The function sets the associated windows of the form and posts the form.
- * It is called with a reset flag. This does an unpost as a first step.
+ * It is called with a resize flag. This does an unpost as a first step.
  **************************************************************************/
 
-static void set_form_win_and_post(const bool reset) {
+static void set_form_win_and_post(const bool resize) {
 	int result;
 
 	//
-	// On reset do an unpost at the beginning.
+	// On resize do an unpost at the beginning. (Resizing the window does
+	// not work well with forms.)
 	//
-	if (reset && (result = unpost_form(filter_form)) != E_OK) {
+	if (resize && (result = unpost_form(filter_form)) != E_OK) {
 		print_exit("set_form_win_and_post() Unable to set form to the window! (result: %d)\n", result);
 	}
 
