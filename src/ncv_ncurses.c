@@ -301,10 +301,11 @@ void ncurses_init(const bool monochrom, const bool use_initscr) {
 	noecho();
 
 	//
-	// Disable line buffering. With cbreak <crtl>-c and <ctrl>-q are not
-	// processed. This can be done with raw()
+	// Setting raw mode is similar to cbreak, but <crtl>-c and <ctrl>-q key
+	// have to be processed. Especially <ctrl>-q can be used to quit the
+	// program.
 	//
-	cbreak();
+	raw();
 
 	//
 	// Set the esc delay to 0. By default the value is greater than 0.
