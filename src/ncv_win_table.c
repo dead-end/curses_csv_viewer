@@ -445,7 +445,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 				}
 
-				print_field(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text);
+				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col]);
 
 				//
 				// Restore attribues if necessary.
