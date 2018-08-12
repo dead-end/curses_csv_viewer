@@ -163,6 +163,57 @@ static void test_get_field_line() {
 }
 
 /***************************************************************************
+ * The function checks the get_field_complete_line function for a field. It
+ * is repeatedly called and returns a line of fixed length which may be
+ * padded.
+ **************************************************************************/
+
+#define COL_WIDTH 4
+
+static void test_get_field_complete_line() {
+
+	print_debug_str("test_get_field_complete_line() Start\n");
+
+	wchar_t buffer[COL_WIDTH + 1];
+	wchar_t *ptr;
+	bool end = false;
+
+	wchar_t *str1 = L"\nзаяц\nз";
+
+	ptr = str1;
+
+	buffer[COL_WIDTH] = W_STR_TERM;
+
+	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
+	ut_check_wchar_str(buffer, L"    ");
+	ut_check_bool(end, false);
+
+	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
+	ut_check_wchar_str(buffer, L"заяц");
+	ut_check_bool(end, false);
+
+	//
+	// Reached the end of the string => ptr == null
+	//
+	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
+	ut_check_wchar_str(buffer, L"з   ");
+	ut_check_bool(end, false);
+	ut_check_wchar_null(ptr);
+
+	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
+	ut_check_wchar_str(buffer, L"    ");
+	ut_check_bool(end, true);
+	ut_check_wchar_null(ptr);
+
+	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
+	ut_check_wchar_str(buffer, L"    ");
+	ut_check_bool(end, true);
+	ut_check_wchar_null(ptr);
+
+	print_debug_str("test_get_field_complete_line() End\n");
+}
+
+/***************************************************************************
  * The main function simply starts the test.
  **************************************************************************/
 
@@ -175,6 +226,8 @@ int main() {
 	test_field_part_update();
 
 	test_get_field_line();
+
+	test_get_field_complete_line();
 
 	print_debug_str("ut_field.c - End tests\n");
 
