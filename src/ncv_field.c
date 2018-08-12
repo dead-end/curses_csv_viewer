@@ -89,7 +89,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
  * The function updates the pointer to the start of the next line of NULL is
  * no more lines are present.
  **************************************************************************/
-
+// TODO: deprecated
 wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *col_field_part) {
 
 	//
@@ -162,7 +162,7 @@ wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *c
 /***************************************************************************
  * The function prints the content of a field. The field may be truncated.
  **************************************************************************/
-
+// TODO: deprecated
 void print_field(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col) {
 
 	print_debug("print_field() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, ptr);
