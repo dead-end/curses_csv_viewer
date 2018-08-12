@@ -126,4 +126,6 @@ void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2);
 
 void ut_check_wchar_null(const wchar_t *str);
 
+void ut_check_bool(const bool b1, const bool b2);
+
 #endif

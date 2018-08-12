@@ -201,3 +201,16 @@ void ut_check_wchar_null(const wchar_t *str) {
 
 	print_debug_str("ut_check_wchar_null() OK - String is null!\n");
 }
+
+/***************************************************************************
+ * The function is used for unit tests. It compares two bool values.
+ **************************************************************************/
+
+void ut_check_bool(const bool b1, const bool b2) {
+
+	if (b1 != b2) {
+		print_exit("ut_check_bool() Boolean differ: '%d' and: '%d'\n", b1, b2);
+	}
+
+	print_debug("ut_check_bool() OK - Boolean are equal: '%d'\n", b1);
+}
