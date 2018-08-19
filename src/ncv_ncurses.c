@@ -208,28 +208,150 @@ static void ncurses_init_colors() {
 		print_exit_str("ncurses_init_colors() Unable to init colors!\n");
 	}
 
+	//
+	// table
+	//
 	if (init_pair(CP_TABLE, COLOR_WHITE, COLOR_BLUE) != OK) {
 		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
+	if (init_pair(CP_TABLE_HL, COLOR_RED, COLOR_BLUE) != OK) {
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
+	}
+
+	//
+	// table header
+	//
 	if (init_pair(CP_TABLE_HEADER, COLOR_YELLOW, COLOR_BLUE) != OK) {
 		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
+	if (init_pair(CP_TABLE_HEADER_HL, COLOR_RED, COLOR_BLUE) != OK) {
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
+	}
+
+	//
+	// cursor
+	//
 	if (init_pair(CP_CURSOR, COLOR_WHITE, COLOR_CYAN) != OK) {
 		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
+	if (init_pair(CP_CURSOR_HL, COLOR_RED, COLOR_CYAN) != OK) {
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
+	}
+
+	//
+	// cursor header
+	//
 	if (init_pair(CP_CURSOR_HEADER, COLOR_YELLOW, COLOR_CYAN) != OK) {
 		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
+	if (init_pair(CP_CURSOR_HEADER_HL, COLOR_RED, COLOR_CYAN) != OK) {
+		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
+	}
+
+	//
+	// rest
+	//
 	if (init_pair(CP_STATUS, COLOR_BLACK, COLOR_WHITE) != OK) {
 		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
 	}
 
 	if (init_pair(CP_FIELD, COLOR_YELLOW, COLOR_BLACK) != OK) {
 		print_exit_str("ncurses_init_colors() Unable to init color pair!\n");
+	}
+}
+
+/***************************************************************************
+ * The function switches on / off the highlighting. If monochrom mode is
+ * configured the A_REVERSE is toggled. If colors are defined, there is a
+ * mapping between normal and highlighted colors. These colors are toggled.
+ **************************************************************************/
+// TODO: the function has a lot of implicite assumption => replace (s_attr struct)
+void ncurses_toogle_highlight(WINDOW *win) {
+	attr_t attrs;
+	short pair;
+
+	//
+	// Get the current attributes and the current color pair.
+	//
+	wattr_get(win, &attrs, &pair, NULL);
+
+	if (use_colors) {
+
+		print_debug("ncurses_toogle_highlight() Old color pair: %d\n", pair);
+
+		switch (pair) {
+
+		//
+		// table
+		//
+		case 0:
+		case CP_TABLE:
+			pair = CP_TABLE_HL;
+			break;
+		case CP_TABLE_HL:
+
+			//
+			// Table is the default color, so we can switch it off
+			//
+			wattroff(win, COLOR_PAIR(pair));
+			return;
+
+			//
+			// cursor
+			//
+		case CP_CURSOR:
+			pair = CP_CURSOR_HL;
+			break;
+		case CP_CURSOR_HL:
+			pair = CP_CURSOR;
+			break;
+
+			//
+			// cursor header
+			//
+		case CP_CURSOR_HEADER:
+			pair = CP_CURSOR_HEADER_HL;
+			break;
+		case CP_CURSOR_HEADER_HL:
+			pair = CP_CURSOR_HEADER;
+			break;
+
+			//
+			// cursor table
+			//
+		case CP_TABLE_HEADER:
+			pair = CP_TABLE_HEADER_HL;
+			break;
+		case CP_TABLE_HEADER_HL:
+			pair = CP_TABLE_HEADER;
+			break;
+
+		default:
+			print_exit("ncurses_toogle_highlight() Invalid color pair: %d\n", pair)
+			;
+		}
+
+		print_debug("ncurses_toogle_highlight() New color pair: %d\n", pair);
+
+		//
+		// Change the color pair.
+		//
+		wattron(win, COLOR_PAIR(pair));
+
+	} else {
+
+		//
+		// Toogle the reverse attribute.
+		//
+		if (attrs & A_REVERSE) {
+			wattroff(win, A_REVERSE);
+		} else {
+			wattron(win, A_REVERSE);
+		}
 	}
 }
 
