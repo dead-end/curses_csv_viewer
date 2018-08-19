@@ -23,6 +23,7 @@
  */
 
 #include "ncv_table.h"
+#include "ut_utils.h"
 
 /***************************************************************************
  * The test checks the s_table_field_dimension function, which computes the
