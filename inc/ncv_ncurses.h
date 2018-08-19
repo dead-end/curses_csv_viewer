@@ -52,17 +52,31 @@
  * The indices of color pairs
  **************************************************************************/
 
-#define CP_TABLE 1
+#define CP_STATUS 1
 
-#define CP_TABLE_HEADER 2
+#define CP_FIELD 2
 
-#define CP_CURSOR 3
+//
+// Normal colors
+//
+#define CP_TABLE 3
 
-#define CP_CURSOR_HEADER 4
+#define CP_TABLE_HEADER 4
 
-#define CP_STATUS 5
+#define CP_CURSOR 5
 
-#define CP_FIELD 6
+#define CP_CURSOR_HEADER 6
+
+//
+// Highlighted colors
+//
+#define CP_TABLE_HL 7
+
+#define CP_TABLE_HEADER_HL 8
+
+#define CP_CURSOR_HL 9
+
+#define CP_CURSOR_HEADER_HL 10
 
 /***************************************************************************
  * The structure is used to switch on and off attributes. After switching
@@ -87,6 +101,8 @@ typedef struct s_attr_reset {
 void ncurses_attr_on(WINDOW *win, s_attr_reset *attr_reset, const int attr);
 
 void ncurses_attr_off(WINDOW *win, s_attr_reset *attr_reset);
+
+void ncurses_toogle_highlight(WINDOW *win);
 
 void ncurses_init(const bool monochrom, const bool use_initscr);
 
