@@ -22,8 +22,10 @@
  * SOFTWARE.
  */
 
+#include "ncv_common.h"
 #include "ncv_table.h"
 #include "ncv_field.h"
+#include "ut_utils.h"
 
 /***************************************************************************
  * The function checks the s_field_part_update function, which computes the
@@ -70,96 +72,6 @@ static void test_field_part_update() {
 	ut_check_int(field_part.size, 4, "test 8 - size");
 
 	print_debug_str("test_field_part_update() End\n");
-}
-
-/***************************************************************************
- * The function checks the get_field_line function for a truncated field. It
- * is repeatedly called and returns a truncated and padded line of a fixed
- * width.
- **************************************************************************/
-
-#define FIELD_SIZE 2
-
-static void test_get_field_line() {
-
-	print_debug_str("test_get_field_line() Start\n");
-
-	s_field_part col_field_part;
-	wchar_t buffer[FIELD_SIZE + 1];
-	wchar_t *ptr;
-
-	//
-	// The string with the field content (height 6 width 5)
-	//
-	wchar_t *str1 = L"\nз\nза\nзая\nзаяц";
-
-
-	ptr = str1;
-
-	//
-	// Field is truncated right.
-	//
-	col_field_part.start = 0;
-	col_field_part.size = FIELD_SIZE;
-	buffer[col_field_part.size] = W_STR_TERM;
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"  ");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"з ");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"за");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"за");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"за");
-
-	ut_check_wchar_null(ptr);
-
-	//
-	// Field is truncated left.
-	//
-	col_field_part.start = 2;
-	col_field_part.size = FIELD_SIZE;
-
-	ptr = str1;
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"  ");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"  ");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"  ");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"я ");
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"яц");
-
-	ut_check_wchar_null(ptr);
-
-	//
-	// Test an empty field
-	//
-	wchar_t *str2 = L"";
-	ptr = str2;
-
-	col_field_part.start = 0;
-	col_field_part.size = FIELD_SIZE;
-
-	ptr = get_field_line(ptr, buffer, &col_field_part);
-	ut_check_wchar_str(buffer, L"  ");
-
-	ut_check_wchar_null(ptr);
-
-	print_debug_str("test_get_field_line() End\n");
 }
 
 /***************************************************************************
@@ -214,6 +126,150 @@ static void test_get_field_complete_line() {
 }
 
 /***************************************************************************
+ * The function checks the intersection function.
+ **************************************************************************/
+
+static void test_intersection() {
+
+	print_debug_str("test_get_field_complete_line() Start\n");
+
+	s_buffer visible;
+	s_buffer print;
+	s_buffer result;
+
+	//
+	// 0123456789
+	//   vvv
+	//
+	wchar_t *str = L"0123456789";
+	visible.ptr = str + 2;
+	visible.len = 3;
+
+	//
+	// 0123456789
+	//   vvv
+	// p
+	//
+	print.ptr = str;
+	print.len = 1;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, NULL, 0, "Test 0");
+
+	//
+	// 0123456789
+	//   vvv
+	// pp
+	//
+	print.ptr = str;
+	print.len = 2;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, NULL, 0, "Test 1");
+
+	//
+	// 0123456789
+	//   vvv
+	// ppp
+	//
+	print.ptr = str;
+	print.len = 3;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 2, 1, "Test 2");
+
+	//
+	// 0123456789
+	//   vvv
+	//  ppp
+	//
+	print.ptr = str + 1;
+	print.len = 3;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 2, 2, "Test 3");
+
+	//
+	// 0123456789
+	//   vvv
+	// pppppp
+	//
+	print.ptr = str;
+	print.len = 6;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 2, 3, "Test 4");
+
+	//
+	// 0123456789
+	//   vvv
+	//   ppp
+	//
+	print.ptr = str + 2;
+	print.len = 3;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 2, 3, "Test 5");
+
+	//
+	// 0123456789
+	//   vvv
+	//    p
+	//
+	print.ptr = str + 3;
+	print.len = 1;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 3, 1, "Test 6");
+
+	//
+	// 0123456789
+	//   vvv
+	//   pppp
+	//
+	print.ptr = str + 2;
+	print.len = 4;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 2, 3, "Test 7");
+
+	//
+	// 0123456789
+	//   vvv
+	//    ppp
+	//
+	print.ptr = str + 3;
+	print.len = 3;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, str + 3, 2, "Test 8");
+
+	//
+	// 0123456789
+	//   vvv
+	//      pp
+	//
+	print.ptr = str + 5;
+	print.len = 2;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, NULL, 0, "Test 8");
+
+	//
+	// 0123456789
+	//   vvv
+	//       pp
+	//
+	print.ptr = str + 6;
+	print.len = 2;
+
+	intersection(&visible, &print, &result);
+	ut_check_s_buffer(&result, NULL, 0, "Test 9");
+
+	print_debug_str("test_get_field_complete_line() End\n");
+}
+
+/***************************************************************************
  * The main function simply starts the test.
  **************************************************************************/
 
@@ -225,9 +281,9 @@ int main() {
 
 	test_field_part_update();
 
-	test_get_field_line();
-
 	test_get_field_complete_line();
+
+	test_intersection();
 
 	print_debug_str("ut_field.c - End tests\n");
 
