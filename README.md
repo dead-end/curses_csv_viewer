@@ -60,6 +60,14 @@ sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.
 ```
 ![Show query example](img/query.png)
 
+## Known Bugs
+### File formats
+Different operating systems have different line endings. The ccsvv program internally uses `fgetws` to read the lines from the csv file. This requires the line to end with a new line character (`\n`). A leading carriage return character (`\r`), which is used for windows is omitted. So ccsvv work perfectly for csv files that are created on linux and windows.
+
+On a mac only a carriage return is used, which does not work. The easierst way to deal with this is to convert the csv file:
+```
+dos2unix -c sample.csv
+```
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
 each column has a maximum width.
