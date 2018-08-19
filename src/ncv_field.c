@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "ncv_common.h"
+#include "ncv_ncurses.h"
 #include "ncv_field.h"
 
 /***************************************************************************
@@ -77,125 +79,7 @@ void s_field_part_update(const s_table_part *table_part, const int index, const 
 		field_part->size = size;
 	}
 
-	print_debug("s_field_part_update() index: %d truncated: %d first: %d last: %d\n", index, table_part->truncated, table_part->first, table_part->last);
-	print_debug("s_field_part_update() start: %d size: %d\n", field_part->start, field_part->size);
-}
-
-/***************************************************************************
- * The function is repeatedly called with a pointer to a field string and
- * copies the chars of the current field line to the buffer. The buffer has
- * a fixed size (col_field_part->size +1) and is padded with spaces. If the
- * end of the string is reached, the buffer contains only spaces.
- * The function updates the pointer to the start of the next line of NULL is
- * no more lines are present.
- **************************************************************************/
-// TODO: deprecated
-wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *col_field_part) {
-
-	//
-	// Initialize the buffer with spaces. This is not necessary if the field
-	// ends with more than one empty line. In this case the buffer should be
-	// unchanged.
-	//
-	wmemset(buffer, L' ', col_field_part->size);
-
-	//
-	// If the str pointer is null the function returns. In this case the
-	// buffer contains only spaces from the initialization.
-	//
-	if (str_ptr == NULL) {
-		print_debug_str("get_field_line() function called with null string\n");
-		return NULL;
-	}
-
-	//
-	// Get the size of the field. If the field is truncated, start is greater
-	// than 0 or size is less than the field width.
-	//
-	const int size = col_field_part->start + col_field_part->size;
-
-	wchar_t *buf_ptr = buffer;
-
-	for (int i = 0; i < size; i++) {
-
-		//
-		// On \0 or \n the line is finished.
-		//
-		if (*str_ptr == W_STR_TERM || *str_ptr == W_NEW_LINE) {
-			break;
-		}
-
-		//
-		// Copy chars only if they are in the range.
-		//
-		if (i >= col_field_part->start) {
-			*buf_ptr = *str_ptr;
-			buf_ptr++;
-
-		}
-
-		str_ptr++;
-	}
-
-	//
-	// Skip the remaining chars after reaching the 'size' of the for loop.
-	//
-	while (*str_ptr != W_STR_TERM && *str_ptr != W_NEW_LINE) {
-		str_ptr++;
-	}
-
-	//
-	// If the str pointer is \0 we return NULL to indicate the end.
-	//
-	if (*str_ptr == W_STR_TERM) {
-		return NULL;
-
-		//
-		// If the str pointer is \n, more lines will follow and we set the
-		// pointer to the next line.
-		//
-	} else {
-		return ++str_ptr;
-	}
-}
-
-/***************************************************************************
- * The function prints the content of a field. The field may be truncated.
- **************************************************************************/
-// TODO: deprecated
-void print_field(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col) {
-
-	print_debug("print_field() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, ptr);
-
-	//
-	// Get the height of the field. If the field is truncated, start is
-	// greater than 0 or size is less than the row height.
-	//
-	const int field_height = row_field_part->start + row_field_part->size;
-
-	//
-	// Create a buffer and add the str terminator.
-	//
-	wchar_t buffer[col_field_part->size + 1];
-	buffer[col_field_part->size] = W_STR_TERM;
-
-	for (int field_line = 0; field_line < field_height; field_line++) {
-
-		//
-		// Get the next field line. The pointer is updated to the next line or
-		// NULL if no more lines are present. The buffer contains the line a
-		// may contain padding chars.
-		//
-		ptr = get_field_line(ptr, buffer, col_field_part);
-		print_debug("print_field() field line: %d '%ls'\n", field_line, buffer);
-
-		//
-		// Skip the first lines if necessary,
-		//
-		if (field_line >= row_field_part->start) {
-			mvwaddwstr(win, win_row_col->row + field_line - row_field_part->start, win_row_col->col, buffer);
-		}
-	}
+	print_debug("s_field_part_update() index: %d truncated: %d first: %d last: %d\n", index, table_part->truncated, table_part->first, table_part->last);print_debug("s_field_part_update() start: %d size: %d\n", field_part->start, field_part->size);
 }
 
 /***************************************************************************
@@ -287,6 +171,148 @@ wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int wi
 }
 
 /***************************************************************************
+ * We have a buffer (a line of a field). The buffer has a visible part,
+ * defined by the s_buffer visible. We want to print some char, defined by
+ * the s_buffer print. We compute the intersection of the two s_buffers. The
+ * s_buffer result contains the visible part of the print s_buffer. If
+ * nothing id visible, the s_buffer contains NULL and 0.
+ **************************************************************************/
+
+void intersection(const s_buffer *visible, const s_buffer *print, s_buffer *result) {
+
+	//
+	// If the print buffer ends before the start of the visible buffer, or
+	// the print buffer starts after the end of the visible buffer, there is
+	// nothing visible.
+	//
+	if (s_buffer_end(print) <= s_buffer_start(visible) || s_buffer_end(visible) <= s_buffer_start(print)) {
+		result->ptr = NULL;
+		result->len = 0;
+		return;
+	}
+
+	//
+	// At this point something has to visible. It starts at the maximum of
+	// the visible and the print buffer.
+	//
+	result->ptr = max_or_equal(s_buffer_start(visible), s_buffer_start(print));
+
+	//
+	// The visible part of the print buffer ends at the minimum of the end of
+	// the visible and the print buffer.
+	//
+	result->len = min_or_equal(s_buffer_end(visible), s_buffer_end(print)) - result->ptr;
+}
+
+/***************************************************************************
+ * The function is called with a line of a field, the visible part of the
+ * field and a filter string. It prints the visible part of the line, where
+ * the filter string is highlighted. So the function searches multiple times
+ * through the line until the filter string is not found any more.
+ **************************************************************************/
+
+void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_buffer *visible, const s_buffer *filter) {
+
+	//
+	// The part of the line that should be printed.
+	//
+	s_buffer print;
+
+	//
+	// The part of the printed substring that is visbible.
+	//
+	s_buffer result;
+
+	wchar_t *cur = field_line;
+	wchar_t *ptr;
+
+	while (*cur != W_STR_TERM) {
+
+		//
+		// Search the filter string from the current position.
+		//
+		ptr = wcsstr(cur, filter->ptr);
+
+		//
+		// If the search string was not found. Print the rest of the line.
+		//
+		if (ptr == NULL) {
+
+			//
+			// Set the print to the current position and the rest of the
+			// buffer.
+			// And compute the visible part of it.
+			//
+			s_buffer_set(&print, cur, visible->len - (cur - visible->ptr));
+			intersection(visible, &print, &result);
+
+			//
+			// Ensure that the string to print is visible
+			//
+			if (result.ptr != NULL) {
+				mvwaddnwstr(win, win_y, win_x, result.ptr, result.len);
+			}
+
+			break;
+		}
+
+		//
+		// If the line does not start with the search string, print the
+		// substring from the current position up to the search string.
+		//
+		if (ptr > cur) {
+
+			//
+			// Set the print to the current position and the beginning
+			// of the search found.
+			// And compute the visible part of it.
+			//
+			s_buffer_set(&print, cur, ptr - cur);
+			intersection(visible, &print, &result);
+
+			//
+			// Ensure that the string to print is visible
+			//
+			if (result.ptr != NULL) {
+				mvwaddnwstr(win, win_y, win_x, result.ptr, result.len);
+
+				//
+				// Update the column position in the window.
+				//
+				win_x += result.len;
+			}
+		}
+
+		//
+		// Set the print to the search result.
+		// And compute the visible part of it.
+		//
+		s_buffer_set(&print, ptr, filter->len);
+		intersection(visible, &print, &result);
+
+		//
+		// Ensure that the string to print is visible
+		//
+		if (result.ptr != NULL) {
+
+			ncurses_toogle_highlight(win);
+			mvwaddnwstr(win, win_y, win_x, result.ptr, result.len);
+			ncurses_toogle_highlight(win);
+
+			//
+			// Update the column position in the window.
+			//
+			win_x += result.len;
+		}
+
+		//
+		// Update the current position to the end of the found search string.
+		//
+		cur = ptr + filter->len;
+	}
+}
+
+/***************************************************************************
  * The function prints the content of a field. The field can be truncated,
  * so maybe parts of the field content are not printed.
  *
@@ -296,23 +322,36 @@ wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int wi
  * wchar_t *ptr
  * 		The field content.
  *
- * const s_field_part *row_field_part
- * const s_field_part *col_field_part
+ * s_field_part *row_field_part
+ * s_field_part *col_field_part
  * 		A field part for the row and for the col, which define the visible
  * 		part of the field.
  *
- * const s_field *win_row_col
+ * s_field *win_row_col
  * 		The x, y coordinates of the field in the window.
  *
- * const int width
+ * int width
  * 		The total, not truncated width of the column.
+ *
+ * wchar_t *filter
+ * 		The filter string.
  **************************************************************************/
 
-void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width) {
+void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter) {
 	int row;
 	bool end = false;
 
 	print_debug("print_field_content() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, ptr);
+
+	s_buffer search;
+
+	//
+	// Ensure that the filter is set of the wcslen causes a seg fault.
+	//
+	if (filter != EMPTY_FILTER_STRING) {
+		search.ptr = filter;
+		search.len = wcslen(filter);
+	}
 
 	//
 	// Get the height of the field. If the field is truncated, start is
@@ -325,6 +364,10 @@ void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_fiel
 	//
 	wchar_t buffer[width + 1];
 	buffer[width] = W_STR_TERM;
+
+	s_buffer buf;
+	buf.ptr = buffer + col_field_part->start;
+	buf.len = col_field_part->size;
 
 	for (int field_line = 0; field_line < field_height; field_line++) {
 
@@ -341,11 +384,12 @@ void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_fiel
 		//
 		if (field_line >= row_field_part->start) {
 			row = win_row_col->row + field_line - row_field_part->start;
-			mvwaddnwstr(win, row, win_row_col->col, buffer + col_field_part->start, col_field_part->size);
+
+			if (filter != EMPTY_FILTER_STRING) {
+				print_line(win, row, win_row_col->col, buffer, &buf, &search);
+			} else {
+				mvwaddnwstr(win, row, win_row_col->col, buf.ptr, buf.len);
+			}
 		}
 	}
-}
-
-void print_str_part(WINDOW *win, const int row, const int col, const wchar_t *buffer, const int start, const int size) {
-	mvwaddnwstr(win, row, col, &(buffer[start]), size);
 }

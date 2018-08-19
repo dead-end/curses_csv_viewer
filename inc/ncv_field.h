@@ -52,17 +52,16 @@ typedef struct s_field_part {
 
 } s_field_part;
 
-void print_field(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col);
 
-void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width);
+void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter);
 
 //
 // The functions are only visible for unit tests.
 //
 void s_field_part_update(const s_table_part *table_part, const int size, const int index, s_field_part *field_part);
 
-wchar_t *get_field_line(wchar_t *str_ptr, wchar_t *buffer, const s_field_part *col_field_part);
-
 wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int width, bool *end);
+
+void intersection(const s_buffer *visible, const s_buffer *print, s_buffer *result);
 
 #endif
