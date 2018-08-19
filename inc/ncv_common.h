@@ -103,6 +103,46 @@ typedef struct s_field {
 } s_field;
 
 /***************************************************************************
+ * The struct defines a buffer of wchar_t. If is used to define a substring
+ * of a wchar_t string. The string may be larger than len, so the substring
+ * is not necessary \0 terminated.
+ **************************************************************************/
+
+typedef struct s_buffer {
+
+	//
+	// A pointer to the buffer, which defines the start of the substring.
+	//
+	wchar_t *ptr;
+
+	//
+	// The length of the buffer which can be other than wcslen(ptr).
+	//
+	size_t len;
+
+} s_buffer;
+
+/***************************************************************************
+ * The macros simply get or set s_buffer values. The make the expressions
+ * easier to read, because there name expresses the meaning of the
+ * expression.
+ **************************************************************************/
+
+#define s_buffer_start(b) ((b)->ptr)
+
+#define s_buffer_end(b) ((b)->ptr + (b)->len)
+
+#define s_buffer_set(b,p,l) (b)->ptr = (p) ; (b)->len = (l)
+
+/***************************************************************************
+ * The two macros return min / max or equal values.
+ **************************************************************************/
+
+#define min_or_equal(a,b) ((a) <= (b) ? (a) : (b))
+
+#define max_or_equal(a,b) ((a) >= (b) ? (a) : (b))
+
+/***************************************************************************
  * Various function definitions.
  **************************************************************************/
 
@@ -113,19 +153,5 @@ FILE *stdin_2_tmp();
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size);
 
 char *trim(char *str);
-
-/***************************************************************************
- * Functions that can be used for unit tests.
- **************************************************************************/
-
-void ut_check_int(const int current, const int expected, const char *msg);
-
-void ut_check_size(const size_t current, const size_t expected, const char *msg);
-
-void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2);
-
-void ut_check_wchar_null(const wchar_t *str);
-
-void ut_check_bool(const bool b1, const bool b2);
 
 #endif
