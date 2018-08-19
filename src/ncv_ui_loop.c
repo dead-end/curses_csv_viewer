@@ -195,23 +195,36 @@ void ui_loop(s_table *table, const char *filename) {
 			//
 			// ESC char
 			//
-			case 27:
+			case NCV_KEY_ESC:
 				print_debug("ui_loop() Found esc char: %d\n", chr);
 				is_processed = true;
 
+				//
+				// Change mode if necessary.
+				//
 				if (mode == MODE_FILTER) {
 					change_mode(&win, &cursor, &mode, MODE_TABLE);
+				}
+
+				//
+				// Reset the filtering in filter and table mode.
+				//
+				if (s_table_set_filter_string(table, EMPTY_FILTER_STRING)) {
 
 					//
-					// Reset the filtering
+					// Update the filter form
 					//
 					win_filter_clear_filter();
+
+					//
+					// If the table was reset, the cursor position has changed.
+					//
 					s_table_reset_filter(table, &cursor);
 					win_table_on_table_change(table);
 					win_table_set_cursor(table, &cursor);
-					werase(win_table_get_win());
-					do_print = true;
 				}
+				werase(win_table_get_win());
+				do_print = true;
 
 				break;
 
@@ -219,7 +232,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Enter chars
 				//
 			case KEY_ENTER:
-			case 10:
+			case NCV_KEY_NEWLINE:
 				print_debug("ui_loop() Found enter char: %d\n", chr);
 				is_processed = true;
 
@@ -230,11 +243,27 @@ void ui_loop(s_table *table, const char *filename) {
 					// Do the filtering
 					//
 					win_filter_get_filter(filter_buf, FILTER_BUF_SIZE);
-					s_table_do_filter(table, &cursor, filter_buf);
-					win_table_on_table_change(table);
+
+					//
+					// Update the table only if the filter changed.
+					//
+
+					//
+					// Update the filter string and check if something changed.
+					//
+					if (s_table_set_filter_string(table, filter_buf)) {
+						s_table_do_filter(table, &cursor);
+						win_table_on_table_change(table);
+					}
+
+					//
+					// On mode change to table mode the curser has always to
+					// be set.
+					//
 					win_table_set_cursor(table, &cursor);
 					werase(win_table_get_win());
 					do_print = true;
+
 				}
 				break;
 
@@ -252,10 +281,24 @@ void ui_loop(s_table *table, const char *filename) {
 				break;
 
 				//
-				// Quit program
+				// Deletes the filter string in FILTER mode
 				//
 			case CTRL('x'):
 				print_debug_str("ui_loop() Found <ctrl>-x\n");
+				is_processed = true;
+
+				if (mode == MODE_FILTER) {
+					win_filter_clear_filter();
+					do_print = true;
+				}
+				break;
+
+				//
+				// Quit program
+				//
+			case CTRL('c'):
+			case CTRL('q'):
+				print_debug_str("ui_loop() Found <ctrl>-c or <ctrl>-q\n");
 				do_continue = false;
 				is_processed = true;
 				break;
@@ -276,7 +319,6 @@ void ui_loop(s_table *table, const char *filename) {
 			break;
 
 		case ERR:
-
 			print_exit_str("ui_loop() ### ERROR!\n")
 			;
 			break;
