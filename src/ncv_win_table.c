@@ -436,16 +436,16 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 					if (s_table_is_field_header(table, &idx)) {
 						ncurses_attr_on(win_table, &attr_reset, attr_cursor_header);
+
 					} else {
 						ncurses_attr_on(win_table, &attr_reset, attr_cursor);
 					}
 
 				} else if (s_table_is_field_header(table, &idx)) {
 					ncurses_attr_on(win_table, &attr_reset, attr_header);
-
 				}
 
-				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col]);
+				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col], table->filter);
 
 				//
 				// Restore attribues if necessary.
