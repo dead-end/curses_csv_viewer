@@ -66,7 +66,7 @@ Different operating systems have different line endings. The ccsvv program inter
 
 On a mac only a carriage return is used, which does not work. The easierst way to deal with this is to convert the csv file:
 ```
-dos2unix -c sample.csv
+dos2unix -c mac sample.csv
 ```
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
