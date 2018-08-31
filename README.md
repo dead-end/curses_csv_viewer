@@ -13,14 +13,28 @@ ccsvv [-h] [-m] [-n] [-d delimiter] [file]
   -m            By default ccsvv uses colors if the terminal supports them. With
                 this option ccsvv is forced to use a monochrom mode.
 
-  -n            By default ccsvv interpretes the first row of  the  table  as  a
-                header.  The header row is highlighted and on filtering, it is
+  -n            By default ccsvv interpretes the first row of the table as a
+                header. The header row is highlighted and on filtering, it is
                 alway part of the result, even if no field contains the filter
-                string. With this option  special  role  of the first line is
+                string. With this option special role of the first line is
                 switched off.
 
   file          The name of the csv file. If no filename is defined, ccsvv reads
                 the csv data from stdin.
+
+Commands:
+
+  ^C and ^Q     Terminate the program.
+
+  ^F            Switches to filter input mode and allows to input a filter
+                string.
+
+  ^X            In filter mode, deletes the filter string.
+
+  ESC           Delete the filter string and reset the table.
+
+  ^N and ^P     Search for the next / previous field that contains the filter
+                string.
 ```
 ## Examples
 ccsvv can deal with multi-line fields and supports unicode characters (wchar_t).
