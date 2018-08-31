@@ -53,7 +53,7 @@ typedef struct s_field_part {
 } s_field_part;
 
 
-void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter);
+void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter, const s_attr *attr_cur);
 
 //
 // The functions are only visible for unit tests.

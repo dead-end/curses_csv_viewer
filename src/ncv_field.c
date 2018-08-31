@@ -24,6 +24,8 @@
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
+#include "ncv_table.h"
+#include "ncv_win_table.h"
 #include "ncv_field.h"
 
 /***************************************************************************
@@ -211,7 +213,7 @@ void intersection(const s_buffer *visible, const s_buffer *print, s_buffer *resu
  * through the line until the filter string is not found any more.
  **************************************************************************/
 
-void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_buffer *visible, const s_buffer *filter) {
+void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_buffer *visible, const s_buffer *filter, const s_attr *attr_cur) {
 
 	//
 	// The part of the line that should be printed.
@@ -295,9 +297,13 @@ void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_
 		//
 		if (result.ptr != NULL) {
 
-			ncurses_toogle_highlight(win);
+			//
+			// Set the highlighted attribute print the string and reset the
+			// attribute again.
+			//
+			wattrset(win, attr_cur->highlight);
 			mvwaddnwstr(win, win_y, win_x, result.ptr, result.len);
-			ncurses_toogle_highlight(win);
+			wattrset(win, (attr_cur->normal));
 
 			//
 			// Update the column position in the window.
@@ -314,36 +320,32 @@ void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_
 
 /***************************************************************************
  * The function prints the content of a field. The field can be truncated,
- * so maybe parts of the field content are not printed.
+ * so maybe parts of the field content are not printed. The field may
+ * contain a filter string, which will be highlighted.
  *
- * WINDOW *win
- * 		The window for the printing.
+ * The function call has the field part parameter, which define the visible
+ * part of the field.
  *
- * wchar_t *ptr
- * 		The field content.
+ * The win_row_col parameter contains the x, y coordinates of the field in
+ * the window.
  *
- * s_field_part *row_field_part
- * s_field_part *col_field_part
- * 		A field part for the row and for the col, which define the visible
- * 		part of the field.
- *
- * s_field *win_row_col
- * 		The x, y coordinates of the field in the window.
- *
- * int width
- * 		The total, not truncated width of the column.
- *
- * wchar_t *filter
- * 		The filter string.
+ * The function is called with the width parameter which is the total, not
+ * truncated width of the column.
  **************************************************************************/
 
-void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter) {
+void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter, const s_attr *attr_cur) {
 	int row;
 	bool end = false;
 
-	print_debug("print_field_content() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, ptr);
+	print_debug("print_field_content() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, field_content);
 
 	s_buffer search;
+
+	//
+	// A pointer to mark the current position in the field content, while it
+	// is parsed.
+	//
+	wchar_t *ptr = field_content;
 
 	//
 	// Ensure that the filter is set of the wcslen causes a seg fault.
@@ -369,7 +371,7 @@ void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_fiel
 	buf.ptr = buffer + col_field_part->start;
 	buf.len = col_field_part->size;
 
-	for (int field_line = 0; field_line < field_height; field_line++) {
+	for (int field_line_no = 0; field_line_no < field_height; field_line_no++) {
 
 		//
 		// Get the next field line. The pointer is updated to the next line or
@@ -377,16 +379,16 @@ void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_fiel
 		// may contain padding chars.
 		//
 		ptr = get_field_complete_line(ptr, buffer, width, &end);
-		print_debug("print_field_content() field line: %d '%ls'\n", field_line, buffer);
+		print_debug("print_field_content() field line: %d '%ls'\n", field_line_no, buffer);
 
 		//
 		// Skip the first lines if necessary,
 		//
-		if (field_line >= row_field_part->start) {
-			row = win_row_col->row + field_line - row_field_part->start;
+		if (field_line_no >= row_field_part->start) {
+			row = win_row_col->row + field_line_no - row_field_part->start;
 
 			if (filter != EMPTY_FILTER_STRING) {
-				print_line(win, row, win_row_col->col, buffer, &buf, &search);
+				print_line(win, row, win_row_col->col, buffer, &buf, &search, attr_cur);
 			} else {
 				mvwaddnwstr(win, row, win_row_col->col, buf.ptr, buf.len);
 			}
