@@ -24,6 +24,7 @@
 
 #include "ncv_common.h"
 #include "ncv_table.h"
+#include "ncv_win_table.h"
 #include "ncv_field.h"
 #include "ut_utils.h"
 
