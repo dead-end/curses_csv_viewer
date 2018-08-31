@@ -18,7 +18,16 @@
  **************************************************************************/
 
 enum MODE {
-	MODE_TABLE, MODE_FILTER
+
+	//
+	// Browse through the table.
+	//
+	MODE_TABLE,
+
+	//
+	// Input / update filter string.
+	//
+	MODE_FILTER
 };
 
 /***************************************************************************
@@ -111,17 +120,28 @@ static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 	}
 }
 
+
 /***************************************************************************
- *
+ * The buffer has to be large enough for the filter string and the string
+ * terminator.
  **************************************************************************/
-//TODO: where defined ???
+
 #define FILTER_BUF_SIZE (FILTER_FIELD_COLS + 1)
+
+/***************************************************************************
+ * The function processes user input. This can be the browsing through the
+ * table or inputing a filter string.
+ **************************************************************************/
 
 void ui_loop(s_table *table, const char *filename) {
 
 	enum MODE mode = MODE_TABLE;
 	bool is_processed = false;
 
+	//
+	// A buffer for the filter string. The filter string comes from the
+	// filter window and has to be passed to the table window.
+	//
 	wchar_t filter_buf[FILTER_BUF_SIZE];
 
 	WINDOW *win = stdscr;
@@ -319,7 +339,11 @@ void ui_loop(s_table *table, const char *filename) {
 			break;
 
 		case ERR:
-			print_exit_str("ui_loop() ### ERROR!\n")
+
+			//
+			// An error from wget_wch
+			//
+			print_exit_str("ui_loop() The user input caused an error!\n")
 			;
 			break;
 		}
