@@ -142,7 +142,7 @@ void win_footer_content_print(char *filename, const s_table *table, const s_curs
 	//
 	// Try to print row / column infos
 	//
-	if (table->no_rows == 0) {
+	if (s_table_is_empty(table)) {
 
 		//
 		// If the filtered table has no rows, then it is emtpy :o)
