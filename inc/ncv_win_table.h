@@ -25,6 +25,25 @@
 #ifndef INC_NCV_WIN_TABLE_H_
 #define INC_NCV_WIN_TABLE_H_
 
+/***************************************************************************
+ * The struct defines an attribute that can be highlighted. It is used for
+ * field texts to highlight the filter string.
+ **************************************************************************/
+
+typedef struct s_attr {
+
+	//
+	// The attribute for the normal look.
+	//
+	int normal;
+
+	//
+	// The attribute for the highlighted look.
+	//
+	int highlight;
+
+} s_attr;
+
 void win_table_init();
 
 void win_table_resize();

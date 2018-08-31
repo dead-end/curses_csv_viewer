@@ -24,9 +24,10 @@
 
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
+#include "ncv_table.h"
+#include "ncv_win_table.h"
 #include "ncv_field.h"
 #include "ncv_corners.h"
-#include "ncv_win_table.h"
 
 /***************************************************************************
  * With a min height of 2, the table window is shown. One row for the header
@@ -42,14 +43,18 @@
 static WINDOW* win_table = NULL;
 
 /***************************************************************************
- * Define attributes that are dynamically set.
+ * The definitions of the various field text looks. Each text can contain
+ * highlighted parts. The structure contains the normal look to be able to
+ * reset the look after highlighting parts of the text.
  **************************************************************************/
 
-static int attr_header;
+static s_attr attr_table;
 
-static int attr_cursor;
+static s_attr attr_header;
 
-static int attr_cursor_header;
+static s_attr attr_cursor;
+
+static s_attr attr_header_cursor;
 
 /***************************************************************************
  * The two table parts define the visible part of the table.
@@ -84,14 +89,23 @@ void win_table_init() {
 	ncurses_attr_back(win_table, COLOR_PAIR(CP_TABLE), A_NORMAL);
 
 	//
-	// Set the dynamic attributes depending on whether the terminal supports
-	// colors.
+	// Define the attributes for the different looks of the table, normal and highlighted.
 	//
-	attr_header = ncurses_attr_color(COLOR_PAIR(CP_TABLE_HEADER) | A_BOLD, A_BOLD);
+	attr_table.normal = ncurses_attr_color(A_NORMAL, A_NORMAL);
 
-	attr_cursor = ncurses_attr_color(COLOR_PAIR(CP_CURSOR) | A_BOLD, A_REVERSE);
+	attr_table.highlight = ncurses_attr_color(COLOR_PAIR(CP_TABLE_HL), A_UNDERLINE);
 
-	attr_cursor_header = ncurses_attr_color(COLOR_PAIR(CP_CURSOR_HEADER) | A_BOLD, A_REVERSE | A_BOLD);
+	attr_header.normal = ncurses_attr_color(COLOR_PAIR(CP_TABLE_HEADER) | A_BOLD, A_BOLD);
+
+	attr_header.highlight = ncurses_attr_color(COLOR_PAIR(CP_TABLE_HEADER_HL) | A_BOLD, A_BOLD | A_UNDERLINE);
+
+	attr_cursor.normal = ncurses_attr_color(COLOR_PAIR(CP_CURSOR) | A_BOLD, A_REVERSE);
+
+	attr_cursor.highlight = ncurses_attr_color(COLOR_PAIR(CP_CURSOR_HL) | A_BOLD, A_REVERSE | A_UNDERLINE);
+
+	attr_header_cursor.normal = ncurses_attr_color(COLOR_PAIR(CP_HEADER_CURSOR) | A_BOLD, A_REVERSE | A_BOLD);
+
+	attr_header_cursor.highlight = ncurses_attr_color(COLOR_PAIR(CP_HEADER_CURSOR_HL) | A_BOLD, A_REVERSE | A_BOLD | A_UNDERLINE);
 }
 
 /***************************************************************************
@@ -361,20 +375,20 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	win_field.row = 0;
 
 	//
-	// The absolute coordinates of the fields text. This depend on the left / top
-	// border, which can be a normal or an additional border
+	// The absolute coordinates of the fields text. This depend on the left /
+	// top border, which can be a normal or an additional border.
 	//
 	s_field win_text;
 
 	//
-	// The field end is the absolute window coordinate of the right / bottom border if
-	// it exists.
+	// The field end is the absolute window coordinate of the right / bottom
+	// border if it exists.
 	//
 	s_field win_field_end;
 
 	//
-	// The variable for the number of borders for a field, which is 1 by default and 2 if the
-	// field is first or last and not truncated.
+	// The variable for the number of borders for a field, which is 1 by
+	// default and 2 if the field is first or last and not truncated.
 	//
 	s_field num_borders;
 
@@ -382,14 +396,15 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	s_field_part col_field_part;
 
 	//
-	// The variable contains the row and column of the current field to be printed.
+	// The variable contains the row and column of the current field to be
+	// printed.
 	//
 	s_field idx;
 
 	//
-	// A struct to set / reset attributes. On set it stores the restore values.
+	// The attribute structure for normal and highlighted text.
 	//
-	s_attr_reset attr_reset;
+	s_attr *attr_cur;
 
 	for (idx.row = row_table_part.first; idx.row <= row_table_part.last; idx.row++) {
 
@@ -435,22 +450,34 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 				if (is_field_cursor(cursor, &idx) && cursor->visible) {
 
 					if (s_table_is_field_header(table, &idx)) {
-						ncurses_attr_on(win_table, &attr_reset, attr_cursor_header);
+						attr_cur = &attr_header_cursor;
 
 					} else {
-						ncurses_attr_on(win_table, &attr_reset, attr_cursor);
+						attr_cur = &attr_cursor;
 					}
 
 				} else if (s_table_is_field_header(table, &idx)) {
-					ncurses_attr_on(win_table, &attr_reset, attr_header);
+					attr_cur = &attr_header;
+
+				} else {
+					attr_cur = &attr_table;
 				}
 
-				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col], table->filter);
+				//
+				// Set the attribute for the current look, if it is not the default table look.
+				//
+				if (attr_cur != &attr_table) {
+					wattrset(win_table, attr_cur->normal);
+				}
+
+				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col], table->filter, attr_cur);
 
 				//
-				// Restore attribues if necessary.
+				// Reset the attribute the the table normal value.
 				//
-				ncurses_attr_off(win_table, &attr_reset);
+				if (attr_cur != &attr_table) {
+					wattrset(win_table, attr_table.normal);
+				}
 			}
 
 			//
