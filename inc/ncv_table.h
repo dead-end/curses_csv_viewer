@@ -101,6 +101,8 @@ typedef struct s_table {
 
 #define s_table_is_filtered(t) (t->filter != EMPTY_FILTER_STRING)
 
+#define s_table_is_empty(t) ((t)->no_rows == 0)
+
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
@@ -114,6 +116,8 @@ bool s_table_set_filter_string(s_table *table, const wchar_t *filter);
 void s_table_reset_filter(s_table *table, s_cursor *cursor);
 
 void s_table_do_filter(s_table *table, s_cursor *cursor);
+
+bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction);
 
 void s_table_dump(const s_table *table);
 

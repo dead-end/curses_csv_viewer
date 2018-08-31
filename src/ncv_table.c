@@ -62,7 +62,6 @@ bool s_table_set_filter_string(s_table *table, const wchar_t *filter) {
 			return false;
 		}
 
-
 		//
 		// At this point, the current filter is set and the new filter is not
 		// empty.
@@ -307,6 +306,120 @@ void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	}
 
 	print_debug("s_table_do_filter() cursor row: %d col: %d\n", cursor->row, cursor->col);
+}
+
+/***************************************************************************
+ * The function is called if the table is filtered and searches for the prev
+ * / next field that contains the filter string. The cursor is updated with
+ * the new position. If the cursor position changed, the function returns
+ * true. The cursor position does not change, if there is only one field in
+ * the whole table that contains the filter string.
+ **************************************************************************/
+
+bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction) {
+
+	//
+	// The filter has to be set to find the next matching field.
+	//
+	if (!s_table_is_filtered(table)) {
+		print_debug_str("s_table_do_filter() Table is not filtered!\n");
+		return false;
+	}
+
+	//
+	// If the table is empty there can be no match.
+	//
+	if (s_table_is_empty(table)) {
+		print_debug_str("s_table_do_filter() Table is empty!\n");
+		return false;
+	}
+
+	print_debug("s_table_prev_next() cursor row: %d col: %d\n", cursor->row, cursor->col);
+
+	//
+	// The start position is the current cursor position.
+	//
+	int row_cur = cursor->row;
+	int col_cur = cursor->col;
+
+	//
+	// The flag shows whether the row position has to be updated.
+	//
+	bool update_row = false;
+
+	while (true) {
+
+		//
+		// First go with the column to the direction.
+		//
+		col_cur += direction;
+
+		//
+		// Ensure that the column is still in its range. If the column
+		// position has to be adjusted, we move to the prev / next row.
+		//
+		if (col_cur < 0) {
+			col_cur = table->no_columns - 1;
+			update_row = true;
+
+		} else if (col_cur >= table->no_columns) {
+			col_cur = 0;
+			update_row = true;
+		}
+
+		//
+		// Check if we have to change the row.
+		//
+		if (update_row) {
+			update_row = false;
+
+			//
+			// Move the row in the direction and adjust if necessary.
+			//
+			row_cur += direction;
+
+			if (row_cur < 0) {
+				row_cur = table->no_rows - 1;
+
+			} else if (row_cur >= table->no_rows) {
+				row_cur = 0;
+			}
+		}
+
+		print_debug("s_table_prev_next() New cursor row: %d column: %d\n", row_cur, col_cur);
+
+		//
+		// If there is only one filter match, we end up at the initial
+		// cursor position and we are finished.
+		//
+		if (row_cur == cursor->row && col_cur == cursor->col) {
+			print_debug_str("s_table_prev_next() Search reached the initial cursor position.\n");
+
+			//
+			// Return false to indicate that nothing changed.
+			//
+			return false;
+		}
+
+		//
+		// Found prev / next field that contains the filter string.
+		//
+		if (wcsstr(table->fields[row_cur][col_cur], table->filter) != NULL) {
+
+			//
+			// Set the cursor to the first found field.
+			//
+			cursor->row = row_cur;
+			cursor->col = col_cur;
+
+			print_debug("s_table_prev_next() New cursor row: %d col: %d\n", cursor->row, cursor->col);
+
+			//
+			// Return true to indicate that the cursor position changed.
+			//
+			return true;
+		}
+	}
 }
 
 /***************************************************************************
