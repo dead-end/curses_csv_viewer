@@ -132,6 +132,7 @@ static void print_usage(const bool has_error, const char* msg) {
 	//
 	// Print the usage information.
 	//
+	//              "--------------------------------------------------------------------------------\n");
 	fprintf(stream, "ccsvv [-h] [-m] [-n] [-d delimiter] [file]\n\n");
 	fprintf(stream, "  -h            Shows this usage message.\n\n");
 	fprintf(stream, "  -d delimiter  Defines a delimiter character, other than the default comma.\n\n");
@@ -144,12 +145,16 @@ static void print_usage(const bool has_error, const char* msg) {
 	fprintf(stream, "                switched off.\n\n");
 	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
 	fprintf(stream, "                the csv data from stdin.\n");
+	//              "--------------------------------------------------------------------------------\n");
 	fprintf(stream, "\nCommands:\n\n");
 	fprintf(stream, "  ^C and ^Q     Terminate the program.\n\n");
 	fprintf(stream, "  ^F            Switches to filter input mode and allows to input a filter\n");
 	fprintf(stream, "                string.\n\n");
 	fprintf(stream, "  ^X            In filter mode, deletes the filter string.\n\n");
-	fprintf(stream, "  ESC           Delete filter string and reset the table.\n\n");
+	fprintf(stream, "  ESC           Delete the filter string and reset the table.\n\n");
+	//              "--------------------------------------------------------------------------------\n");
+	fprintf(stream, "  ^N and ^P     Search for the next / previous field that contains the filter\n");
+	fprintf(stream, "                string.\n\n");
 
 	exit(status);
 }
