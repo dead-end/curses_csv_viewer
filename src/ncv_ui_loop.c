@@ -120,6 +120,34 @@ static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 	}
 }
 
+/***************************************************************************
+ * The function is called to search the prev / next field that contains the
+ * filter string. The cursor position is updated to the new position. If the
+ * cursor position changed, the function returns true.
+ **************************************************************************/
+
+static bool find_prev_next(const s_table *table, s_cursor *cursor, const enum MODE mode, const int direction) {
+
+	if (mode == MODE_TABLE) {
+
+		//
+		// Search for the prev / next occurrence. The function returns false
+		// if the cursor was not updated.
+		//
+		if (!s_table_prev_next(table, cursor, direction)) {
+			return false;
+		}
+
+		//
+		// If the field cursor was updated ensure that it is visible.
+		//
+		win_table_set_cursor(table, cursor);
+
+		return true;
+	}
+
+	return false;
+}
 
 /***************************************************************************
  * The buffer has to be large enough for the filter string and the string
@@ -179,6 +207,8 @@ void ui_loop(s_table *table, const char *filename) {
 		move(0, 0);
 
 		key_type = wget_wch(win, &chr);
+
+		// TODO: maybe default is true
 		is_processed = false;
 
 		switch (key_type) {
@@ -311,6 +341,26 @@ void ui_loop(s_table *table, const char *filename) {
 					win_filter_clear_filter();
 					do_print = true;
 				}
+				break;
+
+				//
+				// Search for the filter string forward
+				//
+			case CTRL('n'):
+				print_debug_str("ui_loop() Found <ctrl>-n\n");
+
+				is_processed = true;
+				do_print = find_prev_next(table, &cursor, mode, DIR_FORWARD);
+				break;
+
+				//
+				// Search for the filter string backward
+				//
+			case CTRL('p'):
+				print_debug_str("ui_loop() Found <ctrl>-p\n");
+
+				is_processed = true;
+				do_print = find_prev_next(table, &cursor, mode, DIR_BACKWARD);
 				break;
 
 				//
