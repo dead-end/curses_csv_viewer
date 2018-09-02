@@ -430,11 +430,6 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 		}
 
 		break; // case OK
-
-	default: // key type
-		print_exit("win_filter_process_input() Found key type other then OK and KEY_CODE_YES: %d\n", key_type)
-		;
-		break;
 	}
 
 	print_debug("win_table_process_input() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
