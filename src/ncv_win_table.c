@@ -295,6 +295,9 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 	switch (chr) {
 
+	//
+	// Move the field cursor one row up
+	//
 	case KEY_UP:
 		if (cursor->row - 1 >= 0) {
 			cursor->row--;
@@ -307,6 +310,9 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 		}
 		break;
 
+		//
+		// Move the field cursor one row down
+		//
 	case KEY_DOWN:
 		if (cursor->row + 1 < table->no_rows) {
 			cursor->row++;
@@ -319,7 +325,11 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 		}
 		break;
 
+		//
+		// Move the field cursor one column to the left
+		//
 	case KEY_LEFT:
+
 		if (cursor->col - 1 >= 0) {
 			cursor->col--;
 
@@ -329,10 +339,13 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 			result = true;
 		}
-
 		break;
 
+		//
+		// Move the field cursor one column to the right
+		//
 	case KEY_RIGHT:
+
 		if (cursor->col + 1 < table->no_columns) {
 			cursor->col++;
 
@@ -342,9 +355,41 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 			result = true;
 		}
-
 		break;
 
+		//
+		// Move the field cursor to the first column in the row
+		//
+	case KEY_HOME:
+
+		if (cursor->col == 0) {
+			result = false;
+
+		} else {
+			cursor->col = 0;
+			win_table_set_cursor(table, cursor);
+			result = true;
+		}
+		break;
+
+		//
+		// Move the field cursor to the last column in the row
+		//
+	case KEY_END:
+
+		if (cursor->col == table->no_columns - 1) {
+			result = false;
+
+		} else {
+			cursor->col = table->no_columns - 1;
+			win_table_set_cursor(table, cursor);
+			result = true;
+		}
+		break;
+
+		//
+		// The default action is to do nothing.
+		//
 	default:
 		print_debug("win_table_process_input() Found key code: %d\n", chr);
 		break;
