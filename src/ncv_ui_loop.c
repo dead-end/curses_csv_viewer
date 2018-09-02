@@ -30,6 +30,8 @@ enum MODE {
 	MODE_FILTER
 };
 
+#define mode_str(m) ((m) == MODE_TABLE ? "TABLE" : "FILTER")
+
 /***************************************************************************
  * The function refreshes all windows that are visible. If the terminal is
  * too small, some windows disappear.
@@ -121,35 +123,6 @@ static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 }
 
 /***************************************************************************
- * The function is called to search the prev / next field that contains the
- * filter string. The cursor position is updated to the new position. If the
- * cursor position changed, the function returns true.
- **************************************************************************/
-
-static bool find_prev_next(const s_table *table, s_cursor *cursor, const enum MODE mode, const int direction) {
-
-	if (mode == MODE_TABLE) {
-
-		//
-		// Search for the prev / next occurrence. The function returns false
-		// if the cursor was not updated.
-		//
-		if (!s_table_prev_next(table, cursor, direction)) {
-			return false;
-		}
-
-		//
-		// If the field cursor was updated ensure that it is visible.
-		//
-		win_table_set_cursor(table, cursor);
-
-		return true;
-	}
-
-	return false;
-}
-
-/***************************************************************************
  * The buffer has to be large enough for the filter string and the string
  * terminator.
  **************************************************************************/
@@ -157,14 +130,33 @@ static bool find_prev_next(const s_table *table, s_cursor *cursor, const enum MO
 #define FILTER_BUF_SIZE (FILTER_FIELD_COLS + 1)
 
 /***************************************************************************
- * The function processes user input. This can be the browsing through the
- * table or inputing a filter string.
+ * The function processes user input. It processes input that is independent
+ * of the mode (TABLE / FILTER) like quit and resize and the change of the
+ * mode. The input that is related to the mode is delegated to mode specific
+ * functions.
  **************************************************************************/
 
 void ui_loop(s_table *table, const char *filename) {
 
+	//
+	// A flag that indicated that the table should be redrawn.
+	//
+	bool do_print = true;
+
+	//
+	// The current mode od the ui (TABLE / FILTER)
+	//
 	enum MODE mode = MODE_TABLE;
+
+	//
+	// A flag that indicated that the input key was processed.
+	//
 	bool is_processed = false;
+
+	//
+	// A flag that indicates whether the user wants to quit the program.
+	//
+	bool do_continue = true;
 
 	//
 	// A buffer for the filter string. The filter string comes from the
@@ -173,9 +165,6 @@ void ui_loop(s_table *table, const char *filename) {
 	wchar_t filter_buf[FILTER_BUF_SIZE];
 
 	WINDOW *win = stdscr;
-
-	bool do_print = true;
-	bool do_continue = true;
 
 	wint_t chr;
 	int key_type;
@@ -188,7 +177,7 @@ void ui_loop(s_table *table, const char *filename) {
 
 	while (do_continue) {
 
-		print_debug("ui_loop() mode: %d do_print: %d rows: %d cols: %d\n", mode, do_print, getmaxy(win), getmaxx(win));
+		print_debug("ui_loop() mode: %s do_print: %d rows: %d cols: %d\n", mode_str(mode), do_print, getmaxy(win), getmaxx(win));
 
 		//
 		// Print and refresh only if something changed.
@@ -208,7 +197,6 @@ void ui_loop(s_table *table, const char *filename) {
 
 		key_type = wget_wch(win, &chr);
 
-		// TODO: maybe default is true
 		is_processed = false;
 
 		switch (key_type) {
@@ -331,39 +319,6 @@ void ui_loop(s_table *table, const char *filename) {
 				break;
 
 				//
-				// Deletes the filter string in FILTER mode
-				//
-			case CTRL('x'):
-				print_debug_str("ui_loop() Found <ctrl>-x\n");
-				is_processed = true;
-
-				if (mode == MODE_FILTER) {
-					win_filter_clear_filter();
-					do_print = true;
-				}
-				break;
-
-				//
-				// Search for the filter string forward
-				//
-			case CTRL('n'):
-				print_debug_str("ui_loop() Found <ctrl>-n\n");
-
-				is_processed = true;
-				do_print = find_prev_next(table, &cursor, mode, DIR_FORWARD);
-				break;
-
-				//
-				// Search for the filter string backward
-				//
-			case CTRL('p'):
-				print_debug_str("ui_loop() Found <ctrl>-p\n");
-
-				is_processed = true;
-				do_print = find_prev_next(table, &cursor, mode, DIR_BACKWARD);
-				break;
-
-				//
 				// Quit program
 				//
 			case CTRL('c'):
@@ -375,14 +330,7 @@ void ui_loop(s_table *table, const char *filename) {
 
 			default:
 
-				//
-				// Ignore all other ctrl chars.
-				//
-				if (is_ctrl_char(chr)) {
-					print_debug_str("ui_loop() Found <ctrl>-char\n");
-					is_processed = true;
-				}
-
+				print_debug("ui_loop() Delegate processed: %s\n", (is_processed ? "true" : "false"));
 				break;
 			}
 
@@ -411,6 +359,11 @@ void ui_loop(s_table *table, const char *filename) {
 
 			case MODE_FILTER:
 				win_filter_process_input(key_type, chr);
+				break;
+
+			default:
+				print_exit("Unknown mode: %d", mode)
+				;
 				break;
 			}
 		}
