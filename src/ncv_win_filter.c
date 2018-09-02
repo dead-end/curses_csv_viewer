@@ -354,17 +354,33 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 			break;
 		}
 
-		break;
+		break; // case KEY_CODE_YES
 
 	case OK:
 
 		//
-		// Process char keys
+		// Process function keys
 		//
-		form_driver_w(filter_form, OK, (wchar_t) chr);
-		form_driver_w(filter_form, KEY_CODE_YES, REQ_VALIDATION);
-		print_debug("win_filter_process_input() Found char: %d field content: %s\n", chr, field_buffer(field[0], 0));
+		switch (chr) {
+		//
+		// Deletes the filter string in FILTER mode
+		//
+		case CTRL('x'):
+			win_filter_clear_filter();
 
-		break;
+			break;
+
+		default:
+
+			//
+			// Process char keys
+			//
+			form_driver_w(filter_form, OK, (wchar_t) chr);
+			form_driver_w(filter_form, KEY_CODE_YES, REQ_VALIDATION);
+			print_debug("win_filter_process_input() Found char: %d field content: %s\n", chr, field_buffer(field[0], 0));
+
+		}
+
+		break; // case OK
 	}
 }
