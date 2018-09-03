@@ -49,7 +49,7 @@ ccsvv -m languages.csv
 ```
 ![Show monochrome example](img/mono.png)
 
-ccsvv can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `sys`.
+ccsvv can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `system`.
 ```
 ccsvv -nd : /etc/passwd
 ```
