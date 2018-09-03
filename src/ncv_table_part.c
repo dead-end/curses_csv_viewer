@@ -120,6 +120,9 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
  * enlarging the window you have to check whether there are fields that are
  * not visible at the other end. In this example you can make visible fields
  * 4-10 and then 3-10 and so on until all fields are visible.
+ *
+ * The parameter table_end is 'table->no_rows - 1' or table->no_column - 1'
+ * depending on the table part.
  **************************************************************************/
 
 bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
