@@ -68,6 +68,8 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 		// Example:
 		// (border)(field)(border)(field)(additional-border)
 		//
+		// In this case: table_part->truncated = -1
+		//
 		if (sum == win_size - 1) {
 			break;
 
