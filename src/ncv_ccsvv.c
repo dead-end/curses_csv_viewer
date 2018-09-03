@@ -191,12 +191,12 @@ int main(const int argc, char * const argv[]) {
 
 		case 'm':
 			monochrom = true;
-			print_debug_str("Use monochrom.\n");
+			print_debug_str("main() Use monochrom.\n");
 			break;
 
 		case 'n':
 			table.show_header = false;
-			print_debug_str("Do not show header.\n");
+			print_debug_str("main() Do not show header.\n");
 			break;
 
 		case 'd':
@@ -219,7 +219,7 @@ int main(const int argc, char * const argv[]) {
 				print_usage(true, "Unable to convert the delimiter to a wide char!");
 			}
 
-			print_debug("Delimiter: %lc\n", delimiter);
+			print_debug("main() Delimiter: %lc\n", delimiter);
 			break;
 
 		default:
@@ -232,7 +232,7 @@ int main(const int argc, char * const argv[]) {
 	//
 	if (optind == argc - 1) {
 		filename = argv[optind];
-		print_debug("Found filename: %s\n", filename);
+		print_debug("main() Found filename: %s\n", filename);
 
 		//
 		// Ensure that no more than one filename is present.
