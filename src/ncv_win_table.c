@@ -249,7 +249,8 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 /***************************************************************************
  * The function sets the field cursor to a new position. By default the
  * direction is set to DIR_FORWARD. After this it has to be checked whether
- * the direction has to be changed.
+ * the direction has to be changed. So the default is to put the cursor in
+ * the upper left corner if it is possible.
  **************************************************************************/
 
 void win_table_set_cursor(const s_table *table, s_cursor *cursor) {
@@ -438,7 +439,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 }
 
 /***************************************************************************
- * top or left starts with border => field has an offset
+ * Top or left starts with border => field has an offset
  **************************************************************************/
 
 #define get_row_col_offset(p, i) (((p).direction == DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
@@ -492,12 +493,12 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 		win_field.col = 0;
 
-		print_debug("calling: s_field_part_update row: %d\n", idx.row);
+		print_debug("win_table_content_print() calling: s_field_part_update row: %d\n", idx.row);
 		s_field_part_update(&row_table_part, idx.row, table->height[idx.row], &row_field_part);
 
 		for (idx.col = col_table_part.first; idx.col <= col_table_part.last; idx.col++) {
 
-			print_debug("calling: s_field_part_update col: %d\n", idx.col);
+			print_debug("win_table_content_print() calling: s_field_part_update col: %d\n", idx.col);
 			s_field_part_update(&col_table_part, idx.col, table->width[idx.col], &col_field_part);
 
 			//
@@ -518,7 +519,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			win_field_end.row = win_text.row + row_field_part.size;
 			win_field_end.col = win_text.col + col_field_part.size;
 
-			print_debug("dir row: %d col: %d\n", row_table_part.direction, col_table_part.direction);
+			print_debug("win_table_content_print() dir row: %d col: %d\n", row_table_part.direction, col_table_part.direction);
 
 			//
 			// Print the field content. It is possible that the visible part of the field
@@ -605,8 +606,8 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			//
 			s_corner_print(win_table, &idx, &win_field, &win_field_end, &row_table_part, &col_table_part);
 
-			print_debug("row index: %d start: %d size: %d\n", idx.row, row_field_part.start, row_field_part.size);
-			print_debug("col index: %d start: %d size: %d\n", idx.col, col_field_part.start, col_field_part.size);
+			print_debug("win_table_content_print() row index: %d start: %d size: %d\n", idx.row, row_field_part.start, row_field_part.size);
+			print_debug("win_table_content_print() col index: %d start: %d size: %d\n", idx.col, col_field_part.start, col_field_part.size);
 
 			win_field.col += col_field_part.size + num_borders.col;
 		}
