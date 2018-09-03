@@ -78,30 +78,6 @@
 
 #define CP_HEADER_CURSOR_HL 10
 
-/***************************************************************************
- * The structure is used to switch on and off attributes. After switching
- * them on, you might want do switch them off. The struct is used to store
- * the initial value.
- ***************************************************************************/
-
-typedef struct s_attr_reset {
-
-	//
-	// The attribute to restore
-	//
-	int reset;
-
-	//
-	// A flag that tells whether to restore or not.
-	//
-	bool do_reset;
-
-} s_attr_reset;
-
-void ncurses_attr_on(WINDOW *win, s_attr_reset *attr_reset, const int attr);
-
-void ncurses_attr_off(WINDOW *win, s_attr_reset *attr_reset);
-
 void ncurses_init(const bool monochrom, const bool use_initscr);
 
 void ncurses_free();

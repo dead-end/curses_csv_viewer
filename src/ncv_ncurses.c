@@ -25,37 +25,14 @@
 #include "ncv_common.h"
 #include "ncv_ncurses.h"
 
-//
-// The color mode configuration. On true colors are used if the terminal
-// supports colors. On false monochrome mode is used.
-//
+/***************************************************************************
+ * The color mode configuration. On true colors are used if the terminal
+ * supports colors. On false monochrome mode is used.
+ **************************************************************************/
+
 static bool use_colors;
 
 static SCREEN *screen = NULL;
-
-/***************************************************************************
- * The function switches on attributes and saves them in the struct, to be
- * able to switch the off later.
- **************************************************************************/
-
-void ncurses_attr_on(WINDOW *win, s_attr_reset *attr_reset, const int attr) {
-
-	wattron(win, attr);
-	attr_reset->reset = attr;
-	attr_reset->do_reset = true;
-}
-
-/***************************************************************************
- * The function switches off the attributes saved in the struct.
- **************************************************************************/
-
-void ncurses_attr_off(WINDOW *win, s_attr_reset *attr_reset) {
-
-	if (attr_reset->do_reset) {
-		wattroff(win, attr_reset->reset);
-		attr_reset->do_reset = false;
-	}
-}
 
 /***************************************************************************
  * The function creates a window. It is ensured that the window has a valid
