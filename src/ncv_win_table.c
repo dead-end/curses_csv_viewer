@@ -494,12 +494,12 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 		win_field.col = 0;
 
 		print_debug("win_table_content_print() calling: s_field_part_update row: %d\n", idx.row);
-		s_field_part_update(&row_table_part, idx.row, table->height[idx.row], &row_field_part);
+		s_field_part_update(&row_field_part, &row_table_part, idx.row, table->height[idx.row]);
 
 		for (idx.col = col_table_part.first; idx.col <= col_table_part.last; idx.col++) {
 
 			print_debug("win_table_content_print() calling: s_field_part_update col: %d\n", idx.col);
-			s_field_part_update(&col_table_part, idx.col, table->width[idx.col], &col_field_part);
+			s_field_part_update(&col_field_part, &col_table_part, idx.col, table->width[idx.col]);
 
 			//
 			// Each field has at least one border

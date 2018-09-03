@@ -48,11 +48,11 @@ static void test_field_part_update() {
 	table_part.truncated = table_part.last;
 	table_part.size = 2;
 
-	s_field_part_update(&table_part, 0, 4, &field_part);
+	s_field_part_update(&field_part, &table_part, 0, 4);
 	ut_check_int(field_part.start, 0, "test 1 - start");
 	ut_check_int(field_part.size, 4, "test 2 - size");
 
-	s_field_part_update(&table_part, 2, 4, &field_part);
+	s_field_part_update(&field_part, &table_part, 2, 4);
 	ut_check_int(field_part.start, 0, "test 3 - start");
 	ut_check_int(field_part.size, 2, "test 4 - size");
 
@@ -64,11 +64,11 @@ static void test_field_part_update() {
 	table_part.truncated = table_part.first;
 	table_part.size = 2;
 
-	s_field_part_update(&table_part, 0, 4, &field_part);
+	s_field_part_update(&field_part, &table_part, 0, 4);
 	ut_check_int(field_part.start, 2, "test 5 - start");
 	ut_check_int(field_part.size, 2, "test 6 - size");
 
-	s_field_part_update(&table_part, 2, 4, &field_part);
+	s_field_part_update(&field_part, &table_part, 2, 4);
 	ut_check_int(field_part.start, 0, "test 7 - start");
 	ut_check_int(field_part.size, 4, "test 8 - size");
 

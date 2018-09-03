@@ -58,7 +58,7 @@ void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_fiel
 //
 // The functions are only visible for unit tests.
 //
-void s_field_part_update(const s_table_part *table_part, const int size, const int index, s_field_part *field_part);
+void s_field_part_update(s_field_part *field_part, const s_table_part *table_part, const int index, const int size);
 
 wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int width, bool *end);
 

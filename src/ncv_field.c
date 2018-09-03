@@ -35,12 +35,9 @@
  * row / column is truncated and if so the truncated size of the field.
  *
  * The index is the index of the row / column of the field.
- *
- * The size is the not truncated size of the field, which is the height of
- * the row or the width of the column.
  **************************************************************************/
 
-void s_field_part_update(const s_table_part *table_part, const int index, const int size, s_field_part *field_part) {
+void s_field_part_update(s_field_part *field_part, const s_table_part *table_part, const int index, const int size) {
 
 	//
 	// If the table has a truncated row / column, the table_part struc's
