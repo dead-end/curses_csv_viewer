@@ -189,9 +189,12 @@ void ui_loop(s_table *table, const char *filename) {
 	wint_t chr;
 	int key_type;
 
+	//
+	// Define and initialize the field cursor
+	//
 	s_cursor cursor;
+	s_cursor_set(&cursor, 0, 0, true);
 
-	s_table_reset_filter(table, &cursor);
 	win_table_on_table_change(table);
 	win_table_set_cursor(table, &cursor);
 
