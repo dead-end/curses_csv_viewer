@@ -103,6 +103,8 @@ typedef struct s_table {
 
 #define s_table_is_empty(t) ((t)->no_rows == 0)
 
+void s_table_int_rows(s_table *table);
+
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);

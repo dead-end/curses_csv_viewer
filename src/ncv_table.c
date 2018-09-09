@@ -191,6 +191,23 @@ void s_table_free(s_table *table) {
 }
 
 /***************************************************************************
+ * The function initializes the rows and the row heights.
+ **************************************************************************/
+
+void s_table_int_rows(s_table *table) {
+
+	//
+	// Reset the row pointers and the row heights.
+	//
+	for (int row = 0; row < table->__no_rows; row++) {
+		table->fields[row] = table->__fields[row];
+		table->height[row] = table->__height[row];
+	}
+
+	table->no_rows = table->__no_rows;
+}
+
+/***************************************************************************
  * If the table is filtered, the function resets the number of rows, the
  * heights and the field pointers.
  **************************************************************************/
@@ -212,12 +229,7 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	//
 	// Reset the row pointers and the row heights.
 	//
-	for (int row = 0; row < table->__no_rows; row++) {
-		table->fields[row] = table->__fields[row];
-		table->height[row] = table->__height[row];
-	}
-
-	table->no_rows = table->__no_rows;
+	s_table_int_rows(table);
 
 	//
 	// Init the cursor to the start position.
@@ -508,7 +520,7 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	int col_size;
 	s_table_field_dimension(str, &col_size, &row_size);
 
-	print_debug("s_table_copy() row: %d column: %d field: %ls\n", row, column, str);
+	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);
 	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);
 	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
 
