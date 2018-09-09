@@ -24,6 +24,8 @@
 
 #include "ncv_table.h"
 
+#define MAX_FIELD_SIZE 4096
+
 /***************************************************************************
  * The struct contains the variables necessary to parse the csv file.
  **************************************************************************/
@@ -51,28 +53,11 @@ typedef struct s_csv_parser {
 	int no_columns;
 
 	//
-	// The csv file is read line by line. The parameter contains the current
-	// line.
-	//
-	wchar_t line[MAX_LINE];
-
-	//
-	// The parsing is done char by char. The pointer points to the current char
-	// in the line.
-	//
-	wchar_t *ptr_line;
-
-	//
-	// The parsed content is copied char by char to the field. The field pointer
+	// The parsed content is copied char by char to the field. The field index
 	// shows the current position.
 	//
-	// There are no checks for overflow in the code. This is done implicitly. The
-	// line is filled with fgets which adds a \0. The line ptr checks for \0. The
-	// field is by construction smaller than the line, because escape chars are
-	// omitted, but both have MAX_LINE size.
-	//
-	wchar_t field[MAX_LINE];
-	wchar_t *ptr_field;
+	wchar_t field[MAX_FIELD_SIZE];
+	int field_idx;
 
 	//
 	// The flag indicates whether the field is escaped or not. Before the first
@@ -90,12 +75,33 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 	csv_parser->do_count = do_count;
 	csv_parser->current_row = 0;
 	csv_parser->current_column = 0;
-	csv_parser->ptr_field = csv_parser->field;
+	csv_parser->field_idx = 0;
 	csv_parser->is_escaped = BOOL_UNDEF;
 
 	if (do_count) {
 		csv_parser->no_columns = 0;
 	}
+}
+
+/***************************************************************************
+ * The function adds a wchar to the end of the field. It ensures that no
+ * buffer overflow happens.
+ **************************************************************************/
+
+static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
+
+	//
+	// Ensure the size.
+	//
+	if (csv_parser->field_idx >= MAX_FIELD_SIZE) {
+		print_exit_str("set_field() Field is too long!");
+	}
+
+	//
+	// Add the wchar and increase the index.
+	//
+	csv_parser->field[csv_parser->field_idx] = wchar;
+	csv_parser->field_idx++;
 }
 
 /***************************************************************************
@@ -161,7 +167,7 @@ static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, 
 		//
 		// Add the terminating \0 to the field.
 		//
-		*csv_parser->ptr_field = W_STR_TERM;
+		add_wchar_to_field(csv_parser, W_STR_TERM);
 
 		//
 		// Copy the field data to the table.
@@ -169,39 +175,20 @@ static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, 
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, csv_parser->field);
 
 		//
-		// Reset the field pointer for the next field.
+		// Reset the field index.
 		//
-		csv_parser->ptr_field = csv_parser->field;
+		csv_parser->field_idx = 0;
 	}
 
 	//
-	// Reset the line pointer.
+	// Reset the escape state.
 	//
-	csv_parser->ptr_line++;
 	csv_parser->is_escaped = BOOL_UNDEF;
 
 	//
 	// Update the column and row counters.
 	//
 	count_columns_and_rows(csv_parser, is_row_end);
-}
-
-/***************************************************************************
- * The function copies the current line char to the current field char, if
- * the count flag is false.
- **************************************************************************/
-
-static void copy_field_char(s_csv_parser *csv_parser) {
-
-	//
-	// If we count fields and records copying is unnecessary.
-	//
-	if (!csv_parser->do_count) {
-		*csv_parser->ptr_field = *csv_parser->ptr_line;
-		csv_parser->ptr_field++;
-	}
-
-	csv_parser->ptr_line++;
 }
 
 /***************************************************************************
@@ -212,117 +199,119 @@ static void copy_field_char(s_csv_parser *csv_parser) {
 
 static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_parser, s_table *table) {
 
+	//
+	// The two parameters hold the current and the last char read from the
+	// stream. The last char is initialized to \0.
+	//
+	wchar_t last_wchar, wchar = W_STR_TERM;
+
 	while (true) {
 
-		//
-		// Process csv file line by line.
-		//
-		if ((csv_parser->ptr_line = fgetws(csv_parser->line, MAX_LINE, file)) == NULL) {
+		last_wchar = wchar;
+		wchar = read_wchar(file);
+
+		if (feof(file)) {
 
 			//
-			// Check for read errors.
+			// If the last char was not \n we do the processing of the last
+			// row. Otherwise (ending: \n<EOF>) we would do it twice.
 			//
-			if (ferror(file)) {
-				print_exit("parse_csv_file() Error on reading input: %s\n", strerror(errno));
+			if (last_wchar != W_NEW_LINE) {
+				process_column_end(csv_parser, true, table);
 			}
-
-			print_debug_str("parse_csv_file() No more lines available!\n");
 			break;
 		}
 
-		print_debug("parse_csv_file() line: '%ls'\n", csv_parser->line);
-
 		//
-		// Process the current line char by char.
+		// If the escape flag is undefined, determine its value.
 		//
-		while (true) {
+		if (csv_parser->is_escaped == BOOL_UNDEF) {
+			if (wchar == W_QUOTE) {
+				csv_parser->is_escaped = BOOL_TRUE;
+				continue;
 
-			//
-			// If the escape flag is undefined, determine its value.
-			//
-			if (csv_parser->is_escaped == BOOL_UNDEF) {
-				if (*csv_parser->ptr_line == W_QUOTE) {
-					csv_parser->is_escaped = BOOL_TRUE;
-					csv_parser->ptr_line++;
-					continue;
-
-				} else {
-					csv_parser->is_escaped = BOOL_FLASE;
-				}
+			} else {
+				csv_parser->is_escaped = BOOL_FLASE;
 			}
+		}
+
+		//
+		// case: unescaped
+		//
+		if (csv_parser->is_escaped == BOOL_FLASE) {
 
 			//
-			// Ignore windows stuff.
+			// Found: delimiter
 			//
-			if (*csv_parser->ptr_line == W_CR) {
-				csv_parser->ptr_line++;
+			if (wchar == delim) {
+				process_column_end(csv_parser, false, table);
+				continue;
+
+				//
+				// Found: new line
+				//
+			} else if (wchar == W_NEW_LINE) {
+				process_column_end(csv_parser, true, table);
 				continue;
 			}
 
 			//
-			// case: unescaped
+			// case: escaped
 			//
-			if (csv_parser->is_escaped == BOOL_FLASE) {
+		} else if (csv_parser->is_escaped == BOOL_TRUE) {
+
+			//
+			// If we found a quote we have to read the next char to decide
+			// what it means.
+			//
+			if (wchar == W_QUOTE) {
+				wchar = read_wchar(file);
 
 				//
-				// Found: delimiter
+				// Found quote followed by EOF
 				//
-				if (*csv_parser->ptr_line == delim) {
-					process_column_end(csv_parser, false, table);
-					continue;
-
-					//
-					// Found: new line or string terminator
-					//
-				} else if (*csv_parser->ptr_line == W_NEW_LINE || *csv_parser->ptr_line == W_STR_TERM) {
+				if (feof(file)) {
 					process_column_end(csv_parser, true, table);
 					break;
-				}
 
-				//
-				// case: escaped
-				//
-			} else if (csv_parser->is_escaped == BOOL_TRUE) {
-
-				if (*csv_parser->ptr_line == W_QUOTE) {
-					csv_parser->ptr_line++;
+					//
+					// Found quote followed by new line
+					//
+				} else if (wchar == W_NEW_LINE) {
+					process_column_end(csv_parser, true, table);
+					continue;
 
 					//
 					// Found: quote followed by delimiter
 					//
-					if (*csv_parser->ptr_line == delim) {
-						process_column_end(csv_parser, false, table);
-						continue;
-
-						//
-						// Found quote followed by new line or string terminator.
-						//
-					} else if (*csv_parser->ptr_line == W_NEW_LINE || *csv_parser->ptr_line == W_STR_TERM) {
-						process_column_end(csv_parser, true, table);
-						break;
-
-						//
-						// Found quote followed by char which is not quote,
-						// delimiter, new line or string terminator.
-						//
-					} else if (*csv_parser->ptr_line != W_QUOTE) {
-						print_exit("parse_csv_file() Invalid line: %ls\n", csv_parser->line);
-					}
+				} else if (wchar == delim) {
+					process_column_end(csv_parser, false, table);
+					continue;
 
 					//
-					// Found new line inside quote, so we have a multi line field.
+					// Found quote followed by char which is not quote,
+					// delimiter, new line or EOF.
 					//
-				} else if (*csv_parser->ptr_line == W_NEW_LINE) {
-					copy_field_char(csv_parser);
-					break;
+				} else if (wchar != W_QUOTE) {
+					print_exit("parse_csv_file() Invalid char after quote: %lc\n", wchar);
 				}
 			}
-
-			//
-			// Copy the parsing char to the field
-			//
-			copy_field_char(csv_parser);
 		}
+
+		//
+		// If we count fields and records copying is unnecessary.
+		//
+		if (!csv_parser->do_count) {
+			add_wchar_to_field(csv_parser, wchar);
+		}
+	}
+
+	//
+	// If we finished processing and it is still escaped, then a (final)
+	// quote is missing.
+	//
+	if (csv_parser->is_escaped == BOOL_TRUE) {
+		print_exit_str("parse_csv_file() Quote missing!\n");
 	}
 }
 
@@ -372,6 +361,11 @@ void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 	//
 	s_csv_parser_init(&csv_parser, false);
 	parse_csv_file(file, delim, &csv_parser, table);
+
+	//
+	// Init the table rows and heights
+	//
+	s_table_int_rows(table);
 }
 
 /***************************************************************************
