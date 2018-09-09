@@ -165,7 +165,7 @@ wchar_t read_wchar(FILE *file) {
 			print_exit_str("read_wchar() Character encoding error!\n");
 
 		} else {
-			print_exit_str("read_wchar() I/O error!\n");
+			print_exit("read_wchar() I/O error: %s\n", strerror(errno));
 		}
 	}
 
