@@ -33,13 +33,10 @@
 
 static void test_parser() {
 	s_table table;
-	s_cursor cursor;
 
 	print_debug_str("test_parser() Start\n");
 
 	parser_process_filename("res/test1.csv", W_DELIM, &table);
-
-	s_table_reset_filter(&table, &cursor);
 
 	//
 	// Check all fields "by hand"
@@ -83,18 +80,94 @@ static void test_parser() {
 }
 
 /***************************************************************************
+ * The function reads and parses a csv file. It checks the different line
+ * endings (unix: \n windows: \r\n mac: \r) The test file was produced with
+ * the following command:
+ *
+ * echo -ne "a1,a2\rb1,b2\nc1,c2\r\n" > line_endings.csv
+ **************************************************************************/
+
+static void test_line_endings() {
+	s_table table;
+
+	print_debug_str("test_line_endings() Start\n");
+
+	parser_process_filename("res/line_endings.csv", W_DELIM, &table);
+
+	//
+	// Check all fields "by hand"
+	//
+	ut_check_wchar_str(table.fields[0][0], L"a1");
+	ut_check_wchar_str(table.fields[0][1], L"a2");
+
+	ut_check_wchar_str(table.fields[1][0], L"b1");
+	ut_check_wchar_str(table.fields[1][1], L"b2");
+
+	ut_check_wchar_str(table.fields[2][0], L"c1");
+	ut_check_wchar_str(table.fields[2][1], L"c2");
+
+	//
+	// Check the meta data
+	//
+	ut_check_int(table.width[0], 2, "col width: 0");
+	ut_check_int(table.width[1], 2, "col width: 1");
+
+	ut_check_int(table.height[0], 1, "row_height: 0");
+	ut_check_int(table.height[1], 1, "row_height: 1");
+	ut_check_int(table.height[2], 1, "row_height: 2");
+
+	s_table_free(&table);
+
+	print_debug_str("test_line_endings() End\n");
+}
+
+/***************************************************************************
+ * The function tests a csv file, that has no line feet at the end. The test
+ * file was produced with the following command:
+ *
+ * echo -ne "a1,a2\rb1,b2" > eof_endings.csv
+ **************************************************************************/
+
+static void test_eof_endings() {
+	s_table table;
+
+	print_debug_str("test_eof_endings() Start\n");
+
+	parser_process_filename("res/eof_endings.csv", W_DELIM, &table);
+
+	//
+	// Check all fields "by hand"
+	//
+	ut_check_wchar_str(table.fields[0][0], L"a1");
+	ut_check_wchar_str(table.fields[0][1], L"a2");
+
+	ut_check_wchar_str(table.fields[1][0], L"b1");
+	ut_check_wchar_str(table.fields[1][1], L"b2");
+
+	//
+	// Check the meta data
+	//
+	ut_check_int(table.width[0], 2, "col width: 0");
+	ut_check_int(table.width[1], 2, "col width: 1");
+
+	ut_check_int(table.height[0], 1, "row_height: 0");
+	ut_check_int(table.height[1], 1, "row_height: 1");
+
+	s_table_free(&table);
+
+	print_debug_str("test_eof_endings() End\n");
+}
+
+/***************************************************************************
  * The function reads and parses a csv file that contains: ",\n,"
  **************************************************************************/
 
 static void test_parser_empty() {
 	s_table table;
-	s_cursor cursor;
 
 	print_debug_str("test_parser_empty() Start\n");
 
 	parser_process_filename("res/empty.csv", W_DELIM, &table);
-
-	s_table_reset_filter(&table, &cursor);
 
 	//
 	// Check all fields "by hand"
@@ -130,6 +203,10 @@ int main() {
 	setlocale(LC_ALL, "");
 
 	test_parser();
+
+	test_line_endings();
+
+	test_eof_endings();
 
 	test_parser_empty();
 
