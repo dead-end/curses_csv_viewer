@@ -30,7 +30,7 @@
  * Definition of the label (and its size)
  **************************************************************************/
 
-#define HEADER_LABEL " ccsvv 0.1"
+#define HEADER_LABEL " ccsvv 0.2"
 
 #define HEADER_LABEL_LEN 10
 
