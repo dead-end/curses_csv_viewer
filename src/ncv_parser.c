@@ -100,8 +100,7 @@ static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
 	//
 	// Add the wchar and increase the index.
 	//
-	csv_parser->field[csv_parser->field_idx] = wchar;
-	csv_parser->field_idx++;
+	csv_parser->field[csv_parser->field_idx++] = wchar;
 }
 
 /***************************************************************************
@@ -146,7 +145,7 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 		}
 
 		//
-		// Reset the column number for the next row.
+		// Reset the column number after the check for the next row.
 		//
 		csv_parser->current_column = 0;
 	}
@@ -201,22 +200,30 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 
 	//
 	// The two parameters hold the current and the last char read from the
-	// stream. The last char is initialized to \0.
+	// stream. The last char is initialized (implicitly) to \0.
 	//
-	wchar_t last_wchar, wchar = W_STR_TERM;
+	wchar_t wchar_last, wchar_cur = W_STR_TERM;
 
 	while (true) {
 
-		last_wchar = wchar;
-		wchar = read_wchar(file);
+		wchar_last = wchar_cur;
+		wchar_cur = read_wchar(file);
 
 		if (feof(file)) {
+
+			//
+			// If we finished processing and it is still escaped, then a (final)
+			// quote is missing.
+			//
+			if (csv_parser->is_escaped == BOOL_TRUE) {
+				print_exit_str("parse_csv_file() Quote missing!\n");
+			}
 
 			//
 			// If the last char was not \n we do the processing of the last
 			// row. Otherwise (ending: \n<EOF>) we would do it twice.
 			//
-			if (last_wchar != W_NEW_LINE) {
+			if (wchar_last != W_NEW_LINE) {
 				process_column_end(csv_parser, true, table);
 			}
 			break;
@@ -226,7 +233,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 		// If the escape flag is undefined, determine its value.
 		//
 		if (csv_parser->is_escaped == BOOL_UNDEF) {
-			if (wchar == W_QUOTE) {
+			if (wchar_cur == W_QUOTE) {
 				csv_parser->is_escaped = BOOL_TRUE;
 				continue;
 
@@ -243,14 +250,14 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			//
 			// Found: delimiter
 			//
-			if (wchar == delim) {
+			if (wchar_cur == delim) {
 				process_column_end(csv_parser, false, table);
 				continue;
 
 				//
 				// Found: new line
 				//
-			} else if (wchar == W_NEW_LINE) {
+			} else if (wchar_cur == W_NEW_LINE) {
 				process_column_end(csv_parser, true, table);
 				continue;
 			}
@@ -264,8 +271,8 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			// If we found a quote we have to read the next char to decide
 			// what it means.
 			//
-			if (wchar == W_QUOTE) {
-				wchar = read_wchar(file);
+			if (wchar_cur == W_QUOTE) {
+				wchar_cur = read_wchar(file);
 
 				//
 				// Found quote followed by EOF
@@ -277,14 +284,14 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 					//
 					// Found quote followed by new line
 					//
-				} else if (wchar == W_NEW_LINE) {
+				} else if (wchar_cur == W_NEW_LINE) {
 					process_column_end(csv_parser, true, table);
 					continue;
 
 					//
 					// Found: quote followed by delimiter
 					//
-				} else if (wchar == delim) {
+				} else if (wchar_cur == delim) {
 					process_column_end(csv_parser, false, table);
 					continue;
 
@@ -292,8 +299,8 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 					// Found quote followed by char which is not quote,
 					// delimiter, new line or EOF.
 					//
-				} else if (wchar != W_QUOTE) {
-					print_exit("parse_csv_file() Invalid char after quote: %lc\n", wchar);
+				} else if (wchar_cur != W_QUOTE) {
+					print_exit("parse_csv_file() Invalid char after quote: %lc\n", wchar_cur);
 				}
 			}
 		}
@@ -302,16 +309,8 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 		// If we count fields and records copying is unnecessary.
 		//
 		if (!csv_parser->do_count) {
-			add_wchar_to_field(csv_parser, wchar);
+			add_wchar_to_field(csv_parser, wchar_cur);
 		}
-	}
-
-	//
-	// If we finished processing and it is still escaped, then a (final)
-	// quote is missing.
-	//
-	if (csv_parser->is_escaped == BOOL_TRUE) {
-		print_exit_str("parse_csv_file() Quote missing!\n");
 	}
 }
 
