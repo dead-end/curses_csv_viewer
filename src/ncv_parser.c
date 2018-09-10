@@ -364,7 +364,7 @@ void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 	//
 	// Init the table rows and heights
 	//
-	s_table_int_rows(table);
+	s_table_init_rows(table);
 }
 
 /***************************************************************************

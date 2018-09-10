@@ -31,7 +31,8 @@
  * The structure contains all the table related data, that is the csv data,
  * the number of rows and columns, the height of the rows and the width of
  * the columns. The members with the "__" contain the original data, while
- * the members with the same name (may) contain filtered data.
+ * the members with the same name (may) contain filtered data, which is a
+ * subset of the original data.
  **************************************************************************/
 
 typedef struct s_table {
@@ -71,7 +72,7 @@ typedef struct s_table {
 	wchar_t ***fields;
 
 	//
-	// A flag the tell whether the table has a header row. A header row is
+	// A flag that tells whether the table has a header row. A header row is
 	// always part of a filtered header.
 	//
 	bool show_header;
@@ -103,11 +104,11 @@ typedef struct s_table {
 
 #define s_table_is_empty(t) ((t)->no_rows == 0)
 
-void s_table_int_rows(s_table *table);
-
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
+
+void s_table_init_rows(s_table *table);
 
 void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *str);
 
