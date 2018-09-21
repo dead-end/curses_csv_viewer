@@ -152,5 +152,10 @@ Var(R) = 1/5 * ((1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2)
        = 0
 ```
 If we look at the ratio of the digits with string length the result is even more clear. The ratio is `1` and the variance is `0`.
+
 #### Conclusion
 Columns with a variance of zero or at least a very small variance are good canidates to detect a header. Examples are columns with integer, float, date or currency values.
+
+If the number of rows of the csv file are larger, there is no need to analyse all rows of a column. We can define a maximum number of rows, for example 64.
+
+For each column we have two criteria which can indicate a header. We can define a sufficient number of matching criteria, for example three. If this number is reached we can stop analysing more columns
