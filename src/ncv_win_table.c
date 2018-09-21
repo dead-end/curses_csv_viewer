@@ -546,6 +546,40 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 			break;
 
 			//
+			// Move the field cursor one page up
+			//
+		case KEY_PPAGE:
+
+			if (cursor->row > 0) {
+
+				if (row_table_part.direction == DIR_FORWARD) {
+					row_table_part.direction = DIR_BACKWARD;
+				}
+
+				cursor->row = row_table_part.first;
+				win_table_set_cursor(table, cursor, DIR_BACKWARD);
+				result = true;
+			}
+			break;
+
+			//
+			// Move the field cursor one page down
+			//
+		case KEY_NPAGE:
+
+			if (cursor->row < table->no_rows - 1) {
+
+				if (row_table_part.direction == DIR_BACKWARD) {
+					row_table_part.direction = DIR_FORWARD;
+				}
+
+				cursor->row = row_table_part.last;
+				win_table_set_cursor(table, cursor, DIR_FORWARD);
+				result = true;
+			}
+			break;
+
+			//
 			// Move the field cursor to the first column in the row
 			//
 		case KEY_HOME:
