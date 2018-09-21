@@ -90,14 +90,15 @@ A truncated field may be truncated left or right or at top or bottom.
 ![field part](img/field_part.png?raw=true "Field Part")
 
 ### Header detection
-It would be nice if there would be no need for the user of ccsvv to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. To do this, we compare for each column some characteristics of the first row with that of the rest of the rows of that column. The characteristics are:
+It would be nice if there would be no need for the user of ccsvv to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. If the csv file has no header, it is reasonable to assume that all rows of the column are similar. To prove this, we compute some characteristics of the first row of the column and compare that characteristics with the rest of the rows.
+The characteristics are:
 
 * string-length
 * number-of-digits / string-length 
 
-First we compute the string length of the first First(S) row of the column. Then we compute the mean string length Mean(S) and the variance of the string lengths Var(S) of the rest of the rows of the column.
+First we compute the string length of the first row `First(S)` of the column. Then we compute the mean string length `Mean(S)` and the variance of the string lengths `Var(S)` of the rest of the rows of the column.
 
-If we assume that the string lengths are normaly distributed, then 95,45% are inside an interval of 2 times the variance around the mean value. So the following equation gives a good indicator for the existence of a header:
+If we assume that the string lengths are normaly distributed, then 95,45% are inside an interval of 2 times the standard deviation around the mean value. So the following equation gives a good indicator for the existence of a header:
 
 ```
 |First(S) - Mean(S)| > 2 * Var(S)
@@ -134,7 +135,7 @@ Var(S) = 1/5 * ((1-1,4)^2 + (1-1,4)^2 + (1-1,4)^2 + (2-1,4)^2 + (2-1,4)^2)
        = 1/5 * 1,2
        = 0,24
 ```
-
+Then we analyse the diviation of the string length of the first row from the mean.
 ```
     |First(S) - Mean(S)| = X * Var(S)
                 6 - 1,4  = X * 0,24
