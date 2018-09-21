@@ -90,7 +90,7 @@ A truncated field may be truncated left or right or at top or bottom.
 ![field part](img/field_part.png?raw=true "Field Part")
 
 ### Header detection
-The goal is to detect whether a given table has a header or not. To do this, we compare for each column some characteristics of the first row with that of the rest of the rows of that column. The characteristics are the mean string length (S) and the mean ratio of the number of digits with the string length (R). To assess the difference of the first row of the column with the rest we compute the variance.
+The goal is to detect whether a given table has a header or not. To do this, we compare for each column some characteristics of the first row with that of the rest of the rows of that column. The characteristics are the mean string length (S) and the mean ratio of the number of digits with the string length (R). Then we compute the variance Var(S) and Var(R) to assess the difference of the S of the first row with the mean of the rest. Let us take a look at an example the show what this means.
 
 | Number | Price       | Date          |
 | ------ |-------------| --------------|
@@ -100,14 +100,19 @@ The goal is to detect whether a given table has a header or not. To do this, we 
 | 16     | 10,20 Euro  | Mo 24.09.2018 |
 | 32     | 100,20 Euro | Th 25.09.2018 |
 
-#### Number
-First row: `S = 6` and `R = 0/6 = 0`
-
-Rest: 
+For the first row of the column is simple. The `Number` string has 6 characters and no digits:
 
 ```
-S = (1 + 1 + 1 + 2 + 2)/5 = 7/5 = 1,4
+S = 6 
+R = 0/6 = 0
+```
 
+For the rest of the column we compute the mean string length, which is the sum of the string lengths divided by the number of rows:
+```
+Mean(S) = (1 + 1 + 1 + 2 + 2)/5 = 7/5 = 1,4
+```
+The variance of the string lengths is the sum of the squared difference of each length with the mean length divided by the number of rows:
+```
 Var(S) = 1/5 * ((1-1,4)^2 + (1-1,4)^2 + (1-1,4)^2 + (2-1,4)^2 + (2-1,4)^2)
        = 1/5 * (3 * 0,4^2 + 2 * 0,6^2)
        = 1/5 * 1,2
