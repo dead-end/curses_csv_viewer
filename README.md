@@ -90,7 +90,22 @@ A truncated field may be truncated left or right or at top or bottom.
 ![field part](img/field_part.png?raw=true "Field Part")
 
 ### Header detection
-The goal is to detect whether a given table has a header or not. To do this, we compare for each column some characteristics of the first row with that of the rest of the rows of that column. The characteristics are the mean string length (S) and the mean ratio of the number of digits with the string length (R). Then we compute the variance Var(S) and Var(R) to assess the difference of the S of the first row with the mean of the rest. Let us take a look at an example the show what this means.
+It would be nice if there would be no need for the user of ccsvv to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. To do this, we compare for each column some characteristics of the first row with that of the rest of the rows of that column. The characteristics are:
+
+* string-length
+* number-of-digits / string-length 
+
+First we compute the string length of the first First(S) row of the column. Then we compute the mean string length Mean(S) and the variance of the string lengths Var(S) of the rest of the rows of the column.
+
+If the difference of the string lenght of the first row and the mean of the rest is greater than 2 times the variance we have an indicator that the column has a header row:
+
+```
+|First(S) - Mean(S)| > 2 * Var(S)
+```
+If the result is not clear, we do the same computation for the ratio `number-of-digits / string-length`. If it is still not clear we do the computations for the next column and so on.
+
+
+Let us take a look at an example the show what this means.
 
 | Number | Price       | Date          |
 | ------ |-------------| --------------|
@@ -128,4 +143,5 @@ Var(r) = 1/5 * ((1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2)
        = 0
 ```
 If we look at the ratio of the digits with string length the result is even more clear. The ratio is `1` and the variance is `0`.
-
+#### Conclusion
+Columns with a variance of zero or at least a very small variance are good canidates to detect a header. Examples are columns with integer, float, date or currency values.
