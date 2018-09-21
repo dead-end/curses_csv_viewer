@@ -253,13 +253,13 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
  * the upper left corner if it is possible.
  **************************************************************************/
 
-void win_table_set_cursor(const s_table *table, s_cursor *cursor) {
+void win_table_set_cursor(const s_table *table, s_cursor *cursor, const int dir) {
 
 	//
 	// update the visible part of the table
 	//
-	s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-	s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+	s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, dir, getmaxy(win_table));
+	s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, dir, getmaxx(win_table));
 
 	//
 	// Adjust rows (see function doc: adjust_dir_on_resize)
@@ -274,168 +274,6 @@ void win_table_set_cursor(const s_table *table, s_cursor *cursor) {
 	if (adjust_dir_on_resize(&col_table_part, table->no_columns - 1)) {
 		s_table_part_update(&col_table_part, table->width, s_table_part_start(&col_table_part), table->no_columns, col_table_part.direction, getmaxx(win_table));
 	}
-}
-
-/***************************************************************************
- * The function processes the user input for the table, which is moving the
- * field cursor through the table. It returns a bool value, to indicate an
- * update.
- **************************************************************************/
-
-bool win_table_process_input(const s_table *table, s_cursor *cursor, const int key_type, const wint_t chr) {
-
-	bool result = false;
-
-	switch (key_type) {
-
-	//
-	// Process function keys
-	//
-	case KEY_CODE_YES:
-
-		switch (chr) {
-
-		//
-		// Move the field cursor one row up
-		//
-		case KEY_UP:
-
-			if (cursor->row - 1 >= 0) {
-				cursor->row--;
-
-				if (is_index_before_first(&row_table_part, cursor->row)) {
-					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
-				}
-
-				result = true;
-			}
-			break;
-
-			//
-			// Move the field cursor one row down
-			//
-		case KEY_DOWN:
-
-			if (cursor->row + 1 < table->no_rows) {
-				cursor->row++;
-
-				if (is_index_after_last(&row_table_part, cursor->row)) {
-					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
-				}
-
-				result = true;
-			}
-			break;
-
-			//
-			// Move the field cursor one column to the left
-			//
-		case KEY_LEFT:
-
-			if (cursor->col - 1 >= 0) {
-				cursor->col--;
-
-				if (is_index_before_first(&col_table_part, cursor->col)) {
-					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
-				}
-
-				result = true;
-			}
-			break;
-
-			//
-			// Move the field cursor one column to the right
-			//
-		case KEY_RIGHT:
-
-			if (cursor->col + 1 < table->no_columns) {
-				cursor->col++;
-
-				if (is_index_after_last(&col_table_part, cursor->col)) {
-					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
-				}
-
-				result = true;
-			}
-			break;
-
-			//
-			// Move the field cursor to the first column in the row
-			//
-		case KEY_HOME:
-
-			if (cursor->col != 0) {
-
-				cursor->col = 0;
-				win_table_set_cursor(table, cursor);
-				result = true;
-			}
-			break;
-
-			//
-			// Move the field cursor to the last column in the row
-			//
-		case KEY_END:
-
-			if (cursor->col != table->no_columns - 1) {
-
-				cursor->col = table->no_columns - 1;
-				win_table_set_cursor(table, cursor);
-				result = true;
-			}
-			break;
-
-		default:
-			print_debug("win_filter_process_input() Found key code: %d\n", chr);
-			break;
-		}
-
-		break; // case KEY_CODE_YES
-
-		//
-		// Process normal chars
-		//
-	case OK:
-
-		switch (chr) {
-
-		//
-		// Search for the filter string forward
-		//
-		case CTRL('n'):
-
-			if (s_table_prev_next(table, cursor, DIR_FORWARD)) {
-
-				win_table_set_cursor(table, cursor);
-				result = true;
-			}
-
-			break;
-
-			//
-			// Search for the filter string backward
-			//
-		case CTRL('p'):
-
-			if (s_table_prev_next(table, cursor, DIR_BACKWARD)) {
-
-				win_table_set_cursor(table, cursor);
-				result = true;
-			}
-
-			break;
-
-		default:
-			print_debug("win_filter_process_input() Found key code: %d\n", chr);
-			break;
-		}
-
-		break; // case OK
-	}
-
-	print_debug("win_table_process_input() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
-
-	return result;
 }
 
 /***************************************************************************
@@ -622,4 +460,168 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 WINDOW *win_table_get_win() {
 	return win_table;
+}
+
+/***************************************************************************
+ * The function processes the user input for the table, which is moving the
+ * field cursor through the table. It returns a bool value, to indicate an
+ * update.
+ **************************************************************************/
+
+bool win_table_process_input(const s_table *table, s_cursor *cursor, const int key_type, const wint_t chr) {
+
+	bool result = false;
+
+	switch (key_type) {
+
+	//
+	// Process function keys
+	//
+	case KEY_CODE_YES:
+
+		switch (chr) {
+
+		//
+		// Move the field cursor one row up
+		//
+		case KEY_UP:
+
+			if (cursor->row - 1 >= 0) {
+				cursor->row--;
+
+				if (is_index_before_first(&row_table_part, cursor->row)) {
+					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+				}
+
+				result = true;
+			}
+			break;
+
+			//
+			// Move the field cursor one row down
+			//
+		case KEY_DOWN:
+
+			if (cursor->row + 1 < table->no_rows) {
+				cursor->row++;
+
+				if (is_index_after_last(&row_table_part, cursor->row)) {
+					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+				}
+
+				result = true;
+			}
+			break;
+
+			//
+			// Move the field cursor one column to the left
+			//
+		case KEY_LEFT:
+
+			if (cursor->col - 1 >= 0) {
+				cursor->col--;
+
+				if (is_index_before_first(&col_table_part, cursor->col)) {
+					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+				}
+
+				result = true;
+			}
+			break;
+
+			//
+			// Move the field cursor one column to the right
+			//
+		case KEY_RIGHT:
+
+			if (cursor->col + 1 < table->no_columns) {
+				cursor->col++;
+
+				if (is_index_after_last(&col_table_part, cursor->col)) {
+					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+				}
+
+				result = true;
+			}
+			break;
+
+			//
+			// Move the field cursor to the first column in the row
+			//
+		case KEY_HOME:
+
+			if (cursor->row != 0 || cursor->col != 0) {
+
+				cursor->row = 0;
+				cursor->col = 0;
+				win_table_set_cursor(table, cursor, DIR_FORWARD);
+				result = true;
+			}
+			break;
+
+			//
+			// Move the field cursor to the last column in the row
+			//
+		case KEY_END:
+
+			if (cursor->row != table->no_rows - 1 || cursor->col != table->no_columns - 1) {
+
+				cursor->row = table->no_rows - 1;
+				cursor->col = table->no_columns - 1;
+				win_table_set_cursor(table, cursor, DIR_BACKWARD);
+				result = true;
+			}
+			break;
+
+		default:
+			print_debug("win_filter_process_input() Found key code: %d\n", chr);
+			break;
+		}
+
+		break; // case KEY_CODE_YES
+
+		//
+		// Process normal chars
+		//
+	case OK:
+
+		switch (chr) {
+
+		//
+		// Search for the filter string forward
+		//
+		case CTRL('n'):
+
+			if (s_table_prev_next(table, cursor, DIR_FORWARD)) {
+
+				win_table_set_cursor(table, cursor, DIR_FORWARD);
+				result = true;
+			}
+
+			break;
+
+			//
+			// Search for the filter string backward
+			//
+		case CTRL('p'):
+
+			if (s_table_prev_next(table, cursor, DIR_BACKWARD)) {
+
+				win_table_set_cursor(table, cursor, DIR_BACKWARD);
+				result = true;
+			}
+
+			break;
+
+		default:
+			print_debug("win_filter_process_input() Found key code: %d\n", chr);
+			break;
+		}
+
+		break; // case OK
+	}
+
+	print_debug("win_table_process_input() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
+
+	return result;
 }

@@ -56,7 +56,7 @@ void win_table_on_table_change(const s_table *table);
 
 void win_table_content_resize(const s_table *table, s_cursor *cursor);
 
-void win_table_set_cursor(const s_table *table, s_cursor *cursor);
+void win_table_set_cursor(const s_table *table, s_cursor *cursor, const int dir);
 
 bool win_table_process_input(const s_table *table, s_cursor *cursor, const int key_type, const wint_t chr);
 

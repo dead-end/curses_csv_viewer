@@ -196,7 +196,7 @@ void ui_loop(s_table *table, const char *filename) {
 	s_cursor_set(&cursor, 0, 0, true);
 
 	win_table_on_table_change(table);
-	win_table_set_cursor(table, &cursor);
+	win_table_set_cursor(table, &cursor, DIR_FORWARD);
 
 	while (do_continue) {
 
@@ -282,7 +282,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					s_table_reset_filter(table, &cursor);
 					win_table_on_table_change(table);
-					win_table_set_cursor(table, &cursor);
+					win_table_set_cursor(table, &cursor, DIR_FORWARD);
 				}
 				werase(win_table_get_win());
 				do_print = true;
@@ -321,7 +321,7 @@ void ui_loop(s_table *table, const char *filename) {
 					// On mode change to table mode the curser has always to
 					// be set.
 					//
-					win_table_set_cursor(table, &cursor);
+					win_table_set_cursor(table, &cursor, DIR_FORWARD);
 					werase(win_table_get_win());
 					do_print = true;
 
