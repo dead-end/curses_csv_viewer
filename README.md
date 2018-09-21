@@ -119,8 +119,8 @@ Let us take a look at an example the show what this means.
 For the first row of the column is simple. The `Number` string has 6 characters and no digits:
 
 ```
-S = 6 
-R = 0/6 = 0
+First(S) = 6 
+First(R) = 0/6 = 0
 ```
 
 For the rest of the column we compute the mean string length, which is the sum of the string lengths divided by the number of rows:
@@ -134,12 +134,19 @@ Var(S) = 1/5 * ((1-1,4)^2 + (1-1,4)^2 + (1-1,4)^2 + (2-1,4)^2 + (2-1,4)^2)
        = 1/5 * 1,2
        = 0,24
 ```
-So the difference of the length of the first column row with the mean is `5,76` which is 24 times the variance `0,24`. This is a good indecator that the first column has a header.
 
 ```
-R = (1/1 + 1/1 + 1/1 + 2/2 + 2/2)/5 = 5/5 = 1
+    |First(S) - Mean(S)| = X * Var(S)
+                6 - 1,4  = X * 0,24
+<=>          5,76 / 0,24 = X
+<=>                   24 = X
+```
+So the difference of the length of the first column row with the mean is 24 times the variance. This is a good indecator that the first column has a header.
 
-Var(r) = 1/5 * ((1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2)
+```
+Mean(R) = (1/1 + 1/1 + 1/1 + 2/2 + 2/2)/5 = 5/5 = 1
+
+Var(R) = 1/5 * ((1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2)
        = 1/5 * 0
        = 0
 ```
