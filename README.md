@@ -88,3 +88,39 @@ of the corners. The fields at the oposite sides of the window may be truncated.
 A truncated field may be truncated left or right or at top or bottom.
 
 ![field part](img/field_part.png?raw=true "Field Part")
+
+### Header detection
+The goal is to detect whether a given table has a header or not. To do this, we compare for each column some characteristics of the first row with that of the rest of the rows of that column. The characteristics are the mean string length (S) and the mean ratio of the number of digits with the string length (R). To assess the difference of the first row of the column with the rest we compute the variance.
+
+| Number | Price       | Date          |
+| ------ |-------------| --------------|
+| 2      | 0,20 Euro   | Fr 21.09.2018 |
+| 4      | 1 Euro      | Sa 22.09.2018 |
+| 8      | 1,20 Euro   | Su 23.09.2018 |
+| 16     | 10,20 Euro  | Mo 24.09.2018 |
+| 32     | 100,20 Euro | Th 25.09.2018 |
+
+#### Number
+First row: `S = 6` and `R = 0/6 = 0`
+
+Rest: 
+
+```
+S = (1 + 1 + 1 + 2 + 2)/5 = 7/5 = 1,4
+
+Var(S) = 1/5 * ((1-1,4)^2 + (1-1,4)^2 + (1-1,4)^2 + (2-1,4)^2 + (2-1,4)^2)
+       = 1/5 * (3 * 0,4^2 + 2 * 0,6^2)
+       = 1/5 * 1,2
+       = 0,24
+```
+So the difference of the length of the first column row with the mean is `5,76` which is 24 times the variance `0,24`. This is a good indecator that the first column has a header.
+
+```
+R = (1/1 + 1/1 + 1/1 + 2/2 + 2/2)/5 = 5/5 = 1
+
+Var(r) = 1/5 * ((1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2)
+       = 1/5 * 0
+       = 0
+```
+If we look at the ratio of the digits with string length the result is even more clear. The ratio is `1` and the variance is `0`.
+
