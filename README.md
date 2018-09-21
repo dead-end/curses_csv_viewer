@@ -97,11 +97,12 @@ It would be nice if there would be no need for the user of ccsvv to configure wh
 
 First we compute the string length of the first First(S) row of the column. Then we compute the mean string length Mean(S) and the variance of the string lengths Var(S) of the rest of the rows of the column.
 
-If the difference of the string lenght of the first row and the mean of the rest is greater than 2 times the variance we have an indicator that the column has a header row:
+If we assume that the string lengths are normaly distributed, then 95,45% are inside an interval of 2 times the variance around the mean value. So the following equation gives a good indicator for the existence of a header:
 
 ```
 |First(S) - Mean(S)| > 2 * Var(S)
 ```
+
 If the result is not clear, we do the same computation for the ratio `number-of-digits / string-length`. If it is still not clear we do the computations for the next column and so on.
 
 
