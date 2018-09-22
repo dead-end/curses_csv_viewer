@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <locale.h>
 #include <ctype.h>
+#include <math.h>
+#include <wctype.h>
 
 /***************************************************************************
  * Definition of the print_debug macro. It is only defined if the DEBUG flag
@@ -141,6 +143,12 @@ typedef struct s_buffer {
 #define min_or_equal(a,b) ((a) <= (b) ? (a) : (b))
 
 #define max_or_equal(a,b) ((a) >= (b) ? (a) : (b))
+
+/***************************************************************************
+ * Compute the power of two.
+ **************************************************************************/
+
+#define pow2(a) (a) * (a)
 
 /***************************************************************************
  * Various function definitions.

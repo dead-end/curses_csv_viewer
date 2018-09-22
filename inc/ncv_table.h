@@ -124,4 +124,18 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 
 void s_table_dump(const s_table *table);
 
+/***************************************************************************
+ * Some function definitions that are used only for unit tests.
+ **************************************************************************/
+
+int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str));
+
+double get_ratio(wchar_t *str);
+
+double get_str_len(wchar_t *str);
+
+double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str));
+
+double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str), const double mean);
+
 #endif
