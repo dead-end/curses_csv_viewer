@@ -96,12 +96,12 @@ The characteristics are:
 * string-length
 * number-of-digits / string-length 
 
-First we compute the string length of the first row `First(S)` of the column. Then we compute the mean string length `Mean(S)` and the variance of the string lengths `Var(S)` of the rest of the rows of the column.
+First we compute the string length of the first row `First(S)` of the column. Then we compute the mean string length `Mean(S)` and the standard deviation of the string lengths `StdDev(S)` of the rest of the rows of the column.
 
-If we assume that the string lengths are normaly distributed, then 95,45% are inside an interval of 2 times the standard deviation around the mean value. So the following equation gives a good indicator for the existence of a header:
+If we assume that the string lengths are normaly distributed, then 99,73% are inside an interval of 3 times the standard deviation around the mean value. So the following equation gives a good indicator for the existence of a header:
 
 ```
-|First(S) - Mean(S)| > 2 * Var(S)
+|First(S) - Mean(S)| > 3 * StdDev(S)
 ```
 
 If the result is not clear, we do the same computation for the ratio `number-of-digits / string-length`. If it is still not clear we do the computations for the next column and so on.
