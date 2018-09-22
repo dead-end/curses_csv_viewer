@@ -23,6 +23,7 @@
  */
 
 #include "ncv_table.h"
+#include "ncv_parser.h"
 #include "ut_utils.h"
 
 /***************************************************************************
@@ -70,6 +71,184 @@ static void test_table_field_dimension() {
 }
 
 /***************************************************************************
+ * The function tests the get_ratio() function. It computes the ratio
+ * between the digits and the string length of a given string.
+ **************************************************************************/
+
+static void test_table_get_ratio() {
+	double result;
+
+	print_debug_str("test_table_get_ratio() Start\n");
+
+	result = get_ratio(L"123456");
+	ut_check_double(result, 1.0, "get_ratio - 123456");
+
+	result = get_ratio(L"123aaa");
+	ut_check_double(result, 0.5, "get_ratio - 123aaa");
+
+	result = get_ratio(L"11aabb");
+	ut_check_double(result, 1.0 / 3.0, "get_ratio - 123aaa");
+
+	result = get_ratio(L"aaabbb");
+	ut_check_double(result, 0.0, "get_ratio - aaabbb");
+
+	result = get_ratio(L"");
+	ut_check_double(result, 0.0, "get_ratio - ''");
+
+	print_debug_str("test_table_get_ratio() End\n");
+}
+
+/***************************************************************************
+ * The function tests the characteristics (string length and ratio of digits
+ * in the string) for each of the columns of a csv file.Each function call
+ * returns 1 if the characteristic indicates a header for that column.
+ **************************************************************************/
+
+#define HAS_HEADER 1
+
+#define HAS_NO_HEADER 0
+
+static void test_table_has_header() {
+	s_table table;
+	int result;
+
+	print_debug_str("test_table_has_header() Start\n");
+
+	parser_process_filename("res/has_header.csv", W_DELIM, &table);
+
+	//
+	// column: 0
+	// len   => has header
+	// ratio => has header
+	//
+	result = check_column_characteristic(&table, table.no_rows, 0, get_str_len);
+	ut_check_int(result, HAS_HEADER, "has_header - len: 0");
+
+	result = check_column_characteristic(&table, table.no_rows, 0, get_ratio);
+	ut_check_int(result, HAS_HEADER, "has_header - ratio: 0");
+
+	//
+	// column: 1
+	// len   => has header
+	// ratio => has header
+	//
+	result = check_column_characteristic(&table, table.no_rows, 1, get_str_len);
+	ut_check_int(result, HAS_HEADER, "has_header - len: 1");
+
+	result = check_column_characteristic(&table, table.no_rows, 1, get_ratio);
+	ut_check_int(result, HAS_HEADER, "has_header - ratio: 1");
+
+	//
+	// column: 2
+	// len   => has header
+	// ratio => has header
+	//
+	result = check_column_characteristic(&table, table.no_rows, 2, get_str_len);
+	ut_check_int(result, HAS_NO_HEADER, "has_header - len: 2");
+
+	result = check_column_characteristic(&table, table.no_rows, 2, get_ratio);
+	ut_check_int(result, HAS_HEADER, "has_header - ratio: 2");
+
+	// column: 3 only chars and header lenths is mean
+	// len   => has no header
+	// ratio => has no header
+	//
+	result = check_column_characteristic(&table, table.no_rows, 3, get_str_len);
+	ut_check_int(result, HAS_NO_HEADER, "has_header - len: 3");
+
+	result = check_column_characteristic(&table, table.no_rows, 3, get_ratio);
+	ut_check_int(result, HAS_NO_HEADER, "has_header - ratio: 3");
+
+	// column: 4 mixed chars and int but header is mean
+	// len   => has no header
+	// ratio => has no header
+	//
+	result = check_column_characteristic(&table, table.no_rows, 4, get_str_len);
+	ut_check_int(result, HAS_NO_HEADER, "has_header - len: 4");
+
+	result = check_column_characteristic(&table, table.no_rows, 4, get_ratio);
+	ut_check_int(result, HAS_NO_HEADER, "has_header - ratio: 4");
+
+	print_debug_str("test_table_has_header() End\n");
+}
+
+/***************************************************************************
+ * The function tests the computation of the mean and the standard deviation
+ * for some of the columns.
+ **************************************************************************/
+
+static void test_table_mean_std_dev() {
+	s_table table;
+	double result;
+
+	double tmp;
+
+	print_debug_str("test_table_mean_std_dev() Start\n");
+
+	parser_process_filename("res/has_header.csv", W_DELIM, &table);
+
+	//
+	// column: 0 mean
+	//
+	tmp = (4.0 + 2 * 2) / 6;
+
+	result = get_table_mean(&table, table.no_rows, 0, get_str_len);
+	ut_check_double(result, tmp, "mean len: 0");
+
+	result = get_table_mean(&table, table.no_rows, 0, get_ratio);
+	ut_check_double(result, 1.0, "mean ratio: 0");
+
+	//
+	// column: 0 std deveation
+	//
+	result = get_table_std_dev(&table, table.no_rows, 0, get_str_len, tmp);
+	ut_check_double(result, sqrt((4 * (1 - tmp) * (1 - tmp) + 2 * (2 - tmp) * (2 - tmp)) / 6), "std dev str: 0");
+
+	result = get_table_std_dev(&table, table.no_rows, 0, get_ratio, 1.0);
+	ut_check_double(result, 0.0, "std dev ratio: 0");
+
+	print_debug_str("test_table_mean_std_dev() End\n");
+
+	//
+	// column: 3 mean
+	//
+	result = get_table_mean(&table, table.no_rows, 3, get_str_len);
+	ut_check_double(result, 3.0, "mean len: 3");
+
+	result = get_table_mean(&table, table.no_rows, 3, get_ratio);
+	ut_check_double(result, 0.0, "mean ratio: 3");
+
+	//
+	// column: 3 std deveation
+	//
+	result = get_table_std_dev(&table, table.no_rows, 3, get_str_len, 3.0);
+	ut_check_double(result, 1.0, "std dev str: 3");
+
+	result = get_table_std_dev(&table, table.no_rows, 3, get_ratio, 0.0);
+	ut_check_double(result, 0.0, "std dev ratio: 3");
+
+	//
+	// column: 4 mean
+	//
+	result = get_table_mean(&table, table.no_rows, 4, get_str_len);
+	ut_check_double(result, 6.0, "mean len: 4");
+
+	result = get_table_mean(&table, table.no_rows, 4, get_ratio);
+	ut_check_double(result, 0.5, "mean ratio: 4");
+
+	//
+	// column: 4 std deveation
+	//
+	result = get_table_std_dev(&table, table.no_rows, 4, get_str_len, 6.0);
+	ut_check_double(result, 2.0, "std dev str: 4");
+
+	result = get_table_std_dev(&table, table.no_rows, 4, get_ratio, 0.5);
+	ut_check_double(result, 0.0, "std dev ratio: 4");
+
+	print_debug_str("test_table_mean_std_dev() End\n");
+}
+
+/***************************************************************************
  * The main function simply starts the test.
  **************************************************************************/
 
@@ -80,6 +259,12 @@ int main() {
 	setlocale(LC_ALL, "");
 
 	test_table_field_dimension();
+
+	test_table_get_ratio();
+
+	test_table_has_header();
+
+	test_table_mean_std_dev();
 
 	print_debug_str("ut_table.c - End tests\n");
 
