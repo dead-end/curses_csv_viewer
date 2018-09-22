@@ -27,6 +27,8 @@
 
 void ut_check_int(const int current, const int expected, const char *msg);
 
+void ut_check_double(const double current, const double expected, const char *msg);
+
 void ut_check_size(const size_t current, const size_t expected, const char *msg);
 
 void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2);

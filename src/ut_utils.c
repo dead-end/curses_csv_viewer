@@ -39,6 +39,20 @@ void ut_check_int(const int current, const int expected, const char *msg) {
 }
 
 /***************************************************************************
+ * The function is used for unit tests. It checks whether an double
+ * parameter has the expected value or not.
+ **************************************************************************/
+
+void ut_check_double(const double current, const double expected, const char *msg) {
+
+	if (current != expected) {
+		print_exit("ut_check_double() [%s] current: %lf expected: %lf\n", msg, current, expected);
+	}
+
+	print_debug("ut_check_double() [%s] OK current: %lf \n", msg, current);
+}
+
+/***************************************************************************
  * The function is used for unit tests. It checks whether an size_t
  * parameter has the expected value or not.
  **************************************************************************/
