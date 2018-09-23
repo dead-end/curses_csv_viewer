@@ -117,7 +117,7 @@ Let us take a look at an example the show what this means.
 
 For this table we can compute the mean and the standard deviation of the two characteristics for each column:
 
-| Column | Type          | mean    | std. deviation | First row | Indicator |
+| Column | Type          | Mean    | Std. deviation | First row | Indicator |
 | ------ |---------------|---------|----------------|-----------|-----------|
 | Number | String length |  1,4000 | 0,5477         | 6,0000    | true      |
 |        | Digit ratio   |  1,0000 | 0,0000         | 0,0000    | true      |
