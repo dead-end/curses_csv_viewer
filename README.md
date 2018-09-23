@@ -132,3 +132,5 @@ Columns with a standard deviation of zero or at least a very small standard devi
 If the number of rows of the csv file is large, there is no need to analyse all rows of a column. We can define a maximum number of rows, for example 64.
 
 For each column we have two criteria which can indicate a header. We can define a sufficient number of matching criteria, for example three. If this number is reached we can stop analysing more columns. In the example above, it is enought to analyse the first 2 columns to get 3 positive indicators.
+
+Analyzing the csv file works only if there are enough rows and column. If not enough are present, it is assumed that the table has a header.
