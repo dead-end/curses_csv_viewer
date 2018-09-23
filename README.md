@@ -127,8 +127,8 @@ For this table we can compute the mean and the standard deviation of the two cha
 |        | Digit ratio   |  0,6154 | 0,0000         | 0,0000    | true      |
 
 #### Conclusion
-Columns with a variance of zero or at least a very small variance are good canidates to detect a header. Examples are columns with integer, float, date or currency values.
+Columns with a standard deviation of zero or at least a very small standard deviation are good canidates to detect a header. Examples are columns with integer, float, date or currency values.
 
-If the number of rows of the csv file are larger, there is no need to analyse all rows of a column. We can define a maximum number of rows, for example 64.
+If the number of rows of the csv file is large, there is no need to analyse all rows of a column. We can define a maximum number of rows, for example 64.
 
-For each column we have two criteria which can indicate a header. We can define a sufficient number of matching criteria, for example three. If this number is reached we can stop analysing more columns
+For each column we have two criteria which can indicate a header. We can define a sufficient number of matching criteria, for example three. If this number is reached we can stop analysing more columns. In the example above, it is enought to analyse the first 2 columns to get 3 positive indicators.
