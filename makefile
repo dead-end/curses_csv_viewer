@@ -15,7 +15,7 @@ CC       = gcc
 #DEBUG    = -DDEBUG -g
 WARNINGS = -Wall -Wextra -Wpedantic -Werror
 CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11
-LIBS     = $(shell ncursesw5-config --libs) -lformw 
+LIBS     = $(shell ncursesw5-config --libs) -lformw -lm
 
 ############################################################################
 # LIBS
