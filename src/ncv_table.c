@@ -709,6 +709,18 @@ int check_column_characteristic(const s_table *table, const int max_rows, const 
 bool s_table_has_header(const s_table *table) {
 
 	//
+	// Ensure that there are enough rows to analyze
+	//
+	if (table->__no_rows <= 2) {
+		return true;
+	}
+
+	//
+	// Ensure that the table has enough columns to be successful.
+	//
+	const int max_successful = table->no_columns > HA_MAX_SUCCESSFUL ? HA_MAX_SUCCESSFUL : table->no_columns;
+
+	//
 	// Check at most the first HA_MAX_ROWS rows.
 	//
 	const int max_rows = table->__no_rows > HA_MAX_ROWS ? HA_MAX_ROWS : table->__no_rows;
@@ -721,7 +733,7 @@ bool s_table_has_header(const s_table *table) {
 		// Check the string lengths
 		//
 		no_sucessful_checks += check_column_characteristic(table, max_rows, column, get_str_len);
-		if (no_sucessful_checks >= HA_MAX_SUCCESSFUL) {
+		if (no_sucessful_checks >= max_successful) {
 			return true;
 		}
 
@@ -729,7 +741,7 @@ bool s_table_has_header(const s_table *table) {
 		// Check the ratio between the digits and the string lengths.
 		//
 		no_sucessful_checks += check_column_characteristic(table, max_rows, column, get_ratio);
-		if (no_sucessful_checks >= HA_MAX_SUCCESSFUL) {
+		if (no_sucessful_checks >= max_successful) {
 			return true;
 		}
 	}
