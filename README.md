@@ -105,7 +105,6 @@ If we assume that the string lengths are normaly distributed, then 99,73% are in
 
 If the result is not clear, we do the same computation for the ratio `number-of-digits / string-length`. If it is still not clear we do the computations for the next column and so on.
 
-
 Let us take a look at an example the show what this means.
 
 | Number | Price       | Date          |
@@ -116,41 +115,16 @@ Let us take a look at an example the show what this means.
 | 16     | 10,20 Euro  | Mo 24.09.2018 |
 | 32     | 100,20 Euro | Th 25.09.2018 |
 
-For the first row of the column is simple. The `Number` string has 6 characters and no digits:
+For this table we can compute the mean and the standard deviation of the two characteristics for each column:
 
-```
-First(S) = 6 
-First(R) = 0/6 = 0
-```
-
-For the rest of the column we compute the mean string length, which is the sum of the string lengths divided by the number of rows:
-```
-Mean(S) = (1 + 1 + 1 + 2 + 2)/5 = 7/5 = 1,4
-```
-The variance of the string lengths is the sum of the squared difference of each length with the mean length divided by the number of rows:
-```
-Var(S) = 1/5 * ((1-1,4)^2 + (1-1,4)^2 + (1-1,4)^2 + (2-1,4)^2 + (2-1,4)^2)
-       = 1/5 * (3 * 0,4^2 + 2 * 0,6^2)
-       = 1/5 * 1,2
-       = 0,24
-```
-Then we analyse the diviation of the string length of the first row from the mean.
-```
-    |First(S) - Mean(S)| = X * Var(S)
-                6 - 1,4  = X * 0,24
-<=>          5,76 / 0,24 = X
-<=>                   24 = X
-```
-So the difference of the length of the first column row with the mean is 24 times the variance. This is a good indecator that the first column has a header.
-
-```
-Mean(R) = (1/1 + 1/1 + 1/1 + 2/2 + 2/2)/5 = 5/5 = 1
-
-Var(R) = 1/5 * ((1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2 + (1 - 1)^2)
-       = 1/5 * 0
-       = 0
-```
-If we look at the ratio of the digits with string length the result is even more clear. The ratio is `1` and the variance is `0`.
+| Column | Type          | mean    | std. deviation | First row | Indicator |
+| ------ |---------------|---------|----------------|-----------|-----------|
+| Number | String length |  1,4000 | 0,5477         | 6,0000    | true      |
+|        | Digit ratio   |  1,0000 | 0,0000         | 0,0000    | true      |
+| Price  | String length |  9,0000 | 1.8708         | 5,0000    | false     |
+|        | Digit ratio   |  0.3375 | 0.1081         | 0,0000    | true      |
+| Date   | String length | 13,0000 | 0,0000         | 4,0000    | true      |
+|        | Digit ratio   |  0,6154 | 0,0000         | 0,0000    | true      |
 
 #### Conclusion
 Columns with a variance of zero or at least a very small variance are good canidates to detect a header. Examples are columns with integer, float, date or currency values.
