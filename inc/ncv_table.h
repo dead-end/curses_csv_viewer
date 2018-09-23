@@ -124,6 +124,8 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 
 void s_table_dump(const s_table *table);
 
+bool s_table_has_header(const s_table *table);
+
 /***************************************************************************
  * Some function definitions that are used only for unit tests.
  **************************************************************************/

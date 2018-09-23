@@ -133,16 +133,15 @@ static void print_usage(const bool has_error, const char* msg) {
 	// Print the usage information.
 	//
 	//              "--------------------------------------------------------------------------------\n");
-	fprintf(stream, "ccsvv [-h] [-m] [-n] [-d delimiter] [file]\n\n");
+	fprintf(stream, "ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]\n\n");
 	fprintf(stream, "  -h            Shows this usage message.\n\n");
 	fprintf(stream, "  -d delimiter  Defines a delimiter character, other than the default comma.\n\n");
 	fprintf(stream, "  -m            By default ccsvv uses colors if the terminal supports them. With\n");
 	fprintf(stream, "                this option ccsvv is forced to use a monochrom mode.\n\n");
-	fprintf(stream, "  -n            By default ccsvv interpretes the first row of the table as a\n");
-	fprintf(stream, "                header. The header row is highlighted and on filtering, it is\n");
-	fprintf(stream, "                alway part of the result, even if no field contains the filter\n");
-	fprintf(stream, "                string. With this option special role of the first line is\n");
-	fprintf(stream, "                switched off.\n\n");
+	fprintf(stream, "  -s | -n\n     The flags define whether the first row of the table is");
+	fprintf(stream, "                interpreted as a header for the table ('-s') or not ('-n').\n");
+	fprintf(stream, "                If none of the flags is given ccsvv tries to detect whether a\n");
+	fprintf(stream, "                header is present or not.\n\n");
 	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
 	fprintf(stream, "                the csv data from stdin.\n");
 	//              "--------------------------------------------------------------------------------\n");
@@ -177,12 +176,12 @@ int main(const int argc, char * const argv[]) {
 
 	print_debug_str("main() Start\n");
 
-	table.show_header = true;
+	bool detect_header = true;
 
 	//
 	// Parse the command line options.
 	//
-	while ((c = getopt(argc, argv, "hmnd:")) != -1) {
+	while ((c = getopt(argc, argv, "hmsnd:")) != -1) {
 		switch (c) {
 
 		case 'h':
@@ -194,9 +193,14 @@ int main(const int argc, char * const argv[]) {
 			print_debug_str("main() Use monochrom.\n");
 			break;
 
+		case 's':
+			table.show_header = true;
+			detect_header = false;
+			break;
+
 		case 'n':
 			table.show_header = false;
-			print_debug_str("main() Do not show header.\n");
+			detect_header = false;
 			break;
 
 		case 'd':
@@ -246,6 +250,13 @@ int main(const int argc, char * const argv[]) {
 	// Process the csv file
 	//
 	process_csv_file(filename, delimiter, &table);
+
+	//
+	// Set the show_header parameter of table
+	//
+	if (detect_header) {
+		table.show_header = s_table_has_header(&table);
+	}
 
 #ifdef DEBUG
 	s_table_dump(&table);
