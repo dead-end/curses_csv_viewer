@@ -138,7 +138,7 @@ static void print_usage(const bool has_error, const char* msg) {
 	fprintf(stream, "  -d delimiter  Defines a delimiter character, other than the default comma.\n\n");
 	fprintf(stream, "  -m            By default ccsvv uses colors if the terminal supports them. With\n");
 	fprintf(stream, "                this option ccsvv is forced to use a monochrom mode.\n\n");
-	fprintf(stream, "  -s | -n\n     The flags define whether the first row of the table is");
+	fprintf(stream, "  -s | -n       The flags define whether the first row of the table is\n");
 	fprintf(stream, "                interpreted as a header for the table ('-s') or not ('-n').\n");
 	fprintf(stream, "                If none of the flags is given ccsvv tries to detect whether a\n");
 	fprintf(stream, "                header is present or not.\n\n");
