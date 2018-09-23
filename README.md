@@ -4,7 +4,7 @@ ccsvv (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia
 ## Usage
 
 ```
-ccsvv [-h] [-m] [-n] [-d delimiter] [file]
+ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]
 
   -h            Shows this usage message.
 
@@ -13,11 +13,10 @@ ccsvv [-h] [-m] [-n] [-d delimiter] [file]
   -m            By default ccsvv uses colors if the terminal supports them. With
                 this option ccsvv is forced to use a monochrom mode.
 
-  -n            By default ccsvv interpretes the first row of the table as a
-                header. The header row is highlighted and on filtering, it is
-                alway part of the result, even if no field contains the filter
-                string. With this option special role of the first line is
-                switched off.
+  -s | -n       The flags define whether the first row of the table is
+                interpreted as a header for the table ('-s') or not ('-n').
+                If none of the flags is given ccsvv tries to detect whether a
+                header is present or not.
 
   file          The name of the csv file. If no filename is defined, ccsvv reads
                 the csv data from stdin.
