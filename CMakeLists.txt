@@ -24,9 +24,7 @@ target_include_directories(ccsvv PUBLIC "${PROJECT_SOURCE_DIR}/inc")
 
 target_link_libraries (ccsvv m formw ncursesw tinfo)
 
-target_compile_definitions(ccsvv PUBLIC _GNU_SOURCE)
-
-target_compile_options(ccsvv PUBLIC "$<$<CONFIG:DEBUG>:${-DDEBUG}>")
+target_compile_definitions(ccsvv PUBLIC _GNU_SOURCE "$<$<CONFIG:DEBUG>:DEBUG>")
 
 #### NOT SUPPORTED BY 3.5 ####
 # target_compile_features(ccsvv PUBLIC c_std_11)
