@@ -313,6 +313,11 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	//
 	s_field num_borders;
 
+	//
+	// Initialize to prevent: [-Werror=maybe-uninitialized]
+	//
+	num_borders.row = 1;
+
 	s_field_part row_field_part;
 	s_field_part col_field_part;
 
