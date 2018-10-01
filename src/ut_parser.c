@@ -31,12 +31,12 @@
  * the expected values.
  **************************************************************************/
 
-static void test_parser() {
+static void test_parser(const char *basedir) {
 	s_table table;
 
 	print_debug_str("test_parser() Start\n");
 
-	parser_process_filename("res/test1.csv", W_DELIM, &table);
+	ut_parser_process_filename(&table, basedir, "test1.csv");
 
 	//
 	// Check all fields "by hand"
@@ -87,12 +87,12 @@ static void test_parser() {
  * echo -ne "a1,a2\rb1,b2\nc1,c2\r\n" > line_endings.csv
  **************************************************************************/
 
-static void test_line_endings() {
+static void test_line_endings(const char *basedir) {
 	s_table table;
 
 	print_debug_str("test_line_endings() Start\n");
 
-	parser_process_filename("res/line_endings.csv", W_DELIM, &table);
+	ut_parser_process_filename(&table, basedir, "line_endings.csv");
 
 	//
 	// Check all fields "by hand"
@@ -128,12 +128,12 @@ static void test_line_endings() {
  * echo -ne "a1,a2\rb1,b2" > eof_endings.csv
  **************************************************************************/
 
-static void test_eof_endings() {
+static void test_eof_endings(const char *basedir) {
 	s_table table;
 
 	print_debug_str("test_eof_endings() Start\n");
 
-	parser_process_filename("res/eof_endings.csv", W_DELIM, &table);
+	ut_parser_process_filename(&table, basedir, "eof_endings.csv");
 
 	//
 	// Check all fields "by hand"
@@ -162,12 +162,12 @@ static void test_eof_endings() {
  * The function reads and parses a csv file that contains: ",\n,"
  **************************************************************************/
 
-static void test_parser_empty() {
+static void test_parser_empty(const char *basedir) {
 	s_table table;
 
 	print_debug_str("test_parser_empty() Start\n");
 
-	parser_process_filename("res/empty.csv", W_DELIM, &table);
+	ut_parser_process_filename(&table, basedir, "empty.csv");
 
 	//
 	// Check all fields "by hand"
@@ -196,19 +196,26 @@ static void test_parser_empty() {
  * The main function simply starts the test.
  **************************************************************************/
 
-int main() {
+int main(const int argc, char *argv[]) {
+	char *basedir;
 
 	print_debug_str("ut_parser.c - Start tests\n");
 
+	if (argc != 2) {
+		print_exit("Usage: %s <dir>\n", argv[0]);
+	}
+
+	basedir = argv[1];
+
 	setlocale(LC_ALL, "");
 
-	test_parser();
+	test_parser(basedir);
 
-	test_line_endings();
+	test_line_endings(basedir);
 
-	test_eof_endings();
+	test_eof_endings(basedir);
 
-	test_parser_empty();
+	test_parser_empty(basedir);
 
 	print_debug_str("ut_parser.c - End tests\n");
 

@@ -108,13 +108,13 @@ static void test_table_get_ratio() {
 
 #define HAS_NO_HEADER 0
 
-static void test_table_has_header() {
+static void test_table_has_header(const char *basedir) {
 	s_table table;
 	int result;
 
 	print_debug_str("test_table_has_header() Start\n");
 
-	parser_process_filename("res/has_header.csv", W_DELIM, &table);
+	ut_parser_process_filename(&table, basedir, "has_header.csv");
 
 	//
 	// column: 0
@@ -177,7 +177,7 @@ static void test_table_has_header() {
  * for some of the columns.
  **************************************************************************/
 
-static void test_table_mean_std_dev() {
+static void test_table_mean_std_dev(const char *basedir) {
 	s_table table;
 	double result;
 
@@ -185,7 +185,7 @@ static void test_table_mean_std_dev() {
 
 	print_debug_str("test_table_mean_std_dev() Start\n");
 
-	parser_process_filename("res/has_header.csv", W_DELIM, &table);
+	ut_parser_process_filename(&table, basedir, "has_header.csv");
 
 	//
 	// column: 0 mean
@@ -252,9 +252,17 @@ static void test_table_mean_std_dev() {
  * The main function simply starts the test.
  **************************************************************************/
 
-int main() {
+int main(const int argc, char *argv[]) {
+
+	char *basedir;
 
 	print_debug_str("ut_table.c - Start tests\n");
+
+	if (argc != 2) {
+		print_exit("Usage: %s <dir>\n", argv[0]);
+	}
+
+	basedir = argv[1];
 
 	setlocale(LC_ALL, "");
 
@@ -262,9 +270,9 @@ int main() {
 
 	test_table_get_ratio();
 
-	test_table_has_header();
+	test_table_has_header(basedir);
 
-	test_table_mean_std_dev();
+	test_table_mean_std_dev(basedir);
 
 	print_debug_str("ut_table.c - End tests\n");
 
