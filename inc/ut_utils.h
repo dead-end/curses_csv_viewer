@@ -39,4 +39,6 @@ void ut_check_bool(const bool b1, const bool b2);
 
 void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t len, const char *msg);
 
+void ut_parser_process_filename(s_table *table, const char *basedir, const char *filename);
+
 #endif
