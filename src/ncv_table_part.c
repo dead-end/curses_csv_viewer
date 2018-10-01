@@ -98,7 +98,8 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	}
 
 	//
-	// If the direction is backwards swap the first and the last.
+	// If the direction is backwards swap the first and the last. This
+	// ensures that first <= last
 	//
 	if (direction == DIR_BACKWARD) {
 		const int tmp = table_part->first;

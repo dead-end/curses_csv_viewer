@@ -41,18 +41,18 @@
 typedef struct s_table_part {
 
 	//
-	// The index of the first row / column that is visible.
+	// The index of the first row / column that is visible. (first <= last)
 	//
 	int first;
 
 	//
-	// The index of the last row / column that is visible.
+	// The index of the last row / column that is visible. (first <= last)
 	//
 	int last;
 
 	//
 	// The index of the row / column that is truncated. The value is equal to
-	// start or end or -1 if none of them is truncated.
+	// first or last or -1 if none of them is truncated.
 	//
 	int truncated;
 
