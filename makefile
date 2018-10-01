@@ -87,7 +87,7 @@ $(TEST): $(OBJ_LIBS) $(OBJ_TEST)
 
 unit_test: $(TEST)
 	for ut_test in $(TEST) ; do \
-		./$$ut_test || exit 1 ; \
+		./$$ut_test $(shell pwd)/res || exit 1 ; \
     done
 
 $(DEMO): $(OBJ_LIBS) $(OBJ_DEMO)
