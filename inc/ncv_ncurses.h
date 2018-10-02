@@ -25,6 +25,8 @@
 #ifndef INC_NCV_NCURSES_H_
 #define INC_NCV_NCURSES_H_
 
+#include <ncursesw/ncurses.h>
+
 /***************************************************************************
  * Check for control modifier. Usage: CTRL('f')
  **************************************************************************/

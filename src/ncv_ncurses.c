@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
 #include "ncv_ncurses.h"
+#include "ncv_common.h"
 
 /***************************************************************************
  * The color mode configuration. On true colors are used if the terminal
