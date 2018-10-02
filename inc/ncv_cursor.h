@@ -25,7 +25,7 @@
 #ifndef INC_NCV_CURSOR_H_
 #define INC_NCV_CURSOR_H_
 
-#include "ncv_common.h"
+#include <stdbool.h>
 
 /***************************************************************************
  * Structure for the field cursor. The field cursor is simply a field of the
@@ -53,6 +53,6 @@ typedef struct s_cursor {
 
 } s_cursor;
 
-#endif
-
 #define s_cursor_set(cu,r,c,v) (cu)->row = (r); (cu)->col = (c); (cu)->visible = (v)
+
+#endif
