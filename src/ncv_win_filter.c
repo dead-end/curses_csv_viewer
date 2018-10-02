@@ -24,6 +24,10 @@
 
 #include "ncv_win_filter.h"
 #include "ncv_ncurses.h"
+#include "ncv_common.h"
+
+#include <string.h>
+#include <ncursesw/form.h>
 
 /***************************************************************************
  * The filter window has a fixed size, so the stdscr should have at least

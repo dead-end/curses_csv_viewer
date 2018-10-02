@@ -25,7 +25,7 @@
 #ifndef INC_NCV_WIN_FILTER_H_
 #define INC_NCV_WIN_FILTER_H_
 
-#include "ncv_common.h"
+#include <ncursesw/ncurses.h>
 
 #define FILTER_FIELD_ROWS 1
 #define FILTER_FIELD_COLS 32
