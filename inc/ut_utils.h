@@ -25,6 +25,11 @@
 #ifndef INC_UT_UTILS_H_
 #define INC_UT_UTILS_H_
 
+#include "ncv_common.h"
+#include "ncv_table.h"
+
+#include <stdbool.h>
+
 void ut_check_int(const int current, const int expected, const char *msg);
 
 void ut_check_double(const double current, const double expected, const char *msg);
