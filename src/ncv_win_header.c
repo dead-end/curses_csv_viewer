@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
+
 #include "ncv_ncurses.h"
 #include "ncv_win_filter.h"
+#include "ncv_common.h"
 
 /***************************************************************************
  * Definition of the label (and its size)
