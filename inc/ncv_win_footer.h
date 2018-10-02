@@ -25,6 +25,8 @@
 #ifndef INC_NCV_WIN_FOOTER_H_
 #define INC_NCV_WIN_FOOTER_H_
 
+#include "ncv_table.h"
+
 void win_footer_init();
 
 void win_footer_resize();

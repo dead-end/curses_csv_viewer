@@ -24,7 +24,9 @@
 
 #include "ncv_table.h"
 #include "ncv_ncurses.h"
-#include "ncv_win_table.h"
+#include "ncv_common.h"
+
+#include <string.h>
 
 /***************************************************************************
  * Size of the string buffer.
@@ -206,7 +208,7 @@ void win_footer_content_print(char *filename, const s_table *table, const s_curs
 	//
 	//  Get short filename
 	//
-	char *short_name = rindex(filename, '/');
+	char *short_name = strrchr(filename, '/');
 	if (short_name == NULL) {
 		return;
 	}
