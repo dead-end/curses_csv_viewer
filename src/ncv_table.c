@@ -23,6 +23,10 @@
  */
 
 #include "ncv_table.h"
+#include "ncv_common.h"
+
+#include <math.h>
+#include <wctype.h>
 
 /***************************************************************************
  * The widths and the heights have to be at least one. Otherwise the cursor

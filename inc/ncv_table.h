@@ -27,6 +27,9 @@
 
 #include "ncv_cursor.h"
 
+#include <stdbool.h>
+#include <wchar.h>
+
 /***************************************************************************
  * The structure contains all the table related data, that is the csv data,
  * the number of rows and columns, the height of the rows and the width of
