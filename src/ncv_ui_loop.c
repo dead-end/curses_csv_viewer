@@ -22,16 +22,14 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
-#include "ncv_ncurses.h"
+#include "ncv_win_table.h"
+#include "ncv_win_filter.h"
+#include "ncv_win_header.h"
+#include "ncv_win_footer.h"
 
 #include "ncv_table_part.h"
-
-#include "ncv_ui_loop.h"
-#include "ncv_win_header.h"
-#include "ncv_win_filter.h"
-#include "ncv_win_table.h"
-#include "ncv_win_footer.h"
+#include "ncv_ncurses.h"
+#include "ncv_common.h"
 
 /***************************************************************************
  * The mode enumeration.
