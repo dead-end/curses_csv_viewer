@@ -22,12 +22,9 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
-#include "ncv_ncurses.h"
-#include "ncv_table.h"
-#include "ncv_win_table.h"
 #include "ncv_field.h"
 #include "ncv_corners.h"
+#include "ncv_ncurses.h"
 
 /***************************************************************************
  * With a min height of 2, the table window is shown. One row for the header

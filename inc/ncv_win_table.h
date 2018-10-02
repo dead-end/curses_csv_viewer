@@ -25,6 +25,10 @@
 #ifndef INC_NCV_WIN_TABLE_H_
 #define INC_NCV_WIN_TABLE_H_
 
+#include "ncv_table.h"
+
+#include <ncursesw/ncurses.h>
+
 /***************************************************************************
  * The struct defines an attribute that can be highlighted. It is used for
  * field texts to highlight the filter string.
