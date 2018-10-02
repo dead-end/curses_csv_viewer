@@ -25,19 +25,8 @@
 #ifndef INCLUDE_COMMON_H_
 #define INCLUDE_COMMON_H_
 
-#include <ncursesw/ncurses.h>
-#include <ncursesw/form.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <wchar.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <locale.h>
-#include <ctype.h>
-#include <math.h>
-#include <wctype.h>
+#include <stdlib.h>
 
 /***************************************************************************
  * Definition of the print_debug macro. It is only defined if the DEBUG flag

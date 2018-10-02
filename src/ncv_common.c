@@ -24,6 +24,13 @@
 
 #include "ncv_common.h"
 
+#include <ctype.h>
+#include <wchar.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+
+
 /***************************************************************************
  * The function allocates memory and terminates the program in case of an
  * error.
