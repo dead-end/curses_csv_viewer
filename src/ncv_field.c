@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
-#include "ncv_ncurses.h"
-#include "ncv_table.h"
-#include "ncv_win_table.h"
 #include "ncv_field.h"
 
 /***************************************************************************
