@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
-#include "ncv_table.h"
-#include "ncv_parser.h"
 #include "ut_utils.h"
+
+#include <locale.h>
+#include <math.h>
 
 /***************************************************************************
  * The test checks the s_table_field_dimension function, which computes the

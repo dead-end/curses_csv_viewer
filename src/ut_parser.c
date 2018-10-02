@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
-#include "ncv_table.h"
-#include "ncv_parser.h"
 #include "ut_utils.h"
+#include "ncv_parser.h"
+
+#include <locale.h>
 
 /***************************************************************************
  * The function reads and parses a csv file. All fields are compared with
