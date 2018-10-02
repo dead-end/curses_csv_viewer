@@ -23,6 +23,10 @@
  */
 
 #include "ncv_table.h"
+#include "ncv_common.h"
+
+#include <string.h>
+#include <errno.h>
 
 #define MAX_FIELD_SIZE 4096
 
