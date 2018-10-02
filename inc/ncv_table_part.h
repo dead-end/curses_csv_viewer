@@ -25,6 +25,8 @@
 #ifndef INC_NCV_TABLE_PART_H_
 #define INC_NCV_TABLE_PART_H_
 
+#include <stdbool.h>
+
 //
 // Defintion of directions (can be used to increment in loops)
 //

@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
 #include "ncv_table_part.h"
+#include "ncv_common.h"
 
 /***************************************************************************
  * The method updates the row /column table part for the table. It is called
