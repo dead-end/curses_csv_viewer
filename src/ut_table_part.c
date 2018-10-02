@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-#include "ncv_common.h"
-#include "ncv_table_part.h"
-#include "ncv_table.h"
 #include "ut_utils.h"
+#include "ncv_table_part.h"
+
+#include <locale.h>
 
 /***************************************************************************
  * The function checks whether a s_table_part structure has the expected
