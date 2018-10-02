@@ -22,14 +22,19 @@
  * SOFTWARE.
  */
 
-#include "ncv_table.h"
-#include "ncv_ncurses.h"
-#include "ncv_parser.h"
-#include "ncv_ui_loop.h"
-#include "ncv_win_header.h"
-#include "ncv_win_filter.h"
-#include "ncv_win_table.h"
 #include "ncv_win_footer.h"
+#include "ncv_win_filter.h"
+#include "ncv_win_header.h"
+#include "ncv_win_table.h"
+
+#include "ncv_ui_loop.h"
+#include "ncv_parser.h"
+#include "ncv_ncurses.h"
+#include "ncv_common.h"
+
+#include <string.h>
+#include <unistd.h>
+#include <locale.h>
 
 /***************************************************************************
  * The table struct is defined static to be able to use it in the function
