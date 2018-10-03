@@ -1,5 +1,5 @@
 # ccsvv
-ccsvv (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table.
+`ccsvv` (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table.
 
 ## Usage
 
@@ -36,7 +36,7 @@ Commands:
                 string.
 ```
 ## Examples
-ccsvv can deal with multi-line fields and supports unicode characters (wchar_t).
+`ccsvv` can deal with multi-line fields and supports unicode characters (wchar_t).
 ```
 ccsvv languages.csv
 ```
@@ -66,7 +66,7 @@ SELECT Host, User, max_questions, max_updates, max_connections, max_user_connect
   from user;
 ```
 
-After creating the sql file you can call the following command to display the result with ccsvv.
+After creating the sql file you can call the following command to display the result with `ccsvv`.
 
 ```bash
 sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
@@ -74,12 +74,12 @@ sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.
 ![Show query example](img/query.png)
 
 ## Installation
-Ccsvv uses ncursesw to create and display the tables. Ncursesw is the wide character version of ncurses. To sucessfully compile ccsvv requires a package with the library and a develpoer package with the header files. For ubuntu this is:
+`ccsvv` uses ncursesw to create and display the tables. Ncursesw is the wide character version of ncurses. To sucessfully compile `ccsvv` requires a package with the library and a develpoer package with the header files. For ubuntu this is:
 
 * libncursesw5
 * libncursesw5-dev
 
-Ccsvv can be simply build with:
+`ccsvv` can be simply build with:
 
 ```
 make
