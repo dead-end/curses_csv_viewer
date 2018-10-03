@@ -1,5 +1,12 @@
 # ccsvv
-**ccsvv** (curses csv viewer) is a program that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table. It can deal with multi-line fields and supports unicode characters (wchar_t).
+**ccsvv** (curses csv viewer) is a program that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table. It supports:
+
+* different field separators
+* escaping with **"**
+* multi line fields
+* different line endings (win / mac / linux)
+* unicode characters (wchar_t)
+* header detection (see below)
 
 ![Show example](img/languages.png)
 
