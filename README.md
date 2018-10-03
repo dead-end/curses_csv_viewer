@@ -7,6 +7,7 @@
 * different line endings (win / mac / linux)
 * unicode characters (wchar_t)
 * header detection (see below)
+* filtering
 
 ![Show example](img/languages.png)
 
