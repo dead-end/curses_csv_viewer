@@ -65,9 +65,9 @@ make test
 ```
 
 ## Example: /etc/passwd
-**ccsvv** can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `system`.
+**ccsvv** can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by *system*.
 ```
-ccsvv -nd : /etc/passwd
+ccsvv -d : /etc/passwd
 ```
 ![Show /etc/passwd](img/etc-passwd.png)
 ## Example: Database
