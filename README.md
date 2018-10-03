@@ -73,6 +73,26 @@ sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.
 ```
 ![Show query example](img/query.png)
 
+## Installation
+Ccsvv uses ncursesw to create and display the tables. Ncursesw is the wide character version of ncurses. To sucessfully compile ccsvv requires a package with the library and a develpoer package with the header files. For ubuntu this is:
+
+* libncursesw5
+* libncursesw5-dev
+
+Ccsvv can be simply build with:
+
+```
+make
+```
+An alternative is to use cmake. This can be done with:
+```
+mkdir cmake-build
+cd cmake-build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+make test
+```
+
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
 each column has a maximum width.
