@@ -1,5 +1,5 @@
 # ccsvv
-`ccsvv` (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table.
+*ccsvv* (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table.
 
 ## Usage
 
@@ -36,25 +36,25 @@ Commands:
                 string.
 ```
 ## Examples
-`ccsvv` can deal with multi-line fields and supports unicode characters (wchar_t).
+*ccsvv* can deal with multi-line fields and supports unicode characters (wchar_t).
 ```
 ccsvv languages.csv
 ```
 ![Show example](img/languages.png)
 
-If the terminal does not support colors, ccsvv shows the table in a monochrome mode, which can be enforced by the `-m` command line option.
+If the terminal does not support colors, *ccsvv* shows the table in a monochrome mode, which can be enforced by the `-m` command line option.
 ```
 ccsvv -m languages.csv
 ```
 ![Show monochrome example](img/mono.png)
 
-ccsvv can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `system`.
+*ccsvv* can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `system`.
 ```
 ccsvv -nd : /etc/passwd
 ```
 ![Show /etc/passwd](img/etc-passwd.png)
 ## Example: Database
-Most databases are able to store tables dumps or queries in csv files, which can be displayed with ccsvv. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
+Most databases are able to store tables dumps or queries in csv files, which can be displayed with *ccsvv*. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
 
 ```sql
 SELECT 'Host', 'User', 'Max Questions', 'Max Updates', 'Max Connections', 'Max User Uonnections'
@@ -66,7 +66,7 @@ SELECT Host, User, max_questions, max_updates, max_connections, max_user_connect
   from user;
 ```
 
-After creating the sql file you can call the following command to display the result with `ccsvv`.
+After creating the sql file you can call the following command to display the result with *ccsvv*.
 
 ```bash
 sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
@@ -74,12 +74,12 @@ sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.
 ![Show query example](img/query.png)
 
 ## Installation
-`ccsvv` uses ncursesw to create and display the tables. Ncursesw is the wide character version of ncurses. To sucessfully compile `ccsvv` requires a package with the library and a develpoer package with the header files. For ubuntu this is:
+*ccsvv* uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*. To sucessfully compile *ccsvv* requires a package with the library and a develpoer package with the header files. For ubuntu this is:
 
 * libncursesw5
 * libncursesw5-dev
 
-`ccsvv` can be simply build with:
+*ccsvv* can be simply build with:
 
 ```
 make
@@ -109,7 +109,7 @@ A truncated field may be truncated left or right or at top or bottom.
 ![field part](img/field_part.png?raw=true "Field Part")
 
 ### Header detection
-It would be nice if there would be no need for the user of ccsvv to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. If the csv file has no header, it is reasonable to assume that all rows of the column are similar. To prove this, we compute some characteristics of the first row of the column and compare that characteristics with the rest of the rows.
+It would be nice if there would be no need for the user of *ccsvv* to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. If the csv file has no header, it is reasonable to assume that all rows of the column are similar. To prove this, we compute some characteristics of the first row of the column and compare that characteristics with the rest of the rows.
 The characteristics are:
 
 * string-length
