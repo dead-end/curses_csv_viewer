@@ -90,21 +90,6 @@ sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.
 ```
 ![Show query example](img/query.png)
 
-## Implementation details
-Each table consists of columns and rows. Each row has a maximum heigth and 
-each column has a maximum width.
-If the table width and hight is larger than the window size, only a part of
-the table will be visualized.
-
-The table view has a reference field. The reference field is aligned with one
-of the corners. The fields at the oposite sides of the window may be truncated.
-
-![table part](img/table_part.png?raw=true "Table Part")
-
-A truncated field may be truncated left or right or at top or bottom.
-
-![field part](img/field_part.png?raw=true "Field Part")
-
 ### Header detection
 It would be nice if there would be no need for the user of *ccsvv* to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. If the csv file has no header, it is reasonable to assume that all rows of the column are similar. To prove this, we compute some characteristics of the first row of the column and compare that characteristics with the rest of the rows.
 The characteristics are:
@@ -151,3 +136,18 @@ If the number of rows of the csv file is large, there is no need to analyse all 
 For each column we have two criteria which can indicate a header. We can define a sufficient number of matching criteria, for example three. If this number is reached we can stop analysing more columns. In the example above, it is enought to analyse the first 2 columns to get 3 positive indicators.
 
 Analyzing the csv file works only if there are enough rows and column. If not enough are present, it is assumed that the table has a header.
+
+## Implementation details
+Each table consists of columns and rows. Each row has a maximum heigth and 
+each column has a maximum width.
+If the table width and hight is larger than the window size, only a part of
+the table will be visualized.
+
+The table view has a reference field. The reference field is aligned with one
+of the corners. The fields at the oposite sides of the window may be truncated.
+
+![table part](img/table_part.png?raw=true "Table Part")
+
+A truncated field may be truncated left or right or at top or bottom.
+
+![field part](img/field_part.png?raw=true "Field Part")
