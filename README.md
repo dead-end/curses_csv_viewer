@@ -1,8 +1,8 @@
 # ccsvv
-**ccsvv** (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table.
+**ccsvv** (curses csv viewer) is a programm that displays [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) (comma-separated values) files as a table. It can deal with multi-line fields and supports unicode characters (wchar_t).
+![Show example](img/languages.png)
 
 ## Usage
-
 ```
 ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]
 
@@ -35,19 +35,27 @@ Commands:
   ^N and ^P     Search for the next / previous field that contains the filter
                 string.
 ```
-## Examples
-**ccsvv** can deal with multi-line fields and supports unicode characters (wchar_t).
-```
-ccsvv languages.csv
-```
-![Show example](img/languages.png)
+## Installation
+**ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*. To sucessfully compile **ccsvv** requires a package with the library and a develpoer package with the header files. For ubuntu this is:
 
-If the terminal does not support colors, **ccsvv** shows the table in a monochrome mode, which can be enforced by the `-m` command line option.
-```
-ccsvv -m languages.csv
-```
-![Show monochrome example](img/mono.png)
+* libncursesw5
+* libncursesw5-dev
 
+**ccsvv** can be simply build with:
+
+```
+make
+```
+An alternative is to use cmake. This can be done with:
+```
+mkdir cmake-build
+cd cmake-build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+make test
+```
+
+## Example: /etc/passwd
 **ccsvv** can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by `system`.
 ```
 ccsvv -nd : /etc/passwd
@@ -72,26 +80,6 @@ After creating the sql file you can call the following command to display the re
 sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
 ```
 ![Show query example](img/query.png)
-
-## Installation
-**ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*. To sucessfully compile **ccsvv** requires a package with the library and a develpoer package with the header files. For ubuntu this is:
-
-* libncursesw5
-* libncursesw5-dev
-
-**ccsvv** can be simply build with:
-
-```
-make
-```
-An alternative is to use cmake. This can be done with:
-```
-mkdir cmake-build
-cd cmake-build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make
-make test
-```
 
 ## Implementation details
 Each table consists of columns and rows. Each row has a maximum heigth and 
