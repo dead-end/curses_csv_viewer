@@ -25,6 +25,10 @@
 #include "ncv_parser.h"
 #include "ncv_common.h"
 
+#include <errno.h>
+#include <string.h>
+#include <wchar.h>
+
 /***************************************************************************
  * The function is used for unit tests. It checks whether an int parameter
  * has the expected value or not.
@@ -144,5 +148,36 @@ void ut_parser_process_filename(s_table *table, const char *basedir, const char 
 	}
 
 	parser_process_filename(result, W_DELIM, table);
+}
+
+/***************************************************************************
+ * The function creates a tmp file with a given content.
+ **************************************************************************/
+
+FILE *create_tmp_file(const wchar_t *data) {
+	FILE *tmp;
+
+	//
+	// Create a temp file
+	//
+	if ((tmp = tmpfile()) == NULL) {
+		print_exit("create_tmp_file() Unable to create tmp file: %s\n", strerror(errno));
+	}
+
+	//
+	// Write the required content
+	//
+	if (fputws(data, tmp) == -1) {
+		print_exit_str("create_tmp_file() Unable write data to the tmp file!\n");
+	}
+
+	//
+	// Rewind the file.
+	//
+	if (fseek(tmp, 0L, SEEK_SET) == -1) {
+		print_exit("create_tmp_file() Unable to rewind file due to: %s\n", strerror(errno));
+	}
+
+	return tmp;
 }
 

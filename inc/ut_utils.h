@@ -46,4 +46,6 @@ void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t 
 
 void ut_parser_process_filename(s_table *table, const char *basedir, const char *filename);
 
+FILE *create_tmp_file(const wchar_t *data);
+
 #endif
