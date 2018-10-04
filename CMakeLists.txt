@@ -66,6 +66,6 @@ foreach(src_file ${TEST_SRCS})
    
   target_link_libraries(${exe_file} m formw ncursesw tinfo)
 
-  add_test(${exe_file} ${exe_file} ${CMAKE_SOURCE_DIR}/res)
+  add_test(${exe_file} ${exe_file})
 
 endforeach()
