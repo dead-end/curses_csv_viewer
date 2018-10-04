@@ -43,6 +43,13 @@ target_compile_definitions(ccsvv PUBLIC _GNU_SOURCE "$<$<CONFIG:DEBUG>:DEBUG>")
 
 target_link_libraries (ccsvv m formw ncursesw tinfo)
 
+# 755
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/ccsvv 
+  DESTINATION /usr/bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE 
+)
+
 ############################################################################
 # Unit tests
 ############################################################################
@@ -69,3 +76,25 @@ foreach(src_file ${TEST_SRCS})
   add_test(${exe_file} ${exe_file})
 
 endforeach()
+
+############################################################################
+# Debian package
+############################################################################
+
+set(CPACK_GENERATOR "DEB")
+
+set(CPACK_PACKAGE_VERSION_MAJOR "0")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+
+set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>=2.23), libncursesw5 (>= 5.9)")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Curses based csv file viewer")
+set(CPACK_PACKAGE_CONTACT "Dead End")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+
+include(CPack)
