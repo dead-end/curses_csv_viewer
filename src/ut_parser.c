@@ -163,12 +163,14 @@ static void test_eof_endings(const char *basedir) {
  * The function reads and parses a csv file that contains: ",\n,"
  **************************************************************************/
 
-static void test_parser_empty(const char *basedir) {
+static void test_parser_empty() {
 	s_table table;
 
 	print_debug_str("test_parser_empty() Start\n");
 
-	ut_parser_process_filename(&table, basedir, "empty.csv");
+	FILE *tmp = create_tmp_file(L",\n,");
+
+	parser_process_file(tmp, W_DELIM, &table);
 
 	//
 	// Check all fields "by hand"
@@ -189,6 +191,8 @@ static void test_parser_empty(const char *basedir) {
 	ut_check_int(table.height[1], 1, "row empty: 1");
 
 	s_table_free(&table);
+
+	fclose(tmp);
 
 	print_debug_str("test_parser_empty() End\n");
 }
@@ -216,7 +220,7 @@ int main(const int argc, char *argv[]) {
 
 	test_eof_endings(basedir);
 
-	test_parser_empty(basedir);
+	test_parser_empty();
 
 	print_debug_str("ut_parser.c - End tests\n");
 
