@@ -8,7 +8,7 @@
 # - target_compile_features(ccsvv PUBLIC c_std_11)
 ############################################################################
 
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -20,7 +20,7 @@ include_directories(inc)
 # Project settings
 ############################################################################
 
-project (ccsvv)
+project(ccsvv)
 
 set(LIBS
   src/ncv_common.c
@@ -41,13 +41,24 @@ add_executable(ccsvv src/ncv_ccsvv.c ${LIBS})
 
 target_compile_definitions(ccsvv PUBLIC _GNU_SOURCE "$<$<CONFIG:DEBUG>:DEBUG>")
 
-target_link_libraries (ccsvv m formw ncursesw tinfo)
+target_link_libraries(ccsvv m formw ncursesw tinfo)
 
-# 755
+#
+# Install executable with 755
+#
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/ccsvv 
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME} 
   DESTINATION /usr/bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE 
+)
+
+#
+# Install license file
+#
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE
+  DESTINATION /usr/share/doc/${CMAKE_PROJECT_NAME}
+  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ 
 )
 
 ############################################################################
@@ -83,18 +94,33 @@ endforeach()
 
 set(CPACK_GENERATOR "DEB")
 
+#
+# Architecture should be detected with: dpkg --print-architecture
+#
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "2")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
-
+#
+# Package name out of the box is: ccsvv-0.2.0-Linux.deb
+#
 set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
+#
+# Dependencies from my installation (ubuntu 16.0.4)
+#
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>=2.23), libncursesw5 (>= 5.9)")
-set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Curses based csv file viewer")
+
+#
+# Various informations 
+#
 set(CPACK_PACKAGE_CONTACT "Dead End")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/Debian/postinst")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Curses based csv file viewer")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/dead-end/curses_csv_viewer")
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
 include(CPack)
