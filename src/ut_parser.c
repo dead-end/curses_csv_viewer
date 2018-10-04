@@ -32,18 +32,26 @@
  * the expected values.
  **************************************************************************/
 
-static void test_parser(const char *basedir) {
+static void test_parser() {
 	s_table table;
 
-	print_debug_str("test_parser() Start\n");
+	const wchar_t *data = L"f00,\"f01->\nf01\",f02\n"
+			"\"f10\",\"f11->\r\"\"d111\"\"\",\"f12\"\n"
+			"f20,f21,f22\n"
+			"\"f30->,d30\",\"f31\",\"f32->\r\nd32\"\n"
+			",end,";
 
-	ut_parser_process_filename(&table, basedir, "test1.csv");
+	print_debug_str("test_parser2() Start\n");
+
+	FILE *tmp = create_tmp_file(data);
+
+	parser_process_file(tmp, W_DELIM, &table);
 
 	//
 	// Check all fields "by hand"
 	//
 	ut_check_wchar_str(table.fields[0][0], L"f00");
-	ut_check_wchar_str(table.fields[0][1], L"f01");
+	ut_check_wchar_str(table.fields[0][1], L"f01->\nf01");
 	ut_check_wchar_str(table.fields[0][2], L"f02");
 
 	ut_check_wchar_str(table.fields[1][0], L"f10");
@@ -69,13 +77,18 @@ static void test_parser(const char *basedir) {
 	ut_check_int(table.width[1], 6, "col width: 1");
 	ut_check_int(table.width[2], 5, "col width: 2");
 
-	ut_check_int(table.height[0], 1, "row_height: 0");
+	ut_check_int(table.height[0], 2, "row_height: 0");
 	ut_check_int(table.height[1], 2, "row_height: 1");
 	ut_check_int(table.height[2], 1, "row_height: 2");
 	ut_check_int(table.height[3], 2, "row_height: 3");
 	ut_check_int(table.height[4], 1, "row_height: 4");
 
+	//
+	// cleanup
+	//
 	s_table_free(&table);
+
+	fclose(tmp);
 
 	print_debug_str("test_parser() End\n");
 }
@@ -181,20 +194,13 @@ static void test_parser_empty() {
  * The main function simply starts the test.
  **************************************************************************/
 
-int main(const int argc, char *argv[]) {
-	char *basedir;
+int main() {
 
 	print_debug_str("ut_parser.c - Start tests\n");
 
-	if (argc != 2) {
-		print_exit("Usage: %s <dir>\n", argv[0]);
-	}
-
-	basedir = argv[1];
-
 	setlocale(LC_ALL, "");
 
-	test_parser(basedir);
+	test_parser();
 
 	test_line_endings();
 
