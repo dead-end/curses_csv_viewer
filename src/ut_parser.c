@@ -43,7 +43,7 @@ static void test_parser() {
 
 	print_debug_str("test_parser2() Start\n");
 
-	FILE *tmp = create_tmp_file(data);
+	FILE *tmp = ut_create_tmp_file(data);
 
 	parser_process_file(tmp, W_DELIM, &table);
 
@@ -101,7 +101,7 @@ static void test_parser() {
 static void helper_line_endings(const wchar_t *data) {
 	s_table table;
 
-	FILE *tmp = create_tmp_file(data);
+	FILE *tmp = ut_create_tmp_file(data);
 
 	parser_process_file(tmp, W_DELIM, &table);
 
@@ -161,7 +161,7 @@ static void test_parser_empty() {
 
 	print_debug_str("test_parser_empty() Start\n");
 
-	FILE *tmp = create_tmp_file(L",\n,");
+	FILE *tmp = ut_create_tmp_file(L",\n,");
 
 	parser_process_file(tmp, W_DELIM, &table);
 
@@ -183,6 +183,9 @@ static void test_parser_empty() {
 	ut_check_int(table.height[0], 1, "row empty: 0");
 	ut_check_int(table.height[1], 1, "row empty: 1");
 
+	//
+	// Cleanup
+	//
 	s_table_free(&table);
 
 	fclose(tmp);

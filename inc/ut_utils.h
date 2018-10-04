@@ -26,7 +26,6 @@
 #define INC_UT_UTILS_H_
 
 #include "ncv_common.h"
-#include "ncv_table.h"
 
 #include <stdbool.h>
 
@@ -44,8 +43,6 @@ void ut_check_bool(const bool b1, const bool b2);
 
 void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t len, const char *msg);
 
-void ut_parser_process_filename(s_table *table, const char *basedir, const char *filename);
-
-FILE *create_tmp_file(const wchar_t *data);
+FILE *ut_create_tmp_file(const wchar_t *data);
 
 #endif

@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-#include "ncv_parser.h"
 #include "ncv_common.h"
 
+#include <stdbool.h>
 #include <errno.h>
 #include <string.h>
 #include <wchar.h>
@@ -132,29 +132,10 @@ void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t 
 }
 
 /***************************************************************************
- * The function is a wrapper around the parser_process_filename function. It
- * reads and parses a csv file for unit tests. It is called with a directory
- * where the csv file is located.
- **************************************************************************/
-
-#define MAX_FILE_NAME 2048
-
-void ut_parser_process_filename(s_table *table, const char *basedir, const char *filename) {
-
-	char result[MAX_FILE_NAME];
-
-	if (snprintf(result, MAX_FILE_NAME, "%s/%s", basedir, filename) >= MAX_FILE_NAME) {
-		print_exit("ut_parser_process_filename() dir: %s and file: %s exceed the buffer size: %d\n", basedir, filename, MAX_FILE_NAME);
-	}
-
-	parser_process_filename(result, W_DELIM, table);
-}
-
-/***************************************************************************
  * The function creates a tmp file with a given content.
  **************************************************************************/
 
-FILE *create_tmp_file(const wchar_t *data) {
+FILE *ut_create_tmp_file(const wchar_t *data) {
 	FILE *tmp;
 
 	//
