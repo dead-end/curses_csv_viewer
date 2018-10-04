@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_parser.h"
 #include "ut_utils.h"
 
 #include <locale.h>
@@ -101,7 +102,7 @@ static void test_table_get_ratio() {
 
 /***************************************************************************
  * The function tests the characteristics (string length and ratio of digits
- * in the string) for each of the columns of a csv file.Each function call
+ * in the string) for each of the columns of a csv file. Each function call
  * returns 1 if the characteristic indicates a header for that column.
  **************************************************************************/
 
@@ -109,13 +110,23 @@ static void test_table_get_ratio() {
 
 #define HAS_NO_HEADER 0
 
-static void test_table_has_header(const char *basedir) {
+static void test_table_has_header() {
 	s_table table;
 	int result;
 
 	print_debug_str("test_table_has_header() Start\n");
 
-	ut_parser_process_filename(&table, basedir, "has_header.csv");
+	const wchar_t *data = L"Number,Date,Price,Mix,Mix111\n"
+			"1,01.01.218,1 Euro,aa,aa11\n"
+			"2,01.01.218,1.20 Euro,aabb,aabb1122\n"
+			"4,01.01.218,10 Euro,cc,cc11\n"
+			"8,01.01.218,10.20 Euro,ccdd,ccdd1122\n"
+			"16,01.01.218,100 Euro,ee,ee11\n"
+			"32,01.01.218,100.20 Euro,eeff,eeff1122\n";
+
+	FILE *tmp = ut_create_tmp_file(data);
+
+	parser_process_file(tmp, W_DELIM, &table);
 
 	//
 	// column: 0
@@ -170,6 +181,13 @@ static void test_table_has_header(const char *basedir) {
 	result = check_column_characteristic(&table, table.no_rows, 4, get_ratio);
 	ut_check_int(result, HAS_NO_HEADER, "has_header - ratio: 4");
 
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
 	print_debug_str("test_table_has_header() End\n");
 }
 
@@ -178,23 +196,33 @@ static void test_table_has_header(const char *basedir) {
  * for some of the columns.
  **************************************************************************/
 
-static void test_table_mean_std_dev(const char *basedir) {
+static void test_table_mean_std_dev() {
 	s_table table;
 	double result;
 
-	double tmp;
+	double d_tmp;
 
 	print_debug_str("test_table_mean_std_dev() Start\n");
 
-	ut_parser_process_filename(&table, basedir, "has_header.csv");
+	const wchar_t *data = L"Number,Date,Price,Mix,Mix111\n"
+			"1,01.01.218,1 Euro,aa,aa11\n"
+			"2,01.01.218,1.20 Euro,aabb,aabb1122\n"
+			"4,01.01.218,10 Euro,cc,cc11\n"
+			"8,01.01.218,10.20 Euro,ccdd,ccdd1122\n"
+			"16,01.01.218,100 Euro,ee,ee11\n"
+			"32,01.01.218,100.20 Euro,eeff,eeff1122\n";
+
+	FILE *tmp = ut_create_tmp_file(data);
+
+	parser_process_file(tmp, W_DELIM, &table);
 
 	//
 	// column: 0 mean
 	//
-	tmp = (4.0 + 2 * 2) / 6;
+	d_tmp = (4.0 + 2 * 2) / 6;
 
 	result = get_table_mean(&table, table.no_rows, 0, get_str_len);
-	ut_check_double(result, tmp, "mean len: 0");
+	ut_check_double(result, d_tmp, "mean len: 0");
 
 	result = get_table_mean(&table, table.no_rows, 0, get_ratio);
 	ut_check_double(result, 1.0, "mean ratio: 0");
@@ -202,8 +230,8 @@ static void test_table_mean_std_dev(const char *basedir) {
 	//
 	// column: 0 std deveation
 	//
-	result = get_table_std_dev(&table, table.no_rows, 0, get_str_len, tmp);
-	ut_check_double(result, sqrt((4 * (1 - tmp) * (1 - tmp) + 2 * (2 - tmp) * (2 - tmp)) / 6), "std dev str: 0");
+	result = get_table_std_dev(&table, table.no_rows, 0, get_str_len, d_tmp);
+	ut_check_double(result, sqrt((4 * (1 - d_tmp) * (1 - d_tmp) + 2 * (2 - d_tmp) * (2 - d_tmp)) / 6), "std dev str: 0");
 
 	result = get_table_std_dev(&table, table.no_rows, 0, get_ratio, 1.0);
 	ut_check_double(result, 0.0, "std dev ratio: 0");
@@ -253,17 +281,9 @@ static void test_table_mean_std_dev(const char *basedir) {
  * The main function simply starts the test.
  **************************************************************************/
 
-int main(const int argc, char *argv[]) {
-
-	char *basedir;
+int main() {
 
 	print_debug_str("ut_table.c - Start tests\n");
-
-	if (argc != 2) {
-		print_exit("Usage: %s <dir>\n", argv[0]);
-	}
-
-	basedir = argv[1];
 
 	setlocale(LC_ALL, "");
 
@@ -271,9 +291,9 @@ int main(const int argc, char *argv[]) {
 
 	test_table_get_ratio();
 
-	test_table_has_header(basedir);
+	test_table_has_header();
 
-	test_table_mean_std_dev(basedir);
+	test_table_mean_std_dev();
 
 	print_debug_str("ut_table.c - End tests\n");
 
