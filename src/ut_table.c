@@ -116,13 +116,15 @@ static void test_table_has_header() {
 
 	print_debug_str("test_table_has_header() Start\n");
 
-	const wchar_t *data = L"Number,Date,Price,Mix,Mix111\n"
-			"1,01.01.218,1 Euro,aa,aa11\n"
-			"2,01.01.218,1.20 Euro,aabb,aabb1122\n"
-			"4,01.01.218,10 Euro,cc,cc11\n"
-			"8,01.01.218,10.20 Euro,ccdd,ccdd1122\n"
-			"16,01.01.218,100 Euro,ee,ee11\n"
-			"32,01.01.218,100.20 Euro,eeff,eeff1122\n";
+	const wchar_t *data =
+
+	L"Number" DL "Date" DL "Price" DL "Mix" DL "Mix111" NL
+	"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
+	"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
+	"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
+	"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
+	"16" DL "01.01.218" DL "100 Euro" DL "ee" DL "ee11" NL
+	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
 	FILE *tmp = ut_create_tmp_file(data);
 
@@ -204,13 +206,15 @@ static void test_table_mean_std_dev() {
 
 	print_debug_str("test_table_mean_std_dev() Start\n");
 
-	const wchar_t *data = L"Number,Date,Price,Mix,Mix111\n"
-			"1,01.01.218,1 Euro,aa,aa11\n"
-			"2,01.01.218,1.20 Euro,aabb,aabb1122\n"
-			"4,01.01.218,10 Euro,cc,cc11\n"
-			"8,01.01.218,10.20 Euro,ccdd,ccdd1122\n"
-			"16,01.01.218,100 Euro,ee,ee11\n"
-			"32,01.01.218,100.20 Euro,eeff,eeff1122\n";
+	const wchar_t *data =
+
+	L"Number" DL "Date" DL "Price" DL "Mix" DL "Mix111" NL
+	"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
+	"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
+	"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
+	"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
+	"16" DL "01.01.218" DL "100 Euro" DL "ee" DL "ee11" NL
+	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
 	FILE *tmp = ut_create_tmp_file(data);
 
