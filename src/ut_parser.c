@@ -81,82 +81,62 @@ static void test_parser(const char *basedir) {
 }
 
 /***************************************************************************
- * The function reads and parses a csv file. It checks the different line
- * endings (unix: \n windows: \r\n mac: \r) The test file was produced with
- * the following command:
- *
- * echo -ne "a1,a2\rb1,b2\nc1,c2\r\n" > line_endings.csv
+ * The function checks an csv file with one column and 4 rows. The fields
+ * are: a0 a1 a2 a3. The differences are the line endings.
  **************************************************************************/
 
-static void test_line_endings(const char *basedir) {
+static void helper_line_endings(const wchar_t *data) {
 	s_table table;
 
-	print_debug_str("test_line_endings() Start\n");
+	FILE *tmp = create_tmp_file(data);
 
-	ut_parser_process_filename(&table, basedir, "line_endings.csv");
+	parser_process_file(tmp, W_DELIM, &table);
 
 	//
 	// Check all fields "by hand"
 	//
-	ut_check_wchar_str(table.fields[0][0], L"a1");
-	ut_check_wchar_str(table.fields[0][1], L"a2");
-
-	ut_check_wchar_str(table.fields[1][0], L"b1");
-	ut_check_wchar_str(table.fields[1][1], L"b2");
-
-	ut_check_wchar_str(table.fields[2][0], L"c1");
-	ut_check_wchar_str(table.fields[2][1], L"c2");
+	ut_check_wchar_str(table.fields[0][0], L"a0");
+	ut_check_wchar_str(table.fields[1][0], L"a1");
+	ut_check_wchar_str(table.fields[2][0], L"a2");
+	ut_check_wchar_str(table.fields[3][0], L"a3");
 
 	//
 	// Check the meta data
 	//
 	ut_check_int(table.width[0], 2, "col width: 0");
-	ut_check_int(table.width[1], 2, "col width: 1");
 
 	ut_check_int(table.height[0], 1, "row_height: 0");
 	ut_check_int(table.height[1], 1, "row_height: 1");
 	ut_check_int(table.height[2], 1, "row_height: 2");
+	ut_check_int(table.height[3], 1, "row_height: 3");
 
+	//
+	// cleanup
+	//
 	s_table_free(&table);
 
-	print_debug_str("test_line_endings() End\n");
+	fclose(tmp);
 }
 
 /***************************************************************************
- * The function tests a csv file, that has no line feet at the end. The test
- * file was produced with the following command:
+ * The function checks the different line endings of a csv file. The line
+ * endings can occure at the end of a record or at the end of the file.
  *
- * echo -ne "a1,a2\rb1,b2" > eof_endings.csv
+ * unix:    \n
+ * windows: \r\n
+ * mac:     \r
  **************************************************************************/
 
-static void test_eof_endings(const char *basedir) {
-	s_table table;
+static void test_line_endings() {
 
-	print_debug_str("test_eof_endings() Start\n");
+	print_debug_str("test_line_endings() Start\n");
 
-	ut_parser_process_filename(&table, basedir, "eof_endings.csv");
+	helper_line_endings(L"a0\na1\ra2\r\na3");
+	helper_line_endings(L"a0\na1\ra2\r\na3\r");
+	helper_line_endings(L"a0\na1\ra2\r\na3\n");
+	helper_line_endings(L"a0\na1\ra2\r\na3\r\n");
 
-	//
-	// Check all fields "by hand"
-	//
-	ut_check_wchar_str(table.fields[0][0], L"a1");
-	ut_check_wchar_str(table.fields[0][1], L"a2");
-
-	ut_check_wchar_str(table.fields[1][0], L"b1");
-	ut_check_wchar_str(table.fields[1][1], L"b2");
-
-	//
-	// Check the meta data
-	//
-	ut_check_int(table.width[0], 2, "col width: 0");
-	ut_check_int(table.width[1], 2, "col width: 1");
-
-	ut_check_int(table.height[0], 1, "row_height: 0");
-	ut_check_int(table.height[1], 1, "row_height: 1");
-
-	s_table_free(&table);
-
-	print_debug_str("test_eof_endings() End\n");
+	print_debug_str("test_line_endings() End\n");
 }
 
 /***************************************************************************
@@ -216,9 +196,7 @@ int main(const int argc, char *argv[]) {
 
 	test_parser(basedir);
 
-	test_line_endings(basedir);
-
-	test_eof_endings(basedir);
+	test_line_endings();
 
 	test_parser_empty();
 
