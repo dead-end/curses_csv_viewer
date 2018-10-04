@@ -121,6 +121,9 @@ set(CPACK_PACKAGE_CONTACT "Dead End")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Curses based csv file viewer")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/dead-end/curses_csv_viewer")
 
+set(CPACK_DEBIAN_PACKAGE_PRIORITY “optional”)
+set(CPACK_DEBIAN_PACKAGE_SECTION  "Utilities")
+
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
 include(CPack)
