@@ -25,10 +25,8 @@
 #ifndef INC_NCV_TABLE_H_
 #define INC_NCV_TABLE_H_
 
+#include "ncv_filter.h"
 #include "ncv_cursor.h"
-
-#include <stdbool.h>
-#include <wchar.h>
 
 /***************************************************************************
  * The structure contains all the table related data, that is the csv data,
@@ -82,10 +80,8 @@ typedef struct s_table {
 
 	//
 	// If a filter is applied to the table, the filter string is stored here.
-	// If no filter is used, the pointer should be EMPTY_FILTER_STRING (which
-	// is NULL).
 	//
-	wchar_t *filter;
+	s_filter filter;
 
 } s_table;
 
@@ -101,10 +97,6 @@ typedef struct s_table {
  * string.
  **************************************************************************/
 
-#define EMPTY_FILTER_STRING NULL
-
-#define s_table_is_filtered(t) (t->filter != EMPTY_FILTER_STRING)
-
 #define s_table_is_empty(t) ((t)->no_rows == 0)
 
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
@@ -116,8 +108,6 @@ void s_table_init_rows(s_table *table);
 void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *str);
 
 void s_table_field_dimension(wchar_t *str, int *width, int *height);
-
-bool s_table_set_filter_string(s_table *table, const wchar_t *filter);
 
 void s_table_reset_filter(s_table *table, s_cursor *cursor);
 
