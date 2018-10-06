@@ -393,7 +393,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 					wattrset(win_table, attr_cur->normal);
 				}
 
-				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col], table->filter, attr_cur);
+				print_field_content(win_table, table->fields[idx.row][idx.col], &row_field_part, &col_field_part, &win_text, table->width[idx.col], &table->filter, attr_cur);
 
 				//
 				// Reset the attribute the the table normal value.
