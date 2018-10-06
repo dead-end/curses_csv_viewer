@@ -201,12 +201,12 @@ void intersection(const s_buffer *visible, const s_buffer *print, s_buffer *resu
 
 /***************************************************************************
  * The function is called with a line of a field, the visible part of the
- * field and a filter string. It prints the visible part of the line, where
+ * field and a filter struct. It prints the visible part of the line, where
  * the filter string is highlighted. So the function searches multiple times
  * through the line until the filter string is not found any more.
  **************************************************************************/
 
-void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_buffer *visible, const s_buffer *filter, const s_attr *attr_cur) {
+static void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_buffer *visible, const s_filter *filter, const s_attr *attr_cur) {
 
 	//
 	// The part of the line that should be printed.
@@ -221,12 +221,14 @@ void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_
 	wchar_t *cur = field_line;
 	wchar_t *ptr;
 
+	size_t filter_len = s_filter_len(filter);
+
 	while (*cur != W_STR_TERM) {
 
 		//
 		// Search the filter string from the current position.
 		//
-		ptr = wcsstr(cur, filter->ptr);
+		ptr = s_filter_search_str(filter, cur);
 
 		//
 		// If the search string was not found. Print the rest of the line.
@@ -282,7 +284,7 @@ void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_
 		// Set the print to the search result.
 		// And compute the visible part of it.
 		//
-		s_buffer_set(&print, ptr, filter->len);
+		s_buffer_set(&print, ptr, filter_len);
 		intersection(visible, &print, &result);
 
 		//
@@ -307,7 +309,7 @@ void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_
 		//
 		// Update the current position to the end of the found search string.
 		//
-		cur = ptr + filter->len;
+		cur = ptr + filter_len;
 	}
 }
 
@@ -326,27 +328,17 @@ void print_line(WINDOW *win, const int win_y, int win_x, wchar_t *field_line, s_
  * truncated width of the column.
  **************************************************************************/
 
-void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter, const s_attr *attr_cur) {
+void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, const s_filter *filter, const s_attr *attr_cur) {
 	int row;
 	bool end = false;
 
 	print_debug("print_field_content() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, field_content);
-
-	s_buffer search;
 
 	//
 	// A pointer to mark the current position in the field content, while it
 	// is parsed.
 	//
 	wchar_t *ptr = field_content;
-
-	//
-	// Ensure that the filter is set of the wcslen causes a seg fault.
-	//
-	if (filter != EMPTY_FILTER_STRING) {
-		search.ptr = filter;
-		search.len = wcslen(filter);
-	}
 
 	//
 	// Get the height of the field. If the field is truncated, start is
@@ -380,8 +372,8 @@ void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part
 		if (field_line_no >= row_field_part->start) {
 			row = win_row_col->row + field_line_no - row_field_part->start;
 
-			if (filter != EMPTY_FILTER_STRING) {
-				print_line(win, row, win_row_col->col, buffer, &buf, &search, attr_cur);
+			if (s_filter_is_not_empty(filter)) {
+				print_line(win, row, win_row_col->col, buffer, &buf, filter, attr_cur);
 			} else {
 				mvwaddnwstr(win, row, win_row_col->col, buf.ptr, buf.len);
 			}

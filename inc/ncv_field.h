@@ -25,6 +25,7 @@
 #ifndef INC_NCV_FIELD_H_
 #define INC_NCV_FIELD_H_
 
+
 #include "ncv_table_part.h"
 #include "ncv_win_table.h"
 #include "ncv_common.h"
@@ -56,7 +57,7 @@ typedef struct s_field_part {
 } s_field_part;
 
 
-void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, wchar_t *filter, const s_attr *attr_cur);
+void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, const s_filter *filter, const s_attr *attr_cur);
 
 //
 // The functions are only visible for unit tests.
