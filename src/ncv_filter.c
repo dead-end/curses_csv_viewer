@@ -96,7 +96,7 @@ bool s_filter_set_string(s_filter *filter, const wchar_t *filter_str) {
 		//
 		// Check if the filter was not set and the new filter is empty.
 		//
-		if (filter_str == EMPTY_FILTER_STRING || wcslen(filter_str) == 0) {
+		if (filter_str == S_FILTER_EMPTY_STR || wcslen(filter_str) == 0) {
 			print_debug_str("s_filter_set_string() Filter string was already NOT set\n");
 			return false;
 		}
