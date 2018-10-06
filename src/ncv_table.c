@@ -83,10 +83,7 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	//
 	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
 
-	//
-	// Set filter string to NULL to indicate that the table is not filtered.
-	//
-	table->filter = EMPTY_FILTER_STRING;
+	s_filter_init(&table->filter);
 }
 
 /***************************************************************************
@@ -124,12 +121,7 @@ void s_table_free(s_table *table) {
 	free(table->__fields);
 	free(table->fields);
 
-	//
-	// Free filter if set.
-	//
-	if (table->filter != NULL) {
-		free(table->filter);
-	}
+	s_filter_free(&table->filter);
 }
 
 /***************************************************************************
@@ -147,68 +139,6 @@ void s_table_init_rows(s_table *table) {
 	}
 
 	table->no_rows = table->__no_rows;
-}
-
-/***************************************************************************
- * The function sets the filter string of the table. The function returns
- * true if the filter string changed (set, updated or deleted). It accepts
- * EMPTY_FILTER_STRING as a filter (which is NULL).
- **************************************************************************/
-
-bool s_table_set_filter_string(s_table *table, const wchar_t *filter) {
-
-	if (table->filter != EMPTY_FILTER_STRING) {
-		print_debug("s_table_set_filter_string() Current filter string: '%ls'\n", table->filter);
-
-		//
-		// If the new filter string is empty delete the current.
-		//
-		if (filter == EMPTY_FILTER_STRING || wcslen(filter) == 0) {
-			print_debug_str("s_table_set_filter_string() Setting filter string to NULL\n");
-
-			free(table->filter);
-			table->filter = EMPTY_FILTER_STRING;
-
-			return true;
-		}
-
-		//
-		// Check if the filter does not changed.
-		//
-		if (wcscmp(table->filter, filter) == 0) {
-			print_debug("s_table_set_filter_string() Filter string did not change: %ls\n", filter);
-			return false;
-		}
-
-		//
-		// At this point, the current filter is set and the new filter is not
-		// empty.
-		//
-		free(table->filter);
-
-	} else {
-
-		//
-		// Check if the filter was not set and the new filter is empty.
-		//
-		if (filter == EMPTY_FILTER_STRING || wcslen(filter) == 0) {
-			print_debug_str("s_table_set_filter_string() Filter string was already NOT set\n");
-			return false;
-		}
-	}
-
-	//
-	// Duplicate the filter
-	//
-	table->filter = wcsdup(filter);
-
-	if (table->filter == NULL) {
-		print_exit_str("s_table_set_filter_string() Unable to allocate memory!\n");
-	}
-
-	print_debug("s_table_set_filter_string() New filter string: '%ls'\n", table->filter);
-
-	return true;
 }
 
 /***************************************************************************
@@ -252,13 +182,13 @@ void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	//
 	// If the new filter string is empty, do a reset.
 	//
-	if (!s_table_is_filtered(table)) {
+	if (!s_filter_is_not_empty(&table->filter)) {
 		print_debug_str("s_table_do_filter() Filter is empty, do a reset.\n");
 		s_table_reset_filter(table, cursor);
 		return;
 	}
 
-	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter);
+	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.ptr);
 
 	table->no_rows = 0;
 
@@ -270,7 +200,7 @@ void s_table_do_filter(s_table *table, s_cursor *cursor) {
 			// If the field content matches the filter, set the field pointer,
 			// the height and update the number of rows.
 			//
-			if (wcsstr(table->__fields[row][column], table->filter) != NULL) {
+			if (s_filter_search_str(&table->filter, table->__fields[row][column]) != NULL) {
 
 				table->fields[table->no_rows] = table->__fields[row];
 				table->height[table->no_rows] = table->__height[row];
@@ -337,7 +267,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 	//
 	// The filter has to be set to find the next matching field.
 	//
-	if (!s_table_is_filtered(table)) {
+	if (!s_filter_is_not_empty(&table->filter)) {
 		print_debug_str("s_table_prev_next() Table is not filtered!\n");
 		return false;
 	}
@@ -420,7 +350,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 		//
 		// Found prev / next field that contains the filter string.
 		//
-		if (wcsstr(table->fields[row_cur][col_cur], table->filter) != NULL) {
+		if (s_filter_search_str(&table->filter, table->fields[row_cur][col_cur]) != NULL) {
 
 			//
 			// Set the cursor to the first found field.
