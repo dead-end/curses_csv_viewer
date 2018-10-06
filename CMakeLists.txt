@@ -72,6 +72,7 @@ set(TEST_SRCS
   src/ut_parser.c
   src/ut_table.c
   src/ut_table_part.c
+  src/ut_common.c
 )
 
 foreach(src_file ${TEST_SRCS})
