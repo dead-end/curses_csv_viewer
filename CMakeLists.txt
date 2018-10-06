@@ -30,6 +30,7 @@ set(LIBS
   src/ncv_table_part.c
   src/ncv_corners.c
   src/ncv_field.c
+  src/ncv_filter.c
   src/ncv_ui_loop.c
   src/ncv_win_header.c
   src/ncv_win_filter.c
