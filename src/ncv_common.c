@@ -29,7 +29,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-
+#include <wctype.h>
 
 /***************************************************************************
  * The function allocates memory and terminates the program in case of an
@@ -218,4 +218,41 @@ wchar_t read_wchar(FILE *file) {
 	}
 
 	return (wchar_t) wint;
+}
+
+/***************************************************************************
+ * The function is a wchar_t variant of the strstr function.
+ **************************************************************************/
+
+wchar_t *wcs_casestr(const wchar_t *str, const wchar_t *find) {
+	wchar_t first_chr, str_chr;
+	size_t len;
+
+	//
+	// Split the find string in the first char and the rest
+	//
+	if ((first_chr = *find++) != 0) {
+
+		first_chr = (wchar_t) towlower((wint_t) first_chr);
+		len = wcslen(find);
+
+		do {
+
+			//
+			// Go through the string until the first char matches
+			//
+			do {
+				if ((str_chr = *str++) == 0) {
+					return NULL;
+				}
+			} while ((wchar_t) tolower((wint_t) str_chr) != first_chr);
+
+			//
+			// If the first char matches compare the rest of the find string.
+			//
+		} while (wcsncasecmp(str, find, len) != 0);
+		str--;
+	}
+
+	return ((wchar_t *) str);
 }
