@@ -27,6 +27,7 @@
 #include "ncv_win_header.h"
 #include "ncv_win_footer.h"
 
+#include "ncv_filter.h"
 #include "ncv_table_part.h"
 #include "ncv_ncurses.h"
 #include "ncv_common.h"
@@ -268,7 +269,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				// Reset the filtering in filter and table mode.
 				//
-				if (s_table_set_filter_string(table, EMPTY_FILTER_STRING)) {
+				if (s_filter_set_string(&table->filter, S_FILTER_EMPTY_STR)) {
 
 					//
 					// Update the filter form
@@ -310,7 +311,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					// Update the filter string and check if something changed.
 					//
-					if (s_table_set_filter_string(table, filter_buf)) {
+					if (s_filter_set_string(&table->filter, filter_buf)) {
 						s_table_do_filter(table, &cursor);
 						win_table_on_table_change(table);
 					}
