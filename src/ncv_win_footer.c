@@ -39,7 +39,7 @@
  * for the header and one row for the table and one row for the footer.
  **************************************************************************/
 
-#define WIN_FOOTER_MIN_SIZE (getmaxy(stdscr) >= 3)
+#define WIN_FOOTER_HAS_MIN_SIZE (getmaxy(stdscr) >= 3)
 
 /***************************************************************************
  * Definition of the footer window.
@@ -73,7 +73,7 @@ void win_footer_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_FOOTER_MIN_SIZE) {
+	if (WIN_FOOTER_HAS_MIN_SIZE) {
 		print_debug_str("win_footer_resize() Do resize the window!\n");
 
 		//
@@ -99,7 +99,7 @@ void win_footer_refresh_no() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_FOOTER_MIN_SIZE) {
+	if (WIN_FOOTER_HAS_MIN_SIZE) {
 		print_debug_str("win_footer_refresh_no() Do refresh the window!\n");
 
 		//
@@ -130,7 +130,7 @@ void win_footer_free() {
  * enough space, the filename is shorten or completely left out.
  **************************************************************************/
 
-void win_footer_content_print(char *filename, const s_table *table, const s_cursor *cursor) {
+void win_footer_content_print(const s_table *table, const s_cursor *cursor, const char *filename) {
 	char buf[FOOTER_WIN_MAX];
 	int max_width, strlen_row_col, strlen_filename;
 

@@ -31,7 +31,7 @@
  * and one row for the table.
  **************************************************************************/
 
-#define WIN_TABLE_MIN_SIZE (getmaxy(stdscr) >= 2)
+#define WIN_TABLE_HAS_MIN_SIZE (getmaxy(stdscr) >= 2)
 
 /***************************************************************************
  * Definition of the table window.
@@ -115,7 +115,7 @@ void win_table_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_TABLE_MIN_SIZE) {
+	if (WIN_TABLE_HAS_MIN_SIZE) {
 		print_debug_str("win_table_resize() Do resize the window!\n");
 
 		getmaxyx(stdscr, win_y, win_x);
@@ -149,7 +149,7 @@ void win_table_refresh_no() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_TABLE_MIN_SIZE) {
+	if (WIN_TABLE_HAS_MIN_SIZE) {
 		print_debug_str("win_table_refresh_no() Do refresh the window!\n");
 
 		//

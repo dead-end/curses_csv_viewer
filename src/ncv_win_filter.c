@@ -34,7 +34,7 @@
  * that size.
  **************************************************************************/
 
-#define WIN_FILTER_MIN_SIZE (getmaxx(stdscr) - WIN_FILTER_SIZE > 0)
+#define WIN_FILTER_HAS_MIN_SIZE (getmaxx(stdscr) - WIN_FILTER_SIZE > 0)
 
 /***************************************************************************
  * The necessary field / form / window variables are defined as static.
@@ -172,7 +172,7 @@ void win_filter_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_FILTER_MIN_SIZE) {
+	if (WIN_FILTER_HAS_MIN_SIZE) {
 		print_debug_str("win_filter_resize() Do resize the window!\n");
 
 		//
@@ -212,7 +212,7 @@ void win_filter_refresh_no() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_FILTER_MIN_SIZE) {
+	if (WIN_FILTER_HAS_MIN_SIZE) {
 		print_debug_str("win_filter_refresh_no() Do refresh the window!\n");
 
 		//

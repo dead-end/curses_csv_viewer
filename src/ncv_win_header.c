@@ -48,7 +48,7 @@
  * smaller than the filter window.
  **************************************************************************/
 
-#define WIN_HEADER_MIN_SIZE (WIN_HEADER_SIZE > 0)
+#define WIN_HEADER_HAS_MIN_SIZE (WIN_HEADER_SIZE > 0)
 
 /***************************************************************************
  * Definition of the header window.
@@ -103,7 +103,7 @@ void win_header_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_HEADER_MIN_SIZE) {
+	if (WIN_HEADER_HAS_MIN_SIZE) {
 		print_debug_str("win_header_resize() Do resize the window!\n");
 
 		//
@@ -131,7 +131,7 @@ void win_header_refresh_no() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_HEADER_MIN_SIZE) {
+	if (WIN_HEADER_HAS_MIN_SIZE) {
 		print_debug_str("win_header_refresh_no() Do refresh the window!\n");
 
 		//
