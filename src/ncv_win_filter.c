@@ -284,12 +284,12 @@ void win_filter_get_filter(wchar_t *buffer, const int buf_size) {
 	// The field content is filled with blanks, which has to be trimmed
 	// before the copying.
 	//
-	char *trimed = trim(str);
+	const char *trimed = trim(str);
 
 	//
 	// Convert and copy.
 	//
-	mbs_2_wchars(trim(trimed), buffer, buf_size);
+	mbs_2_wchars(trimed, buffer, buf_size);
 
 	print_debug("win_filter_get_filter() Filter: '%ls'\n", buffer);
 }
