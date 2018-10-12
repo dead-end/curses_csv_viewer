@@ -89,7 +89,7 @@ static void wins_refresh() {
  * The function resizes all windows.
  **************************************************************************/
 
-static void wins_resize() {
+static void wins_resize(const s_table *table, s_cursor *cursor) {
 
 	win_header_resize();
 
@@ -97,7 +97,24 @@ static void wins_resize() {
 
 	win_table_resize();
 
+	//
+	// Resize the table content based on the new win_table size.
+	//
+	win_table_content_resize(table, cursor);
+
 	win_footer_resize();
+}
+
+/***************************************************************************
+ *
+ **************************************************************************/
+
+static void print_table(const s_table *table, const s_cursor *cursor, const char *filename) {
+
+	win_table_content_print(table, cursor);
+	win_footer_content_print(table, cursor, filename);
+	//TODO: win_header_content_print
+	wins_refresh();
 }
 
 /***************************************************************************
@@ -158,11 +175,6 @@ static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 void ui_loop(s_table *table, const char *filename) {
 
 	//
-	// A flag that indicated that the table should be redrawn.
-	//
-	bool do_print = true;
-
-	//
 	// The current mode od the ui (TABLE / FILTER)
 	//
 	enum MODE mode = MODE_TABLE;
@@ -197,19 +209,14 @@ void ui_loop(s_table *table, const char *filename) {
 	win_table_on_table_change(table);
 	win_table_set_cursor(table, &cursor, DIR_FORWARD);
 
+	//
+	// Initial printing of the table
+	//
+	print_table(table, &cursor, filename);
+
 	while (do_continue) {
 
 		print_debug("ui_loop() mode: %s do_print: %d rows: %d cols: %d\n", mode_str(mode), do_print, getmaxy(win), getmaxx(win));
-
-		//
-		// Print and refresh only if something changed.
-		//
-		if (do_print) {
-			win_table_content_print(table, &cursor);
-			win_footer_content_print(filename, table, &cursor);
-			wins_refresh();
-			do_print = false;
-		}
 
 		//
 		// Without moving the cursor at the end a flickering occurs, when the
@@ -231,14 +238,13 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				// Resize the windows.
 				//
-				wins_resize();
+				wins_resize(table, &cursor);
 
 				//
-				// Resize the table content based on the new win_table size.
 				//
-				win_table_content_resize(table, &cursor);
+				//
+				print_table(table, &cursor, filename);
 
-				do_print = true;
 				is_processed = true;
 
 				break;
@@ -284,7 +290,7 @@ void ui_loop(s_table *table, const char *filename) {
 					win_table_set_cursor(table, &cursor, DIR_FORWARD);
 				}
 				werase(win_table_get_win());
-				do_print = true;
+				print_table(table, &cursor, filename);
 
 				break;
 
@@ -322,7 +328,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					win_table_set_cursor(table, &cursor, DIR_FORWARD);
 					werase(win_table_get_win());
-					do_print = true;
+					print_table(table, &cursor, filename);
 
 				}
 				break;
@@ -336,7 +342,7 @@ void ui_loop(s_table *table, const char *filename) {
 
 				if (mode == MODE_TABLE) {
 					change_mode(&win, &cursor, &mode, MODE_FILTER);
-					do_print = true;
+					print_table(table, &cursor, filename);
 				}
 				break;
 
@@ -376,7 +382,9 @@ void ui_loop(s_table *table, const char *filename) {
 			switch (mode) {
 
 			case MODE_TABLE:
-				do_print = win_table_process_input(table, &cursor, key_type, chr);
+				if (win_table_process_input(table, &cursor, key_type, chr)) {
+					print_table(table, &cursor, filename);
+				}
 				break;
 
 			case MODE_FILTER:
