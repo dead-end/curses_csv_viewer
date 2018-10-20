@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-
 #include "ncv_ncurses.h"
 #include "ncv_win_filter.h"
 #include "ncv_common.h"
@@ -36,19 +35,27 @@
 #define HEADER_LABEL_LEN 10
 
 /***************************************************************************
- * The header window shares the first row with the filter window. The filter
- * window has a fixed size, so the header window has the remaining size.
+ * The window has a natural minimum window size.
  **************************************************************************/
 
-#define WIN_HEADER_SIZE (getmaxx(stdscr) - WIN_FILTER_SIZE)
+#define WIN_HEADER_MIN_COLS 1
+
+#define WIN_HEADER_MIN_ROWS 1
 
 /***************************************************************************
- * The terminal has a min height of 1, so the header is always shown and
- * always at the same position. The window is not shown if the terminal is
- * smaller than the filter window.
+ * The definition of the minimum cols to be able to print the label (which
+ * is of cause the label length).
  **************************************************************************/
 
-#define WIN_HEADER_HAS_MIN_SIZE (WIN_HEADER_SIZE > 0)
+#define WIN_HEADER_MIN_LABEL_COLS HEADER_LABEL_LEN
+
+/***************************************************************************
+ * The definition of the header window size which is the complete first row.
+ **************************************************************************/
+
+#define WIN_HEADER_COLS getmaxx(stdscr)
+
+#define WIN_HEADER_ROWS 1
 
 /***************************************************************************
  * Definition of the header window.
@@ -66,7 +73,7 @@ static void win_header_print_label() {
 	//
 	// If the header window has enough space for the label, it is printed.
 	//
-	if (WIN_HEADER_SIZE >= HEADER_LABEL_LEN) {
+	if (WIN_HAS_MIN_SIZE(WIN_HEADER_MIN_ROWS, WIN_HEADER_MIN_LABEL_COLS)) {
 		mvwaddstr(win_header, 0, 0, HEADER_LABEL);
 	}
 }
@@ -81,7 +88,7 @@ void win_header_init() {
 	//
 	// Create the header window.
 	//
-	win_header = ncurses_win_create(1, WIN_HEADER_SIZE, 0, 0);
+	win_header = ncurses_win_create(WIN_HEADER_ROWS, WIN_HEADER_COLS, 0, 0);
 
 	//
 	// Set the header window background.
@@ -103,13 +110,13 @@ void win_header_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_HEADER_HAS_MIN_SIZE) {
+	if (WIN_HAS_MIN_SIZE(WIN_HEADER_MIN_ROWS, WIN_HEADER_MIN_COLS)) {
 		print_debug_str("win_header_resize() Do resize the window!\n");
 
 		//
 		// Try to resize the window and stop if the size has not changed.
 		//
-		if (!ncurses_win_resize(win_header, 1, WIN_HEADER_SIZE)) {
+		if (!ncurses_win_resize(win_header, WIN_HEADER_ROWS, WIN_HEADER_COLS)) {
 			print_debug_str("win_header_resize() Window size has not changed!\n");
 			return;
 		}
@@ -128,19 +135,8 @@ void win_header_resize() {
 
 void win_header_refresh_no() {
 
-	//
-	// Ensure the minimum size of the window.
-	//
-	if (WIN_HEADER_HAS_MIN_SIZE) {
-		print_debug_str("win_header_refresh_no() Do refresh the window!\n");
-
-		//
-		// Do the refresh.
-		//
-		if (wnoutrefresh(win_header) != OK) {
-			print_exit_str("win_header_refresh_no() Unable to refresh the window!\n");
-		}
-	}
+	print_debug_str("win_header_refresh_no() Refresh footer window.\n");
+	ncurses_win_refresh_no(win_header, WIN_HEADER_MIN_ROWS, WIN_HEADER_MIN_COLS);
 }
 
 /***************************************************************************
