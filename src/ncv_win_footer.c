@@ -68,6 +68,11 @@ void win_footer_init() {
 
 /***************************************************************************
  * The function is called on resizing the terminal window.
+ *
+ * An explicit resizing of the window is not necessary. This is only
+ * necessary if the new window size is not trivial.
+ *
+ * ncurses_win_resize(win_footer, 1, getmaxx(stdscr));
  **************************************************************************/
 
 void win_footer_resize() {
@@ -77,11 +82,6 @@ void win_footer_resize() {
 	//
 	if (WIN_HAS_MIN_SIZE(WIN_FOOTER_HAS_MIN_ROWS, WIN_FOOTER_HAS_MIN_COLS)) {
 		print_debug_str("win_footer_resize() Do resize the window!\n");
-
-		//
-		// Resize the window.
-		//
-		ncurses_win_resize(win_footer, 1, getmaxx(stdscr));
 
 		//
 		// Move the footer to the bottom of the terminal. This is necessary
