@@ -169,6 +169,28 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 }
 
 /***************************************************************************
+ * The function does a refresh with no update if the terminal is large
+ * enough.
+ **************************************************************************/
+
+void ncurses_win_refresh_no(WINDOW *win, const int min_rows, const int min_cols) {
+
+	//
+	// Ensure the minimum size of the window.
+	//
+	if (WIN_HAS_MIN_SIZE(min_rows, min_cols)) {
+		print_debug_str("ncurses_win_refresh_no() Do refresh the window!\n");
+
+		//
+		// Do the refresh.
+		//
+		if (wnoutrefresh(win) != OK) {
+			print_exit_str("ncurses_win_refresh_no() Unable to refresh the window!\n");
+		}
+	}
+}
+
+/***************************************************************************
  * The function frees a window if the window is not null.
  **************************************************************************/
 
