@@ -133,6 +133,10 @@ void ncurses_win_center(WINDOW *win) {
 /***************************************************************************
  * The function resizes a window. On success it returns true. It returns
  * false if the size does not changed.
+ *
+ * The function has to be called only if the size of the window is not
+ * trivial. The header and the footer have one row with the full length.
+ * This size is updated automatically.
  **************************************************************************/
 
 bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
@@ -154,7 +158,7 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 	print_debug("ncurses_win_resize() Win size from y: %d x: %d to y: %d x: %d\n", from_y, from_x, to_y, to_x);
 
 	if (from_y == to_y && from_x == to_x) {
-		print_debug_str("ncurses_win_resize() Win size has not changed.\n");
+		print_debug("ncurses_win_resize() Win size has not changed: y: %d x: %d\n",to_y, to_x);
 		return false;
 	}
 
