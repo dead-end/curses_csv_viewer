@@ -31,7 +31,9 @@
  * and one row for the table.
  **************************************************************************/
 
-#define WIN_TABLE_HAS_MIN_SIZE (getmaxy(stdscr) >= 2)
+#define WIN_TABLE_HAS_MIN_COLS 1
+
+#define WIN_TABLE_HAS_MIN_ROWS 2
 
 /***************************************************************************
  * Definition of the table window.
@@ -115,7 +117,7 @@ void win_table_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_TABLE_HAS_MIN_SIZE) {
+	if (WIN_HAS_MIN_SIZE(WIN_TABLE_HAS_MIN_ROWS, WIN_TABLE_HAS_MIN_COLS)) {
 		print_debug_str("win_table_resize() Do resize the window!\n");
 
 		getmaxyx(stdscr, win_y, win_x);
@@ -136,28 +138,6 @@ void win_table_resize() {
 		// move it back.
 		//
 		ncurses_win_move(win_table, 1, 0);
-	}
-}
-
-/***************************************************************************
- * The function does a refresh with no update if the terminal is large
- * enough.
- **************************************************************************/
-
-void win_table_refresh_no() {
-
-	//
-	// Ensure the minimum size of the window.
-	//
-	if (WIN_TABLE_HAS_MIN_SIZE) {
-		print_debug_str("win_table_refresh_no() Do refresh the window!\n");
-
-		//
-		// Do the refresh.
-		//
-		if (wnoutrefresh(win_table) != OK) {
-			print_exit_str("win_table_refresh_no() Unable to refresh the window!\n");
-		}
 	}
 }
 
@@ -444,14 +424,6 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 }
 
 /***************************************************************************
- * The function returns the window for the table, which is static.
- **************************************************************************/
-
-WINDOW *win_table_get_win() {
-	return win_table;
-}
-
-/***************************************************************************
  * The function processes the user input for the table, which is moving the
  * field cursor through the table. It returns a bool value, to indicate an
  * update.
@@ -647,6 +619,25 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 	print_debug("win_table_process_input() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
 
 	return result;
+}
+
+/***************************************************************************
+ * The function returns the window for the table, which is static.
+ **************************************************************************/
+
+WINDOW *win_table_get_win() {
+	return win_table;
+}
+
+/***************************************************************************
+ * The function does a refresh with no update if the terminal is large
+ * enough.
+ **************************************************************************/
+
+void win_table_refresh_no() {
+
+	print_debug_str("win_footer_refresh_no() Refresh footer window.\n");
+	ncurses_win_refresh_no(win_table, WIN_TABLE_HAS_MIN_ROWS, WIN_TABLE_HAS_MIN_COLS);
 }
 
 /***************************************************************************
