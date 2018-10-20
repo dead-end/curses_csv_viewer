@@ -49,7 +49,6 @@
 
 #define NCV_KEY_NEWLINE 10
 
-
 /***************************************************************************
  * The indices of color pairs
  **************************************************************************/
@@ -80,6 +79,12 @@
 
 #define CP_HEADER_CURSOR_HL 10
 
+#define WIN_HAS_MIN_SIZE(r,c) (getmaxy(stdscr) >= (r) && getmaxx(stdscr) >= (c))
+
+/***************************************************************************
+ * Function definitions
+ **************************************************************************/
+
 void ncurses_init(const bool monochrom, const bool use_initscr);
 
 void ncurses_free();
@@ -92,6 +97,10 @@ WINDOW *ncurses_win_create(const int rows, const int cols, const int begin_y, co
 
 void ncurses_win_move(WINDOW *win, const int to_y, const int to_x);
 
+void ncurses_win_center(WINDOW *win);
+
 bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x);
+
+void ncurses_win_free(WINDOW *win);
 
 #endif

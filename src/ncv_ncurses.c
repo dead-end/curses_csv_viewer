@@ -106,6 +106,31 @@ void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 }
 
 /***************************************************************************
+ * The function moves a window to the center. This works only if the window
+ * is smaller than the terminal. If the window is too large, the function
+ * does nothing.
+ **************************************************************************/
+
+void ncurses_win_center(WINDOW *win) {
+
+	//
+	// Get the center positions
+	//
+	const int to_x = (getmaxx(stdscr) - getmaxx(win)) / 2;
+	const int to_y = (getmaxy(stdscr) - getmaxy(win)) / 2;
+
+	//
+	// Ensure that the window is not too large
+	//
+	if (to_y < 0 || to_x < 0) {
+		print_debug("ncurses_win_center() Win position is not valid - y: %d x: %d\n", to_y, to_x);
+		return;
+	}
+
+	ncurses_win_move(win, to_y, to_x);
+}
+
+/***************************************************************************
  * The function resizes a window. On success it returns true. It returns
  * false if the size does not changed.
  **************************************************************************/
@@ -141,6 +166,17 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 	}
 
 	return true;
+}
+
+/***************************************************************************
+ * The function frees a window if the window is not null.
+ **************************************************************************/
+
+void ncurses_win_free(WINDOW *win) {
+
+	if (win != NULL && delwin(win) != OK) {
+		print_exit_str("ncurses_win_free() Unable to delete window!\n");
+	}
 }
 
 /***************************************************************************
