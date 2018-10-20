@@ -103,6 +103,11 @@ void win_header_init() {
 
 /***************************************************************************
  * The function is called on resizing the terminal window.
+ *
+ * An explicit resizing of the window is not necessary. This is only
+ * necessary if the new window size is not trivial.
+ *
+ * ncurses_win_resize(win_header, WIN_HEADER_ROWS, WIN_HEADER_COLS);
  **************************************************************************/
 
 void win_header_resize() {
@@ -112,14 +117,6 @@ void win_header_resize() {
 	//
 	if (WIN_HAS_MIN_SIZE(WIN_HEADER_MIN_ROWS, WIN_HEADER_MIN_COLS)) {
 		print_debug_str("win_header_resize() Do resize the window!\n");
-
-		//
-		// Try to resize the window and stop if the size has not changed.
-		//
-		if (!ncurses_win_resize(win_header, WIN_HEADER_ROWS, WIN_HEADER_COLS)) {
-			print_debug_str("win_header_resize() Window size has not changed!\n");
-			return;
-		}
 
 		//
 		// Print the label
