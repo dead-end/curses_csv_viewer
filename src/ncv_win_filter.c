@@ -225,38 +225,6 @@ void win_filter_refresh_no() {
 }
 
 /***************************************************************************
- * The function frees the allocated resources.
- **************************************************************************/
-
-void win_filter_free() {
-
-	print_debug_str("win_header_free() Removing filter windows, forms and fields.\n");
-
-	if (filter_form != NULL) {
-
-		if (unpost_form(filter_form) != E_OK) {
-			print_exit_str("win_filter_free() Unable to unpost form!\n");
-		}
-
-		if (free_form(filter_form) != E_OK) {
-			print_exit_str("win_filter_free() Unable to free form!\n");
-		}
-
-		if (free_field(field[0]) != E_OK) {
-			print_exit_str("win_filter_free() Unable to free field!\n");
-		}
-	}
-
-	if (win_filter_sub != NULL && delwin(win_filter_sub) != E_OK) {
-		print_exit_str("win_filter_free() Unable to free sub window!\n");
-	}
-
-	if (win_filter != NULL && delwin(win_filter) != OK) {
-		print_exit_str("win_filter_free() Unable to delete filter window!\n");
-	}
-}
-
-/***************************************************************************
  * The function returns the filter window (which is defined static).
  **************************************************************************/
 
@@ -387,4 +355,32 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 
 		break; // case OK
 	}
+}
+
+/***************************************************************************
+ * The function frees the allocated resources.
+ **************************************************************************/
+
+void win_filter_free() {
+
+	print_debug_str("win_header_free() Removing filter windows, forms and fields.\n");
+
+	if (filter_form != NULL) {
+
+		if (unpost_form(filter_form) != E_OK) {
+			print_exit_str("win_filter_free() Unable to unpost form!\n");
+		}
+
+		if (free_form(filter_form) != E_OK) {
+			print_exit_str("win_filter_free() Unable to free form!\n");
+		}
+
+		if (free_field(field[0]) != E_OK) {
+			print_exit_str("win_filter_free() Unable to free field!\n");
+		}
+	}
+
+	ncurses_win_free(win_filter_sub);
+
+	ncurses_win_free(win_filter);
 }

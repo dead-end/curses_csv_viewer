@@ -162,19 +162,6 @@ void win_table_refresh_no() {
 }
 
 /***************************************************************************
- * The function frees the allocated resources.
- **************************************************************************/
-
-void win_table_free() {
-
-	print_debug_str("win_table_free() Removing table window.\n");
-
-	if (win_table != NULL && delwin(win_table) != OK) {
-		print_exit_str("win_table_free() Unable to delete the table window!\n");
-	}
-}
-
-/***************************************************************************
  * The function is called if the number of rows / columns of the table
  * changes. This happens on filtering and reseting the filter
  **************************************************************************/
@@ -661,3 +648,14 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 	return result;
 }
+
+/***************************************************************************
+ * The function frees the allocated resources.
+ **************************************************************************/
+
+void win_table_free() {
+
+	print_debug_str("win_table_free() Removing table window.\n");
+	ncurses_win_free(win_table);
+}
+

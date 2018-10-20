@@ -112,19 +112,6 @@ void win_footer_refresh_no() {
 }
 
 /***************************************************************************
- * The function frees the allocated resources.
- **************************************************************************/
-
-void win_footer_free() {
-
-	print_debug_str("win_footer_free() Removing footer window.\n");
-
-	if (win_footer != NULL && delwin(win_footer) != OK) {
-		print_exit_str("win_footer_free() Unable to delete footer window!\n");
-	}
-}
-
-/***************************************************************************
  * The function prints the footer line, which consists of the current row /
  * column index of the field cursor and the filename. If there is not
  * enough space, the filename is shorten or completely left out.
@@ -223,4 +210,14 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 	if (strlen_row_col + strlen_filename <= max_width) {
 		mvwaddstr(win_footer, 0, 0, buf);
 	}
+}
+
+/***************************************************************************
+ * The function frees the allocated resources.
+ **************************************************************************/
+
+void win_footer_free() {
+
+	print_debug_str("win_footer_free() Removing footer window.\n");
+	ncurses_win_free(win_footer);
 }
