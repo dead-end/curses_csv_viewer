@@ -636,7 +636,7 @@ WINDOW *win_table_get_win() {
 
 void win_table_refresh_no() {
 
-	print_debug_str("win_footer_refresh_no() Refresh footer window.\n");
+	print_debug_str("win_table_refresh_no() Refresh table window.\n");
 	ncurses_win_refresh_no(win_table, WIN_TABLE_MIN_ROWS, WIN_TABLE_MIN_COLS);
 }
 
