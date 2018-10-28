@@ -137,6 +137,17 @@ void win_header_refresh_no() {
 }
 
 /***************************************************************************
+ * The function touches the window, so that a refresh has an effect.
+ **************************************************************************/
+
+void win_header_touch() {
+
+	if (touchwin(win_header) == ERR) {
+		print_exit_str("win_header_touch() Unable to touch header window!\n");
+	}
+}
+
+/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 

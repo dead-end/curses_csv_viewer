@@ -31,6 +31,8 @@ void win_header_resize();
 
 void win_header_refresh_no();
 
+void win_header_touch();
+
 void win_header_free();
 
 #endif

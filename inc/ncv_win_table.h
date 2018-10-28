@@ -54,6 +54,8 @@ void win_table_resize();
 
 void win_table_refresh_no();
 
+void win_table_touch();
+
 void win_table_free();
 
 void win_table_on_table_change(const s_table *table);

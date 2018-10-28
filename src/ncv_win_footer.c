@@ -204,6 +204,17 @@ void win_footer_refresh_no() {
 }
 
 /***************************************************************************
+ * The function touches the window, so that a refresh has an effect.
+ **************************************************************************/
+
+void win_footer_touch() {
+
+	if (touchwin(win_footer) == ERR) {
+		print_exit_str("win_footer_touch() Unable to touch footer window!\n");
+	}
+}
+
+/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 

@@ -641,6 +641,17 @@ void win_table_refresh_no() {
 }
 
 /***************************************************************************
+ * The function touches the window, so that a refresh has an effect.
+ **************************************************************************/
+
+void win_table_touch() {
+
+	if (touchwin(win_table) == ERR) {
+		print_exit_str("win_table_touch() Unable to touch table window!\n");
+	}
+}
+
+/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 
