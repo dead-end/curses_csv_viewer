@@ -99,8 +99,7 @@ void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 	// Do the actual moving.
 	//
 	if (mvwin(win, to_y, to_x) != OK) {
-		print_debug("ncurses_win_move() stdscr max y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
-		print_debug("ncurses_win_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
+		print_debug("ncurses_win_move() stdscr max y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));print_debug("ncurses_win_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
 		print_exit_str("ncurses_win_move() Unable to move window\n");
 	}
 }
@@ -126,6 +125,10 @@ void ncurses_win_center(WINDOW *win) {
 		print_debug("ncurses_win_center() Win position is not valid - y: %d x: %d\n", to_y, to_x);
 		return;
 	}
+
+	print_debug("ncurses_win_center() x stdscr: %d win: %d pos: %d\n", getmaxx(stdscr) , getmaxx(win), to_x);
+
+	print_debug("ncurses_win_center() y stdscr: %d win: %d pos: %d\n", getmaxy(stdscr) , getmaxy(win), to_y);
 
 	ncurses_win_move(win, to_y, to_x);
 }
@@ -170,6 +173,26 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 	}
 
 	return true;
+}
+
+/***************************************************************************
+ * The function is used for windows with constant sizes. If the stdscr is
+ * too small ncurses has resized the window. The function checks the desired
+ * size and resizes the window if necessary. It returns true if the window
+ * has been resized.
+ **************************************************************************/
+
+bool ncurses_win_ensure_size(WINDOW *win, const int y, const int x) {
+
+	if (getmaxx(win) != x || getmaxy(win) != y) {
+
+		print_debug("ncurses_win_ensure_size() Resize win to y: %d x: %d!\n", y,x);
+		ncurses_win_resize(win, y, x);
+
+		return true;
+	}
+
+	return false;
 }
 
 /***************************************************************************

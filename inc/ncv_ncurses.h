@@ -101,6 +101,8 @@ void ncurses_win_center(WINDOW *win);
 
 bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x);
 
+bool ncurses_win_ensure_size(WINDOW *win, const int y, const int x);
+
 void ncurses_win_refresh_no(WINDOW *win, const int min_rows, const int min_cols);
 
 void ncurses_win_free(WINDOW *win);
