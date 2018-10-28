@@ -356,6 +356,17 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 }
 
 /***************************************************************************
+ * The function touches the window, so that a refresh has an effect.
+ **************************************************************************/
+
+void win_filter_touch() {
+
+	if (touchwin(win_filter) == ERR) {
+		print_exit_str("win_filter_touch() Unable to touch filter window!\n");
+	}
+}
+
+/***************************************************************************
  * The function frees the allocated resources.
  **************************************************************************/
 

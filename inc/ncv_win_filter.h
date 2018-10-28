@@ -41,6 +41,8 @@ void win_filter_resize();
 
 void win_filter_refresh_no();
 
+void win_filter_touch();
+
 void win_filter_free();
 
 WINDOW *win_filter_get_win();
