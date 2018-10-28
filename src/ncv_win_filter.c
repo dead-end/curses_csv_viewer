@@ -179,10 +179,8 @@ void win_filter_resize() {
 		// The filter window has a constant size. If the stdscr is too small
 		// ncurses has resized the window.
 		//
-		if (getmaxx(win_filter) != WIN_FILTER_SIZE) {
-			print_debug_str("win_filter_resize() Resize win_filter!\n");
-
-			ncurses_win_resize(win_filter, 1, WIN_FILTER_SIZE);
+		if (ncurses_win_ensure_size(win_filter, 1, WIN_FILTER_SIZE)) {
+			print_debug_str("win_filter_resize() Update form after resize!\n");
 
 			//
 			// Reset the form.
@@ -206,7 +204,7 @@ void win_filter_resize() {
  * The function does a refresh with no update if the terminal is large
  * enough.
  **************************************************************************/
-
+// TODO: use ncurses_fkt
 void win_filter_refresh_no() {
 
 	//
