@@ -207,10 +207,10 @@ void win_footer_refresh_no() {
  * The function touches the window, so that a refresh has an effect.
  **************************************************************************/
 
-void win_footer_touch() {
+void win_footer_show() {
 
 	if (touchwin(win_footer) == ERR) {
-		print_exit_str("win_footer_touch() Unable to touch footer window!\n");
+		print_exit_str("win_footer_show() Unable to touch footer window!\n");
 	}
 }
 
