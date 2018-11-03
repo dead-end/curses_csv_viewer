@@ -33,4 +33,6 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 
 void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub, const bool resize);
 
+void forms_free(FORM *form, FIELD *fields[]);
+
 #endif

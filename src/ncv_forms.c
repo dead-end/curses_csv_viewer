@@ -150,3 +150,27 @@ void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub, const bool
 		print_exit("forms_set_win_and_post() Unable to post filter form! (result: %d)\n", result);
 	}
 }
+
+/***************************************************************************
+ * The function does an unpost and free of a form and its fields.
+ **************************************************************************/
+
+void forms_free(FORM *form, FIELD *fields[]) {
+
+	if (form != NULL) {
+
+		if (unpost_form(form) != E_OK) {
+			print_exit_str("forms_free() Unable to unpost form!\n");
+		}
+
+		if (free_form(form) != E_OK) {
+			print_exit_str("forms_free() Unable to free form!\n");
+		}
+
+		for (int i = 0; fields[i] != NULL; i++) {
+			if (free_field(fields[i]) != E_OK) {
+				print_exit("forms_free() Unable to free field: %d\n", i);
+			}
+		}
+	}
+}
