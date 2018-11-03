@@ -27,13 +27,7 @@
 
 #include <ncursesw/ncurses.h>
 
-#define FILTER_FIELD_ROWS 1
 #define FILTER_FIELD_COLS 32
-
-#define FILTER_FIELD_LABEL     "Filter: "
-#define FILTER_FIELD_LABEL_LEN 8
-
-#define WIN_FILTER_SIZE (FILTER_FIELD_COLS + FILTER_FIELD_LABEL_LEN + 1)
 
 void win_filter_init();
 
@@ -41,7 +35,7 @@ void win_filter_resize();
 
 void win_filter_refresh_no();
 
-void win_filter_touch();
+void win_filter_show();
 
 void win_filter_free();
 

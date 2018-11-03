@@ -152,10 +152,36 @@ void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub, const bool
 }
 
 /***************************************************************************
+ * The function creates a form with some fields and ensures that appropriate
+ * options are set.
+ **************************************************************************/
+
+FORM *forms_create_form(FIELD **fields) {
+	FORM *form;
+
+	//
+	// Create the filter form.
+	//
+	form = new_form(fields);
+	if (form == NULL) {
+		print_exit_str("forms_create_form() Unable to create filter form!\n");
+	}
+
+	//
+	// Switch off special treatment of REQ_DEL_PREV at the beginning of the buffer.
+	//
+	if (form_opts_off(form, O_BS_OVERLOAD) != E_OK) {
+		print_exit_str("forms_create_form() Unable to switch off O_BS_OVERLOAD\n");
+	}
+
+	return form;
+}
+
+/***************************************************************************
  * The function does an unpost and free of a form and its fields.
  **************************************************************************/
 
-void forms_free(FORM *form, FIELD *fields[]) {
+void forms_free(FORM *form, FIELD **fields) {
 
 	if (form != NULL) {
 
