@@ -125,19 +125,10 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 
 /***************************************************************************
  * The function sets the associated windows of the form and posts the form.
- * It is called with a resize flag. This does an unpost as a first step.
  **************************************************************************/
 
-void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub, const bool resize) {
+void forms_post_form(FORM *form, WINDOW *win, WINDOW *win_sub) {
 	int result;
-
-	//
-	// On resize do an unpost at the beginning. (Resizing the window does
-	// not work well with forms.)
-	//
-	if (resize && (result = unpost_form(form)) != E_OK) {
-		print_exit("forms_set_win_and_post() Unable to set form to the window! (result: %d)\n", result);
-	}
 
 	//
 	// Set the form to the window and the sub window.
