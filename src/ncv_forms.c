@@ -27,6 +27,18 @@
 #include <ncursesw/form.h>
 
 /***************************************************************************
+ * The function is a simple wrapper around form_driver_w that provides error
+ * handling.
+ **************************************************************************/
+
+void forms_driver(FORM *form, const int key_type, const wint_t chr) {
+
+	if (form_driver_w(form, key_type, chr) != E_OK) {
+		print_exit("forms_driver() Unable to process key request for key code: %d key: %lc\n", key_type, chr);
+	}
+}
+
+/***************************************************************************
  * The function processes checkbox input. A checkbox is an input field with
  * one char. The only valid values are 'x' and ' ', which represent checked
  * and unchecked. The status is toggled with the space key, so the only key
@@ -57,9 +69,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 			// full and does not acccept any input, so the char has to be
 			// deleted.
 			//
-			if (form_driver_w(form, KEY_CODE_YES, REQ_DEL_CHAR) != E_OK) {
-				print_exit_str("forms_process_checkbox() Unable to unchecking checkbox!\n");
-			}
+			forms_driver(form, KEY_CODE_YES, REQ_DEL_CHAR);
 
 		} else {
 			print_debug_str("forms_process_checkbox() Checking checkbox!\n");
@@ -68,17 +78,13 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 			// Set the first and only char to 'x'. The field cursor is at
 			// the end and does no accept any input.
 			//
-			if (form_driver_w(form, OK, L'x') != E_OK) {
-				print_exit_str("forms_process_checkbox() Unable to checking checkbox!\n");
-			}
+			forms_driver(form, OK, L'x');
 		}
 
 		//
 		// Request validation to do an update
 		//
-		if (form_driver_w(form, KEY_CODE_YES, REQ_VALIDATION) != E_OK) {
-			print_exit_str("forms_process_checkbox() Unable request validation!\n");
-		}
+		forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
 	}
 }
 
@@ -200,3 +206,4 @@ void forms_free(FORM *form, FIELD **fields) {
 		}
 	}
 }
+

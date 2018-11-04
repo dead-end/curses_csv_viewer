@@ -27,12 +27,16 @@
 
 #include <ncursesw/form.h>
 
+void forms_driver(FORM *form, const int key_type, const wint_t chr);
+
 void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
 void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub, const bool resize);
 
-void forms_free(FORM *form, FIELD *fields[]);
+FORM *forms_create_form(FIELD **fields);
+
+void forms_free(FORM *form, FIELD **fields);
 
 #endif
