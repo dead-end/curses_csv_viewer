@@ -32,9 +32,10 @@
  **************************************************************************/
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr) {
+	int result;
 
-	if (form_driver_w(form, key_type, chr) != E_OK) {
-		print_exit("forms_driver() Unable to process key request for key code: %d key: %lc\n", key_type, chr);
+	if ((result = form_driver_w(form, key_type, chr)) != E_OK) {
+		print_exit("forms_driver() Unable to process key request for key code: %d key: %lc result: %d\n", key_type, chr, result);
 	}
 }
 
