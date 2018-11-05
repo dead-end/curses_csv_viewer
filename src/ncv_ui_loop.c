@@ -26,6 +26,7 @@
 #include "ncv_win_filter.h"
 #include "ncv_win_header.h"
 #include "ncv_win_footer.h"
+#include "ncv_win_help.h"
 
 #include "ncv_filter.h"
 #include "ncv_table_part.h"
@@ -46,7 +47,9 @@ enum MODE {
 	//
 	// Input / update filter string.
 	//
-	MODE_FILTER
+	MODE_FILTER,
+
+	MODE_HELP
 };
 
 #define mode_str(m) ((m) == MODE_TABLE ? "TABLE" : "FILTER")
@@ -56,7 +59,7 @@ enum MODE {
  * too small, some windows disappear.
  **************************************************************************/
 
-static void wins_refresh() {
+static void wins_refresh(enum MODE mode) {
 
 	if (getmaxx(stdscr) > 0) {
 
@@ -74,7 +77,22 @@ static void wins_refresh() {
 		// The filter window is the last window to update. It is currently
 		// the only window that uses the ncurses cursor.
 		//
-		win_filter_refresh_no();
+		//win_filter_refresh_no();
+
+		switch (mode) {
+
+		case MODE_FILTER:
+			win_filter_refresh_no();
+			break;
+
+		case MODE_HELP:
+			win_help_refresh_no();
+			break;
+
+		case MODE_TABLE:
+			break;
+
+		}
 
 		//
 		// Copy the updates to the terminal.
@@ -103,18 +121,62 @@ static void wins_resize(const s_table *table, s_cursor *cursor) {
 	win_table_content_resize(table, cursor);
 
 	win_footer_resize();
+
+	win_help_resize();
 }
 
 /***************************************************************************
  *
  **************************************************************************/
 
-static void print_table(const s_table *table, const s_cursor *cursor, const char *filename) {
+static void wins_print(const s_table *table, const s_cursor *cursor, const char *filename, const enum MODE mode) {
 
 	win_table_content_print(table, cursor);
 	win_footer_content_print(table, cursor, filename);
 	//TODO: win_header_content_print
-	wins_refresh();
+	win_header_show();
+
+	switch (mode) {
+
+	case MODE_FILTER:
+		win_filter_show();
+		break;
+
+	case MODE_HELP:
+		win_help_show();
+		break;
+
+	case MODE_TABLE:
+		break;
+
+	}
+	wins_refresh(mode);
+}
+
+/***************************************************************************
+ *
+ **************************************************************************/
+// TODO: combine with wins_print
+static void wins_touch(const enum MODE mode) {
+
+	switch (mode) {
+
+	case MODE_FILTER:
+		win_filter_show();
+		break;
+
+	case MODE_HELP:
+		win_help_show();
+		break;
+
+	case MODE_TABLE:
+		win_header_show();
+		win_table_show();
+		win_footer_show();
+		break;
+
+	}
+	wins_refresh(mode);
 }
 
 /***************************************************************************
@@ -122,14 +184,14 @@ static void print_table(const s_table *table, const s_cursor *cursor, const char
  * case the ncurses cursor and the table cursor are enabled / disabled.
  **************************************************************************/
 
-static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current, const enum MODE mode_new) {
+static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current, const enum MODE mode_new) {
 
 	//
 	// Check if the application has already the mode.
 	//
 	if ((*mode_current) == mode_new) {
 		print_debug_str("change_mode() Mode has not changed.\n");
-		return;
+		return false;
 	}
 
 	//
@@ -155,7 +217,16 @@ static void change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 		curs_set(1);
 		*win = win_filter_get_win();
 		break;
+
+	case MODE_HELP:
+		print_debug_str("change_mode() Switch mode to: HELP\n");
+		cursor->visible = false;
+		curs_set(0);
+		*win = stdscr;
+		break;
 	}
+
+	return true;
 }
 
 /***************************************************************************
@@ -178,11 +249,6 @@ void ui_loop(s_table *table, const char *filename) {
 	// The current mode od the ui (TABLE / FILTER)
 	//
 	enum MODE mode = MODE_TABLE;
-
-	//
-	// A flag that indicated that the input key was processed.
-	//
-	bool is_processed = false;
 
 	//
 	// A flag that indicates whether the user wants to quit the program.
@@ -212,11 +278,11 @@ void ui_loop(s_table *table, const char *filename) {
 	//
 	// Initial printing of the table
 	//
-	print_table(table, &cursor, filename);
+	wins_print(table, &cursor, filename, mode);
 
 	while (do_continue) {
 
-		print_debug("ui_loop() mode: %s do_print: %d rows: %d cols: %d\n", mode_str(mode), do_print, getmaxy(win), getmaxx(win));
+		print_debug("ui_loop() mode: %s (%d) rows: %d cols: %d\n", mode_str(mode), mode, getmaxy(win), getmaxx(win));
 
 		//
 		// Without moving the cursor at the end a flickering occurs, when the
@@ -225,8 +291,6 @@ void ui_loop(s_table *table, const char *filename) {
 		move(0, 0);
 
 		key_type = wget_wch(win, &chr);
-
-		is_processed = false;
 
 		switch (key_type) {
 
@@ -243,10 +307,13 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				//
 				//
-				print_table(table, &cursor, filename);
+				wins_print(table, &cursor, filename, mode);
 
-				is_processed = true;
+				if (mode == MODE_HELP) {
+					wins_touch(mode);
+				}
 
+				continue;
 				break;
 
 			default:
@@ -263,14 +330,13 @@ void ui_loop(s_table *table, const char *filename) {
 			//
 			case NCV_KEY_ESC:
 				print_debug("ui_loop() Found esc char: %d\n", chr);
-				is_processed = true;
+
+				enum MODE old_mode = mode;
 
 				//
 				// Change mode if necessary.
 				//
-				if (mode == MODE_FILTER) {
-					change_mode(&win, &cursor, &mode, MODE_TABLE);
-				}
+				change_mode(&win, &cursor, &mode, MODE_TABLE);
 
 				//
 				// Reset the filtering in filter and table mode.
@@ -288,10 +354,16 @@ void ui_loop(s_table *table, const char *filename) {
 					s_table_reset_filter(table, &cursor);
 					win_table_on_table_change(table);
 					win_table_set_cursor(table, &cursor, DIR_FORWARD);
-				}
-				werase(win_table_get_win());
-				print_table(table, &cursor, filename);
 
+					// TODO: Necessary / inside if
+					werase(win_table_get_win());
+					wins_print(table, &cursor, filename, mode);
+
+				} else if (old_mode == MODE_HELP) {
+					wins_touch(mode);
+				}
+
+				continue;
 				break;
 
 				//
@@ -300,7 +372,6 @@ void ui_loop(s_table *table, const char *filename) {
 			case KEY_ENTER:
 			case NCV_KEY_NEWLINE:
 				print_debug("ui_loop() Found enter char: %d\n", chr);
-				is_processed = true;
 
 				if (mode == MODE_FILTER) {
 					change_mode(&win, &cursor, &mode, MODE_TABLE);
@@ -328,9 +399,11 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					win_table_set_cursor(table, &cursor, DIR_FORWARD);
 					werase(win_table_get_win());
-					print_table(table, &cursor, filename);
+					wins_print(table, &cursor, filename, mode);
 
 				}
+
+				continue;
 				break;
 
 				//
@@ -338,12 +411,33 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 			case CTRL('f'):
 				print_debug_str("ui_loop() Found <ctrl>-f\n");
-				is_processed = true;
 
-				if (mode == MODE_TABLE) {
-					change_mode(&win, &cursor, &mode, MODE_FILTER);
-					print_table(table, &cursor, filename);
+				if (change_mode(&win, &cursor, &mode, MODE_FILTER)) {
+					wins_print(table, &cursor, filename, mode);
 				}
+
+				continue;
+				break;
+
+				//
+				// Show help
+				//
+			case CTRL('h'):
+				print_debug_str("ui_loop() Found <ctrl>-h\n");
+
+				//
+				// Toggle the help window.
+				//
+				if (mode != MODE_HELP) {
+					change_mode(&win, &cursor, &mode, MODE_HELP);
+
+				} else {
+					change_mode(&win, &cursor, &mode, MODE_TABLE);
+				}
+
+				wins_touch(mode);
+
+				continue;
 				break;
 
 				//
@@ -353,12 +447,12 @@ void ui_loop(s_table *table, const char *filename) {
 			case CTRL('q'):
 				print_debug_str("ui_loop() Found <ctrl>-c or <ctrl>-q\n");
 				do_continue = false;
-				is_processed = true;
+				continue;
 				break;
 
 			default:
 
-				print_debug("ui_loop() Delegate processed: %s\n", (is_processed ? "true" : "false"));
+				//print_debug("ui_loop() Delegate processed: %s\n", (is_processed ? "true" : "false"));
 				break;
 			}
 
@@ -377,25 +471,25 @@ void ui_loop(s_table *table, const char *filename) {
 		//
 		// Delegate the input processing
 		//
-		if (!is_processed) {
+		switch (mode) {
 
-			switch (mode) {
-
-			case MODE_TABLE:
-				if (win_table_process_input(table, &cursor, key_type, chr)) {
-					print_table(table, &cursor, filename);
-				}
-				break;
-
-			case MODE_FILTER:
-				win_filter_process_input(key_type, chr);
-				break;
-
-			default:
-				print_exit("Unknown mode: %d", mode)
-				;
-				break;
+		case MODE_TABLE:
+			if (win_table_process_input(table, &cursor, key_type, chr)) {
+				wins_print(table, &cursor, filename, mode);
 			}
+			break;
+
+		case MODE_FILTER:
+			win_filter_process_input(key_type, chr);
+			break;
+
+		case MODE_HELP:
+			break;
+
+		default:
+			print_exit("Unknown mode: %d\n", mode)
+			;
+			break;
 		}
 	}
 
