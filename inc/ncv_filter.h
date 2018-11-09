@@ -46,6 +46,8 @@ typedef struct s_filter {
 	//
 	bool case_insensitive;
 
+//TODO: add active flag
+
 } s_filter;
 
 /***************************************************************************
