@@ -99,8 +99,37 @@ void ncurses_win_move(WINDOW *win, const int to_y, const int to_x) {
 	// Do the actual moving.
 	//
 	if (mvwin(win, to_y, to_x) != OK) {
-		print_debug("ncurses_win_move() stdscr max y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));print_debug("ncurses_win_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
+		print_debug("ncurses_win_move() stdscr max y: %d x: %d\n", getmaxy(stdscr), getmaxx(stdscr));
+
+		print_debug("ncurses_win_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
 		print_exit_str("ncurses_win_move() Unable to move window\n");
+	}
+}
+
+/***************************************************************************
+ * The function moves a given derived window to the new position. The
+ * position is relative to the parent window.
+ *
+ * To check whether the window has an other position, the absolut position
+ * of the parent and the derived window has to be computed. With this values
+ * the relative position could be computed.
+ **************************************************************************/
+
+void ncurses_derwin_move(WINDOW *win, const int to_y, const int to_x) {
+
+	//
+	// Ensure that the target is valid.
+	//
+	if (to_y < 0 || to_x < 0) {
+		print_exit("ncurses_derwin_move() Win position is not valid - y: %d x: %d\n", to_y, to_x);
+	}
+
+	//
+	// Do the actual moving.
+	//
+	if (mvderwin(win, to_y, to_x) != OK) {
+		print_debug("ncurses_derwin_move() win max y: %d x: %d\n", getmaxy(win), getmaxx(win));
+		print_exit_str("ncurses_derwin_move() Unable to move window\n");
 	}
 }
 
@@ -381,7 +410,9 @@ void ncurses_init(const bool monochrom, const bool use_initscr) {
 	//
 	// Allow KEY_RESIZE to be read on SIGWINCH
 	//
-	keypad(stdscr, TRUE);
+	if (keypad(stdscr, TRUE) != OK) {
+		print_exit_str("ncurses_init() Unable to call keypad!");
+	}
 
 	//
 	// Switch off cursor by default

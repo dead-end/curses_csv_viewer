@@ -97,6 +97,8 @@ WINDOW *ncurses_win_create(const int rows, const int cols, const int begin_y, co
 
 void ncurses_win_move(WINDOW *win, const int to_y, const int to_x);
 
+void ncurses_derwin_move(WINDOW *win, const int to_y, const int to_x);
+
 void ncurses_win_center(WINDOW *win);
 
 bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x);
