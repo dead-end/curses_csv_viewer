@@ -83,6 +83,32 @@ static FIELD *fields[3];
 static FORM *filter_form = NULL;
 
 /***************************************************************************
+ * The struct contains data specific to a field. The only one is currently
+ * the driver function.
+ *
+ * ISO C forbids assignment between function pointer and 'void *' with
+ * [-pedantic] so the struct is used as a level of indirection.
+ **************************************************************************/
+
+typedef struct s_field_user_ptr {
+
+	void (*driver)(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+
+} s_field_user_ptr;
+
+//
+// Declaration for the struct initialization
+//
+static void win_filter_process_filter_input(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+
+//
+// Structs for the two fields
+//
+static s_field_user_ptr filter_user_ptr = { .driver = win_filter_process_filter_input };
+
+static s_field_user_ptr checkbox_user_ptr = { .driver = forms_process_checkbox };
+
+/***************************************************************************
  * The function prints the content of the window, which is the form with
  * the fields, the labels and the box of the window.
  **************************************************************************/
@@ -141,15 +167,34 @@ void win_filter_init() {
 		print_exit_str("win_filter_init() Unable to call keypad!");
 	}
 
+	//
+	// Create filter field
+	//
 	attr = ncurses_attr_color(COLOR_PAIR(CP_FIELD), A_UNDERLINE);
 	fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr);
+	if (set_field_userptr(fields[0], &filter_user_ptr) != E_OK) {
+		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
+	}
 
+	// TODO: define color pair gray yellow
+
+	//
+	// Create case checkbox field
+	//
 	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_UNDERLINE);
 	fields[1] = forms_create_field(FIELD_HIGHT, CASE_FIELD_LEN, CASE_ROW, 1, attr);
+	if (set_field_userptr(fields[1], &checkbox_user_ptr) != E_OK) {
+		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
+	}
 
+	//
+	// Mark end of the array
+	//
 	fields[2] = NULL;
 
 	filter_form = forms_create_form(fields);
+
+	//TODO: ncurses function create_derwin with error checking
 
 	//
 	// Create a sub win for the form.
@@ -229,6 +274,8 @@ WINDOW *win_filter_get_win() {
  * The function copies the content of the filter field to the given wchar_t
  * buffer.
  **************************************************************************/
+
+//TODO: return a struct
 
 void win_filter_get_filter(wchar_t *buffer, const int buf_size) {
 	char *raw_field = field_buffer(fields[0], 0);
@@ -388,13 +435,12 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 	//
 	FIELD *field = current_field(filter_form);
 
-	// TODO: userptr => function pointer
-	if (field == fields[0]) {
-		win_filter_process_filter_input(filter_form, field, key_type, chr);
-
-	} else {
-		forms_process_checkbox(filter_form, field, key_type, chr);
+	const s_field_user_ptr *driver = (s_field_user_ptr *) field_userptr(field);
+	if (driver == NULL) {
+		print_exit_str("win_filter_process_input() Unable to ge field user ptr!\n");
 	}
+
+	driver->driver(filter_form, field, key_type, chr);
 }
 
 /***************************************************************************
