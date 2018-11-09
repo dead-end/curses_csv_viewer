@@ -273,7 +273,7 @@ void win_filter_clear_filter() {
  * key_type is done by the calling function.
  **************************************************************************/
 
-static void win_filter_process_filter_input(const int key_type, const wint_t chr) {
+static void win_filter_process_filter_input(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
 
 	switch (key_type) {
 
@@ -285,37 +285,37 @@ static void win_filter_process_filter_input(const int key_type, const wint_t chr
 		switch (chr) {
 
 		case KEY_DC:
-			forms_driver(filter_form, KEY_CODE_YES, REQ_DEL_CHAR);
+			forms_driver(form, KEY_CODE_YES, REQ_DEL_CHAR);
 
 			//
 			// If the field content has changed, do an update.
 			//
-			forms_driver(filter_form, KEY_CODE_YES, REQ_VALIDATION);
+			forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
 			break;
 
 		case KEY_BACKSPACE:
-			forms_driver(filter_form, KEY_CODE_YES, REQ_DEL_PREV);
+			forms_driver(form, KEY_CODE_YES, REQ_DEL_PREV);
 
 			//
 			// If the field content has changed, do an update.
 			//
-			forms_driver(filter_form, KEY_CODE_YES, REQ_VALIDATION);
+			forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
 			break;
 
 		case KEY_LEFT:
-			forms_driver(filter_form, KEY_CODE_YES, REQ_LEFT_CHAR);
+			forms_driver(form, KEY_CODE_YES, REQ_LEFT_CHAR);
 			break;
 
 		case KEY_RIGHT:
-			forms_driver(filter_form, KEY_CODE_YES, REQ_RIGHT_CHAR);
+			forms_driver(form, KEY_CODE_YES, REQ_RIGHT_CHAR);
 			break;
 
 		case KEY_HOME:
-			forms_driver(filter_form, KEY_CODE_YES, REQ_BEG_FIELD);
+			forms_driver(form, KEY_CODE_YES, REQ_BEG_FIELD);
 			break;
 
 		case KEY_END:
-			forms_driver(filter_form, KEY_CODE_YES, REQ_END_FIELD);
+			forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
 			break;
 
 		default:
@@ -344,10 +344,9 @@ static void win_filter_process_filter_input(const int key_type, const wint_t chr
 			//
 			// Process char keys
 			//
-			forms_driver(filter_form, OK, (wchar_t) chr);
-			forms_driver(filter_form, KEY_CODE_YES, REQ_VALIDATION);
-			print_debug("win_filter_process_input() Found char: %d field content: %s\n", chr, field_buffer(fields[0], 0));
-
+			forms_driver(form, OK, (wchar_t) chr);
+			forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
+			print_debug("win_filter_process_input() Found char: %d field content: %s\n", chr, field_buffer(field, 0));
 		}
 
 		break; // case OK
@@ -391,7 +390,7 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 
 	// TODO: userptr => function pointer
 	if (field == fields[0]) {
-		win_filter_process_filter_input(key_type, chr);
+		win_filter_process_filter_input(filter_form, field, key_type, chr);
 
 	} else {
 		forms_process_checkbox(filter_form, field, key_type, chr);
