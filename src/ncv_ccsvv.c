@@ -26,6 +26,7 @@
 #include "ncv_win_filter.h"
 #include "ncv_win_header.h"
 #include "ncv_win_table.h"
+#include "ncv_win_help.h"
 
 #include "ncv_ui_loop.h"
 #include "ncv_parser.h"
@@ -66,6 +67,8 @@ static void exit_callback() {
 	win_table_free();
 
 	win_footer_free();
+
+	win_help_free();
 
 	//
 	// Finish ncurses
@@ -286,6 +289,8 @@ int main(const int argc, char * const argv[]) {
 	win_table_init();
 
 	win_footer_init();
+
+	win_help_init();
 
 	ui_loop(&table, filename);
 
