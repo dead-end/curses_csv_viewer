@@ -32,9 +32,13 @@
  **************************************************************************/
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr) {
-	int result;
+	const int result = form_driver_w(form, key_type, chr);
 
-	if ((result = form_driver_w(form, key_type, chr)) != E_OK) {
+	//
+	// The form driver returns E_REQUEST_DENIED if you what to write before
+	// the start or after the end of the field.
+	//
+	if (result != E_OK && result != E_REQUEST_DENIED) {
 		print_exit("forms_driver() Unable to process key request for key code: %d key: %lc result: %d\n", key_type, chr, result);
 	}
 }
@@ -183,7 +187,11 @@ void forms_free(FORM *form, FIELD **fields) {
 
 	if (form != NULL) {
 
-		if (unpost_form(form) != E_OK) {
+		//
+		// Ensure that the form was posted at all.
+		//
+		const int result = unpost_form(form);
+		if (result != E_OK && result != E_NOT_POSTED) {
 			print_exit_str("forms_free() Unable to unpost form!\n");
 		}
 
