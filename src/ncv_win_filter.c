@@ -31,20 +31,44 @@
 #include <ncursesw/form.h>
 
 /***************************************************************************
- * The field label length is an offset for the fields. It is the longest
- * label.
+ *
  **************************************************************************/
 
-#define FILTER_FIELD_LABEL_LEN 9
+#define START_FIELDS 10
+
+#define BOX_SIZE 2
+
+#define BOX_OFFSET 1
 
 /***************************************************************************
- * The columns of the window consist of the label, the field and the box.
- * The rows consist of the field rows, empty rows between and the box.
+ * The definition of the window and the sub window sizes.
  **************************************************************************/
 
-#define WIN_FILTER_SIZE_COLS FILTER_FIELD_LABEL_LEN + FILTER_FIELD_COLS + 2
+#define WIN_ROWS 2 + 1 + BOX_SIZE
 
-#define WIN_FILTER_SIZE_ROWS 2 + 1 + 2
+#define WIN_COLS START_FIELDS + 32 + BOX_SIZE
+
+#define WIN_SUB_ROWS (WIN_ROWS - BOX_SIZE)
+
+#define WIN_SUB_COLS (WIN_COLS - BOX_SIZE - START_FIELDS)
+
+/***************************************************************************
+ * Some definitions for the fields.
+ **************************************************************************/
+
+//
+// The row of the field in the sub window
+//
+#define FILTER_ROW 0
+
+#define CASE_ROW 2
+
+//
+// The length and the heights of the fields
+//
+#define CASE_FIELD_LEN 1
+
+#define FIELD_HIGHT 1
 
 /***************************************************************************
  * The necessary field / form / window variables are defined as static.
@@ -57,14 +81,6 @@ static WINDOW *win_filter_sub = NULL;
 static FIELD *fields[3];
 
 static FORM *filter_form = NULL;
-
-/***************************************************************************
- *
- **************************************************************************/
-
-#define IDX_FILTER 0
-
-#define IDX_CASE 1
 
 /***************************************************************************
  * The function prints the content of the window, which is the form with
@@ -89,15 +105,11 @@ static void win_filter_print_content() {
 	// Add the filter label. The filter is the last lable, so the cursor is
 	// at the right position.
 	//
-	mvwaddstr(win_filter, 3, 1, "Case:");
-	mvwaddstr(win_filter, 3, 12, "]");
-	mvwaddstr(win_filter, 3, 10, "[");
+	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, BOX_OFFSET, "Case:");
+	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, START_FIELDS + 2, "]");
+	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, START_FIELDS, "[");
 
-	mvwaddstr(win_filter, 1, 1, "Filter:  ");
-
-	if (pos_form_cursor(filter_form) != E_OK) {
-		print_exit_str("win_filter_print_content() shit!\n");
-	}
+	mvwaddstr(win_filter, FILTER_ROW + BOX_OFFSET, BOX_OFFSET, "Filter:  ");
 }
 
 /***************************************************************************
@@ -110,7 +122,7 @@ void win_filter_init() {
 	//
 	// Create the filter window.
 	//
-	win_filter = ncurses_win_create(2 + 1 + 2, 10 + 32 + 2, 0, 0);
+	win_filter = ncurses_win_create(WIN_ROWS, WIN_COLS, 0, 0);
 
 	//
 	// Move the window to the center
@@ -122,33 +134,32 @@ void win_filter_init() {
 	//
 	ncurses_attr_back(win_filter, COLOR_PAIR(CP_STATUS), A_REVERSE);
 
-	// TODO: Error / necessary?
-	keypad(win_filter, TRUE);
+	//
+	// Necessary to enable function keys like arrows
+	//
+	if (keypad(win_filter, TRUE) != OK) {
+		print_exit_str("win_filter_init() Unable to call keypad!");
+	}
 
 	attr = ncurses_attr_color(COLOR_PAIR(CP_FIELD), A_UNDERLINE);
-	fields[IDX_FILTER] = forms_create_field(1, FILTER_FIELD_COLS, 0, 0, attr);
+	fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr);
 
 	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_UNDERLINE);
-	fields[IDX_CASE] = forms_create_field(1, 1, 2, 1, attr);
-	//forms_set_checkbox(fields[IDX_CASE], false);
+	fields[1] = forms_create_field(FIELD_HIGHT, CASE_FIELD_LEN, CASE_ROW, 1, attr);
 
 	fields[2] = NULL;
 
 	filter_form = forms_create_form(fields);
 
-
-
 	//
 	// Create a sub win for the form.
 	//
-	win_filter_sub = derwin(win_filter, getmaxy(win_filter) - 2, getmaxx(win_filter) - 2 - 10, 1, 10);
+	win_filter_sub = derwin(win_filter, WIN_SUB_ROWS, WIN_SUB_COLS, BOX_OFFSET, START_FIELDS);
 	if (win_filter_sub == NULL) {
 		print_exit("win_filter_init() Unable to create sub window with y: %d x: %d\n", getmaxy(win_filter), getmaxx(win_filter));
 	}
 
 	win_filter_print_content();
-
-	//set_current_field(filter_form, fields[0]);
 }
 
 /***************************************************************************
@@ -160,10 +171,17 @@ void win_filter_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	if (WIN_HAS_MIN_SIZE(WIN_FILTER_SIZE_ROWS, WIN_FILTER_SIZE_COLS)) {
+	if (WIN_HAS_MIN_SIZE(WIN_ROWS, WIN_COLS)) {
 		print_debug_str("win_filter_resize() Do resize the window!\n");
 
-		if (ncurses_win_ensure_size(win_filter, WIN_FILTER_SIZE_ROWS, WIN_FILTER_SIZE_COLS)) {
+		const bool do_update_win = ncurses_win_ensure_size(win_filter, WIN_ROWS, WIN_COLS);
+		const bool do_update_sub = ncurses_win_ensure_size(win_filter_sub, WIN_SUB_ROWS, WIN_SUB_COLS);
+
+		//
+		// Both checks have to be executed. If do_update_win is true the
+		// second test is skipped.
+		//
+		if (do_update_win || do_update_sub) {
 
 			//
 			// On resize do an unpost at the beginning. (Resizing the window does
@@ -174,6 +192,11 @@ void win_filter_resize() {
 			}
 
 			win_filter_print_content();
+
+			//
+			// Ensure the correct position of the derived window.
+			//
+			ncurses_derwin_move(win_filter_sub, BOX_OFFSET, START_FIELDS);
 		}
 
 		//
@@ -191,7 +214,7 @@ void win_filter_resize() {
 void win_filter_refresh_no() {
 
 	print_debug_str("win_filter_refresh_no() Refresh footer window.\n");
-	ncurses_win_refresh_no(win_filter, WIN_FILTER_SIZE_ROWS, WIN_FILTER_SIZE_COLS);
+	ncurses_win_refresh_no(win_filter, WIN_ROWS, WIN_COLS);
 }
 
 /***************************************************************************
@@ -366,7 +389,8 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 	//
 	FIELD *field = current_field(filter_form);
 
-	if (field == fields[IDX_FILTER]) {
+	// TODO: userptr => function pointer
+	if (field == fields[0]) {
 		win_filter_process_filter_input(key_type, chr);
 
 	} else {
