@@ -49,6 +49,7 @@ typedef struct s_cursor {
 	// A flag for the cursor visibility. The cursor is, for example not
 	// visible if the user inputs the filter string.
 	//
+	// TODO: remove => consistent
 	bool visible;
 
 } s_cursor;
