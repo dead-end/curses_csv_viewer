@@ -26,6 +26,11 @@
 
 #include <ncursesw/form.h>
 
+#define CHECK_CHAR 'x'
+
+#define CHECK_WCHAR L'x'
+
+
 /***************************************************************************
  * The function is a simple wrapper around form_driver_w that provides error
  * handling.
@@ -44,6 +49,24 @@ void forms_driver(FORM *form, const int key_type, const wint_t chr) {
 }
 
 /***************************************************************************
+ * The functions returns true if the checkbox field is checked which means
+ * that the buffer is 'x'. If the checkbox is not checked it is ' '.
+ **************************************************************************/
+
+bool forms_checkbox_is_checked(FIELD *field) {
+
+	//
+	// Get the buffer string.
+	//
+	const char *buffer = field_buffer(field, 0);
+	if (buffer == NULL) {
+		print_exit_str("forms_checkbox_is_checked() Unable to get field buffer!\n");
+	}
+
+	return buffer[0] == CHECK_CHAR;
+}
+
+/***************************************************************************
  * The function processes checkbox input. A checkbox is an input field with
  * one char. The only valid values are 'x' and ' ', which represent checked
  * and unchecked. The status is toggled with the space key, so the only key
@@ -58,15 +81,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 	//
 	if (key_type == OK && (wchar_t) chr == L' ') {
 
-		//
-		// Get the buffer string.
-		//
-		const char *buffer = field_buffer(field, 0);
-		if (buffer == NULL) {
-			print_exit_str("forms_process_checkbox() Unable to get field buffer!\n");
-		}
-
-		if (buffer[0] == 'x') {
+		if (forms_checkbox_is_checked(field)) {
 			print_debug_str("forms_process_checkbox() Unchecking checkbox!\n");
 
 			//
@@ -83,7 +98,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 			// Set the first and only char to 'x'. The field cursor is at
 			// the end and does no accept any input.
 			//
-			forms_driver(form, OK, L'x');
+			forms_driver(form, OK, CHECK_WCHAR);
 		}
 
 		//

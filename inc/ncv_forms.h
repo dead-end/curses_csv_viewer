@@ -29,6 +29,8 @@
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr);
 
+bool forms_checkbox_is_checked(FIELD *field);
+
 void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
