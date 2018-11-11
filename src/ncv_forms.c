@@ -24,12 +24,16 @@
 
 #include "ncv_common.h"
 
+#include <string.h>
 #include <ncursesw/form.h>
+
+/***************************************************************************
+ * Definition of the checkbox checked char.
+ **************************************************************************/
 
 #define CHECK_CHAR 'x'
 
 #define CHECK_WCHAR L'x'
-
 
 /***************************************************************************
  * The function is a simple wrapper around form_driver_w that provides error
@@ -49,6 +53,58 @@ void forms_driver(FORM *form, const int key_type, const wint_t chr) {
 }
 
 /***************************************************************************
+ * The function copies the trimmed string of an input field to a buffer with
+ * a given size. It converts the input string from a multi byte to a wchar_t
+ * string. The function returns true if the input string changed.
+ **************************************************************************/
+
+//TODO: currently not used
+bool forms_get_input_str(FIELD *field, wchar_t *buffer, const int buf_size) {
+
+	char *raw_field = field_buffer(field, 0);
+
+	//
+	// If the string contains multi byte chars, the length can be greater
+	// than the buffer size.
+	//
+	size_t raw_len = strlen(raw_field);
+	char str[raw_len + 1];
+
+	//
+	// Create a copy of the field content that can be modified (trimmed).
+	// The string has by construction the same size as the raw string, so
+	// strncpy will add a \0
+	//
+	strncpy(str, raw_field, raw_len);
+	print_debug("forms_get_input_str() raw len: '%zu'\n", raw_len);
+
+	//
+	// The field content is filled with blanks, which has to be trimmed
+	// before the copying.
+	//
+	const char *trimed = trim(str);
+
+	//
+	// Convert the trimmed input string to a wchar_t string in a temp
+	// variable.
+	//
+	wchar_t tmp[buf_size];
+	mbs_2_wchars(trimed, tmp, buf_size);
+
+	//
+	// Check if the string changed.
+	//
+	const bool result = wcscmp(buffer, tmp) != 0;
+	print_debug("forms_get_input_str() Filter old: '%ls' new: '%ls' changed: %d\n", buffer, tmp, result);
+
+	//
+	// Copy the input string to the buffer and return the result.
+	//
+	wcsncpy(buffer, tmp, buf_size);
+	return result;
+}
+
+/***************************************************************************
  * The functions returns true if the checkbox field is checked which means
  * that the buffer is 'x'. If the checkbox is not checked it is ' '.
  **************************************************************************/
@@ -64,6 +120,31 @@ bool forms_checkbox_is_checked(FIELD *field) {
 	}
 
 	return buffer[0] == CHECK_CHAR;
+}
+
+/***************************************************************************
+ * The function stores the state of a checkbox in the function argument. It
+ * returns true if the value changed.
+ **************************************************************************/
+
+//TODO: currently not used
+bool forms_get_checkbox_value(FIELD *field, bool *checked) {
+
+	//
+	// Get the new value from the checkbox field.
+	//
+	const bool tmp = forms_checkbox_is_checked(field);
+
+	//
+	// Compare the old and the new value
+	//
+	const bool result = tmp != *checked;
+
+	//
+	// Update the checkbox value and return the result.
+	//
+	*checked = tmp;
+	return result;
 }
 
 /***************************************************************************
