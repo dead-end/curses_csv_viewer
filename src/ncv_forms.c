@@ -41,6 +41,7 @@
  **************************************************************************/
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr) {
+
 	const int result = form_driver_w(form, key_type, chr);
 
 	//
@@ -53,14 +54,18 @@ void forms_driver(FORM *form, const int key_type, const wint_t chr) {
 }
 
 /***************************************************************************
- * The function copies the trimmed string of an input field to a buffer with
- * a given size. It converts the input string from a multi byte to a wchar_t
- * string. The function returns true if the input string changed.
+ * The function reads the input from the field and stores it in the buffer.
+ * The buffers size has to include the terminating \0. The input string is
+ * a multi byte string, which will be trimmed and converted to wchar_t.
+ *
+ * If the resulting string is longer than the buffer it is an error.
  **************************************************************************/
 
-//TODO: currently not used
-bool forms_get_input_str(FIELD *field, wchar_t *buffer, const int buf_size) {
+void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
 
+	//
+	// The first step is to get the raw field input data.
+	//
 	char *raw_field = field_buffer(field, 0);
 
 	//
@@ -68,40 +73,27 @@ bool forms_get_input_str(FIELD *field, wchar_t *buffer, const int buf_size) {
 	// than the buffer size.
 	//
 	size_t raw_len = strlen(raw_field);
-	char str[raw_len + 1];
+	char raw_str[raw_len + 1];
 
 	//
 	// Create a copy of the field content that can be modified (trimmed).
 	// The string has by construction the same size as the raw string, so
 	// strncpy will add a \0
 	//
-	strncpy(str, raw_field, raw_len);
+	strncpy(raw_str, raw_field, raw_len);
 	print_debug("forms_get_input_str() raw len: '%zu'\n", raw_len);
 
 	//
-	// The field content is filled with blanks, which has to be trimmed
-	// before the copying.
+	// The field content is filled with blanks, which had to be trimmed
+	// before the conversion.
 	//
-	const char *trimed = trim(str);
+	const char *trimed = trim(raw_str);
 
 	//
-	// Convert the trimmed input string to a wchar_t string in a temp
-	// variable.
+	// Convert the trimmed input string to a wchar_t string. The buffer size
+	// has to include the \0.
 	//
-	wchar_t tmp[buf_size];
-	mbs_2_wchars(trimed, tmp, buf_size);
-
-	//
-	// Check if the string changed.
-	//
-	const bool result = wcscmp(buffer, tmp) != 0;
-	print_debug("forms_get_input_str() Filter old: '%ls' new: '%ls' changed: %d\n", buffer, tmp, result);
-
-	//
-	// Copy the input string to the buffer and return the result.
-	//
-	wcsncpy(buffer, tmp, buf_size);
-	return result;
+	mbs_2_wchars(trimed, buffer, buffer_size);
 }
 
 /***************************************************************************
@@ -127,7 +119,6 @@ bool forms_checkbox_is_checked(FIELD *field) {
  * returns true if the value changed.
  **************************************************************************/
 
-//TODO: currently not used
 bool forms_get_checkbox_value(FIELD *field, bool *checked) {
 
 	//
@@ -160,7 +151,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 	//
 	// We are only processing spaces.
 	//
-	if (key_type == OK && (wchar_t) chr == L' ') {
+	if (key_type == OK && (wchar_t) chr == W_SPACE) {
 
 		if (forms_checkbox_is_checked(field)) {
 			print_debug_str("forms_process_checkbox() Unchecking checkbox!\n");
@@ -281,6 +272,9 @@ FORM *forms_create_form(FIELD **fields) {
 
 void forms_free(FORM *form, FIELD **fields) {
 
+	//
+	// Ensure that there is a form
+	//
 	if (form != NULL) {
 
 		//

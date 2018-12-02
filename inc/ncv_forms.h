@@ -29,7 +29,11 @@
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr);
 
+void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size);
+
 bool forms_checkbox_is_checked(FIELD *field);
+
+bool forms_get_checkbox_value(FIELD *field, bool *checked);
 
 void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
