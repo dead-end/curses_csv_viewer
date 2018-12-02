@@ -66,6 +66,7 @@
 #define W_QUOTE    L'\"'
 #define W_CR       L'\r'
 #define W_DELIM    L','
+#define W_SPACE    L' '
 
 #define NL         "\n"
 #define DL         ","
