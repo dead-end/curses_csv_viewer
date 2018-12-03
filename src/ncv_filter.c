@@ -25,93 +25,69 @@
 #include "ncv_filter.h"
 #include "ncv_common.h"
 
+#include <assert.h>
+
 /***************************************************************************
  * The function initializes the filter structure.
  **************************************************************************/
 
 void s_filter_init(s_filter *filter) {
 
-	filter->ptr = S_FILTER_EMPTY_STR;
-
 	filter->case_insensitive = true;
+
+	filter->is_active = false;
+
+	//
+	// Initialize the filter string.
+	//
+	wmemset(filter->str, W_STR_TERM, FILTER_STR_LEN + 1);
 }
 
 /***************************************************************************
- * The function frees the filter structure if necessary. This means that the
- * filter string has to be freed.
+ * The function sets the filter status to inactive. It returns true if the
+ * status changed.
  **************************************************************************/
 
-void s_filter_free(s_filter *filter) {
+bool s_filter_set_inactive(s_filter *filter) {
 
-	//
-	// Free filter if set.
-	//
-	if (filter->ptr != NULL) {
-		free(filter->ptr);
+	if (filter->is_active) {
+		filter->is_active = false;
+		return true;
 	}
+
+	return false;
 }
 
 /***************************************************************************
- * The function sets a new filter string to the filter struct. The function
- * returns true if the filter string changed (set, updated or deleted). It
- * accepts EMPTY_FILTER_STRING as a filter string (which is NULL).
+ * The function sets the filter string. If the string is empty, the
+ * filtering is deactivated. Otherwise it is activated. The function returns
+ * true if the filter string or the is_active flag changed.
  **************************************************************************/
 
 bool s_filter_set_string(s_filter *filter, const wchar_t *filter_str) {
 
 	//
-	// First check test if the filter is currently active.
+	// If the new filter string is empty, then filtering is not active.
 	//
-	if (filter->ptr != S_FILTER_EMPTY_STR) {
-		print_debug("s_filter_set_string() Current filter string: '%ls'\n", filter->ptr);
-
-		//
-		// If the new filter string is empty delete the current.
-		//
-		if (filter_str == S_FILTER_EMPTY_STR || wcslen(filter_str) == 0) {
-			print_debug_str("s_filter_set_string() Setting filter string to NULL\n");
-
-			free(filter->ptr);
-			filter->ptr = S_FILTER_EMPTY_STR;
-
-			return true;
-		}
-
-		//
-		// Check if the filter does not changed.
-		//
-		if (wcscmp(filter->ptr, filter_str) == 0) {
-			print_debug("s_filter_set_string() Filter string did not change: %ls\n", filter_str);
-			return false;
-		}
-
-		//
-		// At this point, the current filter is set and the new filter is not
-		// empty.
-		//
-		free(filter->ptr);
-
-	} else {
-
-		//
-		// Check if the filter was not set and the new filter is empty.
-		//
-		if (filter_str == S_FILTER_EMPTY_STR || wcslen(filter_str) == 0) {
-			print_debug_str("s_filter_set_string() Filter string was already NOT set\n");
-			return false;
-		}
+	if (wcslen(filter_str) == 0) {
+		return s_filter_set_inactive(filter);
 	}
 
 	//
-	// Duplicate the filter
+	// If the new filter string is not empty, then filtering is active.
 	//
-	filter->ptr = wcsdup(filter_str);
+	filter->is_active = true;
 
-	if (filter->ptr == NULL) {
-		print_exit_str("s_filter_set_string() Unable to allocate memory!\n");
+	//
+	// If the filtering string does not change, there is nothing to do.
+	//
+	if (wcscmp(filter->str, filter_str) == 0) {
+		print_debug("s_filter_set_string() Filter string did not change: %ls\n", filter_str);
+		return false;
 	}
 
-	print_debug("s_filter_set_string() New filter string: '%ls'\n", filter->ptr);
+	wcsncpy(filter->str, filter_str, FILTER_STR_LEN);
+	print_debug("s_filter_set_string() New filter string: '%ls'\n", filter->str);
 
 	return true;
 }
@@ -125,8 +101,8 @@ bool s_filter_set_string(s_filter *filter, const wchar_t *filter_str) {
 wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 
 	if (filter->case_insensitive) {
-		return wcs_casestr(str, filter->ptr);
+		return wcs_casestr(str, filter->str);
 	} else {
-		return wcsstr(str, filter->ptr);
+		return wcsstr(str, filter->str);
 	}
 }

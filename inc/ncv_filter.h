@@ -28,44 +28,46 @@
 #include <stdbool.h>
 #include <wchar.h>
 
+#define FILTER_STR_LEN 32
+
 /***************************************************************************
  * The filter struct contains the filter string and a flag, whether the
- * filtering is case sensitive or not,
+ * filtering is case sensitive or not and an acitce flag.
  **************************************************************************/
 
 typedef struct s_filter {
 
 	//
-	// The member is a pointer to the filter string. If the filter is not
-	// used, the pointer should be S_FILTER_EMPTY_STR (which is NULL).
+	// The flag indicates that the searching / filtering is active.
 	//
-	wchar_t *ptr;
+	bool is_active;
 
 	//
 	// The filtering can be case sensitive or case insensitive.
 	//
 	bool case_insensitive;
 
-//TODO: add active flag
+	//
+	// The actual filter string.
+	//
+	wchar_t str[FILTER_STR_LEN + 1];
 
 } s_filter;
 
 /***************************************************************************
- * The filtering is interpreted as deactivated if the filter string is NULL.
+ * Function and macro definitions
  **************************************************************************/
-
-#define S_FILTER_EMPTY_STR NULL
-
-#define s_filter_is_not_empty(f) ((f)->ptr != S_FILTER_EMPTY_STR)
 
 void s_filter_init(s_filter *filter);
 
-void s_filter_free(s_filter *filter);
+#define s_filter_is_active(f) ((f)->is_active)
+
+bool s_filter_set_inactive(s_filter *filter);
 
 bool s_filter_set_string(s_filter *filter, const wchar_t *filter_str);
 
 wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str);
 
-#define s_filter_len(f) wcslen((f)->ptr)
+#define s_filter_len(f) wcslen((f)->str)
 
 #endif /* INC_NCV_FILTER_H_ */
