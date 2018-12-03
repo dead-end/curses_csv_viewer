@@ -126,7 +126,7 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 		//   cursor row / num filtered rows / num rows
 		//   cursor col /                     num cols
 		//
-		if (s_filter_is_not_empty(&table->filter)) {
+		if (s_filter_is_active(&table->filter)) {
 			if (cursor->visible) {
 				snprintf(buf, FOOTER_WIN_MAX, " Row: %d/%d[%d] Col: %d/%d ", cursor->row + 1, table->no_rows, table->__no_rows, cursor->col + 1, table->no_columns);
 
