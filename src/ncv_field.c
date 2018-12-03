@@ -372,7 +372,7 @@ void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part
 		if (field_line_no >= row_field_part->start) {
 			row = win_row_col->row + field_line_no - row_field_part->start;
 
-			if (s_filter_is_not_empty(filter)) {
+			if (s_filter_is_active(filter)) {
 				print_line(win, row, win_row_col->col, buffer, &buf, filter, attr_cur);
 			} else {
 				mvwaddnwstr(win, row, win_row_col->col, buf.ptr, buf.len);
