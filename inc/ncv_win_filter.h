@@ -25,6 +25,8 @@
 #ifndef INC_NCV_WIN_FILTER_H_
 #define INC_NCV_WIN_FILTER_H_
 
+#include "ncv_filter.h"
+
 #include <ncursesw/ncurses.h>
 
 #define FILTER_FIELD_COLS 32
@@ -43,8 +45,6 @@ WINDOW *win_filter_get_win();
 
 void win_filter_process_input(const int key_type, const wint_t chr);
 
-void win_filter_get_filter(wchar_t *buffer, const int buf_size);
-
-void win_filter_clear_filter();
+bool win_filter_get_filter(s_filter *filter);
 
 #endif
