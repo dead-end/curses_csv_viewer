@@ -120,8 +120,6 @@ void s_table_free(s_table *table) {
 
 	free(table->__fields);
 	free(table->fields);
-
-	s_filter_free(&table->filter);
 }
 
 /***************************************************************************
@@ -182,14 +180,17 @@ void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	//
 	// If the new filter string is empty, do a reset.
 	//
-	if (!s_filter_is_not_empty(&table->filter)) {
-		print_debug_str("s_table_do_filter() Filter is empty, do a reset.\n");
+	if (!s_filter_is_active(&table->filter)) {
+		print_debug_str("s_table_do_filter() Filter is not active, do a reset.\n");
 		s_table_reset_filter(table, cursor);
 		return;
 	}
 
-	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.ptr);
+	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.str);
 
+	//
+	// Init the number of rows of the filtered table.
+	//
 	table->no_rows = 0;
 
 	for (int row = 0; row < table->__no_rows; row++) {
@@ -236,7 +237,7 @@ void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	}
 
 	//
-	// If no field matches the filter set the cursor to 0/0. The makes only
+	// If no field matches the filter set the cursor to 0/0. This makes only
 	// sense if show_header is true.
 	//
 	if (!found) {
@@ -267,7 +268,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 	//
 	// The filter has to be set to find the next matching field.
 	//
-	if (!s_filter_is_not_empty(&table->filter)) {
+	if (!s_filter_is_active(&table->filter)) {
 		print_debug_str("s_table_prev_next() Table is not filtered!\n");
 		return false;
 	}
@@ -454,7 +455,9 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	int col_size;
 	s_table_field_dimension(str, &col_size, &row_size);
 
-	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
+	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);
+	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);
+	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
 
 	//
 	// Update the row height if necessary.
@@ -532,7 +535,7 @@ void s_table_dump(const s_table *table) {
  * as the string contains no digits (which is true :o)
  **************************************************************************/
 
-double get_ratio(wchar_t *str) {
+double get_ratio(const wchar_t *str) {
 	const size_t len = wcslen(str);
 
 	if (len == 0) {
@@ -557,10 +560,10 @@ double get_ratio(wchar_t *str) {
  * The function is a wrapper around the wcslen function. It allows to be
  * used with the function pointer:
  *
- * double (*fct_ptr)(wchar_t *str)
+ * double (*fct_ptr)(const wchar_t *str)
  **************************************************************************/
 
-double get_str_len(wchar_t *str) {
+double get_str_len(const wchar_t *str) {
 	return wcslen(str);
 }
 
@@ -570,7 +573,7 @@ double get_str_len(wchar_t *str) {
  * characteristic for a field.
  **************************************************************************/
 
-double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str)) {
+double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str)) {
 	double mean = 0;
 
 	for (int row = 1; row < max_rows; row++) {
@@ -587,7 +590,7 @@ double get_table_mean(const s_table *table, const int max_rows, const int column
  * characteristic for a field.
  **************************************************************************/
 
-double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str), const double mean) {
+double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str), const double mean) {
 	double std_dev = 0;
 	double tmp;
 
@@ -605,7 +608,7 @@ double get_table_std_dev(const s_table *table, const int max_rows, const int col
  * the rest of the rows of that column.
  **************************************************************************/
 
-int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str)) {
+int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str)) {
 
 	//
 	// compute the mean

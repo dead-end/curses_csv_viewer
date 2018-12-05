@@ -123,14 +123,14 @@ bool s_table_has_header(const s_table *table);
  * Some function definitions that are used only for unit tests.
  **************************************************************************/
 
-int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str));
+int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
 
-double get_ratio(wchar_t *str);
+double get_ratio(const wchar_t *str);
 
-double get_str_len(wchar_t *str);
+double get_str_len(const wchar_t *str);
 
-double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str));
+double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
 
-double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(wchar_t *str), const double mean);
+double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str), const double mean);
 
 #endif
