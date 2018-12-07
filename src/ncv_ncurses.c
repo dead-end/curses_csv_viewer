@@ -35,6 +35,30 @@ static bool use_colors;
 static SCREEN *screen = NULL;
 
 /***************************************************************************
+ * The function ensures that a new window with a given size and offset fits
+ * in its parent window.
+ **************************************************************************/
+
+static void check_subwin_size(WINDOW *win, const int rows, const int cols, const int begin_y, const int begin_x) {
+
+	print_debug("check_subwin_size() rows: %d cols: % d begin y: %d x: %d\n", rows, cols, begin_y, begin_x);
+
+	//
+	// Ensure that the minimum size of a window is requested.
+	//
+	if (rows < 1 || cols < 1) {
+		print_exit("check_subwin_size() Invalid dimension (rows: %d cols: % d)! Ensure that the parent window is large enough.\n", rows, cols);
+	}
+
+	//
+	// Ensure that the window fits in its parent window.
+	//
+	if (rows + begin_y > getmaxy(win) || cols + begin_x > getmaxx(win)) {
+		print_exit_str("check_subwin_size() Window does not fit in its parent window!\n");
+	}
+}
+
+/***************************************************************************
  * The function creates a window. It is ensured that the window has a valid
  * size and fits in its parent (which is: stdscr).
  **************************************************************************/
@@ -42,30 +66,36 @@ static SCREEN *screen = NULL;
 WINDOW *ncurses_win_create(const int rows, const int cols, const int begin_y, const int begin_x) {
 	WINDOW *win;
 
-	print_debug("ncurses_win_create() rows: %d cols: % d begin y: %d x: %d\n", rows, cols, begin_y, begin_x);
-
-	//
-	// Ensure that the minimum size of a window is requested.
-	//
-	if (rows < 1 || cols < 1) {
-		print_exit("ncurses_win_create() Invalid dimension (rows: %d cols: % d)! Ensure that the terminal is large enough.\n", rows, cols);
-	}
-
-	//
-	// Ensure that the window fits in its parent window.
-	//
-	if (rows + begin_y > getmaxy(stdscr) || cols + begin_x > getmaxx(stdscr)) {
-		print_exit_str("ncurses_win_create() Window does not fit in parent!\n");
-	}
+	check_subwin_size(stdscr, rows, cols, begin_y, begin_x);
 
 	//
 	// Create the window.
 	//
 	if ((win = newwin(rows, cols, begin_y, begin_x)) == NULL) {
-		print_exit_str("ncurses_win_create() Unable to create header win!\n");
+		print_exit_str("ncurses_win_create() Unable to create window!\n");
 	}
 
 	return win;
+}
+
+/***************************************************************************
+ * The function creates a derived window. It is ensured that the window has
+ * a valid size and fits in its parent.
+ **************************************************************************/
+
+WINDOW *ncurses_derwin_create(WINDOW *win, const int rows, const int cols, const int begin_y, const int begin_x) {
+	WINDOW *win_sub;
+
+	check_subwin_size(win, rows, cols, begin_y, begin_x);
+
+	//
+	// Create the sub win
+	//
+	if ((win_sub = derwin(win, rows, cols, begin_y, begin_x)) == NULL) {
+		print_exit_str("ncurses_derwin_create() Unable to create derived window!\n");
+	}
+
+	return win_sub;
 }
 
 /***************************************************************************
