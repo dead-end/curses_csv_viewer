@@ -12,7 +12,7 @@ TST_DIR = tests
 ############################################################################
 
 CC       = gcc
-DEBUG    = -DDEBUG -g
+#DEBUG    = -DDEBUG -g
 WARNINGS = -Wall -Wextra -Wpedantic -Werror
 CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11
 LIBS     = $(shell ncursesw5-config --libs) -lformw -lm
@@ -61,6 +61,7 @@ SRC_TEST += $(SRC_DIR)/ut_table.c
 SRC_TEST += $(SRC_DIR)/ut_table_part.c 
 SRC_TEST += $(SRC_DIR)/ut_field.c
 SRC_TEST += $(SRC_DIR)/ut_common.c
+SRC_TEST += $(SRC_DIR)/ut_filter.c
 
 TEST     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
 

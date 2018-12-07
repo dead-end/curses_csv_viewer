@@ -32,10 +32,12 @@ set(LIBS
   src/ncv_field.c
   src/ncv_filter.c
   src/ncv_ui_loop.c
+  src/ncv_forms.c
   src/ncv_win_header.c
   src/ncv_win_filter.c
   src/ncv_win_table.c
   src/ncv_win_footer.c
+  src/ncv_win_help.c
 )
 
 add_executable(ccsvv src/ncv_ccsvv.c ${LIBS})
@@ -70,6 +72,7 @@ enable_testing()
 
 set(TEST_SRCS
   src/ut_field.c
+  src/ut_filter.c
   src/ut_parser.c
   src/ut_table.c
   src/ut_table_part.c
