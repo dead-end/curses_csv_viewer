@@ -28,19 +28,14 @@
 #include <assert.h>
 
 /***************************************************************************
- * The function initializes the filter structure.
+ * The function sets the values of a s_filter.
  **************************************************************************/
 
-void s_filter_init(s_filter *filter) {
+void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive) {
 
-	filter->case_insensitive = true;
-
-	filter->is_active = false;
-
-	//
-	// Initialize the filter string.
-	//
-	wmemset(filter->str, W_STR_TERM, FILTER_STR_LEN + 1);
+	wcsncpy(filter->str, str, FILTER_STR_LEN);
+	filter->is_active = is_active;
+	filter->case_insensitive = case_insensitive;
 }
 
 /***************************************************************************
@@ -59,37 +54,45 @@ bool s_filter_set_inactive(s_filter *filter) {
 }
 
 /***************************************************************************
- * The function sets the filter string. If the string is empty, the
- * filtering is deactivated. Otherwise it is activated. The function returns
- * true if the filter string or the is_active flag changed.
+ * The function updates a s_filter struct with the values of an other
+ * s_filter struct. It returns false if both s_filter structs have the same
+ * values, so no values needed to be changed.
  **************************************************************************/
 
-bool s_filter_set_string(s_filter *filter, const wchar_t *filter_str) {
+bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
+	bool result = false;
 
 	//
-	// If the new filter string is empty, then filtering is not active.
+	// filter string
 	//
-	if (wcslen(filter_str) == 0) {
-		return s_filter_set_inactive(filter);
+	if (wcscmp(to_filter->str, from_filter->str) != 0) {
+
+		print_debug("s_filter_update() Filter string changed from: %ls to: %ls\n", to_filter->str, from_filter->str);
+		wcsncpy(to_filter->str, from_filter->str, FILTER_STR_LEN);
+		result = true;
 	}
 
 	//
-	// If the new filter string is not empty, then filtering is active.
+	// case_insensitive flag
 	//
-	filter->is_active = true;
+	if (to_filter->case_insensitive != from_filter->case_insensitive) {
 
-	//
-	// If the filtering string does not change, there is nothing to do.
-	//
-	if (wcscmp(filter->str, filter_str) == 0) {
-		print_debug("s_filter_set_string() Filter string did not change: %ls\n", filter_str);
-		return false;
+		print_debug("s_filter_update() Filter case flag changed from: %d to: %d\n", to_filter->case_insensitive, from_filter->case_insensitive);
+		to_filter->case_insensitive = from_filter->case_insensitive;
+		result = true;
 	}
 
-	wcsncpy(filter->str, filter_str, FILTER_STR_LEN);
-	print_debug("s_filter_set_string() New filter string: '%ls'\n", filter->str);
+	//
+	// is_active flag
+	//
+	if (to_filter->is_active != from_filter->is_active) {
 
-	return true;
+		print_debug("s_filter_update() Filter active flag changed from: %d to: %d\n", to_filter->is_active, from_filter->is_active);
+		to_filter->is_active = from_filter->is_active;
+		result = true;
+	}
+
+	return result;
 }
 
 /***************************************************************************

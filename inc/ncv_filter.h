@@ -32,7 +32,7 @@
 
 /***************************************************************************
  * The filter struct contains the filter string and a flag, whether the
- * filtering is case sensitive or not and an acitce flag.
+ * filtering is case sensitive or not and an active flag.
  **************************************************************************/
 
 typedef struct s_filter {
@@ -58,16 +58,18 @@ typedef struct s_filter {
  * Function and macro definitions
  **************************************************************************/
 
-void s_filter_init(s_filter *filter);
+#define s_filter_init(f) s_filter_set(f, false, L"", true)
 
 #define s_filter_is_active(f) ((f)->is_active)
 
+#define s_filter_len(f) wcslen((f)->str)
+
+void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive);
+
 bool s_filter_set_inactive(s_filter *filter);
 
-bool s_filter_set_string(s_filter *filter, const wchar_t *filter_str);
+bool s_filter_update(s_filter *to_filter, const s_filter *from_filter);
 
 wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str);
-
-#define s_filter_len(f) wcslen((f)->str)
 
 #endif /* INC_NCV_FILTER_H_ */
