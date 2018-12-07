@@ -34,11 +34,19 @@
  **************************************************************************/
 
 #ifdef DEBUG
+
 #define print_debug(fmt, ...) fprintf(stderr, "DEBUG - " fmt, ##__VA_ARGS__)
 #define print_debug_str(fmt)  fprintf(stderr, "DEBUG - " fmt)
+
+#define DEBUG_USED
+
 #else
+
 #define print_debug(fmt, ...)
 #define print_debug_str(fmt)
+
+#define DEBUG_USED __attribute__((unused))
+
 #endif
 
 /***************************************************************************
