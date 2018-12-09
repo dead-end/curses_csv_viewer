@@ -48,6 +48,11 @@ typedef struct s_filter {
 	bool case_insensitive;
 
 	//
+	// A flag the defines search or filter.
+	//
+	bool is_search;
+
+	//
 	// The actual filter string.
 	//
 	wchar_t str[FILTER_STR_LEN + 1];
