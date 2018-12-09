@@ -141,9 +141,7 @@ bool forms_get_checkbox_value(FIELD *field, bool *checked) {
 /***************************************************************************
  * The function processes checkbox input. A checkbox is an input field with
  * one char. The only valid values are 'x' and ' ', which represent checked
- * and unchecked. The status is toggled with the space key, so the only key
- * that is processed is the space key. Then the state of the field is read
- * and toggled.
+ * and unchecked. The status is toggled with the space key or a 'x'.
  **************************************************************************/
 
 void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
@@ -151,7 +149,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 	//
 	// We are only processing spaces.
 	//
-	if (key_type == OK && (wchar_t) chr == W_SPACE) {
+	if (key_type == OK && ((wchar_t) chr == W_SPACE || (wchar_t) chr == CHECK_WCHAR)) {
 
 		if (forms_checkbox_is_checked(field)) {
 			print_debug_str("forms_process_checkbox() Unchecking checkbox!\n");
