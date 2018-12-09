@@ -55,29 +55,27 @@
 
 #define CP_STATUS 1
 
-#define CP_FIELD 2
-
 //
 // Normal colors
 //
-#define CP_TABLE 3
+#define CP_TABLE 2
 
-#define CP_TABLE_HEADER 4
+#define CP_TABLE_HEADER 3
 
-#define CP_CURSOR 5
+#define CP_CURSOR 4
 
-#define CP_HEADER_CURSOR 6
+#define CP_HEADER_CURSOR 5
 
 //
 // Highlighted colors
 //
-#define CP_TABLE_HL 7
+#define CP_TABLE_HL 6
 
-#define CP_TABLE_HEADER_HL 8
+#define CP_TABLE_HEADER_HL 7
 
-#define CP_CURSOR_HL 9
+#define CP_CURSOR_HL 8
 
-#define CP_HEADER_CURSOR_HL 10
+#define CP_HEADER_CURSOR_HL 9
 
 #define WIN_HAS_MIN_SIZE(r,c) (getmaxy(stdscr) >= (r) && getmaxx(stdscr) >= (c))
 
