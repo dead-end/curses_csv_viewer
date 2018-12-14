@@ -26,6 +26,7 @@
 
 #include <string.h>
 #include <ncursesw/form.h>
+#include <ncursesw/menu.h>
 
 /***************************************************************************
  * Definition of the checkbox checked char.
@@ -179,6 +180,29 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 }
 
 /***************************************************************************
+ * The function computes the size of the menu. It is called with the number
+ * of items, not including the terminating NULL. Each item has the size of
+ * the max item name length. The items are delimited by strings, so the size
+ * is:
+ *
+ * num-items * max(item-name-len) + num-items -1
+ **************************************************************************/
+
+int menus_get_size(ITEM **items, const int num_items) {
+	size_t size;
+	size_t max = 0;
+
+	for (int i = 0; i < num_items; i++) {
+		size = strlen(item_name(items[i]));
+		if (size > max) {
+			max = size;
+		}
+	}
+
+	return max * num_items + (num_items - 1);
+}
+
+/***************************************************************************
  * The function creates, configures and returns a field.
  **************************************************************************/
 
@@ -189,8 +213,7 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 	//
 	// Create the field with a size and a position.
 	//
-	field = new_field(rows, cols, start_row, start_col, 0, 0);
-	if (field == NULL) {
+	if ((field = new_field(rows, cols, start_row, start_col, 0, 0)) == NULL) {
 		print_exit_str("forms_create_field() Unable to create filter field!\n");
 	}
 
@@ -213,10 +236,99 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 }
 
 /***************************************************************************
+ * The function creates the items of a menu by a list of labels. The
+ * function is called with the number of items, not including the
+ * terminating NULL, which is set.
+ **************************************************************************/
+
+// TODO: Add function pointer / enum ???
+
+void menus_create_items(ITEM **items, const int num_items, const char **labels) {
+
+	for (int i = 0; i < num_items; i++) {
+
+		if ((items[i] = new_item(labels[i], "")) == NULL) {
+			print_exit("menus_create_items() Unable to create item: %d\n", i);
+		}
+	}
+
+	//
+	// Set the terminating NULL
+	//
+	items[num_items] = NULL;
+}
+
+/***************************************************************************
+ * The function creates a form with some fields and ensures that appropriate
+ * options are set.
+ **************************************************************************/
+
+FORM *forms_create_form(FIELD **fields) {
+	FORM *form;
+
+	//
+	// Create the filter form.
+	//
+	if ((form = new_form(fields)) == NULL) {
+		print_exit_str("forms_create_form() Unable to create filter form!\n");
+	}
+
+	//
+	// Switch off special treatment of REQ_DEL_PREV at the beginning of the buffer.
+	//
+	if (form_opts_off(form, O_BS_OVERLOAD) != E_OK) {
+		print_exit_str("forms_create_form() Unable to switch off O_BS_OVERLOAD\n");
+	}
+
+	return form;
+}
+
+/***************************************************************************
+ * The function creates a menu with its items and ensures that appropriate
+ * options are set. The method is called with the number of items not
+ * including the terminating NULL. All items of the menu have the same
+ * attributes, so they are set here.
+ **************************************************************************/
+
+MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr) {
+	MENU *menu;
+
+	//
+	// Create the menu
+	//
+	if ((menu = new_menu(items)) == NULL) {
+		print_exit_str("menus_create_menu() Unable to create menu!\n");
+	}
+
+	//
+	// Create a horizontal menu
+	//
+	if (set_menu_format(menu, 1, num_items) != E_OK) {
+		print_exit_str("menus_create_menu() Unable to set menu format!\n");
+	}
+
+	//
+	// Do not show the description
+	//
+	if (set_menu_mark(menu, "") != E_OK) {
+		print_exit_str("menus_create_menu() Unable to set menu mark!\n");
+	}
+
+	//
+	// Set the background
+	//
+	if (set_menu_back(menu, attr) != E_OK) {
+		print_exit_str("menus_create_menu() Unable to set menu background!\n");
+	}
+
+	return menu;
+}
+
+/***************************************************************************
  * The function sets the associated windows of the form and posts the form.
  **************************************************************************/
 
-void forms_post_form(FORM *form, WINDOW *win, WINDOW *win_sub) {
+void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub) {
 	int result;
 
 	//
@@ -239,29 +351,29 @@ void forms_post_form(FORM *form, WINDOW *win, WINDOW *win_sub) {
 }
 
 /***************************************************************************
- * The function creates a form with some fields and ensures that appropriate
- * options are set.
+ * The function sets the associated windows of the menu and posts the menu.
  **************************************************************************/
 
-FORM *forms_create_form(FIELD **fields) {
-	FORM *form;
+void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub) {
+	int result;
 
 	//
-	// Create the filter form.
+	// Set the menu to the window and the sub window.
 	//
-	form = new_form(fields);
-	if (form == NULL) {
-		print_exit_str("forms_create_form() Unable to create filter form!\n");
+	if ((result = set_menu_win(menu, win)) != E_OK) {
+		print_exit("menus_set_win_and_post() Unable to set menu to the window! (result: %d)\n", result);
+	}
+
+	if ((result = set_menu_sub(menu, win_sub)) != E_OK) {
+		print_exit("menus_set_win_and_post() Unable to set menu to the sub window! (result: %d)\n", result);
 	}
 
 	//
-	// Switch off special treatment of REQ_DEL_PREV at the beginning of the buffer.
+	// Post the menu. (E_NO_ROOM is returned if the window is too small)
 	//
-	if (form_opts_off(form, O_BS_OVERLOAD) != E_OK) {
-		print_exit_str("forms_create_form() Unable to switch off O_BS_OVERLOAD\n");
+	if ((result = post_menu(menu)) != E_OK) {
+		print_exit("menus_set_win_and_post() Unable to post menu! (result: %d)\n", result);
 	}
-
-	return form;
 }
 
 /***************************************************************************
@@ -287,9 +399,46 @@ void forms_free(FORM *form, FIELD **fields) {
 			print_exit_str("forms_free() Unable to free form!\n");
 		}
 
+		//
+		// Free the fields which are NULL terminated
+		//
 		for (int i = 0; fields[i] != NULL; i++) {
 			if (free_field(fields[i]) != E_OK) {
 				print_exit("forms_free() Unable to free field: %d\n", i);
+			}
+		}
+	}
+}
+
+/***************************************************************************
+ * The function does an unpost and free of a menu and its items.
+ **************************************************************************/
+
+void menus_free(MENU *menu, ITEM **items) {
+
+	//
+	// Ensure that there is a menu
+	//
+	if (menu != NULL) {
+
+		//
+		// Ensure that the menu was posted at all.
+		//
+		const int result = unpost_menu(menu);
+		if (result != E_OK && result != E_NOT_POSTED) {
+			print_exit_str("menus_free() Unable to unpost menu!\n");
+		}
+
+		if (free_menu(menu) != E_OK) {
+			print_exit_str("menus_free() Unable to free menu!\n");
+		}
+
+		//
+		// Free the items which are NULL terminated
+		//
+		for (int i = 0; items[i] != NULL; i++) {
+			if (free_item(items[i]) != E_OK) {
+				print_exit("menus_free() Unable to free item: %d\n", i);
 			}
 		}
 	}

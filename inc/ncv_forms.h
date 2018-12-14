@@ -26,6 +26,7 @@
 #define INC_NCV_FORMS_H_
 
 #include <ncursesw/form.h>
+#include <ncursesw/menu.h>
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr);
 
@@ -37,12 +38,22 @@ bool forms_get_checkbox_value(FIELD *field, bool *checked);
 
 void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
+int menus_get_size(ITEM **items, const int num_items);
+
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
-void forms_post_form(FORM *form, WINDOW *win, WINDOW *win_sub);
+void menus_create_items(ITEM **items, const int num, const char **labels);
 
 FORM *forms_create_form(FIELD **fields);
 
+MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr);
+
+void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub);
+
+void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub);
+
 void forms_free(FORM *form, FIELD **fields);
+
+void menus_free(MENU *menu, ITEM **items);
 
 #endif
