@@ -255,12 +255,6 @@ void ui_loop(s_table *table, const char *filename) {
 	//
 	bool do_continue = true;
 
-	//
-	// A buffer for the filter string. The filter string comes from the
-	// filter window and has to be passed to the table window.
-	//
-	wchar_t filter_buf[FILTER_BUF_SIZE];
-
 	WINDOW *win = stdscr;
 
 	wint_t chr;
@@ -341,12 +335,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				// Reset the filtering in filter and table mode.
 				//
-				if (s_filter_set_string(&table->filter, S_FILTER_EMPTY_STR)) {
-
-					//
-					// Update the filter form
-					//
-					win_filter_clear_filter();
+				if (s_filter_set_inactive(&table->filter)) {
 
 					//
 					// If the table was reset, the cursor position has changed.
@@ -355,11 +344,17 @@ void ui_loop(s_table *table, const char *filename) {
 					win_table_on_table_change(table);
 					win_table_set_cursor(table, &cursor, DIR_FORWARD);
 
-					// TODO: Necessary / inside if
+					// TODO: Does not seam to be necessary.
 					werase(win_table_get_win());
 					wins_print(table, &cursor, filename, mode);
 
-				} else if (old_mode == MODE_HELP) {
+				}
+
+				//
+				// Hide the dialog windows if necessary
+				//
+				//TODO: better solution
+				if (old_mode == MODE_HELP || old_mode == MODE_FILTER) {
 					wins_touch(mode);
 				}
 
@@ -377,18 +372,9 @@ void ui_loop(s_table *table, const char *filename) {
 					change_mode(&win, &cursor, &mode, MODE_TABLE);
 
 					//
-					// Do the filtering
-					//
-					win_filter_get_filter(filter_buf, FILTER_BUF_SIZE);
-
-					//
-					// Update the table only if the filter changed.
-					//
-
-					//
 					// Update the filter string and check if something changed.
 					//
-					if (s_filter_set_string(&table->filter, filter_buf)) {
+					if (win_filter_get_filter(&table->filter)) {
 						s_table_do_filter(table, &cursor);
 						win_table_on_table_change(table);
 					}
