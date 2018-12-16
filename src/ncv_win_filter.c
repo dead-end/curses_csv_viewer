@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_filter.h"
 #include "ncv_win_filter.h"
 #include "ncv_ncurses.h"
 #include "ncv_forms.h"
@@ -29,9 +30,10 @@
 
 #include <string.h>
 #include <ncursesw/form.h>
+#include <ncursesw/menu.h>
 
 /***************************************************************************
- *
+ * Define the offset for the field and the box.
  **************************************************************************/
 
 #define START_FIELDS 10
@@ -44,11 +46,15 @@
  * The definition of the window and the sub window sizes.
  **************************************************************************/
 
-#define WIN_ROWS 2 + 1 + BOX_SIZE
+//TODO: total size not only for form
+// TODO: compute WIIN_ROW from WIN_SUB_ROW
+#define WIN_ROWS 4 + 1 + 2 + BOX_SIZE
+
+//#define WIN_ROWS_old 4 + 1 + BOX_SIZE
 
 #define WIN_COLS START_FIELDS + 32 + BOX_SIZE
 
-#define WIN_SUB_ROWS (WIN_ROWS - BOX_SIZE)
+#define WIN_SUB_ROWS (WIN_ROWS - BOX_SIZE - 2)
 
 #define WIN_SUB_COLS (WIN_COLS - BOX_SIZE - START_FIELDS)
 
@@ -63,10 +69,12 @@
 
 #define CASE_ROW 2
 
+#define SEARCH_ROW 4
+
 //
 // The length and the heights of the fields
 //
-#define CASE_FIELD_LEN 1
+#define CKBOX_FIELD_LEN 1
 
 #define FIELD_HIGHT 1
 
@@ -76,11 +84,27 @@
 
 static WINDOW* win_filter = NULL;
 
-static WINDOW *win_filter_sub = NULL;
+static WINDOW *win_sub_form = NULL;
 
-static FIELD *fields[3];
+static WINDOW *win_sub_menu = NULL;
 
+//
+// Form and field
+//
 static FORM *filter_form = NULL;
+
+static FIELD *filter_fields[4];
+
+//
+// Buttons ok, clear, cancel
+//
+static MENU *button_menu = NULL;
+
+#define NUM_BUTTONS 3
+
+static ITEM *button_items[NUM_BUTTONS + 1];
+
+static bool is_on_buttons = false;
 
 /***************************************************************************
  * The struct contains data specific to a field. The only one is currently
@@ -109,6 +133,24 @@ static s_field_user_ptr filter_user_ptr = { .driver = win_filter_process_filter_
 static s_field_user_ptr checkbox_user_ptr = { .driver = forms_process_checkbox };
 
 /***************************************************************************
+ * The function sets the cursor to the field in the form or an item in the
+ * menu.
+ **************************************************************************/
+
+static void win_filter_move_cursor(FORM *form, const MENU *menu, const bool is_menu) {
+
+	if (is_menu) {
+		if (pos_menu_cursor(menu) != E_OK) {
+			print_exit_str("win_filter_move_cursor() Unable to set the menu cursor!\n");
+		}
+	} else {
+		if (pos_form_cursor(form) != E_OK) {
+			print_exit_str("win_filter_move_cursor() Unable to set the form cursor!\n");
+		}
+	}
+}
+
+/***************************************************************************
  * The function prints the content of the window, which is the form with
  * the fields, the labels and the box of the window.
  **************************************************************************/
@@ -123,19 +165,26 @@ static void win_filter_print_content() {
 	}
 
 	//
-	// post form and wins
+	// post form and menu with their wins
 	//
-	forms_post_form(filter_form, win_filter, win_filter_sub);
+	forms_set_win_and_post(filter_form, win_filter, win_sub_form);
+
+	menus_set_win_and_post(button_menu, win_filter, win_sub_menu);
 
 	//
-	// Add the filter label. The filter is the last lable, so the cursor is
-	// at the right position.
+	// Print the field labels
 	//
+	mvwaddstr(win_filter, FILTER_ROW + BOX_OFFSET, BOX_OFFSET, "Filter:  ");
+
 	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, BOX_OFFSET, "Case:");
 	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, START_FIELDS + 2, "]");
 	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, START_FIELDS, "[");
 
-	mvwaddstr(win_filter, FILTER_ROW + BOX_OFFSET, BOX_OFFSET, "Filter:  ");
+	mvwaddstr(win_filter, SEARCH_ROW + BOX_OFFSET, BOX_OFFSET, "Search:");
+	mvwaddstr(win_filter, SEARCH_ROW + BOX_OFFSET, START_FIELDS + 2, "]");
+	mvwaddstr(win_filter, SEARCH_ROW + BOX_OFFSET, START_FIELDS, "[");
+
+	win_filter_move_cursor(filter_form, button_menu, is_on_buttons);
 }
 
 /***************************************************************************
@@ -168,42 +217,63 @@ void win_filter_init() {
 	}
 
 	//
+	// Create the sub window for the form.
+	//
+	win_sub_form = ncurses_derwin_create(win_filter, WIN_SUB_ROWS, WIN_SUB_COLS, BOX_OFFSET, START_FIELDS);
+
+	//
 	// Create filter field
 	//
-	attr = ncurses_attr_color(COLOR_PAIR(CP_FIELD), A_UNDERLINE);
-	fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr);
-	if (set_field_userptr(fields[0], &filter_user_ptr) != E_OK) {
+	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS) | A_UNDERLINE, A_REVERSE | A_UNDERLINE);
+	filter_fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr);
+	if (set_field_userptr(filter_fields[0], &filter_user_ptr) != E_OK) {
 		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
 	}
-
-	// TODO: define color pair gray yellow
 
 	//
 	// Create case checkbox field
 	//
-	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_UNDERLINE);
-	fields[1] = forms_create_field(FIELD_HIGHT, CASE_FIELD_LEN, CASE_ROW, 1, attr);
-	if (set_field_userptr(fields[1], &checkbox_user_ptr) != E_OK) {
+	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_REVERSE);
+	filter_fields[1] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, CASE_ROW, 1, attr);
+	if (set_field_userptr(filter_fields[1], &checkbox_user_ptr) != E_OK) {
+		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
+	}
+
+	//
+	// Create search checkbox field
+	//
+	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_REVERSE);
+	filter_fields[2] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, SEARCH_ROW, 1, attr);
+	if (set_field_userptr(filter_fields[2], &checkbox_user_ptr) != E_OK) {
 		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
 	}
 
 	//
 	// Mark end of the array
 	//
-	fields[2] = NULL;
+	filter_fields[3] = NULL;
 
-	filter_form = forms_create_form(fields);
-
-	//TODO: ncurses function create_derwin with error checking
+	filter_form = forms_create_form(filter_fields);
 
 	//
-	// Create a sub win for the form.
+	// ------------------------------------------------
 	//
-	win_filter_sub = derwin(win_filter, WIN_SUB_ROWS, WIN_SUB_COLS, BOX_OFFSET, START_FIELDS);
-	if (win_filter_sub == NULL) {
-		print_exit("win_filter_init() Unable to create sub window with y: %d x: %d\n", getmaxy(win_filter), getmaxx(win_filter));
-	}
+	const char *labels[] = { "OK", "Clear", "Cancel" };
+	menus_create_items(button_items, NUM_BUTTONS, labels);
 
+	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_REVERSE);
+	button_menu = menus_create_menu(button_items, NUM_BUTTONS, attr);
+
+	const int menu_size = menus_get_size(button_items, NUM_BUTTONS);
+
+	//
+	// Create the sub window for the menu.
+	//
+	win_sub_menu = ncurses_derwin_create(win_filter, 1, menu_size, WIN_SUB_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
+
+	//
+	// Initial printing of the form
+	//
 	win_filter_print_content();
 }
 
@@ -216,24 +286,32 @@ void win_filter_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
+	//TODO: min size for all
 	if (WIN_HAS_MIN_SIZE(WIN_ROWS, WIN_COLS)) {
 		print_debug_str("win_filter_resize() Do resize the window!\n");
 
 		const bool do_update_win = ncurses_win_ensure_size(win_filter, WIN_ROWS, WIN_COLS);
-		const bool do_update_sub = ncurses_win_ensure_size(win_filter_sub, WIN_SUB_ROWS, WIN_SUB_COLS);
+		const bool do_update_sub = ncurses_win_ensure_size(win_sub_form, WIN_SUB_ROWS, WIN_SUB_COLS);
 
+		// TODO: win_sub_menu size
+		const int menu_size = menus_get_size(button_items, NUM_BUTTONS);
+		const bool do_update_sub_menu = ncurses_win_ensure_size(win_sub_menu, 1, menu_size);
 		//
 		// Both checks have to be executed. If do_update_win is true the
 		// second test is skipped.
 		//
-		if (do_update_win || do_update_sub) {
+		if (do_update_win || do_update_sub || do_update_sub_menu) {
 
 			//
 			// On resize do an unpost at the beginning. (Resizing the window does
 			// not work well with forms.)
 			//
 			if (unpost_form(filter_form) != E_OK) {
-				print_exit_str("win_filter_resize() Unable to set form to the window!\n");
+				print_exit_str("win_filter_resize() Unable to unpost filter form!\n");
+			}
+
+			if (unpost_menu(button_menu) != E_OK) {
+				print_exit_str("win_filter_resize() Unable to unpost menu!\n");
 			}
 
 			win_filter_print_content();
@@ -241,7 +319,10 @@ void win_filter_resize() {
 			//
 			// Ensure the correct position of the derived window.
 			//
-			ncurses_derwin_move(win_filter_sub, BOX_OFFSET, START_FIELDS);
+			ncurses_derwin_move(win_sub_form, BOX_OFFSET, START_FIELDS);
+
+			// TODO: win_sub_menu size
+			ncurses_derwin_move(win_sub_menu, WIN_SUB_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
 		}
 
 		//
@@ -271,48 +352,88 @@ WINDOW *win_filter_get_win() {
 }
 
 /***************************************************************************
- * The function copies the content of the filter field to the given wchar_t
- * buffer.
+ * The function updates the filter struct with the data from the form
+ * fields. The function returns true if the struct changed. It is assumed
+ * that the filtering should be activated if the filter string is not emtpy.
  **************************************************************************/
 
-//TODO: return a struct
-
-void win_filter_get_filter(wchar_t *buffer, const int buf_size) {
-	char *raw_field = field_buffer(fields[0], 0);
-	size_t raw_len = strlen(raw_field);
-	char str[raw_len + 1];
+bool win_filter_get_filter(s_filter *to_filter) {
+	s_filter from_filter;
 
 	//
-	// Create a copy of the field content that can be modified (trimmed).
+	// Fill the new s_filter with the data from the form.
 	//
-	strncpy(str, raw_field, raw_len);
-	str[raw_len] = '\0';
+	forms_get_input_str(filter_fields[0], from_filter.str, FILTER_STR_LEN + 1);
 
-	print_debug("win_filter_get_filter() raw len: '%zu'\n", raw_len);
+	from_filter.case_insensitive = !forms_checkbox_is_checked(filter_fields[1]);
 
-	//
-	// The field content is filled with blanks, which has to be trimmed
-	// before the copying.
-	//
-	const char *trimed = trim(str);
+	from_filter.is_search = !forms_checkbox_is_checked(filter_fields[2]);
+
+	from_filter.is_active = wcslen(from_filter.str) > 0;
 
 	//
-	// Convert and copy.
+	// Do the update and return the result.
 	//
-	mbs_2_wchars(trimed, buffer, buf_size);
-
-	print_debug("win_filter_get_filter() Filter: '%ls'\n", buffer);
+	return s_filter_update(to_filter, &from_filter);
 }
 
 /***************************************************************************
  * The function deletes the content of the filter field.
  **************************************************************************/
 
-void win_filter_clear_filter() {
+static inline void win_filter_clear_filter() {
 
-	if (set_field_buffer(fields[0], 0, "") != E_OK) {
+	if (set_field_buffer(filter_fields[0], 0, "") != E_OK) {
 		print_exit_str("win_filter_clear_filter() Unable to reset the buffer\n");
 	}
+}
+
+/***************************************************************************
+ * The function switches from the from to the menu or from the menu to the
+ * form. The direction is defined by the flag "is_on_menu". The function
+ * returns the revered flag, which is the new value. The last flag
+ * "to_first" defines whether the switching should go to the first or last
+ * field.
+ **************************************************************************/
+
+bool switch_form_menu(FORM *form, MENU *menu, const bool is_on_menu, const bool to_first) {
+
+	if (is_on_menu) {
+
+		//
+		// Switch off menu and cursor
+		//
+		set_menu_fore(menu, A_REVERSE);
+		curs_set(1);
+
+		//
+		// Move to the first or last field
+		//
+		if (to_first) {
+			forms_driver(form, KEY_CODE_YES, REQ_FIRST_FIELD);
+		} else {
+			forms_driver(form, KEY_CODE_YES, REQ_LAST_FIELD);
+		}
+
+		print_debug_str("switch_form_menu() Switch to form.\n");
+
+	} else {
+
+		//
+		// Switch on menu and cursor
+		//
+		set_menu_fore(menu, A_NORMAL);
+		curs_set(0);
+
+		//
+		// Move to the first item
+		//
+		menus_driver(menu, REQ_FIRST_ITEM);
+
+		print_debug_str("switch_form_menu() Switch to menu.\n");
+	}
+
+	return !is_on_menu;
 }
 
 /***************************************************************************
@@ -320,7 +441,7 @@ void win_filter_clear_filter() {
  * key_type is done by the calling function.
  **************************************************************************/
 
-static void win_filter_process_filter_input(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
+static void win_filter_process_filter_input(FORM *form, DEBUG_USED FIELD *field, const int key_type, const wint_t chr) {
 
 	switch (key_type) {
 
@@ -378,6 +499,7 @@ static void win_filter_process_filter_input(FORM *form, FIELD *field, const int 
 		// Process function keys
 		//
 		switch (chr) {
+
 		//
 		// Deletes the filter string in FILTER mode
 		//
@@ -400,6 +522,131 @@ static void win_filter_process_filter_input(FORM *form, FIELD *field, const int 
 	}
 }
 
+
+
+/***************************************************************************
+ *
+ **************************************************************************/
+
+void process_menu_input(FORM *form, MENU *menu, const int key_type, const wint_t chr) {
+
+	switch (key_type) {
+
+	case KEY_CODE_YES:
+
+		//
+		// Process function keys
+		//
+		switch (chr) {
+
+		case KEY_LEFT:
+
+			if (menus_has_index(menu, 0)) {
+				menus_driver(menu, REQ_LAST_ITEM);
+			} else {
+				menus_driver(menu, REQ_LEFT_ITEM);
+			}
+			break;
+
+		case KEY_RIGHT:
+
+			if (menus_has_index(menu, NUM_BUTTONS - 1)) {
+				menus_driver(menu, REQ_FIRST_ITEM);
+			} else {
+				menus_driver(menu, REQ_RIGHT_ITEM);
+			}
+			break;
+
+		case KEY_UP:
+			is_on_buttons = switch_form_menu(form, menu, is_on_buttons, false);
+			break;
+
+		case KEY_DOWN:
+			is_on_buttons = switch_form_menu(form, menu, is_on_buttons, true);
+			break;
+
+		default:
+			print_debug("process_menu_input() Found key code: %d\n", chr);
+			break;
+		}
+
+		break; // case KEY_CODE_YES
+
+	case OK:
+
+		//
+		// Process function keys
+		//
+		switch (chr) {
+
+		case L'\t':
+
+			if (menus_has_index(menu, NUM_BUTTONS - 1)) {
+				is_on_buttons = switch_form_menu(form, menu, is_on_buttons, true);
+			} else {
+				menus_driver(menu, REQ_RIGHT_ITEM);
+			}
+
+			break;
+
+		default:
+
+			//
+			// Process char keys
+			//
+			print_debug_str("win_filter_process_input() Found char\n");
+		}
+
+		break; // case OK
+	}
+}
+
+void process_filter_input(FORM *form, MENU *menu, const int key_type, const wint_t chr) {
+	//
+	// On key down or tab go to the next field
+	//
+	if ((key_type == KEY_CODE_YES && chr == KEY_DOWN) || (key_type == OK && chr == L'\t')) {
+
+		if (forms_has_index(form, 2)) {
+			is_on_buttons = switch_form_menu(form, menu, is_on_buttons, true);
+			return;
+		}
+
+		forms_driver(form, KEY_CODE_YES, REQ_NEXT_FIELD);
+		forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
+		return;
+
+	}
+
+	//
+	// On key up go to the previous field
+	//
+	if (key_type == KEY_CODE_YES && chr == KEY_UP) {
+
+		if (forms_has_index(form, 0)) {
+			is_on_buttons = switch_form_menu(form, menu, is_on_buttons, false);
+			return;
+		}
+
+		forms_driver(form, KEY_CODE_YES, REQ_PREV_FIELD);
+		forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
+		return;
+	}
+
+	//
+	// If the user does not request an other field, get the current field
+	// and delegate the input.
+	//
+	FIELD *field = current_field(form);
+
+	const s_field_user_ptr * driver = (s_field_user_ptr *) field_userptr(field);
+	if (driver == NULL) {
+		print_exit_str("win_filter_process_input() Unable to ge field user ptr!\n");
+	}
+
+	driver->driver(form, field, key_type, chr);
+}
+
 /***************************************************************************
  * The function does the input processing of the form. It processes the up,
  * down and the tab key, which result in a switch of the current field. If
@@ -409,38 +656,11 @@ static void win_filter_process_filter_input(FORM *form, FIELD *field, const int 
 
 void win_filter_process_input(const int key_type, const wint_t chr) {
 
-	//
-	// On key down or tab go to the next field
-	//
-	if ((key_type == KEY_CODE_YES && chr == KEY_DOWN) || (key_type == OK && chr == L'\t')) {
-
-		forms_driver(filter_form, KEY_CODE_YES, REQ_NEXT_FIELD);
-		forms_driver(filter_form, KEY_CODE_YES, REQ_END_FIELD);
-		return;
+	if (is_on_buttons) {
+		process_menu_input(filter_form, button_menu, key_type, chr);
+	} else {
+		process_filter_input(filter_form, button_menu, key_type, chr);
 	}
-
-	//
-	// On key up go to the previous field
-	//
-	if (key_type == KEY_CODE_YES && chr == KEY_UP) {
-
-		forms_driver(filter_form, KEY_CODE_YES, REQ_PREV_FIELD);
-		forms_driver(filter_form, KEY_CODE_YES, REQ_END_FIELD);
-		return;
-	}
-
-	//
-	// If the user does not request an other field, get the current field
-	// and delegate the input.
-	//
-	FIELD *field = current_field(filter_form);
-
-	const s_field_user_ptr *driver = (s_field_user_ptr *) field_userptr(field);
-	if (driver == NULL) {
-		print_exit_str("win_filter_process_input() Unable to ge field user ptr!\n");
-	}
-
-	driver->driver(filter_form, field, key_type, chr);
 }
 
 /***************************************************************************
@@ -462,9 +682,13 @@ void win_filter_free() {
 
 	print_debug_str("win_filter_free() Removing filter windows, forms and fields.\n");
 
-	forms_free(filter_form, fields);
+	forms_free(filter_form, filter_fields);
 
-	ncurses_win_free(win_filter_sub);
+	menus_free(button_menu, button_items);
+
+	ncurses_win_free(win_sub_form);
+
+	ncurses_win_free(win_sub_menu);
 
 	ncurses_win_free(win_filter);
 }
