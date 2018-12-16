@@ -36,16 +36,6 @@ bool forms_has_index(const FORM *form, const int idx);
 
 bool menus_has_index(const MENU *menu, const int idx);
 
-void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size);
-
-bool forms_checkbox_is_checked(FIELD *field);
-
-bool forms_get_checkbox_value(FIELD *field, bool *checked);
-
-void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
-
-int menus_get_size(ITEM **items, const int num_items);
-
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
 void menus_create_items(ITEM **items, const int num, const char **labels);
@@ -61,5 +51,15 @@ void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub);
 void forms_free(FORM *form, FIELD **fields);
 
 void menus_free(MENU *menu, ITEM **items);
+
+void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size);
+
+bool forms_checkbox_is_checked(FIELD *field);
+
+bool forms_get_checkbox_value(FIELD *field, bool *checked);
+
+void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+
+int menus_get_size(ITEM **items, const int num_items);
 
 #endif

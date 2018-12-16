@@ -122,153 +122,7 @@ bool menus_has_index(const MENU *menu, const int idx) {
 	return item_idx == idx;
 }
 
-/***************************************************************************
- * The function reads the input from the field and stores it in the buffer.
- * The buffers size has to include the terminating \0. The input string is
- * a multi byte string, which will be trimmed and converted to wchar_t.
- *
- * If the resulting string is longer than the buffer it is an error.
- **************************************************************************/
 
-void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
-
-	//
-	// The first step is to get the raw field input data.
-	//
-	char *raw_field = field_buffer(field, 0);
-
-	//
-	// If the string contains multi byte chars, the length can be greater
-	// than the buffer size.
-	//
-	size_t raw_len = strlen(raw_field);
-	char raw_str[raw_len + 1];
-
-	//
-	// Create a copy of the field content that can be modified (trimmed).
-	// The string has by construction the same size as the raw string, so
-	// strncpy will add a \0
-	//
-	strncpy(raw_str, raw_field, raw_len);
-	print_debug("forms_get_input_str() raw len: '%zu'\n", raw_len);
-
-	//
-	// The field content is filled with blanks, which had to be trimmed
-	// before the conversion.
-	//
-	const char *trimed = trim(raw_str);
-
-	//
-	// Convert the trimmed input string to a wchar_t string. The buffer size
-	// has to include the \0.
-	//
-	mbs_2_wchars(trimed, buffer, buffer_size);
-}
-
-/***************************************************************************
- * The functions returns true if the checkbox field is checked which means
- * that the buffer is 'x'. If the checkbox is not checked it is ' '.
- **************************************************************************/
-
-bool forms_checkbox_is_checked(FIELD *field) {
-
-	//
-	// Get the buffer string.
-	//
-	const char *buffer = field_buffer(field, 0);
-	if (buffer == NULL) {
-		print_exit_str("forms_checkbox_is_checked() Unable to get field buffer!\n");
-	}
-
-	return buffer[0] == CHECK_CHAR;
-}
-
-/***************************************************************************
- * The function stores the state of a checkbox in the function argument. It
- * returns true if the value changed.
- **************************************************************************/
-
-bool forms_get_checkbox_value(FIELD *field, bool *checked) {
-
-	//
-	// Get the new value from the checkbox field.
-	//
-	const bool tmp = forms_checkbox_is_checked(field);
-
-	//
-	// Compare the old and the new value
-	//
-	const bool result = tmp != *checked;
-
-	//
-	// Update the checkbox value and return the result.
-	//
-	*checked = tmp;
-	return result;
-}
-
-/***************************************************************************
- * The function processes checkbox input. A checkbox is an input field with
- * one char. The only valid values are 'x' and ' ', which represent checked
- * and unchecked. The status is toggled with the space key or a 'x'.
- **************************************************************************/
-
-void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
-
-	//
-	// We are only processing spaces.
-	//
-	if (key_type == OK && ((wchar_t) chr == W_SPACE || (wchar_t) chr == CHECK_WCHAR)) {
-
-		if (forms_checkbox_is_checked(field)) {
-			print_debug_str("forms_process_checkbox() Unchecking checkbox!\n");
-
-			//
-			// If the checkbox is checked, the buffer (with one char) is
-			// full and does not acccept any input, so the char has to be
-			// deleted.
-			//
-			forms_driver(form, KEY_CODE_YES, REQ_DEL_CHAR);
-
-		} else {
-			print_debug_str("forms_process_checkbox() Checking checkbox!\n");
-
-			//
-			// Set the first and only char to 'x'. The field cursor is at
-			// the end and does no accept any input.
-			//
-			forms_driver(form, OK, CHECK_WCHAR);
-		}
-
-		//
-		// Request validation to do an update
-		//
-		forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
-	}
-}
-
-/***************************************************************************
- * The function computes the size of the menu. It is called with the number
- * of items, not including the terminating NULL. Each item has the size of
- * the max item name length. The items are delimited by strings, so the size
- * is:
- *
- * num-items * max(item-name-len) + num-items -1
- **************************************************************************/
-
-int menus_get_size(ITEM **items, const int num_items) {
-	size_t size;
-	size_t max = 0;
-
-	for (int i = 0; i < num_items; i++) {
-		size = strlen(item_name(items[i]));
-		if (size > max) {
-			max = size;
-		}
-	}
-
-	return max * num_items + (num_items - 1);
-}
 
 /***************************************************************************
  * The function creates, configures and returns a field.
@@ -510,5 +364,153 @@ void menus_free(MENU *menu, ITEM **items) {
 			}
 		}
 	}
+}
+
+/***************************************************************************
+ * The function reads the input from the field and stores it in the buffer.
+ * The buffers size has to include the terminating \0. The input string is
+ * a multi byte string, which will be trimmed and converted to wchar_t.
+ *
+ * If the resulting string is longer than the buffer it is an error.
+ **************************************************************************/
+
+void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
+
+	//
+	// The first step is to get the raw field input data.
+	//
+	char *raw_field = field_buffer(field, 0);
+
+	//
+	// If the string contains multi byte chars, the length can be greater
+	// than the buffer size.
+	//
+	size_t raw_len = strlen(raw_field);
+	char raw_str[raw_len + 1];
+
+	//
+	// Create a copy of the field content that can be modified (trimmed).
+	// The string has by construction the same size as the raw string, so
+	// strncpy will add a \0
+	//
+	strncpy(raw_str, raw_field, raw_len);
+	print_debug("forms_get_input_str() raw len: '%zu'\n", raw_len);
+
+	//
+	// The field content is filled with blanks, which had to be trimmed
+	// before the conversion.
+	//
+	const char *trimed = trim(raw_str);
+
+	//
+	// Convert the trimmed input string to a wchar_t string. The buffer size
+	// has to include the \0.
+	//
+	mbs_2_wchars(trimed, buffer, buffer_size);
+}
+
+/***************************************************************************
+ * The functions returns true if the checkbox field is checked which means
+ * that the buffer is 'x'. If the checkbox is not checked it is ' '.
+ **************************************************************************/
+
+bool forms_checkbox_is_checked(FIELD *field) {
+
+	//
+	// Get the buffer string.
+	//
+	const char *buffer = field_buffer(field, 0);
+	if (buffer == NULL) {
+		print_exit_str("forms_checkbox_is_checked() Unable to get field buffer!\n");
+	}
+
+	return buffer[0] == CHECK_CHAR;
+}
+
+/***************************************************************************
+ * The function stores the state of a checkbox in the function argument. It
+ * returns true if the value changed.
+ **************************************************************************/
+
+bool forms_get_checkbox_value(FIELD *field, bool *checked) {
+
+	//
+	// Get the new value from the checkbox field.
+	//
+	const bool tmp = forms_checkbox_is_checked(field);
+
+	//
+	// Compare the old and the new value
+	//
+	const bool result = tmp != *checked;
+
+	//
+	// Update the checkbox value and return the result.
+	//
+	*checked = tmp;
+	return result;
+}
+
+/***************************************************************************
+ * The function processes checkbox input. A checkbox is an input field with
+ * one char. The only valid values are 'x' and ' ', which represent checked
+ * and unchecked. The status is toggled with the space key or a 'x'.
+ **************************************************************************/
+
+void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
+
+	//
+	// We are only processing spaces.
+	//
+	if (key_type == OK && ((wchar_t) chr == W_SPACE || (wchar_t) chr == CHECK_WCHAR)) {
+
+		if (forms_checkbox_is_checked(field)) {
+			print_debug_str("forms_process_checkbox() Unchecking checkbox!\n");
+
+			//
+			// If the checkbox is checked, the buffer (with one char) is
+			// full and does not acccept any input, so the char has to be
+			// deleted.
+			//
+			forms_driver(form, KEY_CODE_YES, REQ_DEL_CHAR);
+
+		} else {
+			print_debug_str("forms_process_checkbox() Checking checkbox!\n");
+
+			//
+			// Set the first and only char to 'x'. The field cursor is at
+			// the end and does no accept any input.
+			//
+			forms_driver(form, OK, CHECK_WCHAR);
+		}
+
+		//
+		// Request validation to do an update
+		//
+		forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
+	}
+}
+
+/***************************************************************************
+ * The function computes the size of the menu. It is called with the number
+ * of items, not including the terminating NULL. Each item has the size of
+ * the max item name length. The items are delimited by strings, so the size
+ * is:
+ *
+ * num-items * max(item-name-len) + num-items -1
+ **************************************************************************/
+
+int menus_get_size(ITEM **items, const int num_items) {
+	size_t size;
+	size_t max = 0;
+
+	for (int i = 0; i < num_items; i++) {
+		size = strlen(item_name(items[i]));
+		if (size > max) {
+			max = size;
+		}
+	}
+
+	return max * num_items + (num_items - 1);
 }
 
