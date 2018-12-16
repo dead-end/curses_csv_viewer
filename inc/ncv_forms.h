@@ -30,6 +30,12 @@
 
 void forms_driver(FORM *form, const int key_type, const wint_t chr);
 
+void menus_driver(MENU *menu, const int chr);
+
+bool forms_has_index(const FORM *form, const int idx);
+
+bool menus_has_index(const MENU *menu, const int idx);
+
 void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size);
 
 bool forms_checkbox_is_checked(FIELD *field);

@@ -55,6 +55,74 @@ void forms_driver(FORM *form, const int key_type, const wint_t chr) {
 }
 
 /***************************************************************************
+ * The function is a simple wrapper around menu_driver that provides error
+ * handling.
+ **************************************************************************/
+
+void menus_driver(MENU *menu, const int chr) {
+
+	const int result = menu_driver(menu, chr);
+
+	//
+	// The menu driver returns E_REQUEST_DENIED it could not process the
+	// resquest.
+	//
+	if (result != E_OK && result != E_REQUEST_DENIED) {
+		print_exit("menus_driver() Unable to process request for key: %d result: %d\n", chr, result);
+	}
+}
+
+/***************************************************************************
+ * The function checks if the current field of a form has a given index.
+ **************************************************************************/
+
+bool forms_has_index(const FORM *form, const int idx) {
+
+	//
+	// Get the current field.
+	//
+	const FIELD *field = current_field(form);
+	if (field == NULL) {
+		print_exit_str("forms_has_index() Unable to get current form field\n");
+	}
+
+	//
+	// Get the index of the current field.
+	//
+	const int field_idx = field_index(field);
+	if (field_idx == ERR) {
+		print_exit_str("forms_has_index() Unable to get the index of a field\n");
+	}
+
+	return field_idx == idx;
+}
+
+/***************************************************************************
+ * The function checks if the current item of a menu has a given index.
+ **************************************************************************/
+
+bool menus_has_index(const MENU *menu, const int idx) {
+
+	//
+	// Get the current item.
+	//
+	const ITEM *item = current_item(menu);
+	if (item == NULL) {
+		print_exit_str("menus_has_index() Unable to get current menu item\n");
+	}
+
+	//
+	// Get the index of the current item.
+	//
+	const int item_idx = item_index(item);
+	if (item_idx == ERR) {
+		print_exit_str("menus_has_index() Unable to get the index of an item\n");
+	}
+
+	return item_idx == idx;
+}
+
+/***************************************************************************
  * The function reads the input from the field and stores it in the buffer.
  * The buffers size has to include the terminating \0. The input string is
  * a multi byte string, which will be trimmed and converted to wchar_t.
