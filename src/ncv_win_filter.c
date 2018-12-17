@@ -48,15 +48,16 @@
 
 //TODO: total size not only for form
 // TODO: compute WIIN_ROW from WIN_SUB_ROW
-#define WIN_ROWS 4 + 1 + 2 + BOX_SIZE
 
-//#define WIN_ROWS_old 4 + 1 + BOX_SIZE
+#define WIN_FORM_ROWS 5
+
+#define WIN_MENU_ROWS 1
+
+#define WIN_FORM_COLS 32
+
+#define WIN_ROWS WIN_FORM_ROWS + 1 + WIN_MENU_ROWS + BOX_SIZE
 
 #define WIN_COLS START_FIELDS + 32 + BOX_SIZE
-
-#define WIN_SUB_ROWS (WIN_ROWS - BOX_SIZE - 2)
-
-#define WIN_SUB_COLS (WIN_COLS - BOX_SIZE - START_FIELDS)
 
 /***************************************************************************
  * Some definitions for the fields.
@@ -93,7 +94,9 @@ static WINDOW *win_sub_menu = NULL;
 //
 static FORM *filter_form = NULL;
 
-static FIELD *filter_fields[4];
+#define NUM_FIELDS 3
+
+static FIELD *filter_fields[NUM_FIELDS + 1];
 
 //
 // Buttons ok, clear, cancel
@@ -195,33 +198,6 @@ void win_filter_init() {
 	chtype attr;
 
 	//
-	// Create the filter window.
-	//
-	win_filter = ncurses_win_create(WIN_ROWS, WIN_COLS, 0, 0);
-
-	//
-	// Move the window to the center
-	//
-	ncurses_win_center(win_filter);
-
-	//
-	// Set the background of the filter window.
-	//
-	ncurses_attr_back(win_filter, COLOR_PAIR(CP_STATUS), A_REVERSE);
-
-	//
-	// Necessary to enable function keys like arrows
-	//
-	if (keypad(win_filter, TRUE) != OK) {
-		print_exit_str("win_filter_init() Unable to call keypad!");
-	}
-
-	//
-	// Create the sub window for the form.
-	//
-	win_sub_form = ncurses_derwin_create(win_filter, WIN_SUB_ROWS, WIN_SUB_COLS, BOX_OFFSET, START_FIELDS);
-
-	//
 	// Create filter field
 	//
 	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS) | A_UNDERLINE, A_REVERSE | A_UNDERLINE);
@@ -264,12 +240,30 @@ void win_filter_init() {
 	attr = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_REVERSE);
 	button_menu = menus_create_menu(button_items, NUM_BUTTONS, attr);
 
-	const int menu_size = menus_get_size(button_items, NUM_BUTTONS);
+	//
+	// Create a centered filter window
+	//
+	win_filter = ncurses_win_create(WIN_ROWS, WIN_COLS, 0, 0);
+
+	ncurses_win_center(win_filter);
+
+	ncurses_attr_back(win_filter, COLOR_PAIR(CP_STATUS), A_REVERSE);
 
 	//
-	// Create the sub window for the menu.
+	// Necessary to enable function keys like arrows
 	//
-	win_sub_menu = ncurses_derwin_create(win_filter, 1, menu_size, WIN_SUB_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
+	if (keypad(win_filter, TRUE) != OK) {
+		print_exit_str("win_filter_init() Unable to call keypad!");
+	}
+
+	//
+	// Create the sub windows for the menu and the form.
+	//
+	const int menu_size = menus_get_size(button_items, NUM_BUTTONS);
+
+	win_sub_menu = ncurses_derwin_create(win_filter, WIN_MENU_ROWS, menu_size, WIN_FORM_ROWS + BOX_OFFSET + 1, (WIN_COLS - BOX_SIZE - menu_size) / 2);
+
+	win_sub_form = ncurses_derwin_create(win_filter, WIN_FORM_ROWS, WIN_FORM_COLS, BOX_OFFSET, START_FIELDS);
 
 	//
 	// Initial printing of the form
@@ -291,7 +285,7 @@ void win_filter_resize() {
 		print_debug_str("win_filter_resize() Do resize the window!\n");
 
 		const bool do_update_win = ncurses_win_ensure_size(win_filter, WIN_ROWS, WIN_COLS);
-		const bool do_update_sub = ncurses_win_ensure_size(win_sub_form, WIN_SUB_ROWS, WIN_SUB_COLS);
+		const bool do_update_sub = ncurses_win_ensure_size(win_sub_form, WIN_FORM_ROWS, WIN_FORM_COLS);
 
 		// TODO: win_sub_menu size
 		const int menu_size = menus_get_size(button_items, NUM_BUTTONS);
@@ -322,7 +316,7 @@ void win_filter_resize() {
 			ncurses_derwin_move(win_sub_form, BOX_OFFSET, START_FIELDS);
 
 			// TODO: win_sub_menu size
-			ncurses_derwin_move(win_sub_menu, WIN_SUB_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
+			ncurses_derwin_move(win_sub_menu, WIN_FORM_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
 		}
 
 		//
@@ -441,6 +435,8 @@ bool switch_form_menu(FORM *form, MENU *menu, const bool is_on_menu, const bool 
  * key_type is done by the calling function.
  **************************************************************************/
 
+//TODO: check general function for input field (but: CTRL(x) and enter)
+
 static void win_filter_process_filter_input(FORM *form, DEBUG_USED FIELD *field, const int key_type, const wint_t chr) {
 
 	switch (key_type) {
@@ -519,16 +515,21 @@ static void win_filter_process_filter_input(FORM *form, DEBUG_USED FIELD *field,
 		}
 
 		break; // case OK
+
+	default:
+		print_exit("win_filter_process_filter_input() Unknown key code: %d key: %lc\n", key_type, chr)
+		;
+		break;
 	}
 }
 
-
-
 /***************************************************************************
- *
+ * The function does the input processing of the menu. This is mainly the
+ * navigation through the items of the menu. If necessary it switches to
+ * the form.
  **************************************************************************/
-
-void process_menu_input(FORM *form, MENU *menu, const int key_type, const wint_t chr) {
+//TODO: enter on ok and on cancel
+static void process_menu_input(FORM *form, MENU *menu, const int key_type, const wint_t chr) {
 
 	switch (key_type) {
 
@@ -566,7 +567,7 @@ void process_menu_input(FORM *form, MENU *menu, const int key_type, const wint_t
 			break;
 
 		default:
-			print_debug("process_menu_input() Found key code: %d\n", chr);
+			print_debug("process_menu_input() Key code: %d key: %lc\n", key_type, chr);
 			break;
 		}
 
@@ -579,8 +580,12 @@ void process_menu_input(FORM *form, MENU *menu, const int key_type, const wint_t
 		//
 		switch (chr) {
 
-		case L'\t':
+		case W_TAB:
 
+			//
+			// Tabbing goes to the next item or the first field if the
+			// current item is the last item.
+			//
 			if (menus_has_index(menu, NUM_BUTTONS - 1)) {
 				is_on_buttons = switch_form_menu(form, menu, is_on_buttons, true);
 			} else {
@@ -590,44 +595,69 @@ void process_menu_input(FORM *form, MENU *menu, const int key_type, const wint_t
 			break;
 
 		default:
-
-			//
-			// Process char keys
-			//
-			print_debug_str("win_filter_process_input() Found char\n");
+			print_debug("process_menu_input() Key code: %d key: %lc\n", key_type, chr);
+			break;
 		}
-
 		break; // case OK
+
+	default:
+		print_exit("process_menu_input() Unknown key code: %d key: %lc\n", key_type, chr)
+		;
+		break;
 	}
 }
 
-void process_filter_input(FORM *form, MENU *menu, const int key_type, const wint_t chr) {
-	//
-	// On key down or tab go to the next field
-	//
-	if ((key_type == KEY_CODE_YES && chr == KEY_DOWN) || (key_type == OK && chr == L'\t')) {
+/***************************************************************************
+ * The function does the input processing of the form. This is mainly the
+ * navigation through the fields of the form. If necessary it switches to
+ * the menu.
+ *
+ * The processing of the field input is delegated to a fields processing
+ * function. The field can be an input field or a checkbox, with a specific
+ * processing function.
+ **************************************************************************/
 
-		if (forms_has_index(form, 2)) {
+static void process_form_input(FORM *form, MENU *menu, const int key_type, const wint_t chr) {
+
+	//
+	// On key DOWN or TAB go to the next field
+	//
+	if ((key_type == KEY_CODE_YES && chr == KEY_DOWN) || (key_type == OK && chr == W_TAB)) {
+
+		//
+		// If the current field is the last field in the form, switch to
+		// the menu
+		//
+		if (forms_has_index(form, NUM_FIELDS - 1)) {
 			is_on_buttons = switch_form_menu(form, menu, is_on_buttons, true);
 			return;
 		}
 
+		//
+		// Go to the end of the next field
+		//
 		forms_driver(form, KEY_CODE_YES, REQ_NEXT_FIELD);
 		forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
 		return;
-
 	}
 
 	//
-	// On key up go to the previous field
+	// On key UP go to the previous field
 	//
 	if (key_type == KEY_CODE_YES && chr == KEY_UP) {
 
+		//
+		// If the current field is the first field in the form, switch to
+		// the menu
+		//
 		if (forms_has_index(form, 0)) {
 			is_on_buttons = switch_form_menu(form, menu, is_on_buttons, false);
 			return;
 		}
 
+		//
+		// Go to the end of the previous field
+		//
 		forms_driver(form, KEY_CODE_YES, REQ_PREV_FIELD);
 		forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
 		return;
@@ -648,10 +678,10 @@ void process_filter_input(FORM *form, MENU *menu, const int key_type, const wint
 }
 
 /***************************************************************************
- * The function does the input processing of the form. It processes the up,
- * down and the tab key, which result in a switch of the current field. If
- * an other key was input, the processing is delegated to a special input
- * processor.
+ * The function processes the input for the filter window / popup. The popup
+ * consists of a from with several fields and a menu with buttons. The
+ * functions simply delegates the processing to a form or a menu processing
+ * function.
  **************************************************************************/
 
 void win_filter_process_input(const int key_type, const wint_t chr) {
@@ -659,7 +689,7 @@ void win_filter_process_input(const int key_type, const wint_t chr) {
 	if (is_on_buttons) {
 		process_menu_input(filter_form, button_menu, key_type, chr);
 	} else {
-		process_filter_input(filter_form, button_menu, key_type, chr);
+		process_form_input(filter_form, button_menu, key_type, chr);
 	}
 }
 

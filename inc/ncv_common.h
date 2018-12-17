@@ -73,6 +73,7 @@
 #define W_STR_TERM L'\0'
 #define W_QUOTE    L'\"'
 #define W_CR       L'\r'
+#define W_TAB      L'\t'
 #define W_DELIM    L','
 #define W_SPACE    L' '
 
