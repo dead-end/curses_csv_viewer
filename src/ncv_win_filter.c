@@ -83,7 +83,7 @@
  * The necessary field / form / window variables are defined as static.
  **************************************************************************/
 
-static WINDOW* win_filter = NULL;
+static WINDOW *win_filter = NULL;
 
 static WINDOW *win_sub_form = NULL;
 
@@ -295,6 +295,7 @@ void win_filter_resize() {
 		// second test is skipped.
 		//
 		if (do_update_win || do_update_sub || do_update_sub_menu) {
+			print_debug_str("win_filter_resize() Do update!\n");
 
 			//
 			// On resize do an unpost at the beginning. (Resizing the window does
@@ -308,8 +309,6 @@ void win_filter_resize() {
 				print_exit_str("win_filter_resize() Unable to unpost menu!\n");
 			}
 
-			win_filter_print_content();
-
 			//
 			// Ensure the correct position of the derived window.
 			//
@@ -317,6 +316,12 @@ void win_filter_resize() {
 
 			// TODO: win_sub_menu size
 			ncurses_derwin_move(win_sub_menu, WIN_FORM_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
+
+			//
+			// If everything (forms, menus, subwins) is on its place print the
+			// content.
+			//
+			win_filter_print_content();
 		}
 
 		//
@@ -348,7 +353,7 @@ WINDOW *win_filter_get_win() {
 /***************************************************************************
  * The function updates the filter struct with the data from the form
  * fields. The function returns true if the struct changed. It is assumed
- * that the filtering should be activated if the filter string is not emtpy.
+ * that the filtering should be activated if the filter string is not empty.
  **************************************************************************/
 
 bool win_filter_get_filter(s_filter *to_filter) {
@@ -363,6 +368,7 @@ bool win_filter_get_filter(s_filter *to_filter) {
 
 	from_filter.is_search = !forms_checkbox_is_checked(filter_fields[2]);
 
+	// TODO: if (is_active) => check strlen
 	from_filter.is_active = wcslen(from_filter.str) > 0;
 
 	//
@@ -580,6 +586,31 @@ static void process_menu_input(FORM *form, MENU *menu, const int key_type, const
 		//
 		switch (chr) {
 
+		// TODO:
+
+		//
+		// ESC char
+		//
+		case NCV_KEY_ESC:
+			// filter.is_active = false
+			// return DONE
+			break;
+		case KEY_ENTER:
+			// filter.is_active = true
+			// return DONE
+
+			// OK
+			if (menus_has_index(menu, 0)) {
+				return;
+			}
+
+			// CANCEL
+			if (menus_has_index(menu, 1)) {
+				return;
+			}
+
+			break;
+
 		case W_TAB:
 
 			//
@@ -671,7 +702,7 @@ static void process_form_input(FORM *form, MENU *menu, const int key_type, const
 
 	const s_field_user_ptr * driver = (s_field_user_ptr *) field_userptr(field);
 	if (driver == NULL) {
-		print_exit_str("win_filter_process_input() Unable to ge field user ptr!\n");
+		print_exit_str("win_filter_process_input() Unable to get field user ptr!\n");
 	}
 
 	driver->driver(form, field, key_type, chr);

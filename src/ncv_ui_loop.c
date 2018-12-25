@@ -49,10 +49,41 @@ enum MODE {
 	//
 	MODE_FILTER,
 
+	//
+	// Show the help popup
+	//
 	MODE_HELP
 };
 
-#define mode_str(m) ((m) == MODE_TABLE ? "TABLE" : "FILTER")
+/***************************************************************************
+ * The function returns a string representation of the mode enum.
+ **************************************************************************/
+
+static inline char *mode_str(const enum MODE mode) {
+
+	switch (mode) {
+
+	case MODE_TABLE:
+		return "TABLE";
+
+	case MODE_FILTER:
+		return "FILTER";
+
+	case MODE_HELP:
+		return "HELP";
+
+	default:
+		print_exit("mode_str() Unknown mode: %d\n", mode)
+		;
+	}
+
+	//
+	// Dead code to prevent compiler warnings.
+	//
+	return NULL;
+}
+
+#define is_popup(m) ((m) == MODE_HELP || (m) == MODE_FILTER)
 
 /***************************************************************************
  * The function refreshes all windows that are visible. If the terminal is
@@ -67,6 +98,10 @@ static void wins_refresh(enum MODE mode) {
 			print_exit_str("ncurses_refresh() Unable to refresh the stdscr!\n");
 		}
 
+		//
+		// The following windows are always visible (perhaps only partly),
+		// so they are refreshed first.
+		//
 		win_header_refresh_no();
 
 		win_table_refresh_no();
@@ -74,11 +109,9 @@ static void wins_refresh(enum MODE mode) {
 		win_footer_refresh_no();
 
 		//
-		// The filter window is the last window to update. It is currently
-		// the only window that uses the ncurses cursor.
+		// The filter and the help windows are popups, so they are refreshed
+		// second.
 		//
-		//win_filter_refresh_no();
-
 		switch (mode) {
 
 		case MODE_FILTER:
@@ -91,7 +124,6 @@ static void wins_refresh(enum MODE mode) {
 
 		case MODE_TABLE:
 			break;
-
 		}
 
 		//
@@ -111,7 +143,7 @@ static void wins_resize(const s_table *table, s_cursor *cursor) {
 
 	win_header_resize();
 
-	win_filter_resize();
+	win_footer_resize();
 
 	win_table_resize();
 
@@ -120,7 +152,10 @@ static void wins_resize(const s_table *table, s_cursor *cursor) {
 	//
 	win_table_content_resize(table, cursor);
 
-	win_footer_resize();
+	//
+	// Both popups are resized even if they are currently not visible.
+	//
+	win_filter_resize();
 
 	win_help_resize();
 }
@@ -303,7 +338,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				wins_print(table, &cursor, filename, mode);
 
-				if (mode == MODE_HELP) {
+				if (is_popup(mode)) {
 					wins_touch(mode);
 				}
 
@@ -354,7 +389,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Hide the dialog windows if necessary
 				//
 				//TODO: better solution
-				if (old_mode == MODE_HELP || old_mode == MODE_FILTER) {
+				if (is_popup(old_mode)) {
 					wins_touch(mode);
 				}
 
@@ -466,6 +501,17 @@ void ui_loop(s_table *table, const char *filename) {
 			break;
 
 		case MODE_FILTER:
+			//
+			// TODO: return enum { SWITCH, PROCESSED, REFRESH }
+			// SWITCH -> TABLE (implies REFRESH)
+			// REFRESH ?? -> see: TABLE
+			// PROCESSED -> nothing to do
+			//
+
+			//
+			// TODO: call with filter => possible to update filter if necessary
+			// maybe return done == true / false
+			//
 			win_filter_process_input(key_type, chr);
 			break;
 
