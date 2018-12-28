@@ -60,6 +60,8 @@ bool forms_get_checkbox_value(FIELD *field, bool *checked);
 
 void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
+void forms_process_input_field(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+
 int menus_get_size(ITEM **items, const int num_items);
 
 #endif

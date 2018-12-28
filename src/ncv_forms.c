@@ -122,8 +122,6 @@ bool menus_has_index(const MENU *menu, const int idx) {
 	return item_idx == idx;
 }
 
-
-
 /***************************************************************************
  * The function creates, configures and returns a field.
  **************************************************************************/
@@ -164,7 +162,6 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
  **************************************************************************/
 
 // TODO: Add function pointer / enum ???
-
 void menus_create_items(ITEM **items, const int num_items, const char **labels) {
 
 	for (int i = 0; i < num_items; i++) {
@@ -488,6 +485,86 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 		// Request validation to do an update
 		//
 		forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
+	}
+}
+
+/******************************************************************************
+ * The function does the processing of the input to a normal input field. If
+ * the field needs special processing for certain keys, this has to be done
+ * before and for the other keys the processing can be delegated to this
+ * function.
+ *
+ * The parameter FIELD is not strictly necessary but allows a common function
+ * pointer for "forms_process_checkbox" and "forms_process_input_field".
+ *****************************************************************************/
+
+void forms_process_input_field(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
+
+	switch (key_type) {
+
+	case KEY_CODE_YES:
+
+		//
+		// Process function keys
+		//
+		switch (chr) {
+
+		case KEY_DC:
+			forms_driver(form, KEY_CODE_YES, REQ_DEL_CHAR);
+
+			//
+			// If the field content has changed, do an update.
+			//
+			forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
+			break;
+
+		case KEY_BACKSPACE:
+			forms_driver(form, KEY_CODE_YES, REQ_DEL_PREV);
+
+			//
+			// If the field content has changed, do an update.
+			//
+			forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
+			break;
+
+		case KEY_LEFT:
+			forms_driver(form, KEY_CODE_YES, REQ_LEFT_CHAR);
+			break;
+
+		case KEY_RIGHT:
+			forms_driver(form, KEY_CODE_YES, REQ_RIGHT_CHAR);
+			break;
+
+		case KEY_HOME:
+			forms_driver(form, KEY_CODE_YES, REQ_BEG_FIELD);
+			break;
+
+		case KEY_END:
+			forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
+			break;
+
+		default:
+			print_debug("forms_process_input_field() Found key code: %d\n", chr);
+			break;
+		}
+
+		break; // case KEY_CODE_YES
+
+	case OK:
+
+		//
+		// Process char keys
+		//
+		forms_driver(form, OK, (wchar_t) chr);
+		forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
+		print_debug("forms_process_input_field() Found char: %d field content: %s\n", chr, field_buffer(field, 0));
+
+		break; // case OK
+
+	default:
+		print_exit("forms_process_input_field() Unknown key code: %d key: %lc for field: %d\n", key_type, chr, field_index(field))
+		;
+		break;
 	}
 }
 
