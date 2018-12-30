@@ -98,26 +98,39 @@ bool forms_has_index(const FORM *form, const int idx) {
 }
 
 /***************************************************************************
- * The function checks if the current item of a menu has a given index.
+ * The method returns the index of the current item of the menu.
  **************************************************************************/
 
-bool menus_has_index(const MENU *menu, const int idx) {
+int menus_get_index(const MENU *menu) {
 
 	//
 	// Get the current item.
 	//
 	const ITEM *item = current_item(menu);
 	if (item == NULL) {
-		print_exit_str("menus_has_index() Unable to get current menu item\n");
+		print_exit_str("menus_get_index() Unable to get current menu item\n");
 	}
 
 	//
 	// Get the index of the current item.
 	//
-	const int item_idx = item_index(item);
-	if (item_idx == ERR) {
-		print_exit_str("menus_has_index() Unable to get the index of an item\n");
+	const int idx = item_index(item);
+	if (idx == ERR) {
+		print_exit_str("menus_get_index() Unable to get the index of an item\n");
 	}
+
+	print_debug("menus_get_index() Menu item has index: %d\n", idx);
+
+	return idx;
+}
+
+/***************************************************************************
+ * The function checks if the current item of a menu has a given index.
+ **************************************************************************/
+
+bool menus_has_index(const MENU *menu, const int idx) {
+
+	const int item_idx = menus_get_index(menu);
 
 	print_debug("menus_has_index() current: %d requested: %d\n", item_idx, idx);
 

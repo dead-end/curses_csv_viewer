@@ -36,6 +36,8 @@ bool forms_has_index(const FORM *form, const int idx);
 
 bool menus_has_index(const MENU *menu, const int idx);
 
+int menus_get_index(const MENU *menu);
+
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
 void menus_create_items(ITEM **items, const int num, const char **labels);
