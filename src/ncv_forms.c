@@ -119,6 +119,8 @@ bool menus_has_index(const MENU *menu, const int idx) {
 		print_exit_str("menus_has_index() Unable to get the index of an item\n");
 	}
 
+	print_debug("menus_has_index() current: %d requested: %d\n", item_idx, idx);
+
 	return item_idx == idx;
 }
 
