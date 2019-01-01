@@ -43,8 +43,9 @@ void win_filter_free();
 
 WINDOW *win_filter_get_win();
 
-void win_filter_process_input(const int key_type, const wint_t chr);
+bool win_filter_process_input(s_filter *filter, const int key_type, const wint_t chr);
 
-bool win_filter_get_filter(s_filter *filter);
+void win_filter_prepair_show();
+//bool win_filter_get_filter(s_filter *filter, const bool is_active);
 
 #endif
