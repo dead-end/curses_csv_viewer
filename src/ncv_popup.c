@@ -28,7 +28,7 @@
 
 /******************************************************************************
  * The function allocates memory and sets some default values. The form and the
- * menu is not creates. The requires fields and items.
+ * menu is not created. The creation requires fields and items.
  *****************************************************************************/
 
 void popup_init(s_popup *popup, const int num_fields, const int num_items) {
@@ -60,7 +60,7 @@ void popup_init(s_popup *popup, const int num_fields, const int num_items) {
 	//
 	popup->is_on_form = true;
 
-	print_debug("popup_init() Init popup with %d fields and %d items.\n", num_fields, num_items);
+	print_debug("popup_init() Init popup with: %d fields and: %d items.\n", num_fields, num_items);
 }
 
 /******************************************************************************
@@ -92,7 +92,6 @@ void popup_pos_cursor(s_popup *popup) {
 		}
 	} else {
 
-		// TODO: maybe this is not correct for the menu.
 		if (pos_menu_cursor(popup->menu) != E_OK) {
 			print_exit_str("popup_pos_cursor() Unable to set the menu cursor!\n");
 		}
@@ -106,16 +105,13 @@ void popup_pos_cursor(s_popup *popup) {
 
 static void popup_switch_to_menu(s_popup *popup) {
 
-#ifdef DEBUG
-
 	//
-	// Ensure that the popup has the correct state. If this happens it is a
-	// programming error.
+	// Check if the popup state is already on the menu.
 	//
 	if (!popup->is_on_form) {
-		print_exit_str("popup_switch_to_menu() Popup is already on menu!\n");
+		print_debug_str("popup_switch_to_form() Popup is already on menu!\n");
+		return;
 	}
-#endif
 
 	//
 	// Switch on menu and cursor
@@ -143,20 +139,20 @@ static void popup_switch_to_form(s_popup *popup, const wint_t req_first_last) {
 #ifdef DEBUG
 
 	//
-	// Ensure that the popup has the correct state. If this happens it is a
-	// programming error.
-	//
-	if (popup->is_on_form) {
-		print_exit_str("popup_switch_to_form() Popup is already on form!\n");
-	}
-
-	//
 	// Ensure the valid values of req_first_last
 	//
 	if (req_first_last != REQ_FIRST_FIELD && req_first_last != REQ_LAST_FIELD) {
 		print_exit("popup_switch_to_form() Invalid req_first_last: %lc\n", req_first_last);
 	}
 #endif
+
+	//
+	// Check if the popup state is already on the form.
+	//
+	if (popup->is_on_form) {
+		print_debug_str("popup_switch_to_form() Popup is already on form!\n");
+		return;
+	}
 
 	//
 	// Switch off menu and cursor
@@ -175,6 +171,16 @@ static void popup_switch_to_form(s_popup *popup, const wint_t req_first_last) {
 }
 
 /******************************************************************************
+ * The function is called to show the popup. This means the first field of the
+ * form is activated. This ensures that, for example the cursor is correctly
+ * set.
+ *****************************************************************************/
+
+void popup_prepair_show(s_popup *popup) {
+	popup_switch_to_form(popup, REQ_FIRST_FIELD);
+}
+
+/******************************************************************************
  * The function requests the prev or next field of the form. This can lead to
  * a switch to the menu.
  *****************************************************************************/
@@ -187,7 +193,7 @@ static void popup_req_prev_next_field(s_popup *popup, const wint_t req_prev_next
 	// Ensure the valid values of req_prev_next
 	//
 	if (req_prev_next != REQ_NEXT_FIELD && req_prev_next != REQ_PREV_FIELD) {
-		print_exit("popup_req_prev_next_field() Invalid req_first_last: %lc\n", req_prev_next);
+		print_exit("popup_req_prev_next_field() Invalid prev / next value: %lc\n", req_prev_next);
 	}
 #endif
 

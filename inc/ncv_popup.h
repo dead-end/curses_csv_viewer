@@ -60,6 +60,8 @@ void popup_init(s_popup *popup, const int num_fields, const int num_items);
 
 void popup_free(s_popup *popup);
 
+void popup_prepair_show(s_popup *popup);
+
 void popup_pos_cursor(s_popup *popup);
 
 bool popup_process_input(s_popup *popup, const int key_type, const wint_t chr);
