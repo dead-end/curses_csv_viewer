@@ -28,7 +28,7 @@
 
 /******************************************************************************
  * The function allocates memory and sets some default values. The form and the
- * menu is not created. The creation requires fields and items.
+ * menu are not created. The creation requires fields and items.
  *****************************************************************************/
 
 void popup_init(s_popup *popup, const int num_fields, const int num_items) {
@@ -42,8 +42,6 @@ void popup_init(s_popup *popup, const int num_fields, const int num_items) {
 
 	popup->fields[num_fields] = NULL;
 
-	popup->num_fields = num_fields;
-
 	//
 	// Init menu
 	//
@@ -52,8 +50,6 @@ void popup_init(s_popup *popup, const int num_fields, const int num_items) {
 	popup->items = xmalloc(sizeof(ITEM *) * num_items + 1);
 
 	popup->items[num_items] = NULL;
-
-	popup->num_items = num_items;
 
 	//
 	// Start on the form.
@@ -200,7 +196,7 @@ static void popup_req_prev_next_field(s_popup *popup, const wint_t req_prev_next
 	//
 	// Request next field and currently last field
 	//
-	if (req_prev_next == REQ_NEXT_FIELD && forms_has_index(popup->form, popup->num_fields - 1)) {
+	if (req_prev_next == REQ_NEXT_FIELD && forms_is_last(popup->form)) {
 		popup_switch_to_menu(popup);
 		return;
 	}
@@ -208,7 +204,7 @@ static void popup_req_prev_next_field(s_popup *popup, const wint_t req_prev_next
 	//
 	// Request prev field and currently first field
 	//
-	if (req_prev_next == REQ_PREV_FIELD && forms_has_index(popup->form, 0)) {
+	if (req_prev_next == REQ_PREV_FIELD && forms_is_first(popup->form)) {
 		popup_switch_to_menu(popup);
 		return;
 	}
@@ -262,7 +258,7 @@ bool popup_process_input(s_popup *popup, const int key_type, const wint_t chr) {
 			//
 			if (!popup->is_on_form) {
 
-				if (menus_has_index(popup->menu, 0)) {
+				if (menus_is_first(popup->menu)) {
 					menus_driver(popup->menu, REQ_LAST_ITEM);
 
 				} else {
@@ -279,7 +275,7 @@ bool popup_process_input(s_popup *popup, const int key_type, const wint_t chr) {
 			//
 			if (!popup->is_on_form) {
 
-				if (menus_has_index(popup->menu, popup->num_items - 1)) {
+				if (menus_is_last(popup->menu)) {
 					menus_driver(popup->menu, REQ_FIRST_ITEM);
 
 				} else {
@@ -303,7 +299,8 @@ bool popup_process_input(s_popup *popup, const int key_type, const wint_t chr) {
 				popup_req_prev_next_field(popup, REQ_NEXT_FIELD);
 
 			} else {
-				if (menus_has_index(popup->menu, popup->num_items - 1)) {
+
+				if (menus_is_last(popup->menu)) {
 					popup_switch_to_form(popup, REQ_FIRST_FIELD);
 
 				} else {

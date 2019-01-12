@@ -40,13 +40,9 @@ typedef struct s_popup {
 
 	FIELD **fields;
 
-	int num_fields;
-
 	MENU *menu;
 
 	ITEM **items;
-
-	int num_items;
 
 	bool is_on_form;
 
