@@ -73,28 +73,30 @@ void menus_driver(MENU *menu, const int chr) {
 }
 
 /******************************************************************************
- * The function checks if the current field of a form has a given index.
+ * The method returns the index of the current field of the form.
  *****************************************************************************/
 
-bool forms_has_index(const FORM *form, const int idx) {
+int forms_get_index(const FORM *form) {
 
 	//
 	// Get the current field.
 	//
 	const FIELD *field = current_field(form);
 	if (field == NULL) {
-		print_exit_str("forms_has_index() Unable to get current form field\n");
+		print_exit_str("forms_get_index() Unable to get current form field\n");
 	}
 
 	//
 	// Get the index of the current field.
 	//
-	const int field_idx = field_index(field);
-	if (field_idx == ERR) {
-		print_exit_str("forms_has_index() Unable to get the index of a field\n");
+	const int idx = field_index(field);
+	if (idx == ERR) {
+		print_exit_str("forms_get_index() Unable to get the index of a field\n");
 	}
 
-	return field_idx == idx;
+	print_debug("forms_get_index() Form field has index: %d\n", idx);
+
+	return idx;
 }
 
 /******************************************************************************
@@ -125,16 +127,45 @@ int menus_get_index(const MENU *menu) {
 }
 
 /******************************************************************************
- * The function checks if the current item of a menu has a given index.
+ * The function checks if the current field of a form is the last one.
  *****************************************************************************/
 
-bool menus_has_index(const MENU *menu, const int idx) {
+bool forms_is_last(const FORM *form) {
 
-	const int item_idx = menus_get_index(menu);
+	//
+	// Get the number of items of the menu.
+	//
+	const int num_fields = field_count(form);
+	if (num_fields == ERR) {
+		print_exit_str("forms_is_last() Unable to get the number of fields from the form!\n");
+	}
 
-	print_debug("menus_has_index() current: %d requested: %d\n", item_idx, idx);
+	const int idx = forms_get_index(form);
 
-	return item_idx == idx;
+	print_debug("forms_is_last() current idx: %d last idx: %d\n", idx, num_fields - 1);
+
+	return idx == num_fields - 1;
+}
+
+/******************************************************************************
+ * The function checks if the current item of a menu is the last one.
+ *****************************************************************************/
+
+bool menus_is_last(const MENU *menu) {
+
+	//
+	// Get the number of items of the menu.
+	//
+	const int num_items = item_count(menu);
+	if (num_items == ERR) {
+		print_exit_str("menus_is_last() Unable to get the number of fields from the form!\n");
+	}
+
+	const int idx = menus_get_index(menu);
+
+	print_debug("menus_is_last() current idx: %d last idx: %d\n", idx, num_items - 1);
+
+	return idx == num_items - 1;
 }
 
 /******************************************************************************
@@ -331,6 +362,14 @@ void forms_free(FORM *form) {
 		}
 
 		//
+		// The form has to be freed to be able to free the fields. Otherwise
+		// the fields were connected.
+		//
+		if (free_form(form) != E_OK) {
+			print_exit_str("forms_free() Unable to free form!\n");
+		}
+
+		//
 		// Get the field array from the form and ensure that it is not null.
 		//
 		FIELD **field_ptr = form_fields(form);
@@ -345,13 +384,6 @@ void forms_free(FORM *form) {
 					print_exit_str("forms_free() Unable to free field!\n");
 				}
 			}
-		}
-
-		//
-		// The last thing to do is to free the menu.
-		//
-		if (free_form(form) != E_OK) {
-			print_exit_str("forms_free() Unable to free form!\n");
 		}
 	}
 }
@@ -376,6 +408,14 @@ void menus_free(MENU *menu) {
 		}
 
 		//
+		// The menu has to be freed to be able to free the items. Otherwise the
+		// items were connected.
+		//
+		if (free_menu(menu) != E_OK) {
+			print_exit_str("menus_free() Unable to free menu!\n");
+		}
+
+		//
 		// Get the item array from the menu and ensure that it is not null.
 		//
 		ITEM **item_ptr = menu_items(menu);
@@ -390,13 +430,6 @@ void menus_free(MENU *menu) {
 					print_exit_str("menus_free() Unable to free item!\n");
 				}
 			}
-		}
-
-		//
-		// The last thing to do is to free the menu.
-		//
-		if (free_menu(menu) != E_OK) {
-			print_exit_str("menus_free() Unable to free menu!\n");
 		}
 	}
 }

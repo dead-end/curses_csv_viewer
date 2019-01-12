@@ -49,11 +49,17 @@ void forms_driver(FORM *form, const int key_type, const wint_t chr);
 
 void menus_driver(MENU *menu, const int chr);
 
-bool forms_has_index(const FORM *form, const int idx);
-
-bool menus_has_index(const MENU *menu, const int idx);
+int forms_get_index(const FORM *form);
 
 int menus_get_index(const MENU *menu);
+
+#define forms_is_first(f) (forms_get_index(f) == 0)
+
+bool forms_is_last(const FORM *form);
+
+#define menus_is_first(m) (menus_get_index(m) == 0)
+
+bool menus_is_last(const MENU *menu);
 
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
