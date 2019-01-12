@@ -28,6 +28,23 @@
 #include <ncursesw/form.h>
 #include <ncursesw/menu.h>
 
+/******************************************************************************
+ * The enumeration of the different field types.
+ *****************************************************************************/
+
+enum FIELD_TYPE {
+
+	//
+	// Input field.
+	//
+	FIELD_TYPE_INPUT,
+
+	//
+	// Checkbox.
+	//
+	FIELD_TYPE_CHECKBOX
+};
+
 void forms_driver(FORM *form, const int key_type, const wint_t chr);
 
 void menus_driver(MENU *menu, const int chr);
@@ -50,9 +67,9 @@ void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub);
 
 void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub);
 
-void forms_free(FORM *form, FIELD **fields);
+void forms_free(FORM *form);
 
-void menus_free(MENU *menu, ITEM **items);
+void menus_free(MENU *menu);
 
 void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size);
 
@@ -64,6 +81,6 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 
 void forms_process_input_field(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
-int menus_get_size(ITEM **items, const int num_items);
+int menus_get_size(const MENU *menu);
 
 #endif
