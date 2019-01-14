@@ -109,3 +109,16 @@ wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 		return wcsstr(str, filter->str);
 	}
 }
+
+/***************************************************************************
+ * The function print the filter structure.
+ **************************************************************************/
+
+void s_filter_print(const s_filter *filter) {
+
+	print_debug("s_filter_print() is active: '%s' case insensitive: '%s' is search: '%s' has changed: '%s' filter: '%ls'\n",
+
+	bool_2_str(filter->is_active), bool_2_str(filter->case_insensitive), bool_2_str(filter->is_search), bool_2_str(filter->has_changed),
+
+	filter->str);
+}

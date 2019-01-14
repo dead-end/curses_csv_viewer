@@ -57,6 +57,11 @@ typedef struct s_filter {
 	//
 	wchar_t str[FILTER_STR_LEN + 1];
 
+	//
+	// A flag that this filter was updated.
+	//
+	bool has_changed;
+
 } s_filter;
 
 /***************************************************************************
@@ -76,5 +81,7 @@ bool s_filter_set_inactive(s_filter *filter);
 bool s_filter_update(s_filter *to_filter, const s_filter *from_filter);
 
 wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str);
+
+void s_filter_print(const s_filter *filter);
 
 #endif /* INC_NCV_FILTER_H_ */
