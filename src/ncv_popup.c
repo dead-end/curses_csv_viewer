@@ -60,6 +60,74 @@ void popup_init(s_popup *popup, const int num_fields, const int num_items) {
 }
 
 /******************************************************************************
+ * The function sets the windows for the popup form and the popup menu.
+ *****************************************************************************/
+
+void popup_set_wins(const s_popup *popup) {
+	int result;
+
+	//
+	// Set the form to the window and the sub window.
+	//
+	if ((result = set_form_win(popup->form, popup->win)) != E_OK) {
+		print_exit("popup_set_wins() Unable to set form to the window! (result: %d)\n", result);
+	}
+
+	if ((result = set_form_sub(popup->form, popup->win_form)) != E_OK) {
+		print_exit("popup_set_wins() Unable to set form to the sub window! (result: %d)\n", result);
+	}
+
+	//
+	// Set the menu to the window and the sub window.
+	//
+	if ((result = set_menu_win(popup->menu, popup->win)) != E_OK) {
+		print_exit("popup_set_wins() Unable to set menu to the window! (result: %d)\n", result);
+	}
+
+	if ((result = set_menu_sub(popup->menu, popup->win_menu)) != E_OK) {
+		print_exit("popup_set_wins() Unable to set menu to the sub window! (result: %d)\n", result);
+	}
+}
+
+/******************************************************************************
+ * The function posts the form and the menu of the popup.
+ *****************************************************************************/
+
+void popup_post(const s_popup *popup) {
+	int result;
+
+	//
+	// Post the form. (E_NO_ROOM is returned if the window is too small)
+	//
+	if ((result = post_form(popup->form)) != E_OK) {
+		print_exit("popup_post() Unable to post popup form! (result: %d)\n", result);
+	}
+
+	//
+	// Post the menu. (E_NO_ROOM is returned if the window is too small)
+	//
+	if ((result = post_menu(popup->menu)) != E_OK) {
+		print_exit("popup_post() Unable to post popup menu! (result: %d)\n", result);
+	}
+}
+
+/******************************************************************************
+ * The function un-posts the form and the menu of the popup. The un-posting is
+ * used for the resizing of the window.
+ *****************************************************************************/
+
+void popup_unpost(const s_popup *popup) {
+
+	if (unpost_form(popup->form) != E_OK) {
+		print_exit_str("popup_unpost() Unable to unpost popup form!\n");
+	}
+
+	if (unpost_menu(popup->menu) != E_OK) {
+		print_exit_str("popup_unpost() Unable to unpost popup menu!\n");
+	}
+}
+
+/******************************************************************************
  * The function frees memory allocated for the popup.
  *****************************************************************************/
 

@@ -46,6 +46,15 @@ typedef struct s_popup {
 
 	bool is_on_form;
 
+// TODO: has_active_form
+// => popup_process_input switch to form only: ifhas_active_form
+
+	WINDOW *win;
+
+	WINDOW *win_form;
+
+	WINDOW *win_menu;
+
 } s_popup;
 
 /******************************************************************************
@@ -53,6 +62,12 @@ typedef struct s_popup {
  *****************************************************************************/
 
 void popup_init(s_popup *popup, const int num_fields, const int num_items);
+
+void popup_set_wins(const s_popup *popup);
+
+void popup_post(const s_popup *popup);
+
+void popup_unpost(const s_popup *popup);
 
 void popup_free(s_popup *popup);
 
