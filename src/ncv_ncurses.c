@@ -185,9 +185,9 @@ void ncurses_win_center(WINDOW *win) {
 		return;
 	}
 
-	print_debug("ncurses_win_center() x stdscr: %d win: %d pos: %d\n", getmaxx(stdscr) , getmaxx(win), to_x);
+	print_debug("ncurses_win_center() x stdscr: %d win: %d pos: %d\n", getmaxx(stdscr), getmaxx(win), to_x);
 
-	print_debug("ncurses_win_center() y stdscr: %d win: %d pos: %d\n", getmaxy(stdscr) , getmaxy(win), to_y);
+	print_debug("ncurses_win_center() y stdscr: %d win: %d pos: %d\n", getmaxy(stdscr), getmaxy(win), to_y);
 
 	ncurses_win_move(win, to_y, to_x);
 }
@@ -220,7 +220,7 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 	print_debug("ncurses_win_resize() Win size from y: %d x: %d to y: %d x: %d\n", from_y, from_x, to_y, to_x);
 
 	if (from_y == to_y && from_x == to_x) {
-		print_debug("ncurses_win_resize() Win size has not changed: y: %d x: %d\n",to_y, to_x);
+		print_debug("ncurses_win_resize() Win size has not changed: y: %d x: %d\n", to_y, to_x);
 		return false;
 	}
 
@@ -243,9 +243,9 @@ bool ncurses_win_resize(WINDOW *win, const int to_y, const int to_x) {
 
 bool ncurses_win_ensure_size(WINDOW *win, const int y, const int x) {
 
-	if (getmaxx(win) != x || getmaxy(win) != y) {
+	if (getmaxy(win) != y || getmaxx(win) != x) {
 
-		print_debug("ncurses_win_ensure_size() Resize win to y: %d x: %d!\n", y,x);
+		print_debug("ncurses_win_ensure_size() Resize win to y: %d x: %d!\n", y, x);
 		ncurses_win_resize(win, y, x);
 
 		return true;
