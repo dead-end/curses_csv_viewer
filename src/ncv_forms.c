@@ -291,58 +291,6 @@ MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr) {
 }
 
 /******************************************************************************
- * The function sets the associated windows of the form and posts the form.
- *****************************************************************************/
-
-void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub) {
-	int result;
-
-	//
-	// Set the form to the window and the sub window.
-	//
-	if ((result = set_form_win(form, win)) != E_OK) {
-		print_exit("forms_set_win_and_post() Unable to set form to the window! (result: %d)\n", result);
-	}
-
-	if ((result = set_form_sub(form, win_sub)) != E_OK) {
-		print_exit("forms_set_win_and_post() Unable to set form to the sub window! (result: %d)\n", result);
-	}
-
-	//
-	// Post the form. (E_NO_ROOM is returned if the window is too small)
-	//
-	if ((result = post_form(form)) != E_OK) {
-		print_exit("forms_set_win_and_post() Unable to post filter form! (result: %d)\n", result);
-	}
-}
-
-/******************************************************************************
- * The function sets the associated windows of the menu and posts the menu.
- *****************************************************************************/
-
-void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub) {
-	int result;
-
-	//
-	// Set the menu to the window and the sub window.
-	//
-	if ((result = set_menu_win(menu, win)) != E_OK) {
-		print_exit("menus_set_win_and_post() Unable to set menu to the window! (result: %d)\n", result);
-	}
-
-	if ((result = set_menu_sub(menu, win_sub)) != E_OK) {
-		print_exit("menus_set_win_and_post() Unable to set menu to the sub window! (result: %d)\n", result);
-	}
-
-	//
-	// Post the menu. (E_NO_ROOM is returned if the window is too small)
-	//
-	if ((result = post_menu(menu)) != E_OK) {
-		print_exit("menus_set_win_and_post() Unable to post menu! (result: %d)\n", result);
-	}
-}
-
-/******************************************************************************
  * The function frees the user pointer data of all fields of a form.
  *****************************************************************************/
 
