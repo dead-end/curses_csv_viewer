@@ -31,7 +31,21 @@
 
 /******************************************************************************
  * The struct for a popup. It contains of a form with fields and a menu, which
- * represents buttons.
+ * represents buttons. Currently there are two types of fields: input fields
+ * and checkboxes.
+ *
+ * +--------------------+
+ * |                    |
+ * | Label _______      | <- Input field
+ * |                    |
+ * | Label ____________ | <- Multi line input field
+ * |       ____________ |
+ * |                    |
+ * | Label [ ]          | <- Checkbox
+ * |                    |
+ * |    Button Button   | <- Button menu
+ * |                    | <- Box offset
+ * +--------------------+
  *****************************************************************************/
 
 typedef struct s_popup {
@@ -45,9 +59,6 @@ typedef struct s_popup {
 	ITEM **items;
 
 	bool is_on_form;
-
-// TODO: has_active_form
-// => popup_process_input switch to form only: ifhas_active_form
 
 	WINDOW *win;
 
