@@ -397,43 +397,13 @@ void ui_loop(s_table *table, const char *filename) {
 				break;
 
 				//
-				// Enter chars
-				//
-			case KEY_ENTER:
-			case NCV_KEY_NEWLINE:
-				print_debug("ui_loop() Found enter char: %d\n", chr);
-
-				if (mode == MODE_FILTER) {
-					change_mode(&win, &cursor, &mode, MODE_TABLE);
-
-					//
-					// Update the filter string and check if something changed.
-					//
-					if (win_filter_get_filter(&table->filter)) {
-						s_table_do_filter(table, &cursor);
-						win_table_on_table_change(table);
-					}
-
-					//
-					// On mode change to table mode the curser has always to
-					// be set.
-					//
-					win_table_set_cursor(table, &cursor, DIR_FORWARD);
-					werase(win_table_get_win());
-					wins_print(table, &cursor, filename, mode);
-
-				}
-
-				continue;
-				break;
-
-				//
 				// Switch to FILTER mode
 				//
 			case CTRL('f'):
 				print_debug_str("ui_loop() Found <ctrl>-f\n");
 
 				if (change_mode(&win, &cursor, &mode, MODE_FILTER)) {
+					win_filter_prepair_show();
 					wins_print(table, &cursor, filename, mode);
 				}
 
@@ -501,18 +471,33 @@ void ui_loop(s_table *table, const char *filename) {
 			break;
 
 		case MODE_FILTER:
-			//
-			// TODO: return enum { SWITCH, PROCESSED, REFRESH }
-			// SWITCH -> TABLE (implies REFRESH)
-			// REFRESH ?? -> see: TABLE
-			// PROCESSED -> nothing to do
-			//
 
 			//
-			// TODO: call with filter => possible to update filter if necessary
-			// maybe return done == true / false
+			// The method returns true if the filter mode finished.
 			//
-			win_filter_process_input(key_type, chr);
+			if (win_filter_process_input(&table->filter, key_type, chr)) {
+
+				change_mode(&win, &cursor, &mode, MODE_TABLE);
+
+				//
+				// Check if a new filtering is necessary.
+				//
+				if (table->filter.has_changed) {
+					print_debug_str("ui_loop() Filter changed, update table!\n");
+
+					s_table_do_filter(table, &cursor);
+					win_table_on_table_change(table);
+				}
+
+				//
+				// On mode change to table mode the curser has always to
+				// be set.
+				//
+				win_table_set_cursor(table, &cursor, DIR_FORWARD);
+				werase(win_table_get_win());
+				wins_print(table, &cursor, filename, mode);
+			}
+
 			break;
 
 		case MODE_HELP:
