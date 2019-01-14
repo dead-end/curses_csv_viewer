@@ -82,6 +82,13 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter);
 
 wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str);
 
+//
+// Function declarations that only make sense with debug mode.
+//
+#ifdef DEBUG
+
 void s_filter_print(const s_filter *filter);
+
+#endif
 
 #endif /* INC_NCV_FILTER_H_ */

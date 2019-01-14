@@ -112,7 +112,12 @@ wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 
 /***************************************************************************
  * The function print the filter structure.
+ *
+ * The whole function only makes sense with debug mode. Without debug mode
+ * the function parameter is not used, which creates compiler warnings.
  **************************************************************************/
+
+#ifdef DEBUG
 
 void s_filter_print(const s_filter *filter) {
 
@@ -122,3 +127,5 @@ void s_filter_print(const s_filter *filter) {
 
 	filter->str);
 }
+
+#endif
