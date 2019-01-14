@@ -73,6 +73,8 @@ void forms_set_win_and_post(FORM *form, WINDOW *win, WINDOW *win_sub);
 
 void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub);
 
+void forms_user_ptr_free(const FORM *form);
+
 void forms_free(FORM *form);
 
 void menus_free(MENU *menu);

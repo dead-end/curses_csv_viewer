@@ -343,6 +343,42 @@ void menus_set_win_and_post(MENU *menu, WINDOW *win, WINDOW *win_sub) {
 }
 
 /******************************************************************************
+ * The function frees the user pointer data of all fields of a form.
+ *****************************************************************************/
+
+void forms_user_ptr_free(const FORM *form) {
+
+	//
+	// The freeing functions should be fault tolerant.
+	//
+	if (form == NULL) {
+		return;
+	}
+
+	//
+	// Due to man page form_fields can return null, so be fault tolerant again.
+	//
+	FIELD **field_ptr = form_fields(form);
+	if (field_ptr == NULL) {
+		return;
+	}
+
+	//
+	// Loop through the field array, which is NULL terminated.
+	//
+	for (; *field_ptr != NULL; field_ptr++) {
+		void *ptr = field_userptr(*field_ptr);
+
+		//
+		// If a pointer is present, free it.
+		//
+		if (ptr != NULL) {
+			free(ptr);
+		}
+	}
+}
+
+/******************************************************************************
  * The function does an unpost and free of a form and its fields.
  *****************************************************************************/
 
