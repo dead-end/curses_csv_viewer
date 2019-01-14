@@ -34,34 +34,17 @@
 #include <ncursesw/menu.h>
 
 /******************************************************************************
- * Define the offset for the field and the box.
- *****************************************************************************/
-
-#define START_FIELDS 10
-
-#define BOX_SIZE 2
-
-#define BOX_OFFSET 1
-
-/******************************************************************************
- * The definition of the window and the sub window sizes.
- *****************************************************************************/
-
-//TODO: total size not only for form
-// TODO: compute WIIN_ROW from WIN_SUB_ROW
-#define WIN_FORM_ROWS 5
-
-#define WIN_MENU_ROWS 1
-
-#define WIN_FORM_COLS 32
-
-#define WIN_ROWS WIN_FORM_ROWS + 1 + WIN_MENU_ROWS + BOX_SIZE
-
-#define WIN_COLS START_FIELDS + 32 + BOX_SIZE
-
-/******************************************************************************
  * Some definitions for the fields.
  *****************************************************************************/
+
+//
+// The popup has a border of 2 chars, one char for the box and a space char
+// (padding).
+//
+
+#define BOX 1
+
+#define PADDING 1
 
 //
 // The row of the field in the sub window
@@ -79,51 +62,280 @@
 
 #define FIELD_HIGHT 1
 
-/******************************************************************************
- * The necessary field / form / window variables are defined as static.
- *****************************************************************************/
-
-static WINDOW *win_filter = NULL;
-
-static WINDOW *win_sub_form = NULL;
-
-static WINDOW *win_sub_menu = NULL;
-
-//
-// Form and field
-//
-#define NUM_FIELDS 3
-
-//
-// Buttons ok, cancel
-//
-#define NUM_BUTTONS 2
-
 //
 // The struc holds the main data for the popup.
 //
 static s_popup popup;
 
 /******************************************************************************
- * The struct contains data specific to a field. The only one is currently the
- * driver function.
- *
- * ISO C forbids assignment between function pointer and 'void *' with
- * [-pedantic] so the struct is used as a level of indirection.
+ * The struct contains data specific to a field.
  *****************************************************************************/
 
+//
+// Type definition for the function pointer to the input processing function of
+// a field.
+//
+typedef void (*fp_driver)(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+
+//
+// There is a user data struct associate with every form field.
+//
 typedef struct s_field_user_ptr {
 
-	void (*driver)(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+	//
+	// The label of the field, which can be an empty string but not null.
+	//
+	char *label;
+
+	//
+	// The type of the field (input field or checkbox)
+	//
+	enum FIELD_TYPE type;
+
+	//
+	// A driver, which is processing the input specific to the field type.
+	// (forms_process_input_field or forms_process_checkbix)
+	//
+	fp_driver driver;
 
 } s_field_user_ptr;
 
-//
-// Structs for the two fields
-//
-static s_field_user_ptr filter_user_ptr = { .driver = forms_process_input_field };
+/******************************************************************************
+ * The s_popup_sizes struct contains all sizes that are necessary to print a
+ * popup.
+ *****************************************************************************/
 
-static s_field_user_ptr checkbox_user_ptr = { .driver = forms_process_checkbox };
+typedef struct s_popup_sizes {
+
+	//
+	// The popup window cols and rows.
+	//
+	int win_rows;
+
+	int win_cols;
+
+	//
+	// The size and the position of the form.
+	//
+	int form_rows;
+
+	int form_cols;
+
+	int form_start_row;
+
+	int form_start_col;
+
+	//
+	// The offset of the label (box and padding chars)
+	//
+	int form_start_label;
+
+	//
+	// The size and the position of the button menu.
+	//
+	int menu_rows;
+
+	int menu_cols;
+
+	int menu_start_row;
+
+	int menu_start_col;
+
+} s_popup_sizes;
+
+//
+// An instance of the popup sizes struct for the filter popup.
+//
+s_popup_sizes popup_sizes;
+
+/******************************************************************************
+ * The function create a s_field_user_ptr struct and adds it to the associated
+ * field.
+ *
+ * Freeing can be done with the generic function:
+ *
+ * void forms_user_ptr_free(const FORM *form);
+ *****************************************************************************/
+
+static s_field_user_ptr *field_user_ptr_create(FIELD *field, const enum FIELD_TYPE type, char *label, const fp_driver driver) {
+
+	//
+	// NULL labels are not allowed, use empty strings instead.
+	//
+	if (label == NULL) {
+		print_exit_str("field_user_ptr_create() Label is NULL!\n");
+	}
+
+	//
+	// Allocate the struct.
+	//
+	s_field_user_ptr *field_user_ptr = xmalloc(sizeof(s_field_user_ptr));
+
+	//
+	// Set the struct values.
+	//
+	field_user_ptr->type = type;
+	field_user_ptr->label = label;
+	field_user_ptr->driver = driver;
+
+	//
+	// Add the struct to the field.
+	//
+	if (set_field_userptr(field, field_user_ptr) != E_OK) {
+		print_exit_str("field_user_ptr_create() Unable to set user ptr for field!\n");
+	}
+
+	return field_user_ptr;
+}
+
+/******************************************************************************
+ * The function computes various sizes of the fields of a form:
+ *
+ * - The number of fields of the form.
+ * - The maximum label size of the fields.
+ * - The number of rows of the fields. (A field can have more than one row).
+ * - The maximum column size of the form fields.
+ *****************************************************************************/
+
+static void form_get_field_sizes(const FORM *form, int *num_fields, int *max_label_size, int *num_rows, int *max_col_size) {
+	int tmp_label_size, tmp_rows, tmp_cols, dummy;
+
+	//
+	// Initialize the parameter.
+	//
+	*num_fields = 0;
+	*max_label_size = 0;
+	*num_rows = 0;
+	*max_col_size = 0;
+
+	//
+	// Get the field array from the form.
+	//
+	FIELD **field_ptr = form_fields(form);
+	if (field_ptr == NULL) {
+		print_exit_str("form_get_field_sizes() Unable to get form fields!\n");
+	}
+
+	//
+	// Loop through the field array, which is NULL terminated.
+	//
+	for (; *field_ptr != NULL; field_ptr++) {
+
+		//
+		// Get the user ptr from the field, which contains the label.
+		//
+		s_field_user_ptr *user_ptr = (s_field_user_ptr *) field_userptr(*field_ptr);
+		if (user_ptr == NULL) {
+			print_exit_str("form_get_field_sizes() Field has no user ptr!\n");
+		}
+
+		//
+		// Update the maximum field size if necessary.
+		//
+		tmp_label_size = strlen(user_ptr->label);
+		if (tmp_label_size > *max_label_size) {
+			*max_label_size = tmp_label_size;
+		}
+
+		//
+		// Get the cols of the field, which is the maximum field size. We are
+		// not interested in the rest of the data, so we use a dummy parameter.
+		//
+		if (field_info(*field_ptr, &tmp_rows, &tmp_cols, &dummy, &dummy, &dummy, &dummy) != E_OK) {
+			print_exit("form_get_field_sizes() Unable to get rows of field with label: %s\n", user_ptr->label);
+		}
+
+		//
+		// Update the maximum field size if necessary.
+		//
+		if (tmp_cols > *max_col_size) {
+			*max_col_size = tmp_cols;
+		}
+
+		//
+		// Add the rows of the current field to the total number of rows.
+		//
+		*num_rows += tmp_rows;
+
+		//
+		// Increase the number of fields.
+		//
+		(*num_fields)++;
+	}
+
+	print_debug("form_get_field_sizes() Max label size: %d max field size: %d, num fields: %d num rows: %d \n", *max_label_size, *max_col_size, *num_fields, *num_rows);
+}
+
+/******************************************************************************
+ * The function computes the various sizes of the popup and stores the result
+ * in the s_popup_sizes struct. The popup consists of a form with input fields
+ * and buttons that are implemented as a horizontal menu.
+ * The popup is surrounded by a box and optionally by empty rows and cols (box
+ * offset).
+ *
+ *  | Padding          | Padding
+ *  v                  v
+ * +--------------------+
+ * |                    | <- Padding
+ * | Label _______      | <- Input field
+ * |                    |
+ * | Label ____________ | <- Multi line input field
+ * |       ____________ |
+ * |                    |
+ * | Label [ ]          | <- Checkbox
+ * |                    |
+ * |    Button Button   | <- Button menu
+ * |                    | <- Padding
+ * +--------------------+
+ *****************************************************************************/
+
+void popup_get_sizes(const s_popup *popup, s_popup_sizes *popup_sizes, const int padding) {
+	int max_label_size, max_col_size, num_fields, num_rows;
+
+	//
+	// Get various sizes from the form fields.
+	//
+	form_get_field_sizes(popup->form, &num_fields, &max_label_size, &num_rows, &max_col_size);
+
+	//
+	// The form rows is the number of row of the fields. The fields are
+	// separated by an empty row, which have to be added.
+	//
+	popup_sizes->form_rows = num_rows + num_fields - 1;
+	popup_sizes->form_cols = max_col_size;
+
+	//
+	// The button menu has one row.
+	//
+	popup_sizes->menu_rows = 1;
+	popup_sizes->menu_cols = menus_get_size(popup->menu);
+
+	//
+	// The total win has the form and menu rows separate by an empty row.
+	//
+	popup_sizes->win_rows = (2 * (BOX + padding)) + popup_sizes->form_rows + 1 + popup_sizes->menu_rows;
+	popup_sizes->win_cols = (2 * (BOX + padding)) + max_label_size + max_col_size;
+
+	//
+	// This is a task for the future.
+	//
+	if (popup_sizes->win_cols < popup_sizes->menu_cols) {
+		print_exit_str("popup_get_sizes() Menu is larger than form!\n");
+	}
+
+	//
+	// The form win starts after the labels.
+	//
+	popup_sizes->form_start_row = (BOX + padding);
+	popup_sizes->form_start_label = (BOX + padding);
+	popup_sizes->form_start_col = (BOX + padding) + max_label_size;
+
+	//
+	// The button menu starts one row after the form. The menu is centered.
+	//
+	popup_sizes->menu_start_row = popup_sizes->form_start_row + popup_sizes->form_rows + 1;
+	popup_sizes->menu_start_col = (popup_sizes->win_cols - popup_sizes->menu_cols) / 2;
+}
 
 /******************************************************************************
  * The function resets the popup for showing. The main task is to set the focus
@@ -142,7 +354,7 @@ void win_filter_prepair_show() {
 void win_filter_refresh_no() {
 
 	print_debug_str("win_filter_refresh_no() Refresh footer window.\n");
-	ncurses_win_refresh_no(win_filter, WIN_ROWS, WIN_COLS);
+	ncurses_win_refresh_no(popup.win, popup_sizes.win_rows, popup_sizes.win_cols);
 }
 
 /******************************************************************************
@@ -150,7 +362,7 @@ void win_filter_refresh_no() {
  *****************************************************************************/
 
 WINDOW *win_filter_get_win() {
-	return win_filter;
+	return popup.win;
 }
 
 /******************************************************************************
@@ -159,7 +371,7 @@ WINDOW *win_filter_get_win() {
 
 void win_filter_show() {
 
-	if (touchwin(win_filter) == ERR) {
+	if (touchwin(popup.win) == ERR) {
 		print_exit_str("win_filter_show() Unable to touch filter window!\n");
 	}
 }
@@ -172,22 +384,24 @@ void win_filter_free() {
 
 	print_debug_str("win_filter_free() Removing filter windows, forms and fields.\n");
 
-	forms_free(popup.form, popup.fields);
+	forms_user_ptr_free(popup.form);
 
-	menus_free(popup.menu, popup.items);
+	forms_free(popup.form);
 
-	ncurses_win_free(win_sub_form);
+	menus_free(popup.menu);
 
-	ncurses_win_free(win_sub_menu);
+	ncurses_win_free(popup.win_form);
 
-	ncurses_win_free(win_filter);
+	ncurses_win_free(popup.win_menu);
+
+	ncurses_win_free(popup.win);
 
 	popup_free(&popup);
 }
 
 /******************************************************************************
- * The function prints the content of the window, which is the form with the
- * fields, the labels and the box of the window.
+ * The function prints the content of the window. It contains of the fields
+ * with their labels, inside a window with a box.
  *****************************************************************************/
 
 static void win_filter_print_content() {
@@ -195,30 +409,54 @@ static void win_filter_print_content() {
 	//
 	// Add a box
 	//
-	if (box(win_filter, 0, 0) != OK) {
+	if (box(popup.win, 0, 0) != OK) {
 		print_exit_str("win_filter_print_content() Unable to setup win!\n");
 	}
 
 	//
 	// post form and menu with their wins
 	//
-	forms_set_win_and_post(popup.form, win_filter, win_sub_form);
-
-	menus_set_win_and_post(popup.menu, win_filter, win_sub_menu);
+	popup_post(&popup);
 
 	//
-	// Print the field labels
+	// Get the array of fields from the form. The array is NULL terminated.
 	//
-	mvwaddstr(win_filter, FILTER_ROW + BOX_OFFSET, BOX_OFFSET, "Filter:  ");
+	FIELD **field_ptr = form_fields(popup.form);
+	if (field_ptr == NULL) {
+		print_exit_str("win_filter_print_content() Unable to get form fields!\n");
+	}
 
-	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, BOX_OFFSET, "Case:");
-	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, START_FIELDS + 2, "]");
-	mvwaddstr(win_filter, CASE_ROW + BOX_OFFSET, START_FIELDS, "[");
+	//
+	// Loop through the field array, which is NULL terminated.
+	//
+	for (int row = popup_sizes.form_start_row; *field_ptr != NULL; field_ptr++, row += 2) {
 
-	mvwaddstr(win_filter, SEARCH_ROW + BOX_OFFSET, BOX_OFFSET, "Search:");
-	mvwaddstr(win_filter, SEARCH_ROW + BOX_OFFSET, START_FIELDS + 2, "]");
-	mvwaddstr(win_filter, SEARCH_ROW + BOX_OFFSET, START_FIELDS, "[");
+		//
+		// Get the user ptr from the field, which contains the label and the
+		// field type.
+		//
+		s_field_user_ptr *user_ptr = (s_field_user_ptr *) field_userptr(*field_ptr);
+		if (user_ptr == NULL) {
+			print_exit_str("win_filter_print_content() Field has no user ptr!\n");
+		}
 
+		//
+		// Print the label for the field.
+		//
+		mvwaddstr(popup.win, row, popup_sizes.form_start_label, user_ptr->label);
+
+		//
+		// If the field is a checkbox add a: [ ]
+		//
+		if (user_ptr->type == FIELD_TYPE_CHECKBOX) {
+			mvwaddstr(popup.win, row, popup_sizes.form_start_col, "[");
+			mvwaddstr(popup.win, row, popup_sizes.form_start_col + 2, "]");
+		}
+	}
+
+	//
+	// Last step is to set the cursor.
+	//
 	popup_pos_cursor(&popup);
 }
 
@@ -238,31 +476,27 @@ void win_filter_init() {
 	//
 	// Do the initialization of the popup, which is allocating memory.
 	//
-	popup_init(&popup, NUM_FIELDS, NUM_BUTTONS);
+	popup_init(&popup, 3, 2);
 
 	//
 	// Create filter field
 	//
 	popup.fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr_input);
-	if (set_field_userptr(popup.fields[0], &filter_user_ptr) != E_OK) {
-		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
-	}
+	field_user_ptr_create(popup.fields[0], FIELD_TYPE_INPUT, "Filter: ", forms_process_input_field);
 
 	//
 	// Create case checkbox field
 	//
 	popup.fields[1] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, CASE_ROW, 1, attr_normal);
-	if (set_field_userptr(popup.fields[1], &checkbox_user_ptr) != E_OK) {
-		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
-	}
+	field_user_ptr_create(popup.fields[1], FIELD_TYPE_CHECKBOX, "Case: ", forms_process_checkbox);
 
 	//
 	// Create search checkbox field
 	//
 	popup.fields[2] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, SEARCH_ROW, 1, attr_normal);
-	if (set_field_userptr(popup.fields[2], &checkbox_user_ptr) != E_OK) {
-		print_exit_str("win_filter_init() Unable to set user ptr for field!\n");
-	}
+	field_user_ptr_create(popup.fields[2], FIELD_TYPE_CHECKBOX, "Search: ", forms_process_checkbox);
+
+	popup.fields[3] = NULL;
 
 	//
 	// Create the for with the fields
@@ -273,37 +507,40 @@ void win_filter_init() {
 	// Create the buttons, which are menu items.
 	//
 	const char *labels[] = { "OK", "Cancel" };
-	menus_create_items(popup.items, NUM_BUTTONS, labels);
+	menus_create_items(popup.items, 2, labels);
 
 	//
 	// Create the menu with the items.
 	//
-	popup.menu = menus_create_menu(popup.items, NUM_BUTTONS, attr_normal);
+	popup.menu = menus_create_menu(popup.items, 2, attr_normal);
+
+	//
+	// After the form and the menu is created we can start computing the sizes
+	// of the popup.
+	//
+	popup_get_sizes(&popup, &popup_sizes, PADDING);
 
 	//
 	// Create a centered filter window
 	//
-	win_filter = ncurses_win_create(WIN_ROWS, WIN_COLS, 0, 0);
+	popup.win = ncurses_win_create(popup_sizes.win_rows, popup_sizes.win_cols, 0, 0);
 
-	ncurses_win_center(win_filter);
+	ncurses_win_center(popup.win);
 
-	ncurses_attr_back(win_filter, COLOR_PAIR(CP_STATUS), A_REVERSE);
+	ncurses_attr_back(popup.win, COLOR_PAIR(CP_STATUS), A_REVERSE);
 
 	//
 	// Necessary to enable function keys like arrows
 	//
-	if (keypad(win_filter, TRUE) != OK) {
+	if (keypad(popup.win, TRUE) != OK) {
 		print_exit_str("win_filter_init() Unable to call keypad!");
 	}
 
-	//
-	// Create the sub windows for the menu and the form.
-	//
-	const int menu_size = menus_get_size(popup.items, NUM_BUTTONS);
+	popup.win_form = ncurses_derwin_create(popup.win, popup_sizes.form_rows, popup_sizes.form_cols, popup_sizes.form_start_row, popup_sizes.form_start_col);
 
-	win_sub_menu = ncurses_derwin_create(win_filter, WIN_MENU_ROWS, menu_size, WIN_FORM_ROWS + BOX_OFFSET + 1, (WIN_COLS - BOX_SIZE - menu_size) / 2);
+	popup.win_menu = ncurses_derwin_create(popup.win, popup_sizes.menu_rows, popup_sizes.menu_cols, popup_sizes.menu_start_row, popup_sizes.menu_start_col);
 
-	win_sub_form = ncurses_derwin_create(win_filter, WIN_FORM_ROWS, WIN_FORM_COLS, BOX_OFFSET, START_FIELDS);
+	popup_set_wins(&popup);
 
 	//
 	// Initial printing of the form
@@ -320,42 +557,39 @@ void win_filter_resize() {
 	//
 	// Ensure the minimum size of the window.
 	//
-	//TODO: min size for all
-	if (WIN_HAS_MIN_SIZE(WIN_ROWS, WIN_COLS)) {
+	if (WIN_HAS_MIN_SIZE(popup_sizes.win_rows, popup_sizes.win_cols)) {
 		print_debug_str("win_filter_resize() Do resize the window!\n");
 
-		const bool do_update_win = ncurses_win_ensure_size(win_filter, WIN_ROWS, WIN_COLS);
-		const bool do_update_sub = ncurses_win_ensure_size(win_sub_form, WIN_FORM_ROWS, WIN_FORM_COLS);
+		//
+		// All of the 3 functions have to be called to ensure that all window
+		// sizes are set if necessary.
+		//
+		const bool do_update_win = ncurses_win_ensure_size(popup.win, popup_sizes.win_rows, popup_sizes.win_cols);
+		const bool do_update_form = ncurses_win_ensure_size(popup.win_form, popup_sizes.form_rows, popup_sizes.form_cols);
+		const bool do_update_menu = ncurses_win_ensure_size(popup.win_menu, popup_sizes.menu_rows, popup_sizes.menu_cols);
 
-		// TODO: win_sub_menu size
-		const int menu_size = menus_get_size(popup.items, NUM_BUTTONS);
-		const bool do_update_sub_menu = ncurses_win_ensure_size(win_sub_menu, 1, menu_size);
+		print_debug("win_filter_resize() do_update_win: %s\n", bool_2_str(do_update_win));
+		print_debug("win_filter_resize() do_update_form: %s\n", bool_2_str(do_update_form));
+		print_debug("win_filter_resize() do_update_menu: %s\n", bool_2_str(do_update_menu));
+
 		//
 		// Both checks have to be executed. If do_update_win is true the
 		// second test is skipped.
 		//
-		if (do_update_win || do_update_sub || do_update_sub_menu) {
+		if (do_update_win || do_update_form || do_update_menu) {
 			print_debug_str("win_filter_resize() Do update!\n");
 
 			//
 			// On resize do an unpost at the beginning. (Resizing the window does
 			// not work well with forms.)
 			//
-			if (unpost_form(popup.form) != E_OK) {
-				print_exit_str("win_filter_resize() Unable to unpost filter form!\n");
-			}
-
-			if (unpost_menu(popup.menu) != E_OK) {
-				print_exit_str("win_filter_resize() Unable to unpost menu!\n");
-			}
+			popup_unpost(&popup);
 
 			//
 			// Ensure the correct position of the derived window.
 			//
-			ncurses_derwin_move(win_sub_form, BOX_OFFSET, START_FIELDS);
-
-			// TODO: win_sub_menu size
-			ncurses_derwin_move(win_sub_menu, WIN_FORM_ROWS + BOX_OFFSET + 1, (WIN_COLS - menu_size) / 2);
+			ncurses_derwin_move(popup.win_form, popup_sizes.form_start_row, popup_sizes.form_start_col);
+			ncurses_derwin_move(popup.win_menu, popup_sizes.menu_start_row, popup_sizes.menu_start_col);
 
 			//
 			// If everything (forms, menus, subwins) is on its place print the
@@ -367,7 +601,7 @@ void win_filter_resize() {
 		//
 		// Move the window to the center.
 		//
-		ncurses_win_center(win_filter);
+		ncurses_win_center(popup.win);
 	}
 }
 
@@ -496,9 +730,15 @@ static bool process_form_input(s_filter *filter, s_popup *popup, const int key_t
 bool win_filter_process_input(s_filter *filter, const int key_type, const wint_t chr) {
 
 	//
-	// First do the processing of the core popup inputs
+	// First do the processing of the core popup inputs. This is moving
+	// through the fields and buttons.
 	//
 	if (popup_process_input(&popup, key_type, chr)) {
+
+		//
+		// Moving through the popup elements means that the popup is not
+		// closed.
+		//
 		return false;
 	}
 
@@ -510,277 +750,3 @@ bool win_filter_process_input(s_filter *filter, const int key_type, const wint_t
 	}
 }
 
-///*********************************************************************************
-// * The function does the input processing of the form. This is mainly the
-// * navigation through the fields of the form. If necessary it switches to
-// * the menu.
-// *
-// * The processing of the field input is delegated to a fields processing
-// * function. The field can be an input field or a checkbox, with a specific
-// * processing function.
-// ********************************************************************************/
-//
-//bool process_form_input_old(s_filter *filter, FORM *form, MENU *menu, const int key_type, const wint_t chr) {
-//
-//	switch (key_type) {
-//
-//	case KEY_CODE_YES:
-//
-//		switch (chr) {
-//
-//		case KEY_DOWN:
-//			popup_req_prev_next_field(form, menu, &popup.is_on_form, NUM_FIELDS - 1);
-//			return false;
-//
-//		case KEY_UP:
-//			popup_req_prev_next_field(form, menu, &popup.is_on_form, 0);
-//			return false;
-//		}
-//
-//		break; // case KEY_CODE_YES
-//
-//	case OK:
-//
-//		switch (chr) {
-//
-//		case KEY_ENTER:
-//		case NCV_KEY_NEWLINE:
-//			win_filter_get_filter(filter, true);
-//			return true;
-//
-//		case CTRL('x'):
-//			win_filter_clear_filter();
-//			return false;
-//
-//		case W_TAB:
-//			popup_req_prev_next_field(form, menu, &popup.is_on_form, NUM_FIELDS - 1);
-//			return false;
-//		}
-//
-//		break; // case OK
-//	}
-//
-//	//
-//	// If the user does not request an other field, get the current field
-//	// and delegate the input.
-//	//
-//	FIELD *field = current_field(form);
-//
-//	const s_field_user_ptr *driver = (s_field_user_ptr *) field_userptr(field);
-//	if (driver == NULL) {
-//		print_exit_str("process_form_input() Unable to get field user ptr!\n");
-//	}
-//
-//	driver->driver(form, field, key_type, chr);
-//
-//	return false;
-//}
-
-///******************************************************************************
-// * The function does the input processing of the menu. This is mainly the
-// * navigation through the items of the menu. If necessary it switches to
-// * the form.
-// *****************************************************************************/
-////TODO: enter on ok and on cancel
-//bool process_menu_input_old(s_filter *filter, FORM *form, MENU *menu, const int key_type, const wint_t chr) {
-//
-//	switch (key_type) {
-//
-//	case KEY_CODE_YES:
-//
-//		//
-//		// Process function keys
-//		//
-//		switch (chr) {
-//
-//		case KEY_LEFT:
-//
-//			if (menus_has_index(menu, 0)) {
-//				menus_driver(menu, REQ_LAST_ITEM);
-//			} else {
-//				menus_driver(menu, REQ_LEFT_ITEM);
-//			}
-//			break;
-//
-//		case KEY_RIGHT:
-//
-//			if (menus_has_index(menu, NUM_BUTTONS - 1)) {
-//				menus_driver(menu, REQ_FIRST_ITEM);
-//			} else {
-//				menus_driver(menu, REQ_RIGHT_ITEM);
-//			}
-//			break;
-//
-//		case KEY_UP:
-//			popup.is_on_form = popup_switch(form, menu, popup.is_on_form, false);
-//			break;
-//
-//		case KEY_DOWN:
-//			popup.is_on_form = popup_switch(form, menu, popup.is_on_form, true);
-//			break;
-//
-//		default:
-//			print_debug("process_menu_input() Key code: %d key: %lc\n", key_type, chr);
-//			break;
-//		}
-//
-//		break; // case KEY_CODE_YES
-//
-//	case OK:
-//
-//		//
-//		// Process function keys
-//		//
-//		switch (chr) {
-//
-//		// TODO:
-//
-//		//
-//		// ESC char
-//		//
-//		//TODO: process before
-//		case NCV_KEY_ESC:
-//			// filter.is_active = false
-//			// return DONE
-//			break;
-//		case KEY_ENTER:
-//		case NCV_KEY_NEWLINE:
-//
-//			// OK
-//			if (menus_has_index(menu, 0)) {
-//				win_filter_get_filter(filter, true);
-//				return true;
-//			}
-//
-//			// CANCEL
-//			if (menus_has_index(menu, 1)) {
-//				win_filter_get_filter(filter, false);
-//				return true;
-//			}
-//
-//			break;
-//
-//		case W_TAB:
-//
-//			//
-//			// Tabbing goes to the next item or the first field if the
-//			// current item is the last item.
-//			//
-//			if (menus_has_index(menu, NUM_BUTTONS - 1)) {
-//				popup.is_on_form = popup_switch(form, menu, popup.is_on_form, true);
-//			} else {
-//				menus_driver(menu, REQ_RIGHT_ITEM);
-//			}
-//
-//			break;
-//
-//		default:
-//			print_debug("process_menu_input() Key code: %d key: %lc\n", key_type, chr);
-//			break;
-//		}
-//		break; // case OK
-//
-//	default:
-//		print_exit("process_menu_input() Unknown key code: %d key: %lc\n", key_type, chr)
-//		;
-//		break;
-//	}
-//
-//	return false;
-//}
-
-///*********************************************************************************
-// * The function is called on a form field. It moves the cursor to the next /
-// * previous field. If necessary it moves to the menu.
-// ********************************************************************************/
-//
-//static void popup_req_prev_next_field(FORM *form, MENU *menu, bool *is_buttons, const int switch_on_idx) {
-//	wint_t req_field;
-//	bool to_first;
-//
-//	if (switch_on_idx == 0) {
-//		req_field = REQ_PREV_FIELD;
-//		to_first = false;
-//
-//	} else {
-//		req_field = REQ_NEXT_FIELD;
-//		to_first = true;
-//	}
-//
-//	if (forms_has_index(form, switch_on_idx)) {
-//		*is_buttons = popup_switch(form, menu, *is_buttons, to_first);
-//		return;
-//	}
-//
-//	//
-//	// Move to the requested field and move the cursor to the end of the field.
-//	//
-//	forms_driver(form, KEY_CODE_YES, req_field);
-//	forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
-//}
-
-///******************************************************************************
-// * The function sets the cursor to the field in the form or an item in the
-// * menu.
-// *****************************************************************************/
-//
-//static void popup_pos_cursor(FORM *form, const MENU *menu, const bool is_menu) {
-//
-//	if (is_menu) {
-//		if (pos_menu_cursor(menu) != E_OK) {
-//			print_exit_str("popup_pos_cursor() Unable to set the menu cursor!\n");
-//		}
-//	} else {
-//		if (pos_form_cursor(form) != E_OK) {
-//			print_exit_str("popup_pos_cursor() Unable to set the form cursor!\n");
-//		}
-//	}
-//}
-
-///******************************************************************************
-// * The function switches from the from to the menu or from the menu to the
-// * form. The direction is defined by the flag "is_on_menu". The function
-// * returns the revered flag, which is the new value. The last flag "to_first"
-// * defines whether the switching should go to the first or last field.
-// *****************************************************************************/
-//
-//static bool popup_switch(FORM *form, MENU *menu, const bool is_on_menu, const bool to_first) {
-//
-//	if (is_on_menu) {
-//
-//		//
-//		// Switch off menu and cursor
-//		//
-//		set_menu_fore(menu, A_REVERSE);
-//		curs_set(1);
-//
-//		//
-//		// Move to the first or last field
-//		//
-//		if (to_first) {
-//			forms_driver(form, KEY_CODE_YES, REQ_FIRST_FIELD);
-//		} else {
-//			forms_driver(form, KEY_CODE_YES, REQ_LAST_FIELD);
-//		}
-//		forms_driver(form, KEY_CODE_YES, REQ_END_FIELD);
-//
-//		print_debug_str("popup_switch() Switch to form.\n");
-//
-//	} else {
-//
-//		//
-//		// Switch on menu and cursor
-//		//
-//		set_menu_fore(menu, A_NORMAL);
-//		curs_set(0);
-//
-//		//
-//		// Always move to the first item
-//		//
-//		menus_driver(menu, REQ_FIRST_ITEM);
-//
-//		print_debug_str("popup_switch() Switch to menu.\n");
-//	}
-//
-//	return !is_on_menu;
-//}

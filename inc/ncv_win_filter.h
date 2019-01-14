@@ -46,6 +46,5 @@ WINDOW *win_filter_get_win();
 bool win_filter_process_input(s_filter *filter, const int key_type, const wint_t chr);
 
 void win_filter_prepair_show();
-//bool win_filter_get_filter(s_filter *filter, const bool is_active);
 
 #endif
