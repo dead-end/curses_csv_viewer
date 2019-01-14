@@ -41,7 +41,6 @@
 // The popup has a border of 2 chars, one char for the box and a space char
 // (padding).
 //
-
 #define BOX 1
 
 #define PADDING 1
@@ -338,68 +337,6 @@ void popup_get_sizes(const s_popup *popup, s_popup_sizes *popup_sizes, const int
 }
 
 /******************************************************************************
- * The function resets the popup for showing. The main task is to set the focus
- * on the first field of the form. It does not make sense to continue on the
- * 'OK' or 'CANCEL' button.
- *****************************************************************************/
-
-void win_filter_prepair_show() {
-	popup_prepair_show(&popup);
-}
-
-/******************************************************************************
- * The function does a refresh with no update if the terminal is large enough.
- *****************************************************************************/
-
-void win_filter_refresh_no() {
-
-	print_debug_str("win_filter_refresh_no() Refresh footer window.\n");
-	ncurses_win_refresh_no(popup.win, popup_sizes.win_rows, popup_sizes.win_cols);
-}
-
-/******************************************************************************
- * The function returns the filter window (which is defined static).
- *****************************************************************************/
-
-WINDOW *win_filter_get_win() {
-	return popup.win;
-}
-
-/******************************************************************************
- * The function touches the window, so that a refresh has an effect.
- *****************************************************************************/
-
-void win_filter_show() {
-
-	if (touchwin(popup.win) == ERR) {
-		print_exit_str("win_filter_show() Unable to touch filter window!\n");
-	}
-}
-
-/******************************************************************************
- * The function frees the allocated resources.
- *****************************************************************************/
-
-void win_filter_free() {
-
-	print_debug_str("win_filter_free() Removing filter windows, forms and fields.\n");
-
-	forms_user_ptr_free(popup.form);
-
-	forms_free(popup.form);
-
-	menus_free(popup.menu);
-
-	ncurses_win_free(popup.win_form);
-
-	ncurses_win_free(popup.win_menu);
-
-	ncurses_win_free(popup.win);
-
-	popup_free(&popup);
-}
-
-/******************************************************************************
  * The function prints the content of the window. It contains of the fields
  * with their labels, inside a window with a box.
  *****************************************************************************/
@@ -607,11 +544,11 @@ void win_filter_resize() {
 
 /******************************************************************************
  * The function updates the filter struct with the data from the form fields.
- * The function returns true if the struct changed. It is assumed that the
+ * It sets the has_changed flag if the struct changed. It is assumed that the
  * filtering should be activated if the filter string is not empty.
  *****************************************************************************/
-//TODO: maybe an update flag is reasonable in the filter struct.
-static bool win_filter_get_filter(s_filter *to_filter, s_popup *popup, const bool is_active) {
+
+static void win_filter_get_filter(s_filter *to_filter, s_popup *popup, const bool is_active) {
 	s_filter from_filter;
 
 	//
@@ -633,7 +570,11 @@ static bool win_filter_get_filter(s_filter *to_filter, s_popup *popup, const boo
 	//
 	// Do the update and return the result.
 	//
-	return s_filter_update(to_filter, &from_filter);
+	to_filter->has_changed = s_filter_update(to_filter, &from_filter);
+
+#ifdef DEBUG
+	s_filter_print(to_filter);
+#endif
 }
 
 /******************************************************************************
@@ -748,5 +689,67 @@ bool win_filter_process_input(s_filter *filter, const int key_type, const wint_t
 	} else {
 		return process_menu_input(filter, &popup, key_type, chr);
 	}
+}
+
+/******************************************************************************
+ * The function resets the popup for showing. The main task is to set the focus
+ * on the first field of the form. It does not make sense to continue on the
+ * 'OK' or 'CANCEL' button.
+ *****************************************************************************/
+
+void win_filter_prepair_show() {
+	popup_prepair_show(&popup);
+}
+
+/******************************************************************************
+ * The function does a refresh with no update if the terminal is large enough.
+ *****************************************************************************/
+
+void win_filter_refresh_no() {
+
+	print_debug_str("win_filter_refresh_no() Refresh footer window.\n");
+	ncurses_win_refresh_no(popup.win, popup_sizes.win_rows, popup_sizes.win_cols);
+}
+
+/******************************************************************************
+ * The function returns the filter window (which is defined static).
+ *****************************************************************************/
+
+WINDOW *win_filter_get_win() {
+	return popup.win;
+}
+
+/******************************************************************************
+ * The function touches the window, so that a refresh has an effect.
+ *****************************************************************************/
+
+void win_filter_show() {
+
+	if (touchwin(popup.win) == ERR) {
+		print_exit_str("win_filter_show() Unable to touch filter window!\n");
+	}
+}
+
+/******************************************************************************
+ * The function frees the allocated resources.
+ *****************************************************************************/
+
+void win_filter_free() {
+
+	print_debug_str("win_filter_free() Removing filter windows, forms and fields.\n");
+
+	forms_user_ptr_free(popup.form);
+
+	forms_free(popup.form);
+
+	menus_free(popup.menu);
+
+	ncurses_win_free(popup.win_form);
+
+	ncurses_win_free(popup.win_menu);
+
+	ncurses_win_free(popup.win);
+
+	popup_free(&popup);
 }
 
