@@ -28,30 +28,30 @@
 
 #include <string.h>
 
-/***************************************************************************
+/******************************************************************************
  * Size of the string buffer.
- **************************************************************************/
+ *****************************************************************************/
 
 #define FOOTER_WIN_MAX 1024
 
-/***************************************************************************
- * The footer is only visible if the terminal has at least 3 rows. One row
- * for the header and one row for the table and one row for the footer.
- **************************************************************************/
+/******************************************************************************
+ * The footer is only visible if the terminal has at least 3 rows. One row for
+ * the header and one row for the table and one row for the footer.
+ *****************************************************************************/
 
 #define WIN_FOOTER_HAS_MIN_COLS 1
 
 #define WIN_FOOTER_HAS_MIN_ROWS 3
 
-/***************************************************************************
+/******************************************************************************
  * Definition of the footer window.
- **************************************************************************/
+ *****************************************************************************/
 
 static WINDOW* win_footer = NULL;
 
-/***************************************************************************
+/******************************************************************************
  * The function is called to initialize the footer window.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_footer_init() {
 
@@ -66,14 +66,14 @@ void win_footer_init() {
 	ncurses_attr_back(win_footer, COLOR_PAIR(CP_STATUS), A_REVERSE);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function is called on resizing the terminal window.
  *
- * An explicit resizing of the window is not necessary. This is only
- * necessary if the new window size is not trivial.
+ * An explicit resizing of the window is not necessary. This is only necessary
+ * if the new window size is not trivial.
  *
  * ncurses_win_resize(win_footer, 1, getmaxx(stdscr));
- **************************************************************************/
+ *****************************************************************************/
 
 void win_footer_resize() {
 
@@ -91,11 +91,11 @@ void win_footer_resize() {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function prints the footer line, which consists of the current row /
- * column index of the field cursor and the filename. If there is not
- * enough space, the filename is shorten or completely left out.
- **************************************************************************/
+ * column index of the field cursor and the filename. If there is not enough
+ * space, the filename is shorten or completely left out.
+ *****************************************************************************/
 
 void win_footer_content_print(const s_table *table, const s_cursor *cursor, const char *filename) {
 	char buf[FOOTER_WIN_MAX];
@@ -104,7 +104,9 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 	//
 	// Erase window to ensure that no garbage is left behind.
 	//
-	werase(win_footer);
+	if (werase(win_footer) == ERR) {
+		print_exit_str("win_footer_content_print() Unable to erase the footer window!\n");
+	}
 
 	max_width = getmaxx(win_footer);
 
@@ -192,10 +194,9 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 	}
 }
 
-/***************************************************************************
- * The function does a refresh with no update if the terminal is large
- * enough.
- **************************************************************************/
+/******************************************************************************
+ * The function does a refresh with no update if the terminal is large enough.
+ *****************************************************************************/
 
 void win_footer_refresh_no() {
 
@@ -203,9 +204,9 @@ void win_footer_refresh_no() {
 	ncurses_win_refresh_no(win_footer, WIN_FOOTER_HAS_MIN_ROWS, WIN_FOOTER_HAS_MIN_COLS);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function touches the window, so that a refresh has an effect.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_footer_show() {
 
@@ -214,9 +215,9 @@ void win_footer_show() {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function frees the allocated resources.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_footer_free() {
 
