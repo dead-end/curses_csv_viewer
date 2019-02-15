@@ -27,10 +27,10 @@
 
 #include <locale.h>
 
-/***************************************************************************
+/******************************************************************************
  * The function checks the s_field_part_update function, which computes the
  * visible part of a truncated field.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_field_part_update() {
 
@@ -74,11 +74,10 @@ static void test_field_part_update() {
 	print_debug_str("test_field_part_update() End\n");
 }
 
-/***************************************************************************
- * The function checks the get_field_complete_line function for a field. It
- * is repeatedly called and returns a line of fixed length which may be
- * padded.
- **************************************************************************/
+/******************************************************************************
+ * The function checks the get_field_complete_line function for a field. It is
+ * repeatedly called and returns a line of fixed length which may be padded.
+ *****************************************************************************/
 
 #define COL_WIDTH 4
 
@@ -125,9 +124,9 @@ static void test_get_field_complete_line() {
 	print_debug_str("test_get_field_complete_line() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function checks the intersection function.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_intersection() {
 
@@ -269,9 +268,9 @@ static void test_intersection() {
 	print_debug_str("test_get_field_complete_line() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function simply starts the test.
- **************************************************************************/
+ *****************************************************************************/
 
 int main() {
 

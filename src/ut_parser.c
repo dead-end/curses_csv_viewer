@@ -27,10 +27,10 @@
 
 #include <locale.h>
 
-/***************************************************************************
- * The function reads and parses a csv file. All fields are compared with
- * the expected values.
- **************************************************************************/
+/******************************************************************************
+ * The function reads and parses a csv file. All fields are compared with the
+ * expected values.
+ *****************************************************************************/
 
 static void test_parser() {
 	s_table table;
@@ -93,10 +93,10 @@ static void test_parser() {
 	print_debug_str("test_parser() End\n");
 }
 
-/***************************************************************************
- * The function checks an csv file with one column and 4 rows. The fields
- * are: a0 a1 a2 a3. The differences are the line endings.
- **************************************************************************/
+/******************************************************************************
+ * The function checks an csv file with one column and 4 rows. The fields are:
+ * a0 a1 a2 a3. The differences are the line endings.
+ *****************************************************************************/
 
 static void helper_line_endings(const wchar_t *data) {
 	s_table table;
@@ -131,14 +131,14 @@ static void helper_line_endings(const wchar_t *data) {
 	fclose(tmp);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function checks the different line endings of a csv file. The line
  * endings can occure at the end of a record or at the end of the file.
  *
  * unix:    \n
  * windows: \r\n
  * mac:     \r
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_line_endings() {
 
@@ -152,9 +152,9 @@ static void test_line_endings() {
 	print_debug_str("test_line_endings() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function reads and parses a csv file that contains: ",\n,"
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_parser_empty() {
 	s_table table;
@@ -193,9 +193,9 @@ static void test_parser_empty() {
 	print_debug_str("test_parser_empty() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function simply starts the test.
- **************************************************************************/
+ *****************************************************************************/
 
 int main() {
 

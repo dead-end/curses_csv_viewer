@@ -27,10 +27,10 @@
 
 #include <locale.h>
 
-/***************************************************************************
+/******************************************************************************
  * The function checks whether a s_table_part structure has the expected
  * values.
- **************************************************************************/
+ *****************************************************************************/
 
 static void check_table_part(const s_table_part *table_part, const int first, const int last, const int truncated, const int size) {
 
@@ -43,10 +43,10 @@ static void check_table_part(const s_table_part *table_part, const int first, co
 	ut_check_int(table_part->size, size, "s_table_part: size");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function checks the s_table_part_update function, which computes the
  * visible fields of the table for a row or column.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_table_part_update() {
 	s_table_part table_part;
@@ -135,9 +135,9 @@ static void test_table_part_update() {
 	print_debug_str("test_table_part_update() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function simply starts the test.
- **************************************************************************/
+ *****************************************************************************/
 
 int main() {
 

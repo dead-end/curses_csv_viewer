@@ -28,12 +28,12 @@
 #include <locale.h>
 #include <math.h>
 
-/***************************************************************************
+/******************************************************************************
  * The test checks the s_table_field_dimension function, which computes the
  * width and height of a field. An empty field has width 0 and height 1. The
  * minimum width of a column is 1 to ensure that the cursor field can be
  * displayed.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_table_field_dimension() {
 	int row_size;
@@ -72,10 +72,10 @@ static void test_table_field_dimension() {
 	print_debug_str("test_table_field_dimension() End\n");
 }
 
-/***************************************************************************
- * The function tests the get_ratio() function. It computes the ratio
- * between the digits and the string length of a given string.
- **************************************************************************/
+/******************************************************************************
+ * The function tests the get_ratio() function. It computes the ratio between
+ * the digits and the string length of a given string.
+ *****************************************************************************/
 
 static void test_table_get_ratio() {
 	double result;
@@ -100,11 +100,11 @@ static void test_table_get_ratio() {
 	print_debug_str("test_table_get_ratio() End\n");
 }
 
-/***************************************************************************
- * The function tests the characteristics (string length and ratio of digits
- * in the string) for each of the columns of a csv file. Each function call
+/******************************************************************************
+ * The function tests the characteristics (string length and ratio of digits in
+ * the string) for each of the columns of a csv file. Each function call
  * returns 1 if the characteristic indicates a header for that column.
- **************************************************************************/
+ *****************************************************************************/
 
 #define HAS_HEADER 1
 
@@ -163,6 +163,7 @@ static void test_table_has_header() {
 	result = check_column_characteristic(&table, table.no_rows, 2, get_ratio);
 	ut_check_int(result, HAS_HEADER, "has_header - ratio: 2");
 
+	//
 	// column: 3 only chars and header lenths is mean
 	// len   => has no header
 	// ratio => has no header
@@ -173,6 +174,7 @@ static void test_table_has_header() {
 	result = check_column_characteristic(&table, table.no_rows, 3, get_ratio);
 	ut_check_int(result, HAS_NO_HEADER, "has_header - ratio: 3");
 
+	//
 	// column: 4 mixed chars and int but header is mean
 	// len   => has no header
 	// ratio => has no header
@@ -193,10 +195,10 @@ static void test_table_has_header() {
 	print_debug_str("test_table_has_header() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function tests the computation of the mean and the standard deviation
  * for some of the columns.
- **************************************************************************/
+ *****************************************************************************/
 
 static void test_table_mean_std_dev() {
 	s_table table;
@@ -281,9 +283,9 @@ static void test_table_mean_std_dev() {
 	print_debug_str("test_table_mean_std_dev() End\n");
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function simply starts the test.
- **************************************************************************/
+ *****************************************************************************/
 
 int main() {
 
