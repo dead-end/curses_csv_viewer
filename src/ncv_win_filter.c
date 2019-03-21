@@ -148,7 +148,7 @@ typedef struct s_popup_sizes {
 s_popup_sizes popup_sizes;
 
 /******************************************************************************
- * The function create a s_field_user_ptr struct and adds it to the associated
+ * The function creates a s_field_user_ptr struct and adds it to the associated
  * field.
  *
  * Freeing can be done with the generic function:
@@ -443,7 +443,7 @@ void win_filter_init() {
 	//
 	// Create the buttons, which are menu items.
 	//
-	const char *labels[] = { "OK", "Cancel" };
+	const char *labels[] = { "  OK  ", "Cancel" };
 	menus_create_items(popup.items, 2, labels);
 
 	//
