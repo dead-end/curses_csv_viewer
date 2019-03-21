@@ -74,6 +74,23 @@ static void test_wcs_casestr() {
 }
 
 /******************************************************************************
+ * The function tests the str_array_sizes function.
+ *****************************************************************************/
+
+static void test_str_array_sizes() {
+	int rows, cols;
+	const char *msgs[] = { "22", "", "1", "4444", "333", NULL };
+
+	print_debug_str("test_str_array_sizes() Start\n");
+
+	str_array_sizes(msgs, &rows, &cols);
+	ut_check_int(rows, 5, "Checking rows");
+	ut_check_int(cols, 4, "Checking cols");
+
+	print_debug_str("test_str_array_sizes() End\n");
+}
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -82,6 +99,8 @@ int main() {
 	print_debug_str("ut_common.c - Start tests\n");
 
 	test_wcs_casestr();
+
+	test_str_array_sizes();
 
 	print_debug_str("ut_common.c - End tests\n");
 

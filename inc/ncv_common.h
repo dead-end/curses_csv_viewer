@@ -152,6 +152,12 @@ typedef struct s_buffer {
 #define max_or_equal(a,b) ((a) >= (b) ? (a) : (b))
 
 /******************************************************************************
+ * The macro returns the start index of a centered part.
+ *****************************************************************************/
+
+#define center(t,p) (((t) - (p)) / 2)
+
+/******************************************************************************
  * Compute the power of two.
  *****************************************************************************/
 
@@ -172,5 +178,7 @@ char *trim(char *str);
 wchar_t read_wchar(FILE *file);
 
 wchar_t *wcs_casestr(const wchar_t *s, const wchar_t *find);
+
+void str_array_sizes(const char *msgs[], int *rows, int *cols);
 
 #endif

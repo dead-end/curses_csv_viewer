@@ -31,10 +31,10 @@
 #include <errno.h>
 #include <wctype.h>
 
-/***************************************************************************
+/******************************************************************************
  * The function allocates memory and terminates the program in case of an
  * error.
- **************************************************************************/
+ *****************************************************************************/
 
 void *xmalloc(const size_t size) {
 
@@ -47,11 +47,11 @@ void *xmalloc(const size_t size) {
 	return ptr;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function creates a temp file and copies the input from stdin to that
- * file. It uses read instead of fread, because the latter does not work
- * with rewind() and fgetws().
- **************************************************************************/
+ * file. It uses read instead of fread, because the latter does not work with
+ * rewind() and fgetws().
+ *****************************************************************************/
 
 FILE *stdin_2_tmp() {
 	ssize_t bytes_read, bytes_write;
@@ -105,10 +105,10 @@ FILE *stdin_2_tmp() {
 	return tmp;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function converts a multi byte char string to a wide char string. The
  * buffer has to be large enough or the program terminates with an error.
- **************************************************************************/
+ *****************************************************************************/
 
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 
@@ -129,10 +129,10 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function removes leading and tailing spaces. The process changes the
  * argument string.
- **************************************************************************/
+ *****************************************************************************/
 
 char *trim(char *str) {
 	char *ptr;
@@ -154,11 +154,11 @@ char *trim(char *str) {
 	return ptr;
 }
 
-/***************************************************************************
- * The function reads a wchar_t from a stream. It converts the different
- * line endings (windows: \r\n mac: \r) to a standard (unix: \n). It also
- * does error processing.
- **************************************************************************/
+/******************************************************************************
+ * The function reads a wchar_t from a stream. It converts the different line
+ * endings (windows: \r\n mac: \r) to a standard (unix: \n). It also does error
+ * processing.
+ *****************************************************************************/
 
 wchar_t read_wchar(FILE *file) {
 	wint_t wint;
@@ -220,9 +220,9 @@ wchar_t read_wchar(FILE *file) {
 	return (wchar_t) wint;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function is a wchar_t variant of the strstr function.
- **************************************************************************/
+ *****************************************************************************/
 
 wchar_t *wcs_casestr(const wchar_t *str, const wchar_t *find) {
 	wchar_t first_chr, str_chr;
@@ -255,4 +255,22 @@ wchar_t *wcs_casestr(const wchar_t *str, const wchar_t *find) {
 	}
 
 	return ((wchar_t *) str);
+}
+
+/******************************************************************************
+ * The function is called with a null terminated array of strings. It
+ * determines the number of rows and the the number of cols, which is the
+ * maximum string length.
+ *****************************************************************************/
+
+void str_array_sizes(const char *msgs[], int *rows, int *cols) {
+
+	int len;
+
+	for (*rows = 0, *cols = 0; msgs[*rows] != NULL; (*rows)++) {
+		len = strlen(msgs[*rows]);
+		if (len > *cols) {
+			*cols = len;
+		}
+	}
 }
