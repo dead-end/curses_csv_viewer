@@ -31,62 +31,24 @@
  * menu are not created. The creation requires fields and items.
  *****************************************************************************/
 
-void popup_init(s_popup *popup, const int num_fields, const int num_items) {
+void popup_init(s_popup *popup) {
 
 	//
 	// Init form
 	//
 	popup->form = NULL;
 
-	popup->fields = xmalloc(sizeof(FIELD *) * num_fields + 1);
-
-	popup->fields[num_fields] = NULL;
+	popup->fields = NULL;
 
 	//
 	// Init menu
 	//
 	popup->menu = NULL;
 
-	popup->items = xmalloc(sizeof(ITEM *) * num_items + 1);
-
-	popup->items[num_items] = NULL;
-
 	//
 	// Start on the form.
 	//
 	popup->is_on_form = true;
-
-	print_debug("popup_init() Init popup with: %d fields and: %d items.\n", num_fields, num_items);
-}
-
-/******************************************************************************
- * The function sets the windows for the popup form and the popup menu.
- *****************************************************************************/
-
-void popup_set_wins(const s_popup *popup) {
-	int result;
-
-	//
-	// Set the form to the window and the sub window.
-	//
-	if ((result = set_form_win(popup->form, popup->win)) != E_OK) {
-		print_exit("popup_set_wins() Unable to set form to the window! (result: %d)\n", result);
-	}
-
-	if ((result = set_form_sub(popup->form, popup->win_form)) != E_OK) {
-		print_exit("popup_set_wins() Unable to set form to the sub window! (result: %d)\n", result);
-	}
-
-	//
-	// Set the menu to the window and the sub window.
-	//
-	if ((result = set_menu_win(popup->menu, popup->win)) != E_OK) {
-		print_exit("popup_set_wins() Unable to set menu to the window! (result: %d)\n", result);
-	}
-
-	if ((result = set_menu_sub(popup->menu, popup->win_menu)) != E_OK) {
-		print_exit("popup_set_wins() Unable to set menu to the sub window! (result: %d)\n", result);
-	}
 }
 
 /******************************************************************************
@@ -128,21 +90,6 @@ void popup_unpost(const s_popup *popup) {
 }
 
 /******************************************************************************
- * The function frees memory allocated for the popup.
- *****************************************************************************/
-
-void popup_free(s_popup *popup) {
-
-	if (popup->fields != NULL) {
-		free(popup->fields);
-	}
-
-	if (popup->items != NULL) {
-		free(popup->items);
-	}
-}
-
-/******************************************************************************
  * The function sets the cursor to the field in the form or an item in the
  * menu.
  *****************************************************************************/
@@ -180,8 +127,7 @@ static void popup_switch_to_menu(s_popup *popup) {
 	//
 	// Switch on menu and cursor
 	//
-	set_menu_fore(popup->menu, A_NORMAL);
-	curs_set(0);
+	menus_switch_on_off(popup->menu, true);
 
 	//
 	// Always move to the first item
@@ -221,8 +167,7 @@ static void popup_switch_to_form(s_popup *popup, const wint_t req_first_last) {
 	//
 	// Switch off menu and cursor
 	//
-	set_menu_fore(popup->menu, A_REVERSE);
-	curs_set(1);
+	menus_switch_on_off(popup->menu, false);
 
 	//
 	// Move to the first or last field

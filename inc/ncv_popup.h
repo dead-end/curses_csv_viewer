@@ -30,7 +30,7 @@
 #include <ncursesw/menu.h>
 
 /******************************************************************************
- * The struct for a popup. It contains of a form with fields and a menu, which
+ * The struct for a popup. It consists of a form with fields and a menu, which
  * represents buttons. Currently there are two types of fields: input fields
  * and checkboxes.
  *
@@ -52,11 +52,10 @@ typedef struct s_popup {
 
 	FORM *form;
 
+	// TODO: should be deprecated -> use:  FIELD **form_fields(const FORM *form);
 	FIELD **fields;
 
 	MENU *menu;
-
-	ITEM **items;
 
 	bool is_on_form;
 
@@ -72,15 +71,11 @@ typedef struct s_popup {
  * Function declarations.
  *****************************************************************************/
 
-void popup_init(s_popup *popup, const int num_fields, const int num_items);
-
-void popup_set_wins(const s_popup *popup);
+void popup_init(s_popup *popup);
 
 void popup_post(const s_popup *popup);
 
 void popup_unpost(const s_popup *popup);
-
-void popup_free(s_popup *popup);
 
 void popup_prepair_show(s_popup *popup);
 
