@@ -202,25 +202,116 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 }
 
 /******************************************************************************
- * The function creates the items of a menu by a list of labels. The function
- * is called with the number of items, not including the terminating NULL. The
- * terminating NULL is set by the function.
+ * The function is called with a NULL terminated array of item labels. For each
+ * label an item is created. With the items the menu is created. For the items
+ * an array is allocated. To free this array the function menu_items(menu) is
+ * called to get a reference to it.
  *****************************************************************************/
 
-// TODO: Add function pointer / enum ???
-void menus_create_items(ITEM **items, const int num_items, const char **labels) {
+MENU *menus_create_menu(char **labels) {
+	MENU *menu;
+	ITEM **items;
+	int num_items = 0;
 
-	for (int i = 0; i < num_items; i++) {
-
-		if ((items[i] = new_item(labels[i], "")) == NULL) {
-			print_exit("menus_create_items() Unable to create item: %d\n", i);
-		}
+	//
+	// Count the number of labels.
+	//
+	for (char **ptr = labels; *ptr != NULL; ptr++, num_items++) {
+		print_debug("menus_create_menu() Item label: '%s'\n", *ptr);
 	}
+
+	//
+	// Allocate memory for the item array (which is NULL terminated). The items
+	// can be determined with menu_items(menu). This is used for freeing the
+	// array.
+	//
+	items = xmalloc(sizeof(ITEM *) * (num_items + 1));
 
 	//
 	// Set the terminating NULL
 	//
 	items[num_items] = NULL;
+
+	//
+	// Create the items.
+	//
+	for (int i = 0; i < num_items; i++) {
+		print_debug("menus_create_menu() Creating item: '%s'\n", labels[i]);
+
+		if ((items[i] = new_item(labels[i], "")) == NULL) {
+			print_exit("menus_create_menu() Unable to create item: '%s'\n", labels[i]);
+		}
+	}
+
+	//
+	// After the items are created, we can create and return the menu.
+	//
+	if ((menu = new_menu(items)) == NULL) {
+		print_exit_str("menus_create_menu() Unable to create menu!\n");
+	}
+
+	return menu;
+}
+
+/******************************************************************************
+ * The function formats the menu as horizontal or vertical, sets the background
+ * and the menu marker.
+ *****************************************************************************/
+
+void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal) {
+	int num_items;
+
+	//
+	// Get the number of item from the menu.
+	//
+	if ((num_items = item_count(menu)) == ERR) {
+		print_exit_str("menus_format_menu() to get the number of items!\n");
+	}
+
+	//
+	// Format the menu as horizontal or vertical.
+	//
+	int rows, cols;
+
+	if (horizontal) {
+		rows = 1;
+		cols = num_items;
+	} else {
+		rows = num_items;
+		cols = 1;
+	}
+
+	if (set_menu_format(menu, rows, cols) != E_OK) {
+		print_exit("menus_format_menu() Unable to set menu format with rows: 1 cols: %d\n", num_items);
+	}
+
+	//
+	// Do not mark the current item.
+	//
+	if (set_menu_mark(menu, "") != E_OK) {
+		print_exit_str("menus_format_menu() Unable to set menu mark!\n");
+	}
+
+	//
+	// Set the background of the menu.
+	//
+	if (set_menu_back(menu, attr) != E_OK) {
+		print_exit_str("menus_format_menu() Unable to set menu background!\n");
+	}
+}
+
+/******************************************************************************
+ * The function creates the field array, which is NULL terminated. The NULL is
+ * not part of the num_fiels parameter.
+ *****************************************************************************/
+
+FIELD **forms_create_fields(const int num_fields) {
+
+	FIELD **fields = xmalloc(sizeof(FIELD *) * (num_fields + 1));
+
+	fields[num_fields] = NULL;
+
+	return fields;
 }
 
 /******************************************************************************
@@ -256,7 +347,7 @@ FORM *forms_create_form(FIELD **fields) {
  * they are set here.
  *****************************************************************************/
 
-MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr) {
+MENU *menus_create_menu_old(ITEM **items, const int num_items, const chtype attr) {
 	MENU *menu;
 
 	//
@@ -270,7 +361,7 @@ MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr) {
 	// Create a horizontal menu.
 	//
 	if (set_menu_format(menu, 1, num_items) != E_OK) {
-		print_exit_str("menus_create_menu() Unable to set menu format!\n");
+		print_exit("menus_create_menu() Unable to set menu format with rows: 1 cols: %d\n", num_items);
 	}
 
 	//
@@ -288,6 +379,44 @@ MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr) {
 	}
 
 	return menu;
+}
+
+/******************************************************************************
+ * The function set the form windows.
+ *****************************************************************************/
+
+void menus_set_wins(MENU *menu, WINDOW *win, WINDOW *win_menu) {
+	int result;
+
+	//
+	// Set the menu to the window and the sub window.
+	//
+	if ((result = set_menu_win(menu, win)) != E_OK) {
+		print_exit("menus_set_wins() Unable to set menu to the window! (result: %d)\n", result);
+	}
+
+	if ((result = set_menu_sub(menu, win_menu)) != E_OK) {
+		print_exit("menus_set_wins() Unable to set menu to the sub window! (result: %d)\n", result);
+	}
+}
+
+/******************************************************************************
+ * The function set the form windows.
+ *****************************************************************************/
+
+void forms_set_wins(FORM *form, WINDOW *win, WINDOW *win_form) {
+	int result;
+
+	//
+	// Set the form to the window and the sub window.
+	//
+	if ((result = set_form_win(form, win)) != E_OK) {
+		print_exit("forms_set_wins() Unable to set form to the window! (result: %d)\n", result);
+	}
+
+	if ((result = set_form_sub(form, win_form)) != E_OK) {
+		print_exit("forms_set_wins() Unable to set form to the sub window! (result: %d)\n", result);
+	}
 }
 
 /******************************************************************************
@@ -338,6 +467,15 @@ void forms_free(FORM *form) {
 	if (form != NULL) {
 
 		//
+		// Get a pointer to the fields and the number of fields. Calling:
+		// free_form(form) disconnects the fields from the form, so after that,
+		// the data cannot be retrieved.
+		//
+		FIELD **field_ptr = form_fields(form);
+
+		const int num_fields = field_count(form);
+
+		//
 		// Ensure that the form was posted at all.
 		//
 		const int result = unpost_form(form);
@@ -354,26 +492,38 @@ void forms_free(FORM *form) {
 		}
 
 		//
-		// Get the field array from the form and ensure that it is not null.
+		// Ensure that the field pointer is not NULL
 		//
-		FIELD **field_ptr = form_fields(form);
 		if (field_ptr != NULL) {
 
 			//
-			// Loop through the field array, which is NULL terminated.
+			// Ensure that the form has field.
 			//
-			for (; *field_ptr != NULL; field_ptr++) {
+			if (num_fields > 0) {
 
-				if (free_field(*field_ptr) != E_OK) {
-					print_exit_str("forms_free() Unable to free field!\n");
+				//
+				// Loop through the field array, which is NULL terminated.
+				//
+				for (FIELD **ptr = field_ptr; *ptr != NULL; ptr++) {
+					print_debug_str("forms_free() Freeing field!\n");
+
+					if (free_field(*ptr) != E_OK) {
+						print_exit_str("forms_free() Unable to free field!\n");
+					}
 				}
 			}
+
+			//
+			// The last step is to free the fields array.
+			//
+			print_debug_str("forms_free() Freeing the fields array!\n");
+			free(field_ptr);
 		}
 	}
 }
 
 /******************************************************************************
- * The function does an unpost and free of a menu and its items.
+ * The function does an unpost and the freeing of the menu and its items.
  *****************************************************************************/
 
 void menus_free(MENU *menu) {
@@ -382,6 +532,15 @@ void menus_free(MENU *menu) {
 	// Ensure that there is a menu
 	//
 	if (menu != NULL) {
+
+		//
+		// Get a pointer to the items and the number of items. Calling:
+		// free_menu(menu) disconnects the items from the menu, so after that,
+		// the data cannot be retrieved.
+		//
+		ITEM **item_ptr = menu_items(menu);
+
+		const int num_items = item_count(menu);
 
 		//
 		// Ensure that the menu was posted at all.
@@ -400,20 +559,32 @@ void menus_free(MENU *menu) {
 		}
 
 		//
-		// Get the item array from the menu and ensure that it is not null.
+		// Ensure that the item pointer is not NULL
 		//
-		ITEM **item_ptr = menu_items(menu);
 		if (item_ptr != NULL) {
 
 			//
-			// Loop through the item array, which is NULL terminated.
+			// Ensure that the form has field.
 			//
-			for (; *item_ptr != NULL; item_ptr++) {
+			if (num_items > 0) {
 
-				if (free_item(*item_ptr) != E_OK) {
-					print_exit_str("menus_free() Unable to free item!\n");
+				//
+				// Loop through the item array, which is NULL terminated.
+				//
+				for (ITEM **ptr = item_ptr; *ptr != NULL; ptr++) {
+					print_debug("menus_free() Freeing item: '%s'\n", item_name(*ptr));
+
+					if (free_item(*ptr) != E_OK) {
+						print_exit_str("menus_free() Unable to free item!\n");
+					}
 				}
 			}
+
+			//
+			// The last step is to free the items array.
+			//
+			print_debug_str("menus_free() Freeing the items array!\n");
+			free(item_ptr);
 		}
 	}
 }
@@ -626,39 +797,37 @@ void forms_process_input_field(FORM *form, FIELD *field, const int key_type, con
 }
 
 /******************************************************************************
- * The function computes the size of the menu. It is called with the menu,
- * which contains a NULL terminated array of ITEM's. Each item has the size of
- * the max item name length. The items are delimited by strings, so the size
- * is:
- *
- * num-items * max(item-name-len) + num-items -1
+ * The function switches on or of the menu and the cursor
  *****************************************************************************/
 
-int menus_get_size(const MENU *menu) {
-	size_t size;
-	size_t max = 0;
-	int num_items = 0;
+void menus_switch_on_off(MENU *menu, const bool on) {
 
-	//
-	// Get the item array from the menu.
-	//
-	ITEM **item_ptr = menu_items(menu);
-	if (item_ptr == NULL) {
-		print_exit_str("menus_get_size() Unable to get menu items!\n");
+	const chtype type = on ? A_NORMAL : A_REVERSE;
+
+	if (set_menu_fore(menu, type) != E_OK) {
+		print_exit_str("menus_switch_curser() Unable to change the menu forground!\n");
 	}
 
-	//
-	// Loop through the item array, which is NULL terminated.
-	//
-	for (; *item_ptr != NULL; item_ptr++) {
-
-		size = strlen(item_name(*item_ptr));
-
-		if (size > max) {
-			max = size;
-		}
-		num_items++;
+	if (curs_set(!on) == ERR) {
+		print_exit_str("menus_switch_curser() Unable to switch on/off the cursor!\n");
 	}
-
-	return max * num_items + (num_items - 1);
 }
+
+/******************************************************************************
+ * The function does a post of the menu. If necessary it does an unpost before.
+ * The repost is necessary if the size of the win_menu changes.
+ *****************************************************************************/
+
+void menus_unpost_post(MENU *menu, const bool unpost) {
+
+	int result;
+
+	if (unpost && (result = unpost_menu(menu)) != E_OK) {
+		print_exit("menus_unpost_post() Unable to unpost menu! (result: %d)\n", result);
+	}
+
+	if ((result = post_menu(menu)) != E_OK) {
+		print_exit("menus_unpost_post() Unable to post menu! (result: %d)\n", result);
+	}
+}
+

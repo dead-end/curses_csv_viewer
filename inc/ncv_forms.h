@@ -61,13 +61,19 @@ bool forms_is_last(const FORM *form);
 
 bool menus_is_last(const MENU *menu);
 
-FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
+FIELD **forms_create_fields(const int num_fields);
 
-void menus_create_items(ITEM **items, const int num, const char **labels);
+FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
 FORM *forms_create_form(FIELD **fields);
 
-MENU *menus_create_menu(ITEM **items, const int num_items, const chtype attr);
+MENU *menus_create_menu(char **labels);
+
+void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal);
+
+void forms_set_wins(FORM *form, WINDOW *win, WINDOW *win_form);
+
+void menus_set_wins(MENU *menu, WINDOW *win, WINDOW *win_menu);
 
 void forms_user_ptr_free(const FORM *form);
 
@@ -85,6 +91,8 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 
 void forms_process_input_field(FORM *form, FIELD *field, const int key_type, const wint_t chr);
 
-int menus_get_size(const MENU *menu);
+void menus_switch_on_off(MENU *menu, const bool on);
+
+void menus_unpost_post(MENU *menu, const bool unpost);
 
 #endif
