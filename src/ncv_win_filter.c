@@ -416,32 +416,30 @@ void win_filter_init() {
 	//
 	popup_init(&popup);
 
-	popup.fields = forms_create_fields(3);
+	FIELD **fields = forms_create_fields(3);
 
 	//
 	// Create filter field
 	//
-	popup.fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr_input);
-	field_user_ptr_create(popup.fields[0], FIELD_TYPE_INPUT, "Filter: ", forms_process_input_field);
+	fields[0] = forms_create_field(FIELD_HIGHT, FILTER_FIELD_COLS, FILTER_ROW, 0, attr_input);
+	field_user_ptr_create(fields[0], FIELD_TYPE_INPUT, "Filter: ", forms_process_input_field);
 
 	//
 	// Create case checkbox field
 	//
-	popup.fields[1] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, CASE_ROW, 1, attr_normal);
-	field_user_ptr_create(popup.fields[1], FIELD_TYPE_CHECKBOX, "Case: ", forms_process_checkbox);
+	fields[1] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, CASE_ROW, 1, attr_normal);
+	field_user_ptr_create(fields[1], FIELD_TYPE_CHECKBOX, "Case: ", forms_process_checkbox);
 
 	//
 	// Create search checkbox field
 	//
-	popup.fields[2] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, SEARCH_ROW, 1, attr_normal);
-	field_user_ptr_create(popup.fields[2], FIELD_TYPE_CHECKBOX, "Search: ", forms_process_checkbox);
-
-	popup.fields[3] = NULL;
+	fields[2] = forms_create_field(FIELD_HIGHT, CKBOX_FIELD_LEN, SEARCH_ROW, 1, attr_normal);
+	field_user_ptr_create(fields[2], FIELD_TYPE_CHECKBOX, "Search: ", forms_process_checkbox);
 
 	//
 	// Create the for with the fields
 	//
-	popup.form = forms_create_form(popup.fields);
+	popup.form = forms_create_form(fields);
 
 	//
 	// Create the buttons, which are menu items.
@@ -553,14 +551,19 @@ void win_filter_resize() {
 static void win_filter_get_filter(s_filter *to_filter, s_popup *popup, const bool is_active) {
 	s_filter from_filter;
 
+	FIELD **fields = form_fields(popup->form);
+	if (fields == NULL) {
+		print_exit_str("win_filter_get_filter() Unable to get form fields!\n");
+	}
+
 	//
 	// Fill the new s_filter with the data from the form.
 	//
-	forms_get_input_str(popup->fields[0], from_filter.str, FILTER_STR_LEN + 1);
+	forms_get_input_str(fields[0], from_filter.str, FILTER_STR_LEN + 1);
 
-	from_filter.case_insensitive = !forms_checkbox_is_checked(popup->fields[1]);
+	from_filter.case_insensitive = !forms_checkbox_is_checked(fields[1]);
 
-	from_filter.is_search = !forms_checkbox_is_checked(popup->fields[2]);
+	from_filter.is_search = !forms_checkbox_is_checked(fields[2]);
 
 	//
 	// On CANCEL or ESC the filter is inactive although the filter string is
@@ -637,11 +640,22 @@ static bool process_form_input(s_filter *filter, s_popup *popup, const int key_t
 		case CTRL('x'):
 
 			//
+			// I get an error without the parenthesis
+			//
+		{
+			FIELD **fields;
+
+			if ((fields = form_fields(popup->form)) == NULL) {
+				print_exit_str("process_form_input() Unable to get fields!\n");
+			}
+
+			//
 			// Clear filter input
 			//
-			if (set_field_buffer(popup->fields[0], 0, "") != E_OK) {
+			if (set_field_buffer(fields[0], 0, "") != E_OK) {
 				print_exit_str("process_form_input() Unable to reset the buffer\n");
 			}
+		}
 
 			return false;
 		}
