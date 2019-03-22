@@ -247,7 +247,7 @@ MENU *menus_create_menu(char **labels) {
 	// After the items are created, we can create and return the menu.
 	//
 	if ((menu = new_menu(items)) == NULL) {
-		print_exit_str("menus_create_menu() Unable to create menu!\n");
+		print_exit_str("menus_create_menu() Unable to create the menu!\n");
 	}
 
 	return menu;
@@ -341,47 +341,6 @@ FORM *forms_create_form(FIELD **fields) {
 }
 
 /******************************************************************************
- * The function creates a menu with its items and ensures that appropriate
- * options are set. The method is called with the number of items not including
- * the terminating NULL. All items of the menu have the same attributes, so
- * they are set here.
- *****************************************************************************/
-
-MENU *menus_create_menu_old(ITEM **items, const int num_items, const chtype attr) {
-	MENU *menu;
-
-	//
-	// Create the menu.
-	//
-	if ((menu = new_menu(items)) == NULL) {
-		print_exit_str("menus_create_menu() Unable to create menu!\n");
-	}
-
-	//
-	// Create a horizontal menu.
-	//
-	if (set_menu_format(menu, 1, num_items) != E_OK) {
-		print_exit("menus_create_menu() Unable to set menu format with rows: 1 cols: %d\n", num_items);
-	}
-
-	//
-	// Do not mark the current item.
-	//
-	if (set_menu_mark(menu, "") != E_OK) {
-		print_exit_str("menus_create_menu() Unable to set menu mark!\n");
-	}
-
-	//
-	// Set the background of the menu.
-	//
-	if (set_menu_back(menu, attr) != E_OK) {
-		print_exit_str("menus_create_menu() Unable to set menu background!\n");
-	}
-
-	return menu;
-}
-
-/******************************************************************************
  * The function set the form windows.
  *****************************************************************************/
 
@@ -462,64 +421,66 @@ void forms_user_ptr_free(const FORM *form) {
 void forms_free(FORM *form) {
 
 	//
-	// Ensure that there is a form
+	// Ensure that there is a form.
 	//
-	if (form != NULL) {
+	if (form == NULL) {
+		return;
+	}
+
+	//
+	// Get a pointer to the fields and the number of fields. Calling:
+	// free_form(form) disconnects the fields from the form, so after that,
+	// the data cannot be retrieved.
+	//
+	FIELD **field_ptr = form_fields(form);
+
+	const int num_fields = field_count(form);
+
+	//
+	// Ensure that the form was posted at all.
+	//
+	const int result = unpost_form(form);
+	if (result != E_OK && result != E_NOT_POSTED) {
+		print_exit_str("forms_free() Unable to unpost form!\n");
+	}
+
+	//
+	// The form has to be freed to be able to free the fields. Otherwise
+	// the fields were connected.
+	//
+	if (free_form(form) != E_OK) {
+		print_exit_str("forms_free() Unable to free form!\n");
+	}
+
+	//
+	// Ensure that the field pointer is not NULL.
+	//
+	if (field_ptr == NULL) {
+		return;
+	}
+
+	//
+	// Ensure that the form has field.
+	//
+	if (num_fields > 0) {
 
 		//
-		// Get a pointer to the fields and the number of fields. Calling:
-		// free_form(form) disconnects the fields from the form, so after that,
-		// the data cannot be retrieved.
+		// Loop through the field array, which is NULL terminated.
 		//
-		FIELD **field_ptr = form_fields(form);
+		for (FIELD **ptr = field_ptr; *ptr != NULL; ptr++) {
+			print_debug_str("forms_free() Freeing field!\n");
 
-		const int num_fields = field_count(form);
-
-		//
-		// Ensure that the form was posted at all.
-		//
-		const int result = unpost_form(form);
-		if (result != E_OK && result != E_NOT_POSTED) {
-			print_exit_str("forms_free() Unable to unpost form!\n");
-		}
-
-		//
-		// The form has to be freed to be able to free the fields. Otherwise
-		// the fields were connected.
-		//
-		if (free_form(form) != E_OK) {
-			print_exit_str("forms_free() Unable to free form!\n");
-		}
-
-		//
-		// Ensure that the field pointer is not NULL
-		//
-		if (field_ptr != NULL) {
-
-			//
-			// Ensure that the form has field.
-			//
-			if (num_fields > 0) {
-
-				//
-				// Loop through the field array, which is NULL terminated.
-				//
-				for (FIELD **ptr = field_ptr; *ptr != NULL; ptr++) {
-					print_debug_str("forms_free() Freeing field!\n");
-
-					if (free_field(*ptr) != E_OK) {
-						print_exit_str("forms_free() Unable to free field!\n");
-					}
-				}
+			if (free_field(*ptr) != E_OK) {
+				print_exit_str("forms_free() Unable to free field!\n");
 			}
-
-			//
-			// The last step is to free the fields array.
-			//
-			print_debug_str("forms_free() Freeing the fields array!\n");
-			free(field_ptr);
 		}
 	}
+
+	//
+	// The last step is to free the fields array.
+	//
+	print_debug_str("forms_free() Freeing the fields array!\n");
+	free(field_ptr);
 }
 
 /******************************************************************************
@@ -529,64 +490,66 @@ void forms_free(FORM *form) {
 void menus_free(MENU *menu) {
 
 	//
-	// Ensure that there is a menu
+	// Ensure that there is a menu.
 	//
-	if (menu != NULL) {
+	if (menu == NULL) {
+		return;
+	}
+
+	//
+	// Get a pointer to the items and the number of items. Calling:
+	// free_menu(menu) disconnects the items from the menu, so after that,
+	// the data cannot be retrieved.
+	//
+	ITEM **item_ptr = menu_items(menu);
+
+	const int num_items = item_count(menu);
+
+	//
+	// Ensure that the menu was posted at all.
+	//
+	const int result = unpost_menu(menu);
+	if (result != E_OK && result != E_NOT_POSTED) {
+		print_exit_str("menus_free() Unable to unpost menu!\n");
+	}
+
+	//
+	// The menu has to be freed to be able to free the items. Otherwise the
+	// items were connected.
+	//
+	if (free_menu(menu) != E_OK) {
+		print_exit_str("menus_free() Unable to free menu!\n");
+	}
+
+	//
+	// Ensure that the item pointer is not NULL.
+	//
+	if (item_ptr == NULL) {
+		return;
+	}
+
+	//
+	// Ensure that the form has field.
+	//
+	if (num_items > 0) {
 
 		//
-		// Get a pointer to the items and the number of items. Calling:
-		// free_menu(menu) disconnects the items from the menu, so after that,
-		// the data cannot be retrieved.
+		// Loop through the item array, which is NULL terminated.
 		//
-		ITEM **item_ptr = menu_items(menu);
+		for (ITEM **ptr = item_ptr; *ptr != NULL; ptr++) {
+			print_debug("menus_free() Freeing item: '%s'\n", item_name(*ptr));
 
-		const int num_items = item_count(menu);
-
-		//
-		// Ensure that the menu was posted at all.
-		//
-		const int result = unpost_menu(menu);
-		if (result != E_OK && result != E_NOT_POSTED) {
-			print_exit_str("menus_free() Unable to unpost menu!\n");
-		}
-
-		//
-		// The menu has to be freed to be able to free the items. Otherwise the
-		// items were connected.
-		//
-		if (free_menu(menu) != E_OK) {
-			print_exit_str("menus_free() Unable to free menu!\n");
-		}
-
-		//
-		// Ensure that the item pointer is not NULL
-		//
-		if (item_ptr != NULL) {
-
-			//
-			// Ensure that the form has field.
-			//
-			if (num_items > 0) {
-
-				//
-				// Loop through the item array, which is NULL terminated.
-				//
-				for (ITEM **ptr = item_ptr; *ptr != NULL; ptr++) {
-					print_debug("menus_free() Freeing item: '%s'\n", item_name(*ptr));
-
-					if (free_item(*ptr) != E_OK) {
-						print_exit_str("menus_free() Unable to free item!\n");
-					}
-				}
+			if (free_item(*ptr) != E_OK) {
+				print_exit_str("menus_free() Unable to free item!\n");
 			}
-
-			//
-			// The last step is to free the items array.
-			//
-			print_debug_str("menus_free() Freeing the items array!\n");
-			free(item_ptr);
 		}
 	}
+
+	//
+	// The last step is to free the items array.
+	//
+	print_debug_str("menus_free() Freeing the items array!\n");
+	free(item_ptr);
 }
 
 /******************************************************************************
@@ -797,7 +760,7 @@ void forms_process_input_field(FORM *form, FIELD *field, const int key_type, con
 }
 
 /******************************************************************************
- * The function switches on or of the menu and the cursor
+ * The function switches on or off the menu and the cursor
  *****************************************************************************/
 
 void menus_switch_on_off(MENU *menu, const bool on) {
@@ -805,11 +768,11 @@ void menus_switch_on_off(MENU *menu, const bool on) {
 	const chtype type = on ? A_NORMAL : A_REVERSE;
 
 	if (set_menu_fore(menu, type) != E_OK) {
-		print_exit_str("menus_switch_curser() Unable to change the menu forground!\n");
+		print_exit_str("menus_switch_on_off() Unable to change the menu foreground!\n");
 	}
 
 	if (curs_set(!on) == ERR) {
-		print_exit_str("menus_switch_curser() Unable to switch on/off the cursor!\n");
+		print_exit_str("menus_switch_on_off() Unable to switch on/off the cursor!\n");
 	}
 }
 
@@ -818,11 +781,11 @@ void menus_switch_on_off(MENU *menu, const bool on) {
  * The repost is necessary if the size of the win_menu changes.
  *****************************************************************************/
 
-void menus_unpost_post(MENU *menu, const bool unpost) {
+void menus_unpost_post(MENU *menu, const bool doUnpost) {
 
 	int result;
 
-	if (unpost && (result = unpost_menu(menu)) != E_OK) {
+	if (doUnpost && (result = unpost_menu(menu)) != E_OK) {
 		print_exit("menus_unpost_post() Unable to unpost menu! (result: %d)\n", result);
 	}
 
