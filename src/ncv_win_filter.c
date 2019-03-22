@@ -306,8 +306,9 @@ void popup_get_sizes(const s_popup *popup, s_popup_sizes *popup_sizes, const int
 	//
 	// The button menu has one row.
 	//
-	popup_sizes->menu_rows = 1;
-	popup_sizes->menu_cols = menus_get_size(popup->menu);
+	if (scale_menu(popup->menu, &(popup_sizes->menu_rows), &(popup_sizes->menu_cols)) != E_OK) {
+		print_exit_str("popup_get_sizes() Unable to determine the menu width and height!\n");
+	}
 
 	//
 	// The total win has the form and menu rows separate by an empty row.
@@ -413,7 +414,9 @@ void win_filter_init() {
 	//
 	// Do the initialization of the popup, which is allocating memory.
 	//
-	popup_init(&popup, 3, 2);
+	popup_init(&popup);
+
+	popup.fields = forms_create_fields(3);
 
 	//
 	// Create filter field
@@ -443,13 +446,10 @@ void win_filter_init() {
 	//
 	// Create the buttons, which are menu items.
 	//
-	const char *labels[] = { "  OK  ", "Cancel" };
-	menus_create_items(popup.items, 2, labels);
+	char *labels[] = { "  OK  ", "Cancel", NULL };
+	popup.menu = menus_create_menu(labels);
 
-	//
-	// Create the menu with the items.
-	//
-	popup.menu = menus_create_menu(popup.items, 2, attr_normal);
+	menus_format_menu(popup.menu, attr_normal, true);
 
 	//
 	// After the form and the menu is created we can start computing the sizes
@@ -477,7 +477,9 @@ void win_filter_init() {
 
 	popup.win_menu = ncurses_derwin_create(popup.win, popup_sizes.menu_rows, popup_sizes.menu_cols, popup_sizes.menu_start_row, popup_sizes.menu_start_col);
 
-	popup_set_wins(&popup);
+	menus_set_wins(popup.menu, popup.win, popup.win_menu);
+
+	forms_set_wins(popup.form, popup.win, popup.win_form);
 
 	//
 	// Initial printing of the form
@@ -749,7 +751,5 @@ void win_filter_free() {
 	ncurses_win_free(popup.win_menu);
 
 	ncurses_win_free(popup.win);
-
-	popup_free(&popup);
 }
 
