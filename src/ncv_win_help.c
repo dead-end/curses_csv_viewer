@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-
+#include "ncv_forms.h"
 #include "ncv_ncurses.h"
 #include "ncv_common.h"
 #include <string.h>
@@ -46,37 +46,17 @@ static const char *msgs[] = {
 		"CTRL-X        Deletes filter content.",
 		NULL };
 
+#define BORDER 2
+
 /***************************************************************************
  * Definition of the help window.
  **************************************************************************/
 
 static WINDOW* win_help = NULL;
 
-/***************************************************************************
- * The function computes the number of rows and columns for the window,
- * depending on the displayed text. The values are stored in static
- * variables.
- **************************************************************************/
+static WINDOW* win_menu = NULL;
 
-static void win_help_init_sizes() {
-
-	int row;
-	int col = 0;
-	int len;
-
-	for (row = 0; msgs[row] != NULL; row++) {
-		len = strlen(msgs[row]);
-		if (len > col) {
-			col = len;
-		}
-	}
-
-	//
-	// Define the number of rows and columns including the border.
-	//
-	win_help_size_cols = col + 2;
-	win_help_size_rows = row + 2;
-}
+static MENU *menu;
 
 /***************************************************************************
  * The function prints the application label if the help window is large
@@ -97,8 +77,8 @@ static void win_help_print_content() {
 	//
 	if (WIN_HAS_MIN_SIZE(win_help_size_rows, win_help_size_cols)) {
 
-		for (int tmp = 1; tmp < win_help_size_cols; tmp++) {
-			mvwaddstr(win_help, tmp, 1, msgs[tmp - 1]);
+		for (int tmp = 0; msgs[tmp] != NULL; tmp++) {
+			mvwaddstr(win_help, tmp + BORDER, BORDER, msgs[tmp]);
 		}
 	}
 }
@@ -109,28 +89,56 @@ static void win_help_print_content() {
  **************************************************************************/
 
 void win_help_init() {
+	int rows, cols;
 
-	win_help_init_sizes();
+	//
+	// Compute the window sizes.
+	//
+	str_array_sizes(msgs, &rows, &cols);
+
+	win_help_size_cols = cols + 2 * BORDER;
+	win_help_size_rows = rows + 2 + 2 * BORDER;
+
+	char *labels[] = { " OK ", NULL };
+	menu = menus_create_menu(labels);
+
+	const chtype attr_normal = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_REVERSE);
+	menus_format_menu(menu, attr_normal, true);
+
+	//
+	// Reuse of rows, cols to determine the menu sizes.
+	//
+	if (scale_menu(menu, &rows, &cols) != E_OK) {
+		print_exit_str("win_help_init() Unable to determine the menu width and height!\n");
+	}
 
 	//
 	// Create the help window at (0,0)
 	//
 	win_help = ncurses_win_create(win_help_size_rows, win_help_size_cols, 0, 0);
 
-	//
-	// Move the window to the center
-	//
+	ncurses_attr_back(win_help, COLOR_PAIR(CP_STATUS), A_REVERSE);
+
+	win_menu = ncurses_derwin_create(win_help, rows, cols, win_help_size_rows - BORDER - 1, center(win_help_size_cols, cols));
+
+	menus_set_wins(menu, win_help, win_menu);
+
 	ncurses_win_center(win_help);
 
-	//
-	// Set the help window background.
-	//
-	ncurses_attr_back(win_help, COLOR_PAIR(CP_STATUS), A_REVERSE);
+	menus_unpost_post(menu, false);
 
 	//
 	// Print the label.
 	//
 	win_help_print_content();
+
+	if (pos_menu_cursor(menu) != E_OK) {
+		print_exit_str("popup_pos_cursor() Unable to set the menu cursor!\n");
+	}
+
+	menus_switch_on_off(menu, true);
+
+	menus_driver(menu, REQ_FIRST_ITEM);
 }
 
 /***************************************************************************
@@ -145,7 +153,26 @@ void win_help_resize() {
 	if (WIN_HAS_MIN_SIZE(win_help_size_rows, win_help_size_cols)) {
 		print_debug_str("win_help_resize() Do resize the window!\n");
 
-		if (ncurses_win_ensure_size(win_help, win_help_size_rows, win_help_size_cols)) {
+		int rows, cols;
+		if (scale_menu(menu, &rows, &cols) != E_OK) {
+			print_exit_str("win_help_resize() Unable to determine the menu width and height!\n");
+		}
+
+		const bool do_update_win = ncurses_win_ensure_size(win_help, win_help_size_rows, win_help_size_cols);
+		const bool do_update_menu = ncurses_win_ensure_size(win_menu, rows, cols);
+
+		if (do_update_win || do_update_menu) {
+
+			//
+			// Move the menu window to its position, this requires an repost
+			//
+			ncurses_derwin_move(win_menu, win_help_size_rows - BORDER - 1, center(win_help_size_cols, cols));
+
+			menus_unpost_post(menu, true);
+
+			//
+			// now print the content
+			//
 			win_help_print_content();
 		}
 
@@ -184,6 +211,23 @@ void win_help_show() {
 
 void win_help_free() {
 
-	print_debug_str("win_help_free() Removing help window.\n");
+	print_debug_str("win_help_free() Freeing help window data.\n");
+
+	//
+	// Free the menu and the associated items (including the items array).
+	//
+	menus_free(menu);
+
+	ncurses_win_free(win_menu);
+
 	ncurses_win_free(win_help);
+}
+
+/***************************************************************************
+ * The function processes the input of the help window. The only input that
+ * is relevant is the OK button.
+ **************************************************************************/
+
+bool win_help_process_input(const int key_type, const wint_t chr) {
+	return key_type == OK && (chr == KEY_ENTER || chr == NCV_KEY_NEWLINE);
 }
