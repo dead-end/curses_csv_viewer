@@ -27,8 +27,7 @@
 #include "ncv_common.h"
 
 /******************************************************************************
- * The function allocates memory and sets some default values. The form and the
- * menu are not created. The creation requires fields and items.
+ * The function set some default values.
  *****************************************************************************/
 
 void popup_init(s_popup *popup) {
@@ -37,8 +36,6 @@ void popup_init(s_popup *popup) {
 	// Init form
 	//
 	popup->form = NULL;
-
-	popup->fields = NULL;
 
 	//
 	// Init menu
