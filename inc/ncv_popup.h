@@ -52,9 +52,6 @@ typedef struct s_popup {
 
 	FORM *form;
 
-	// TODO: should be deprecated -> use:  FIELD **form_fields(const FORM *form);
-	FIELD **fields;
-
 	MENU *menu;
 
 	bool is_on_form;
