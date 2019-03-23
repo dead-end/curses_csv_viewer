@@ -173,13 +173,13 @@ bool menus_is_last(const MENU *menu) {
  *****************************************************************************/
 
 FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr) {
-	FIELD *field;
 	int result;
 
 	//
 	// Create the field with a size and a position.
 	//
-	if ((field = new_field(rows, cols, start_row, start_col, 0, 0)) == NULL) {
+	FIELD *field = new_field(rows, cols, start_row, start_col, 0, 0);
+	if (field == NULL) {
 		print_exit_str("forms_create_field() Unable to create filter field!\n");
 	}
 
@@ -209,8 +209,6 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
  *****************************************************************************/
 
 MENU *menus_create_menu(char **labels) {
-	MENU *menu;
-	ITEM **items;
 	int num_items = 0;
 
 	//
@@ -225,7 +223,7 @@ MENU *menus_create_menu(char **labels) {
 	// can be determined with menu_items(menu). This is used for freeing the
 	// array.
 	//
-	items = xmalloc(sizeof(ITEM *) * (num_items + 1));
+	ITEM **items = xmalloc(sizeof(ITEM *) * (num_items + 1));
 
 	//
 	// Set the terminating NULL
@@ -246,7 +244,8 @@ MENU *menus_create_menu(char **labels) {
 	//
 	// After the items are created, we can create and return the menu.
 	//
-	if ((menu = new_menu(items)) == NULL) {
+	MENU *menu = new_menu(items);
+	if (menu == NULL) {
 		print_exit_str("menus_create_menu() Unable to create the menu!\n");
 	}
 
@@ -259,12 +258,12 @@ MENU *menus_create_menu(char **labels) {
  *****************************************************************************/
 
 void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal) {
-	int num_items;
 
 	//
 	// Get the number of item from the menu.
 	//
-	if ((num_items = item_count(menu)) == ERR) {
+	int num_items = item_count(menu);
+	if (num_items == ERR) {
 		print_exit_str("menus_format_menu() to get the number of items!\n");
 	}
 
@@ -320,12 +319,12 @@ FIELD **forms_create_fields(const int num_fields) {
  *****************************************************************************/
 
 FORM *forms_create_form(FIELD **fields) {
-	FORM *form;
 
 	//
 	// Create the form.
 	//
-	if ((form = new_form(fields)) == NULL) {
+	FORM *form = new_form(fields);
+	if (form == NULL) {
 		print_exit_str("forms_create_form() Unable to create filter form!\n");
 	}
 
