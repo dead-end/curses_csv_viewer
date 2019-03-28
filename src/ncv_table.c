@@ -253,6 +253,7 @@ void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	}
 
 	print_debug("s_table_do_filter() cursor row: %d col: %d\n", cursor->row, cursor->col);
+	print_debug("s_table_do_filter() Found rows: %d\n", table->no_rows);
 }
 
 /***************************************************************************
