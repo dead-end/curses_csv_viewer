@@ -157,16 +157,31 @@ static void wins_resize(const s_table *table, s_cursor *cursor) {
  * The function prints all windows
  *****************************************************************************/
 
-static void wins_print(const s_table *table, const s_cursor *cursor, const char *filename, const enum MODE mode) {
+static void wins_print(const s_table *table, const s_cursor *cursor, const char *filename, const enum MODE mode, const bool do_erase) {
 
 	print_debug("wins_print() Print wins with mode: %s\n", mode_str(mode));
 
+	//
+	// If the table content does not include the whole window, the content of
+	// the unused window parts have to be erased. There can contain parts of
+	// the a popup window
+	//
+	if (do_erase && werase(win_table_get_win()) == ERR) {
+		print_exit_str("wins_print() Unable to erase table window!\n");
+	}
+
+	//
+	// Print or show the main components, that are always visible.
+	//
 	win_table_content_print(table, cursor);
 
 	win_footer_content_print(table, cursor, filename);
 
 	win_header_show();
 
+	//
+	// Show the popups if necessary
+	//
 	if (mode == MODE_FILTER) {
 		win_filter_show();
 
@@ -245,38 +260,6 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 		*win = stdscr;
 	}
 
-	//	//
-	//	// Set the visibility of the cursor and the window to use.
-	//	//
-	//	switch (mode_new) {
-	//
-	//	case MODE_TABLE:
-	//		print_debug_str("change_mode() Switch mode to: TABLE\n");
-	//		cursor->visible = true;
-	//		curs_set(0);
-	//		*win = stdscr;
-	//		break;
-	//
-	//	case MODE_FILTER:
-	//		print_debug_str("change_mode() Switch mode to: FILTER\n");
-	//		cursor->visible = false;
-	//		curs_set(1);
-	//
-	//		//
-	//		// The cursor is set to the window, so stdscr is wrong for FILTER mode.
-	//		// The cursor has to be set to a field, not to position (0,0)
-	//		//
-	//		*win = win_filter_get_win();
-	//		break;
-	//
-	//	case MODE_HELP:
-	//		print_debug_str("change_mode() Switch mode to: HELP\n");
-	//		cursor->visible = false;
-	//		curs_set(0);
-	//		*win = stdscr;
-	//		break;
-	//	}
-
 	return true;
 }
 
@@ -325,7 +308,7 @@ void ui_loop(s_table *table, const char *filename) {
 	//
 	// Initial printing of the table
 	//
-	wins_print(table, &cursor, filename, mode);
+	wins_print(table, &cursor, filename, mode, false);
 
 	while (do_continue) {
 
@@ -355,19 +338,10 @@ void ui_loop(s_table *table, const char *filename) {
 				wins_resize(table, &cursor);
 
 				//
-				// If the table content does not include the whole window, the
-				// content of the unused window parts have to be erased. There
-				// can contain parts of the a popup window
-				//
-				if (werase(win_table_get_win()) == ERR) {
-					print_exit_str("ui_loop() Unable to erase table window!\n");
-				}
-
-				//
 				// Prints the content, maybe with popups. The is necessary to
 				// show / hide the cursor
 				//
-				wins_print(table, &cursor, filename, mode);
+				wins_print(table, &cursor, filename, mode, true);
 
 				continue;
 				break;
@@ -423,19 +397,10 @@ void ui_loop(s_table *table, const char *filename) {
 				if (change_mode(&win, &cursor, &mode, MODE_TABLE) || is_filter_reset) {
 
 					//
-					// If the table content does not include the whole window, the
-					// content of the unused window parts have to be erased. There
-					// can contain parts of the a popup window
-					//
-					if (werase(win_table_get_win()) == ERR) {
-						print_exit_str("ui_loop() Unable to erase table window!\n");
-					}
-
-					//
 					// Prints the content, maybe with popups. The is necessary to
 					// show / hide the cursor
 					//
-					wins_print(table, &cursor, filename, mode);
+					wins_print(table, &cursor, filename, mode, true);
 				}
 
 				continue;
@@ -452,19 +417,10 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, mode != MODE_FILTER ? MODE_FILTER : MODE_TABLE);
 
 				//
-				// If the table content does not include the whole window, the
-				// content of the unused window parts have to be erased. There
-				// can contain parts of the a popup window
-				//
-				if (werase(win_table_get_win()) == ERR) {
-					print_exit_str("ui_loop() Unable to erase table window!\n");
-				}
-
-				//
 				// Prints the content, maybe with popups. The is necessary to
 				// show / hide the cursor
 				//
-				wins_print(table, &cursor, filename, mode);
+				wins_print(table, &cursor, filename, mode, true);
 
 				continue;
 				//break;
@@ -481,19 +437,10 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, mode != MODE_HELP ? MODE_HELP : MODE_TABLE);
 
 				//
-				// If the table content does not include the whole window, the
-				// content of the unused window parts have to be erased. There
-				// can contain parts of the a popup window
-				//
-				if (werase(win_table_get_win()) == ERR) {
-					print_exit_str("ui_loop() Unable to erase table window!\n");
-				}
-
-				//
 				// Prints the content, maybe with popups. The is necessary to
 				// show / hide the cursor
 				//
-				wins_print(table, &cursor, filename, mode);
+				wins_print(table, &cursor, filename, mode, true);
 
 				continue;
 
@@ -534,7 +481,12 @@ void ui_loop(s_table *table, const char *filename) {
 			// if the table view changed and a redrawing is necessary.
 			//
 			if (win_table_process_input(table, &cursor, key_type, chr)) {
-				wins_print(table, &cursor, filename, mode);
+
+				//
+				// Print the table content. We are still in TABLE mode, so an
+				// erase of the window is not necessary.
+				//
+				wins_print(table, &cursor, filename, mode, false);
 			}
 
 		} else if (mode == MODE_FILTER) {
@@ -574,19 +526,10 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, MODE_TABLE);
 
 				//
-				// If the table content does not include the whole window, the
-				// content of the unused window parts have to be erased. There
-				// can contain parts of the a popup window
-				//
-				if (werase(win_table_get_win()) == ERR) {
-					print_exit_str("ui_loop() Unable to erase table window!\n");
-				}
-
-				//
 				// Prints the content, maybe with popups. The is necessary to
 				// show / hide the cursor
 				//
-				wins_print(table, &cursor, filename, mode);
+				wins_print(table, &cursor, filename, mode, true);
 			}
 
 		} else if (mode == MODE_HELP) {
@@ -599,19 +542,10 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, MODE_TABLE);
 
 				//
-				// If the table content does not include the whole window, the
-				// content of the unused window parts have to be erased. There
-				// can contain parts of the a popup window
-				//
-				if (werase(win_table_get_win()) == ERR) {
-					print_exit_str("ui_loop() Unable to erase table window!\n");
-				}
-
-				//
 				// Prints the content, maybe with popups. The is necessary to
 				// show / hide the cursor
 				//
-				wins_print(table, &cursor, filename, mode);
+				wins_print(table, &cursor, filename, mode, true);
 			}
 
 		} else {
