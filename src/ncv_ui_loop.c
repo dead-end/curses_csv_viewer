@@ -228,19 +228,13 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 		*win = win_filter_get_win();
 
 		win_filter_prepair_show();
+
 	} else {
 		*win = stdscr;
 	}
 
 	return true;
 }
-
-/******************************************************************************
- * The buffer has to be large enough for the filter string and the string
- * terminator.
- *****************************************************************************/
-
-#define FILTER_BUF_SIZE (FILTER_FIELD_COLS + 1)
 
 /******************************************************************************
  * The function processes user input. It processes input that is independent of
