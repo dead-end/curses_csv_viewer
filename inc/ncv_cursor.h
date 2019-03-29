@@ -27,11 +27,11 @@
 
 #include <stdbool.h>
 
-/***************************************************************************
+/******************************************************************************
  * Structure for the field cursor. The field cursor is simply a field of the
- * table, with a highlighted background. The structure contains the position
- * of the field and a visibility flag.
- **************************************************************************/
+ * table, with a highlighted background. The structure contains the position of
+ * the field and a visibility flag.
+ *****************************************************************************/
 
 typedef struct s_cursor {
 
@@ -46,10 +46,9 @@ typedef struct s_cursor {
 	int col;
 
 	//
-	// A flag for the cursor visibility. The cursor is, for example not
-	// visible if the user inputs the filter string.
+	// A flag for the cursor visibility. The cursor is, for example not visible
+	// if the user inputs the filter string.
 	//
-	// TODO: remove => consistent
 	bool visible;
 
 } s_cursor;

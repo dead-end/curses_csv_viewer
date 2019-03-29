@@ -27,7 +27,7 @@
 
 #include <ncursesw/ncurses.h>
 
-/***************************************************************************
+/******************************************************************************
  * Each field can have between 1 and 4 visible corner chars. Each corner can
  * have 4 shapes. The shapes are:
  *
@@ -35,7 +35,7 @@
  * - The field corner can be top / bottom tee element (example: ┬)
  * - The field corner can be left / right tee element (example: ├)
  * - The field corner can be plus (example: ┼)
- **************************************************************************/
+ *****************************************************************************/
 
 typedef struct s_corner {
 
@@ -48,8 +48,9 @@ typedef struct s_corner {
 	chtype plus;
 
 	//
-	// The parameters hold the indices of the border. It is used to check whether
-	// the current field is a corner field. In this case the shape is 'corner'.
+	// The parameters hold the indices of the border. It is used to check
+	// whether the current field is a corner field. In this case the shape is
+	// 'corner'.
 	//
 	int table_corner_row;
 	int table_corner_col;
@@ -63,17 +64,18 @@ typedef struct s_corner {
 
 } s_corner;
 
-//
-// The 4 corners of a field with their position.
-//
+/******************************************************************************
+ * The 4 corners of a field with their position.
+ *****************************************************************************/
+
 static s_corner UL_CORNER;
 static s_corner UR_CORNER;
 static s_corner LR_CORNER;
 static s_corner LL_CORNER;
 
-/***************************************************************************
+/******************************************************************************
  * The macro initializes a s_corner struct.
- **************************************************************************/
+ *****************************************************************************/
 
 #define s_corner_init(c,CO,TB,LR,PL,ROW,COL,ROW_START,COL_START) \
 		c.corner = CO; \
@@ -85,11 +87,11 @@ static s_corner LL_CORNER;
 		c.field_start_row = ROW_START; \
 		c.field_start_col = COL_START
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes all s_corner structs. It uses the no_rows and
- * no_columns of the table, so it has to be updated when every the table
+ * no_columns of the table, so it has to be updated every time the table
  * changes.
- **************************************************************************/
+ *****************************************************************************/
 
 void s_corner_inits(const int no_rows, const int no_columns) {
 
@@ -99,7 +101,7 @@ void s_corner_inits(const int no_rows, const int no_columns) {
 	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, no_rows - 1, no_columns - 1, false, false);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function prints a corner char of a field.
  *
  * The index struct contains the row and column of the field in the table.
@@ -107,12 +109,12 @@ void s_corner_inits(const int no_rows, const int no_columns) {
  * The win_field struct contains the coordinates of the upper left corner of
  * the field in the window.
  *
- * The win_field_end struct contains the coordinates of the lower right
- * corner of the field in the window.
+ * The win_field_end struct contains the coordinates of the lower right corner
+ * of the field in the window.
  *
- * The corner struct contains the shapes of the corner. It determines which
- * one of the 4 corners are printed (e.g. UL_CORNER)
- **************************************************************************/
+ * The corner struct contains the shapes of the corner. It determines which one
+ * of the 4 corners are printed (e.g. UL_CORNER)
+ *****************************************************************************/
 
 static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const s_corner *corner) {
 	chtype ch;
@@ -137,8 +139,8 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
 	}
 
 	//
-	// If the row / col of the corner is at the field end, we have to add
-	// the field width to get the corner position.
+	// If the row / col of the corner is at the field end, we have to add the
+	// field width to get the corner position.
 	//
 	if (corner->field_start_row) {
 		row = win_field->row;
@@ -158,9 +160,9 @@ static void print_corner(WINDOW *win, const s_field *idx, const s_field *win_fie
 	mvwaddch(win, row, col, ch);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function prints the corners of the field. This can be 1, 2 or 4.
- **************************************************************************/
+ *****************************************************************************/
 
 void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const bool row_untruncated, const bool col_untruncated, const s_corner corners[4]) {
 
@@ -191,10 +193,10 @@ void print_corners(WINDOW *win, const s_field *idx, const s_field *win_field, co
 	}
 }
 
-/***************************************************************************
- * The function checks whether a table part is truncated and the index is
- * the index of the untruncated end.
- **************************************************************************/
+/******************************************************************************
+ * The function checks whether a table part is truncated and the index is the
+ * index of the untruncated end.
+ *****************************************************************************/
 
 static bool is_not_truncated_and_border(const s_table_part *table_part, const int idx) {
 
@@ -206,8 +208,8 @@ static bool is_not_truncated_and_border(const s_table_part *table_part, const in
 	}
 
 	//
-	// If the direction is DIR_FORWARD, the first corner is always visible.
-	// If the table part is untruncated and the last corner is also visible.
+	// If the direction is DIR_FORWARD, the first corner is always visible. If
+	// the table part is untruncated and the last corner is also visible.
 	//
 	if (table_part->direction == DIR_FORWARD) {
 		return table_part->last == idx;
@@ -217,13 +219,12 @@ static bool is_not_truncated_and_border(const s_table_part *table_part, const in
 	}
 }
 
-/***************************************************************************
- * The function is called to print a corner char. One of the four corners
- * is always visible. Which one depends on the table_part directions. It is
- * the first element of the s_corner corners[4] array. Two are visible if
- * the row or the col is not truncated and four are visible if both are not
- * truncated.
- **************************************************************************/
+/******************************************************************************
+ * The function is called to print a corner char. One of the four corners is
+ * always visible. Which one depends on the table_part directions. It is the
+ * first element of the s_corner corners[4] array. Two are visible if the row
+ * or the col is not truncated and four are visible if both are not truncated.
+ *****************************************************************************/
 
 void s_corner_print(WINDOW *win, const s_field *idx, const s_field *win_field, const s_field *win_field_end, const s_table_part *row_table_part, const s_table_part *col_table_part) {
 
