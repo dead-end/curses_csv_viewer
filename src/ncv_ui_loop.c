@@ -50,7 +50,7 @@ enum MODE {
 	MODE_FILTER,
 
 	//
-	// Show the help popup
+	// Show the help popup.
 	//
 	MODE_HELP
 };
@@ -86,9 +86,12 @@ static inline char *mode_str(const enum MODE mode) {
 /******************************************************************************
  * The function refreshes all windows that are visible. If the terminal is too
  * small, some windows disappear.
+ *
+ * Refreshing copies the changes of the internal window structure to the
+ * screen.
  *****************************************************************************/
 
-static void wins_refresh(enum MODE mode) {
+static void wins_refresh(const enum MODE mode) {
 
 	if (getmaxx(stdscr) > 0) {
 
@@ -152,7 +155,8 @@ static void wins_resize(const s_table *table, s_cursor *cursor) {
 }
 
 /******************************************************************************
- * The function prints all windows
+ * The function prints all windows. If configured the table window is erased
+ * first.
  *****************************************************************************/
 
 static void wins_print(const s_table *table, const s_cursor *cursor, const char *filename, const enum MODE mode, const bool do_erase) {
@@ -178,7 +182,8 @@ static void wins_print(const s_table *table, const s_cursor *cursor, const char 
 	win_header_show();
 
 	//
-	// Show the popups if necessary
+	// Show the popups if necessary. They do not change, so they can be simply
+	// touched.
 	//
 	if (mode == MODE_FILTER) {
 		win_filter_show();
@@ -193,6 +198,9 @@ static void wins_print(const s_table *table, const s_cursor *cursor, const char 
 /******************************************************************************
  * The function changes the mode of the application if necessary. In this case
  * the ncurses cursor and the table cursor are enabled / disabled.
+ *
+ * If the mode changed, the function returns true. If the mode is already set,
+ * the function returns false.
  *****************************************************************************/
 
 static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current, const enum MODE mode_new) {
@@ -221,12 +229,16 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 	curs_set((mode_new == MODE_FILTER));
 
 	if (mode_new == MODE_FILTER) {
+
 		//
 		// The cursor is set to the window, so stdscr is wrong for FILTER mode.
 		// The cursor has to be set to a field, not to position (0,0)
 		//
 		*win = win_filter_get_win();
 
+		//
+		// Set the filter from focus to the first field.
+		//
 		win_filter_prepair_show();
 
 	} else {
@@ -359,8 +371,8 @@ void ui_loop(s_table *table, const char *filename) {
 				if (change_mode(&win, &cursor, &mode, MODE_TABLE) || is_filter_reset) {
 
 					//
-					// Prints the content, maybe with popups. The is necessary to
-					// show / hide the cursor
+					// Prints the content, with the table mode. The cursor is
+					// shown.
 					//
 					wins_print(table, &cursor, filename, mode, true);
 				}
@@ -379,8 +391,8 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, mode != MODE_FILTER ? MODE_FILTER : MODE_TABLE);
 
 				//
-				// Prints the content, maybe with popups. The is necessary to
-				// show / hide the cursor
+				// Prints the content, maybe with the FILTER window. The is
+				// necessary to show / hide the cursor
 				//
 				wins_print(table, &cursor, filename, mode, true);
 
@@ -398,8 +410,8 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, mode != MODE_HELP ? MODE_HELP : MODE_TABLE);
 
 				//
-				// Prints the content, maybe with popups. The is necessary to
-				// show / hide the cursor
+				// Prints the content, maybe with the HELP window. The is
+				// necessary to show / hide the cursor
 				//
 				wins_print(table, &cursor, filename, mode, true);
 
@@ -481,8 +493,8 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, MODE_TABLE);
 
 				//
-				// Prints the content, maybe with popups. The is necessary to
-				// show / hide the cursor
+				// Prints the content with table mode and shows the table
+				// cursor. the table content may be filtered.
 				//
 				wins_print(table, &cursor, filename, mode, true);
 			}
@@ -497,8 +509,8 @@ void ui_loop(s_table *table, const char *filename) {
 				change_mode(&win, &cursor, &mode, MODE_TABLE);
 
 				//
-				// Prints the content, maybe with popups. The is necessary to
-				// show / hide the cursor
+				// Prints the content with table mode and shows the table
+				// cursor.
 				//
 				wins_print(table, &cursor, filename, mode, true);
 			}
