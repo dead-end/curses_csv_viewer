@@ -143,12 +143,20 @@ void win_table_resize() {
 
 /***************************************************************************
  * The function is called if the number of rows / columns of the table
- * changes. This happens on filtering and reseting the filter
+ * changes. This happens on filtering and reseting the filter and after the
+ * initializing.
+ *
+ * The function has to be called after filtering and before printing.
  **************************************************************************/
 
-void win_table_on_table_change(const s_table *table) {
+void win_table_on_table_change(const s_table *table, s_cursor *cursor) {
 
 	print_debug_str("win_table_on_table_change() Initialize win table\n");
+
+	//
+	// Set the new position of the cursor.
+	//
+	win_table_set_cursor(table, cursor, DIR_FORWARD);
 
 	//
 	// Initialize the corners

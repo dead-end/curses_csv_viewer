@@ -58,7 +58,7 @@ void win_table_show();
 
 void win_table_free();
 
-void win_table_on_table_change(const s_table *table);
+void win_table_on_table_change(const s_table *table, s_cursor *cursor);
 
 void win_table_content_resize(const s_table *table, s_cursor *cursor);
 
