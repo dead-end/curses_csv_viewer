@@ -193,32 +193,6 @@ static void wins_print(const s_table *table, const s_cursor *cursor, const char 
 }
 
 /******************************************************************************
- * The function touches the relevant windows depending on the mode.
- *****************************************************************************/
-//TODO: is deprecated
-void wins_touch(const enum MODE mode) {
-
-	switch (mode) {
-
-	case MODE_FILTER:
-		win_filter_show();
-		break;
-
-	case MODE_HELP:
-		win_help_show();
-		break;
-
-	case MODE_TABLE:
-		win_header_show();
-		win_table_show();
-		win_footer_show();
-		break;
-	}
-
-	wins_refresh(mode);
-}
-
-/******************************************************************************
  * The function changes the mode of the application if necessary. In this case
  * the ncurses cursor and the table cursor are enabled / disabled.
  *****************************************************************************/
