@@ -83,8 +83,6 @@ static inline char *mode_str(const enum MODE mode) {
 	return NULL;
 }
 
-#define is_popup(m) ((m) == MODE_HELP || (m) == MODE_FILTER)
-
 /******************************************************************************
  * The function refreshes all windows that are visible. If the terminal is too
  * small, some windows disappear.
