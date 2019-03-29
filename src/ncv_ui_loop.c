@@ -374,7 +374,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					// If the table was reset, the cursor position has changed.
 					//
-					s_table_reset_filter(table, &cursor);
+					s_table_update_filter(table, &cursor);
 
 					//
 					// Set the new position of the cursor. The method call has
@@ -423,7 +423,6 @@ void ui_loop(s_table *table, const char *filename) {
 				wins_print(table, &cursor, filename, mode, true);
 
 				continue;
-				//break;
 
 				//
 				// Show help
@@ -506,7 +505,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					// Do the filtering of the table.
 					//
-					s_table_do_filter(table, &cursor);
+					s_table_update_filter(table, &cursor);
 
 					//
 					// Set the new position of the cursor. The method call has

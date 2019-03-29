@@ -144,7 +144,7 @@ void s_table_init_rows(s_table *table) {
  * heights and the field pointers.
  **************************************************************************/
 
-void s_table_reset_filter(s_table *table, s_cursor *cursor) {
+static void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 
 	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
 
@@ -174,7 +174,7 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
  * The function filters the table data.
  **************************************************************************/
 
-void s_table_do_filter(s_table *table, s_cursor *cursor) {
+void s_table_update_filter(s_table *table, s_cursor *cursor) {
 	bool found = false;
 
 	//
