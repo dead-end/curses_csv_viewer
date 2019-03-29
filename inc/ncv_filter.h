@@ -72,6 +72,8 @@ typedef struct s_filter {
 
 #define s_filter_is_active(f) ((f)->is_active)
 
+#define s_filter_has_changed(f) ((f)->has_changed)
+
 #define s_filter_len(f) wcslen((f)->str)
 
 void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive);

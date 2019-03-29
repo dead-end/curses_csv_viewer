@@ -472,7 +472,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				// Check if a new filtering is necessary.
 				//
-				if (table->filter.has_changed) {
+				if (s_filter_has_changed(&table->filter)) {
 
 					print_debug_str("ui_loop() Filter changed, update table!\n");
 
