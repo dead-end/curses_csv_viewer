@@ -268,8 +268,10 @@ void ui_loop(s_table *table, const char *filename) {
 	s_cursor cursor;
 	s_cursor_set(&cursor, 0, 0, true);
 
-	win_table_on_table_change(table);
-	win_table_set_cursor(table, &cursor, DIR_FORWARD);
+	//
+	// Initializing the table.
+	//
+	win_table_on_table_change(table, &cursor);
 
 	//
 	// Initial printing of the table
@@ -343,15 +345,9 @@ void ui_loop(s_table *table, const char *filename) {
 					s_table_update_filter(table, &cursor);
 
 					//
-					// Set the new position of the cursor. The method call has
-					// to be after the filtering and before the printing.
+					// After reseting the filtering the table changed.
 					//
-					win_table_set_cursor(table, &cursor, DIR_FORWARD);
-
-					//
-					// Call due to changed number of rows.
-					//
-					win_table_on_table_change(table);
+					win_table_on_table_change(table, &cursor);
 				}
 
 				//
@@ -474,15 +470,9 @@ void ui_loop(s_table *table, const char *filename) {
 					s_table_update_filter(table, &cursor);
 
 					//
-					// Set the new position of the cursor. The method call has
-					// to be after the filtering and before the printing.
+					// After filtering the table changed.
 					//
-					win_table_set_cursor(table, &cursor, DIR_FORWARD);
-
-					//
-					// Call due to changed number of rows.
-					//
-					win_table_on_table_change(table);
+					win_table_on_table_change(table, &cursor);
 				}
 
 				//
