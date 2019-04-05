@@ -563,7 +563,7 @@ static void win_filter_get_filter(s_filter *to_filter, s_popup *popup, const boo
 
 	from_filter.case_insensitive = !forms_checkbox_is_checked(fields[1]);
 
-	from_filter.is_search = !forms_checkbox_is_checked(fields[2]);
+	from_filter.is_search = forms_checkbox_is_checked(fields[2]);
 
 	//
 	// On CANCEL or ESC the filter is inactive although the filter string is
