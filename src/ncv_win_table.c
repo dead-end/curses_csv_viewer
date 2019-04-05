@@ -555,8 +555,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 			if (cursor->row != 0 || cursor->col != 0) {
 
-				cursor->row = 0;
-				cursor->col = 0;
+				s_cursor_pos(cursor, 0, 0);
 				win_table_set_cursor(table, cursor, DIR_FORWARD);
 				result = true;
 			}
@@ -569,8 +568,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 			if (cursor->row != table->no_rows - 1 || cursor->col != table->no_columns - 1) {
 
-				cursor->row = table->no_rows - 1;
-				cursor->col = table->no_columns - 1;
+				s_cursor_pos(cursor, table->no_rows - 1, table->no_columns - 1);
 				win_table_set_cursor(table, cursor, DIR_BACKWARD);
 				result = true;
 			}

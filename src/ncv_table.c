@@ -166,8 +166,7 @@ static void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	//
 	// Init the cursor to the start position.
 	//
-	cursor->row = 0;
-	cursor->col = 0;
+	s_cursor_pos(cursor, 0, 0);
 }
 
 /***************************************************************************
@@ -210,8 +209,7 @@ void s_table_update_filter(s_table *table, s_cursor *cursor) {
 				// Set the cursor to the first found field.
 				//
 				if (!found) {
-					cursor->row = table->no_rows;
-					cursor->col = column;
+					s_cursor_pos(cursor, table->no_rows, column);
 					found = true;
 				}
 
@@ -241,8 +239,7 @@ void s_table_update_filter(s_table *table, s_cursor *cursor) {
 	// sense if show_header is true.
 	//
 	if (!found) {
-		cursor->row = 0;
-		cursor->col = 0;
+		s_cursor_pos(cursor, 0, 0);
 
 		//
 		// If the whole table does not contain the filter, set it empty.
@@ -357,8 +354,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 			//
 			// Set the cursor to the first found field.
 			//
-			cursor->row = row_cur;
-			cursor->col = col_cur;
+			s_cursor_pos(cursor, row_cur, col_cur);
 
 			print_debug("s_table_prev_next() New cursor row: %d col: %d\n", cursor->row, cursor->col);
 

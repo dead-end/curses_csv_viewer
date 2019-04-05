@@ -55,4 +55,6 @@ typedef struct s_cursor {
 
 #define s_cursor_set(cu,r,c,v) (cu)->row = (r); (cu)->col = (c); (cu)->visible = (v)
 
+#define s_cursor_pos(cu,r,c) (cu)->row = (r); (cu)->col = (c)
+
 #endif
