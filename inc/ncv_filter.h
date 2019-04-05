@@ -30,10 +30,10 @@
 
 #define FILTER_STR_LEN 32
 
-/***************************************************************************
+/******************************************************************************
  * The filter struct contains the filter string and a flag, whether the
  * filtering is case sensitive or not and an active flag.
- **************************************************************************/
+ *****************************************************************************/
 
 typedef struct s_filter {
 
@@ -62,13 +62,18 @@ typedef struct s_filter {
 	//
 	bool has_changed;
 
+	//
+	// The number of matches on filtering and searching.
+	//
+	int count;
+
 } s_filter;
 
-/***************************************************************************
+/******************************************************************************
  * Function and macro definitions
- **************************************************************************/
+ *****************************************************************************/
 
-#define s_filter_init(f) s_filter_set(f, false, L"", true)
+#define s_filter_init(f) s_filter_set(f, false, L"", true, false)
 
 #define s_filter_is_active(f) ((f)->is_active)
 
@@ -76,7 +81,7 @@ typedef struct s_filter {
 
 #define s_filter_len(f) wcslen((f)->str)
 
-void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive);
+void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search);
 
 bool s_filter_set_inactive(s_filter *filter);
 
