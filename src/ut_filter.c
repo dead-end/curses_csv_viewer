@@ -50,10 +50,10 @@ static void test_filter_update() {
 	print_debug_str("test_filter_update() Start\n");
 
 	//
-	// Equal => no update
+	// From and to struct are equal => no update
 	//
-	s_filter_set(&to_filter, true, L"Hello", false);
-	s_filter_set(&from_filter, true, L"Hello", false);
+	s_filter_set(&to_filter, true, L"Hello", false, false);
+	s_filter_set(&from_filter, true, L"Hello", false, false);
 
 	result = s_filter_update(&to_filter, &from_filter);
 	s_filter_cmp(&to_filter, &from_filter);
@@ -63,8 +63,8 @@ static void test_filter_update() {
 	//
 	// String differ => update
 	//
-	s_filter_set(&to_filter, true, L"hello", false);
-	s_filter_set(&from_filter, true, L"Hello", false);
+	s_filter_set(&to_filter, true, L"hello", false, false);
+	s_filter_set(&from_filter, true, L"Hello", false, false);
 
 	result = s_filter_update(&to_filter, &from_filter);
 	s_filter_cmp(&to_filter, &from_filter);
@@ -72,10 +72,10 @@ static void test_filter_update() {
 	ut_check_bool(result, true);
 
 	//
-	// Active differ => update
+	// Active flag differ => update
 	//
-	s_filter_set(&to_filter, true, L"Hello", false);
-	s_filter_set(&from_filter, false, L"Hello", false);
+	s_filter_set(&to_filter, true, L"Hello", false, false);
+	s_filter_set(&from_filter, false, L"Hello", false, false);
 
 	result = s_filter_update(&to_filter, &from_filter);
 	s_filter_cmp(&to_filter, &from_filter);
@@ -83,10 +83,21 @@ static void test_filter_update() {
 	ut_check_bool(result, true);
 
 	//
-	// Active differ => update
+	// case sensitive flag differs => update
 	//
-	s_filter_set(&to_filter, false, L"Hello", true);
-	s_filter_set(&from_filter, false, L"Hello", false);
+	s_filter_set(&to_filter, false, L"Hello", true, false);
+	s_filter_set(&from_filter, false, L"Hello", false, false);
+
+	result = s_filter_update(&to_filter, &from_filter);
+	s_filter_cmp(&to_filter, &from_filter);
+
+	ut_check_bool(result, true);
+
+	//
+	// Search flag differs => update
+	//
+	s_filter_set(&to_filter, false, L"Hello", false, true);
+	s_filter_set(&from_filter, false, L"Hello", false, false);
 
 	result = s_filter_update(&to_filter, &from_filter);
 	s_filter_cmp(&to_filter, &from_filter);
@@ -106,7 +117,7 @@ static void test_search_str() {
 
 	print_debug_str("test_search_str() Start\n");
 
-	s_filter_set(&filter, true, L"Hello", false);
+	s_filter_set(&filter, true, L"Hello", false, false);
 
 	//
 	// Case sensitive and find
