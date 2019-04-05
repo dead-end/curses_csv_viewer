@@ -28,13 +28,13 @@
 #include "ncv_filter.h"
 #include "ncv_cursor.h"
 
-/***************************************************************************
- * The structure contains all the table related data, that is the csv data,
- * the number of rows and columns, the height of the rows and the width of
- * the columns. The members with the "__" contain the original data, while
- * the members with the same name (may) contain filtered data, which is a
- * subset of the original data.
- **************************************************************************/
+/******************************************************************************
+ * The structure contains all the table related data, that is the csv data, the
+ * number of rows and columns, the height of the rows and the width of the
+ * columns. The members with the "__" contain the original data, while the
+ * members with the same name (may) contain filtered data, which is a subset of
+ * the original data.
+ *****************************************************************************/
 
 typedef struct s_table {
 
@@ -56,17 +56,16 @@ typedef struct s_table {
 	int *width;
 
 	//
-	// An array with heights of the rows. Again height has the heights of
-	// the filtered rows.
+	// An array with heights of the rows. Again height has the heights of the
+	// filtered rows.
 	//
 	int *__height;
 
 	int *height;
 
 	//
-	// A two dimensional array with the fields of the csv file. The
-	// parameter __fields has the data, while fields has pointers to the
-	// row data.
+	// A two dimensional array with the fields of the csv file. The parameter
+	// __fields has the data, while fields has pointers to the row data.
 	//
 	wchar_t ***__fields;
 
@@ -85,17 +84,24 @@ typedef struct s_table {
 
 } s_table;
 
-/***************************************************************************
+/******************************************************************************
  * The macro is called with a s_table and a s_field. If checks whether the
- * field is a header field.
- **************************************************************************/
+ *field is a header field.
+ *****************************************************************************/
 
 #define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
 
-/***************************************************************************
+/******************************************************************************
+ * The macro checks if the tables is filtered. In this case, the number of all
+ * rows (__no_rows) is not the number of used rows (no_rows).
+ *****************************************************************************/
+
+#define s_table_is_filtered(t) ((t)->no_rows != (t)->__no_rows)
+
+/******************************************************************************
  * The macro checks whether the table is filtered, by looking at the filter
  * string.
- **************************************************************************/
+ *****************************************************************************/
 
 #define s_table_is_empty(t) ((t)->no_rows == 0)
 
@@ -117,9 +123,9 @@ void s_table_dump(const s_table *table);
 
 bool s_table_has_header(const s_table *table);
 
-/***************************************************************************
+/******************************************************************************
  * Some function definitions that are used only for unit tests.
- **************************************************************************/
+ *****************************************************************************/
 
 int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
 
