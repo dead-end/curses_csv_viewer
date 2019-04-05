@@ -27,21 +27,22 @@
 
 #include <assert.h>
 
-/***************************************************************************
+/******************************************************************************
  * The function sets the values of a s_filter.
- **************************************************************************/
+ *****************************************************************************/
 
-void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive) {
+void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search) {
 
 	wcsncpy(filter->str, str, FILTER_STR_LEN);
 	filter->is_active = is_active;
 	filter->case_insensitive = case_insensitive;
+	filter->is_search = is_search;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function sets the filter status to inactive. It returns true if the
  * status changed.
- **************************************************************************/
+ *****************************************************************************/
 
 bool s_filter_set_inactive(s_filter *filter) {
 
@@ -53,11 +54,11 @@ bool s_filter_set_inactive(s_filter *filter) {
 	return false;
 }
 
-/***************************************************************************
- * The function updates a s_filter struct with the values of an other
- * s_filter struct. It returns false if both s_filter structs have the same
- * values, so no values needed to be changed.
- **************************************************************************/
+/******************************************************************************
+ * The function updates a s_filter struct with the values of an other s_filter
+ * struct. It returns false if both s_filter structs have the same values, so
+ * no values needed to be changed.
+ *****************************************************************************/
 
 bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	bool result = false;
@@ -83,6 +84,16 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	}
 
 	//
+	// is_search flag
+	//
+	if (to_filter->is_search != from_filter->is_search) {
+
+		print_debug("s_filter_update() Search flag changed from: %d to: %d\n", to_filter->is_search, from_filter->is_search);
+		to_filter->is_search = from_filter->is_search;
+		result = true;
+	}
+
+	//
 	// is_active flag
 	//
 	if (to_filter->is_active != from_filter->is_active) {
@@ -95,11 +106,10 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function searches for the next occurrence of the filter string in a
- * given string. If the filter string was not found, the function returns
- * NULL.
- **************************************************************************/
+ * given string. If the filter string was not found, the function returns NULL.
+ *****************************************************************************/
 
 wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 
@@ -110,12 +120,12 @@ wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function print the filter structure.
  *
- * The whole function only makes sense with debug mode. Without debug mode
- * the function parameter is not used, which creates compiler warnings.
- **************************************************************************/
+ * The whole function only makes sense with debug mode. Without debug mode the
+ * function parameter is not used, which creates compiler warnings.
+ *****************************************************************************/
 
 #ifdef DEBUG
 
