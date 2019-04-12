@@ -28,18 +28,18 @@
 #include <math.h>
 #include <wctype.h>
 
-/***************************************************************************
+/******************************************************************************
  * The widths and the heights have to be at least one. Otherwise the cursor
  * field will not be displayed.
- **************************************************************************/
+ *****************************************************************************/
 
 #define MIN_WIDTH_HEIGHT 1
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes the internal structure of the table struct. The
- * main task is to allocate memory for the fields and the arrays for the
- * column widths and the row heights.
- **************************************************************************/
+ * main task is to allocate memory for the fields and the arrays for the column
+ * widths and the row heights.
+ *****************************************************************************/
 
 void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 
@@ -86,10 +86,10 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	s_filter_init(&table->filter);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function frees the allocated memory of the internal structure for the
  * table struct.
- **************************************************************************/
+ *****************************************************************************/
 
 void s_table_free(s_table *table) {
 
@@ -103,8 +103,8 @@ void s_table_free(s_table *table) {
 	free(table->height);
 
 	//
-	// Iterate through the two dimensional array with the fields and the
-	// actual field content.
+	// Iterate through the two dimensional array with the fields and the actual
+	// field content.
 	//
 	for (int row = 0; row < table->__no_rows; row++) {
 		for (int column = 0; column < table->no_columns; column++) {
@@ -122,10 +122,11 @@ void s_table_free(s_table *table) {
 	free(table->fields);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes the rows and the row heights.
- **************************************************************************/
-
+ *****************************************************************************/
+// TODO: Check if filtered and return bool if was reset.
+// TODO: rename to reset
 void s_table_init_rows(s_table *table) {
 
 	//
@@ -139,93 +140,112 @@ void s_table_init_rows(s_table *table) {
 	table->no_rows = table->__no_rows;
 }
 
-/***************************************************************************
- * If the table is filtered, the function resets the number of rows, the
- * heights and the field pointers.
- **************************************************************************/
+/******************************************************************************
+ * The function searches in the table for the search string. The cursor is set
+ * to the first match. The count member of the filter is set to the total
+ * number of matches. If the string was not found, then the cursor is
+ * unchanged.
+ *****************************************************************************/
 
-static void s_table_reset_filter(s_table *table, s_cursor *cursor) {
+static void s_table_do_search(s_table *table, s_cursor *cursor) {
 
-	print_debug_str("s_table_reset_filter() Reset the row pointers, the height values and the number of rows.\n");
+	print_debug("s_table_do_search() Do search the table data with: %ls\n", table->filter.str);
 
 	//
-	// There is nothing to do if the number of rows of the filtered table is
-	// the number of the whole table. From comparing the number of rows you
-	// cannot tell whether the table is filtered or not.
+	// Reset the row pointers and the row heights, if the table is filtered.
 	//
-	if (table->no_rows == table->__no_rows) {
-		print_debug_str("s_table_reset_filter() Table is already reset.\n");
-		return;
+	// TODO: s_table_is_filtered check in s_table_init_rows and return true if reset.
+	if (s_table_is_filtered(table)) {
+		s_table_init_rows(table);
 	}
 
-	//
-	// Reset the row pointers and the row heights.
-	//
-	s_table_init_rows(table);
-
-	//
-	// Init the cursor to the start position.
-	//
-	s_cursor_pos(cursor, 0, 0);
-}
-
-/***************************************************************************
- * The function filters the table data.
- **************************************************************************/
-
-void s_table_update_filter(s_table *table, s_cursor *cursor) {
-	bool found = false;
-
-	//
-	// If the new filter string is empty, do a reset.
-	//
-	if (!s_filter_is_active(&table->filter)) {
-		print_debug_str("s_table_do_filter() Filter is not active, do a reset.\n");
-		s_table_reset_filter(table, cursor);
-		return;
-	}
-
-	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.str);
-
-	//
-	// Init the number of rows of the filtered table.
-	//
-	table->no_rows = 0;
+	table->filter.count = 0;
 
 	for (int row = 0; row < table->__no_rows; row++) {
-
 		for (int column = 0; column < table->no_columns; column++) {
 
 			//
-			// If the field content matches the filter, set the field pointer,
-			// the height and update the number of rows.
+			// Check if the field content matches the search string.
 			//
 			if (s_filter_search_str(&table->filter, table->__fields[row][column]) != NULL) {
-
-				table->fields[table->no_rows] = table->__fields[row];
-				table->height[table->no_rows] = table->__height[row];
 
 				//
 				// Set the cursor to the first found field.
 				//
-				if (!found) {
-					s_cursor_pos(cursor, table->no_rows, column);
-					found = true;
+				if (table->filter.count == 0) {
+					s_cursor_pos(cursor, row, column);
 				}
 
-				table->no_rows++;
+				table->filter.count++;
+			}
+		}
+	}
+
+	// TODO: no match is not considered. => filtering deactivaed and message.
+
+	print_debug("s_table_do_search() Found total: %d cursor row: %d col: %d\n", table->filter.count, cursor->row, cursor->col);
+}
+
+/******************************************************************************
+ * The function filters the table with the filtering string. The cursor is set
+ * to the first match. The count member of the filter is set to the total
+ * number of matches.
+ *****************************************************************************/
+
+static void s_table_do_filter(s_table *table, s_cursor *cursor) {
+
+	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.str);
+
+	//
+	// Init the number of rows of the filtered table and the number of matches.
+	//
+	table->no_rows = 0;
+	table->filter.count = 0;
+
+	for (int row = 0; row < table->__no_rows; row++) {
+
+		bool found_in_row = false;
+
+		for (int column = 0; column < table->no_columns; column++) {
+
+			//
+			// Check if the field content matches the search string.
+			//
+			if (s_filter_search_str(&table->filter, table->__fields[row][column]) != NULL) {
 
 				//
-				// Ignore the rest of the columns of the row.
+				// The first match in the row
 				//
-				break;
+				if (!found_in_row) {
+					found_in_row = true;
+
+					//
+					// Set the cursor to the first found field.
+					//
+					if (table->filter.count == 0) {
+						s_cursor_pos(cursor, table->no_rows, column);
+					}
+
+					//
+					// Add the current row to the result by setting the fields
+					// pointer, the height and update the number of rows. This
+					// is something, that we want only once for a row.
+					//
+					//
+					table->fields[table->no_rows] = table->__fields[row];
+					table->height[table->no_rows] = table->__height[row];
+
+					table->no_rows++;
+				}
+
+				table->filter.count++;
 			}
 		}
 
 		//
-		// If show header is configured, then the header line is always part
-		// of the filtered table. If nothing was found (table->no_rows == 0),
-		// the header line will be removed again as a last step.
+		// If show header is configured, then the header line is always part of
+		// the filtered table. If nothing was found (table->no_rows == 0), the
+		// header line will be removed again as a last step.
 		//
 		if (table->show_header && row == 0 && table->no_rows == 0) {
 			table->fields[0] = table->__fields[0];
@@ -238,28 +258,79 @@ void s_table_update_filter(s_table *table, s_cursor *cursor) {
 	// If no field matches the filter set the cursor to 0/0. This makes only
 	// sense if show_header is true.
 	//
-	if (!found) {
+	// TODO: deactivate filtering if no match was found => reset is necessary and a message
+	// TODO: setting message to s_table_update_filter for searching / filtering
+	if (table->filter.count == 0) {
 		s_cursor_pos(cursor, 0, 0);
 
 		//
-		// If the whole table does not contain the filter, set it empty.
+		// If the whole table does not contain the filter, remove the header.
 		//
+		// TODO: Is this a good idea?
 		if (table->show_header) {
 			table->no_rows = 0;
 		}
 	}
 
-	print_debug("s_table_do_filter() cursor row: %d col: %d\n", cursor->row, cursor->col);
-	print_debug("s_table_do_filter() Found rows: %d\n", table->no_rows);
+	print_debug("s_table_do_filter() Found total: %d rows: %d cursor row: %d col: %d\n", table->filter.count, table->no_rows, cursor->row, cursor->col);
 }
 
-/***************************************************************************
- * The function is called if the table is filtered and searches for the prev
- * / next field that contains the filter string. The cursor is updated with
- * the new position. If the cursor position changed, the function returns
- * true. The cursor position does not change, if there is only one field in
- * the whole table that contains the filter string.
- **************************************************************************/
+/******************************************************************************
+ * The function is called in case the filter struct changed. As a result the
+ * table will be searched, filtered or reset.
+ *****************************************************************************/
+
+void s_table_update_filter(s_table *table, s_cursor *cursor) {
+
+	//
+	// The s_filter struct changed and the new state is "not active". Maybe we
+	// need a reset.
+	//
+	if (!s_filter_is_active(&table->filter)) {
+		print_debug_str("s_table_update_filter() Filter is not active.\n");
+
+		//
+		// The new state is "not active" and the table is not filtered, so
+		// there is nothing to do.
+		//
+		if (!s_table_is_filtered(table)) {
+			print_debug_str("s_table_update_filter() Table is already reset.\n");
+			return;
+		}
+
+		//
+		// Reset the row pointers and the row heights.
+		//
+		s_table_init_rows(table);
+
+		//
+		// Init the cursor to the start position. This is only necessary, after
+		// a reset after a filtering. Searching does not need a reset.
+		//
+		s_cursor_pos(cursor, 0, 0);
+
+	} else {
+
+		//
+		// At this point the filter is active, this means filtering or
+		// searching.
+		//
+		if (table->filter.is_search) {
+			s_table_do_search(table, cursor);
+
+		} else {
+			s_table_do_filter(table, cursor);
+		}
+	}
+}
+
+/******************************************************************************
+ * The function is called if the table is filtered and searches for the prev /
+ * next field that contains the filter string. The cursor is updated with the
+ * new position. If the cursor position changed, the function returns true. The
+ * cursor position does not change, if there is only one field in the whole
+ * table that contains the filter string.
+ *****************************************************************************/
 
 bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction) {
 
@@ -272,10 +343,12 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 	}
 
 	//
-	// If the table is empty there can be no match.
+	// There has to be at least one match.
 	//
-	if (s_table_is_empty(table)) {
-		print_debug_str("s_table_prev_next() Table is empty!\n");
+	// TODO: in future:
+	// if matchtes == 0 => filtering deactivated
+	if (!s_filter_has_matches(&table->filter)) {
+		print_debug_str("s_table_prev_next() Table has no match!\n");
 		return false;
 	}
 
@@ -300,8 +373,8 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 		col_cur += direction;
 
 		//
-		// Ensure that the column is still in its range. If the column
-		// position has to be adjusted, we move to the prev / next row.
+		// Ensure that the column is still in its range. If the column position
+		// has to be adjusted, we move to the prev / next row.
 		//
 		if (col_cur < 0) {
 			col_cur = table->no_columns - 1;
@@ -334,8 +407,8 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 		print_debug("s_table_prev_next() New cursor row: %d column: %d\n", row_cur, col_cur);
 
 		//
-		// If there is only one filter match, we end up at the initial
-		// cursor position and we are finished.
+		// If there is only one filter match, we end up at the initial cursor
+		// position and we are finished.
 		//
 		if (row_cur == cursor->row && col_cur == cursor->col) {
 			print_debug_str("s_table_prev_next() Search reached the initial cursor position.\n");
@@ -366,19 +439,19 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function computes the width and the height of the field. A field is a
  * multi line string. The height for the field is the number of lines. The
  * width is the maximum length of the lines.
  *
  * An empty string has width 0 and height 1.
- **************************************************************************/
+ *****************************************************************************/
 
 void s_table_field_dimension(wchar_t *str, int *width, int *height) {
 
 	//
-	// The start point points to the start of the current line. The end
-	// pointer searches for the line end.
+	// The start point points to the start of the current line. The end pointer
+	// searches for the line end.
 	//
 	wchar_t *ptr_start = str;
 	wchar_t *ptr_end = str;
@@ -413,8 +486,7 @@ void s_table_field_dimension(wchar_t *str, int *width, int *height) {
 			}
 
 			//
-			// Set the start pointer to the beginning of the next
-			// line.
+			// Set the start pointer to the beginning of the next line.
 			//
 			ptr_start = ptr_end + 1;
 		}
@@ -426,13 +498,13 @@ void s_table_field_dimension(wchar_t *str, int *width, int *height) {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function copies the field content parsed from the csv file to the
  * corresponding field in the table struct.
  *
- * Additionally the width and height of the field is computed and if
- * necessary, the arrays with the widths and heights are updated.
- **************************************************************************/
+ * Additionally the width and height of the field is computed and if necessary,
+ * the arrays with the widths and heights are updated.
+ *****************************************************************************/
 
 void s_table_copy(s_table *table, const int row, const int column, wchar_t *str) {
 
@@ -471,10 +543,9 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	}
 }
 
-/***************************************************************************
- * The function dumps the content of the table to stdout, for debug
- * purposes.
- **************************************************************************/
+/******************************************************************************
+ * The function dumps the content of the table to stdout, for debug purposes.
+ *****************************************************************************/
 
 void s_table_dump(const s_table *table) {
 
@@ -502,35 +573,35 @@ void s_table_dump(const s_table *table) {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The parameter defines the number of rows that are inspected to determine
  * whether a column has a header row. If the csv file has 30.000 you do not
  * want to look at all of them.
- **************************************************************************/
+ *****************************************************************************/
 
 #define HA_MAX_ROWS 64
 
-/***************************************************************************
- * The parameter is used to decide whether the first row is an header. For
- * the string length, the criteria is, that the difference to the mean is
- * greater then HA_MAX_VAR times the standard deviation.
- **************************************************************************/
+/******************************************************************************
+ * The parameter is used to decide whether the first row is an header. For the
+ * string length, the criteria is, that the difference to the mean is greater
+ * then HA_MAX_VAR times the standard deviation.
+ *****************************************************************************/
 
 #define HA_MAX_STD_DEV 3.0
 
-/***************************************************************************
+/******************************************************************************
  * The parameter defines how many times a criteria for a column has to be
  * fulfilled to indicate a header.
- **************************************************************************/
+ *****************************************************************************/
 
 #define HA_MAX_SUCCESSFUL 3
 
-/***************************************************************************
+/******************************************************************************
  * The function computes the ratio of digits in a string with the string
- * length. If the function is called with an empty string the result would
- * be a division 0/0. In this case 0 is returned, which can be interpreted
- * as the string contains no digits (which is true :o)
- **************************************************************************/
+ * length. If the function is called with an empty string the result would be a
+ * division 0/0. In this case 0 is returned, which can be interpreted as the
+ * string contains no digits (which is true :o)
+ *****************************************************************************/
 
 double get_ratio(const wchar_t *str) {
 	const size_t len = wcslen(str);
@@ -553,22 +624,22 @@ double get_ratio(const wchar_t *str) {
 	return count / len;
 }
 
-/***************************************************************************
- * The function is a wrapper around the wcslen function. It allows to be
- * used with the function pointer:
+/******************************************************************************
+ * The function is a wrapper around the wcslen function. It allows to be used
+ * with the function pointer:
  *
  * double (*fct_ptr)(const wchar_t *str)
- **************************************************************************/
+ *****************************************************************************/
 
 double get_str_len(const wchar_t *str) {
 	return wcslen(str);
 }
 
-/***************************************************************************
- * The function computes the mean value of a characteristic for a column.
- * The function pointer computes a double value that represents the
- * characteristic for a field.
- **************************************************************************/
+/******************************************************************************
+ * The function computes the mean value of a characteristic for a column. The
+ * function pointer computes a double value that represents the characteristic
+ * for a field.
+ *****************************************************************************/
 
 double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str)) {
 	double mean = 0;
@@ -581,11 +652,11 @@ double get_table_mean(const s_table *table, const int max_rows, const int column
 	return mean;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function computes the standard deviation of a characteristic for a
  * column. The function pointer computes a double value that represents the
  * characteristic for a field.
- **************************************************************************/
+ *****************************************************************************/
 
 double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str), const double mean) {
 	double std_dev = 0;
@@ -600,10 +671,10 @@ double get_table_std_dev(const s_table *table, const int max_rows, const int col
 	return std_dev;
 }
 
-/***************************************************************************
- * The function compares a characteristic of the first row of a column with
- * the rest of the rows of that column.
- **************************************************************************/
+/******************************************************************************
+ * The function compares a characteristic of the first row of a column with the
+ * rest of the rows of that column.
+ *****************************************************************************/
 
 int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str)) {
 
@@ -635,10 +706,10 @@ int check_column_characteristic(const s_table *table, const int max_rows, const 
 	return 0;
 }
 
-/***************************************************************************
- * The function checks the first HA_MAX_ROWS rows to decide whether the
- * table has a header or not.
- **************************************************************************/
+/******************************************************************************
+ * The function checks the first HA_MAX_ROWS rows to decide whether the table
+ * has a header or not.
+ *****************************************************************************/
 
 bool s_table_has_header(const s_table *table) {
 
