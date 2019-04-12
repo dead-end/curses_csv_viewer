@@ -46,6 +46,12 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	table->__no_rows = no_rows;
 	table->no_columns = no_columns;
 
+	//
+	// The macro s_table_is_filtered checks if the table is filtered with the
+	// members: __no_rows and no_rows, so both have to be properly initialized.
+	//
+	table->no_rows = -1;
+
 	print_debug("s_table_init() Allocate memory for rows: %d columns: %d\n", no_rows, no_columns);
 
 	//
@@ -123,11 +129,21 @@ void s_table_free(s_table *table) {
 }
 
 /******************************************************************************
- * The function initializes the rows and the row heights.
+ * The function initializes /resets the rows and the row heights of the table.
+ * Up front it is checked if the table is actually filtered. If not, there is
+ * nothing to do.
+ * The function returns true if the table was initialized / reset.
  *****************************************************************************/
-// TODO: Check if filtered and return bool if was reset.
-// TODO: rename to reset
-void s_table_init_rows(s_table *table) {
+
+bool s_table_reset_rows(s_table *table) {
+
+	//
+	// Ensure that the table is actually filtered.
+	//
+	if (!s_table_is_filtered(table)) {
+		print_debug("s_table_reset_rows() Table is not filtered with total rows: %d\n", table->__no_rows);
+		return false;
+	}
 
 	//
 	// Reset the row pointers and the row heights.
@@ -138,6 +154,8 @@ void s_table_init_rows(s_table *table) {
 	}
 
 	table->no_rows = table->__no_rows;
+
+	return true;
 }
 
 /******************************************************************************
@@ -154,10 +172,7 @@ static void s_table_do_search(s_table *table, s_cursor *cursor) {
 	//
 	// Reset the row pointers and the row heights, if the table is filtered.
 	//
-	// TODO: s_table_is_filtered check in s_table_init_rows and return true if reset.
-	if (s_table_is_filtered(table)) {
-		s_table_init_rows(table);
-	}
+	s_table_reset_rows(table);
 
 	table->filter.count = 0;
 
@@ -290,24 +305,21 @@ void s_table_update_filter(s_table *table, s_cursor *cursor) {
 		print_debug_str("s_table_update_filter() Filter is not active.\n");
 
 		//
-		// The new state is "not active" and the table is not filtered, so
-		// there is nothing to do.
+		// The new state is "not active" so we try a reset. If the table was
+		// reset we need to set the cursor.
 		//
-		if (!s_table_is_filtered(table)) {
+		if (s_table_reset_rows(table)) {
+
+			//
+			// Init the cursor to the start position. This is only necessary,
+			// after a reset after a filtering. Searching does not need a
+			// reset.
+			//
+			s_cursor_pos(cursor, 0, 0);
+
+		} else {
 			print_debug_str("s_table_update_filter() Table is already reset.\n");
-			return;
 		}
-
-		//
-		// Reset the row pointers and the row heights.
-		//
-		s_table_init_rows(table);
-
-		//
-		// Init the cursor to the start position. This is only necessary, after
-		// a reset after a filtering. Searching does not need a reset.
-		//
-		s_cursor_pos(cursor, 0, 0);
 
 	} else {
 

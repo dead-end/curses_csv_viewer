@@ -109,7 +109,7 @@ void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
 
-void s_table_init_rows(s_table *table);
+bool s_table_reset_rows(s_table *table);
 
 void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *str);
 
