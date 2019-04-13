@@ -354,7 +354,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					// If the table was reset, the cursor position has changed.
 					//
-					s_table_update_filter(table, &cursor);
+					s_table_reset_filter(table, &cursor);
 
 					//
 					// After reseting the filtering the table changed.

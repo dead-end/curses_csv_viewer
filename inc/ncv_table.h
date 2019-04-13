@@ -115,6 +115,8 @@ void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *st
 
 void s_table_field_dimension(wchar_t *str, int *width, int *height);
 
+void s_table_reset_filter(s_table *table, s_cursor *cursor);
+
 void s_table_update_filter(s_table *table, s_cursor *cursor);
 
 bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction);

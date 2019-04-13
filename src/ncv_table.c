@@ -291,11 +291,45 @@ static void s_table_do_filter(s_table *table, s_cursor *cursor) {
 }
 
 /******************************************************************************
+ * The function does a reset of the filtering.
+ *****************************************************************************/
+
+void s_table_reset_filter(s_table *table, s_cursor *cursor) {
+
+	//
+	// Ensure that the filtering is not active when we reset the table.
+	//
+	if (s_filter_is_active(&table->filter)) {
+		print_exit_str("s_table_reset_filter() Filter is active so reset is wrong!\n");
+	}
+
+	//
+	// Ensure that a reset is necessary. A filtering that includes all rows or
+	// a searching does not require an action.
+	//
+	if (s_table_reset_rows(table)) {
+
+		//
+		// Init the cursor to the start position. This is only necessary,
+		// after a reset after a filtering. Searching does not need a
+		// reset.
+		//
+		s_cursor_pos(cursor, 0, 0);
+
+	} else {
+		print_debug_str("s_table_reset_filter() Table is already reset.\n");
+	}
+
+}
+
+/******************************************************************************
  * The function is called in case the filter struct changed. As a result the
  * table will be searched, filtered or reset.
  *****************************************************************************/
 
 void s_table_update_filter(s_table *table, s_cursor *cursor) {
+
+	// TODO: use reset of the filtering
 
 	//
 	// The s_filter struct changed and the new state is "not active". Maybe we
