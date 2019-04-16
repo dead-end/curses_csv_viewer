@@ -479,7 +479,7 @@ void ui_loop(s_table *table, const char *filename) {
 					//
 					// Do the filtering of the table.
 					//
-					s_table_update_filter(table, &cursor);
+					win_footer_set_msg(s_table_update_filter(table, &cursor));
 
 					//
 					// After filtering the table changed.
