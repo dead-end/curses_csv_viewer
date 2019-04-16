@@ -77,6 +77,11 @@
 
 #define CP_HEADER_CURSOR_HL 9
 
+//
+// Errors / messages
+//
+#define CP_MSG 10
+
 #define WIN_HAS_MIN_SIZE(r,c) (getmaxy(stdscr) >= (r) && getmaxx(stdscr) >= (c))
 
 /***************************************************************************
