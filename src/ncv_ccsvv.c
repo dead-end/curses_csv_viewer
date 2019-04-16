@@ -259,6 +259,8 @@ int main(const int argc, char * const argv[]) {
 	//
 	process_csv_file(filename, delimiter, &table);
 
+	//TODO: check if file is empty
+
 	//
 	// Set the show_header parameter of table
 	//
