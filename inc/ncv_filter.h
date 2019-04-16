@@ -77,6 +77,8 @@ typedef struct s_filter {
 
 #define s_filter_is_active(f) ((f)->is_active)
 
+#define s_filter_is_filtering(f) (!(f)->is_search)
+
 #define s_filter_has_matches(f) ((f)->count > 0)
 
 #define s_filter_has_changed(f) ((f)->has_changed)
