@@ -161,8 +161,9 @@ bool s_table_reset_rows(s_table *table) {
 /******************************************************************************
  * The function searches in the table for the search string. The cursor is set
  * to the first match. The count member of the filter is set to the total
- * number of matches. If the string was not found, then the cursor is
- * unchanged.
+ * number of matches.
+ * If the string was not found, then the cursor is unchanged and the filter
+ * count is 0.
  *****************************************************************************/
 
 static void s_table_do_search(s_table *table, s_cursor *cursor) {
@@ -196,8 +197,6 @@ static void s_table_do_search(s_table *table, s_cursor *cursor) {
 		}
 	}
 
-	// TODO: no match is not considered. => filtering deactivaed and message.
-
 	print_debug("s_table_do_search() Found total: %d cursor row: %d col: %d\n", table->filter.count, cursor->row, cursor->col);
 }
 
@@ -205,9 +204,12 @@ static void s_table_do_search(s_table *table, s_cursor *cursor) {
  * The function filters the table with the filtering string. The cursor is set
  * to the first match. The count member of the filter is set to the total
  * number of matches.
+ * If the string was not found, then the cursor is unchanged and the filter
+ * count is 0.
  *****************************************************************************/
 
 static void s_table_do_filter(s_table *table, s_cursor *cursor) {
+	bool found_in_row;
 
 	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.str);
 
@@ -219,7 +221,7 @@ static void s_table_do_filter(s_table *table, s_cursor *cursor) {
 
 	for (int row = 0; row < table->__no_rows; row++) {
 
-		bool found_in_row = false;
+		found_in_row = false;
 
 		for (int column = 0; column < table->no_columns; column++) {
 
@@ -259,31 +261,12 @@ static void s_table_do_filter(s_table *table, s_cursor *cursor) {
 
 		//
 		// If show header is configured, then the header line is always part of
-		// the filtered table. If nothing was found (table->no_rows == 0), the
-		// header line will be removed again as a last step.
+		// the filtered table.
 		//
-		if (table->show_header && row == 0 && table->no_rows == 0) {
+		if (table->show_header && row == 0 && table->filter.count == 0) {
 			table->fields[0] = table->__fields[0];
 			table->height[0] = table->__height[0];
 			table->no_rows = 1;
-		}
-	}
-
-	//
-	// If no field matches the filter set the cursor to 0/0. This makes only
-	// sense if show_header is true.
-	//
-	// TODO: deactivate filtering if no match was found => reset is necessary and a message
-	// TODO: setting message to s_table_update_filter for searching / filtering
-	if (table->filter.count == 0) {
-		s_cursor_pos(cursor, 0, 0);
-
-		//
-		// If the whole table does not contain the filter, remove the header.
-		//
-		// TODO: Is this a good idea?
-		if (table->show_header) {
-			table->no_rows = 0;
 		}
 	}
 
@@ -300,7 +283,7 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	// Ensure that the filtering is not active when we reset the table.
 	//
 	if (s_filter_is_active(&table->filter)) {
-		print_exit_str("s_table_reset_filter() Filter is active so reset is wrong!\n");
+		print_exit_str("s_table_reset_filter() Cannot reset filter that is active!\n");
 	}
 
 	//
@@ -310,9 +293,8 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 	if (s_table_reset_rows(table)) {
 
 		//
-		// Init the cursor to the start position. This is only necessary,
-		// after a reset after a filtering. Searching does not need a
-		// reset.
+		// Init the cursor to the start position. This is only necessary, after
+		// a reset after a filtering. Searching does not need a reset.
 		//
 		s_cursor_pos(cursor, 0, 0);
 
@@ -323,43 +305,20 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
 }
 
 /******************************************************************************
- * The function is called in case the filter struct changed. As a result the
- * table will be searched, filtered or reset.
+ * The function is called in case the filter struct changed. This means the
+ * searching / filtering can be deactivated or the table can be searched or
+ * filtered. If no matches are found, the filtering will be deactivated after
+ * the filtering or searching, which causes a reset.
  *****************************************************************************/
 
-void s_table_update_filter(s_table *table, s_cursor *cursor) {
+char *s_table_update_filter(s_table *table, s_cursor *cursor) {
 
-	// TODO: use reset of the filtering
+	char *result = NULL;
 
-	//
-	// The s_filter struct changed and the new state is "not active". Maybe we
-	// need a reset.
-	//
-	if (!s_filter_is_active(&table->filter)) {
-		print_debug_str("s_table_update_filter() Filter is not active.\n");
+	if (s_filter_is_active(&table->filter)) {
 
 		//
-		// The new state is "not active" so we try a reset. If the table was
-		// reset we need to set the cursor.
-		//
-		if (s_table_reset_rows(table)) {
-
-			//
-			// Init the cursor to the start position. This is only necessary,
-			// after a reset after a filtering. Searching does not need a
-			// reset.
-			//
-			s_cursor_pos(cursor, 0, 0);
-
-		} else {
-			print_debug_str("s_table_update_filter() Table is already reset.\n");
-		}
-
-	} else {
-
-		//
-		// At this point the filter is active, this means filtering or
-		// searching.
+		// Do the filtering or searching
 		//
 		if (table->filter.is_search) {
 			s_table_do_search(table, cursor);
@@ -367,7 +326,25 @@ void s_table_update_filter(s_table *table, s_cursor *cursor) {
 		} else {
 			s_table_do_filter(table, cursor);
 		}
+
+		//
+		// If no match was found, deactivate the filtering and set an error
+		// message.
+		//
+		if (!s_filter_has_matches(&table->filter)) {
+			s_filter_set_inactive(&table->filter);
+			result = "No matches found!";
+		}
 	}
+
+	//
+	// If the filtering is not active we do a reset.
+	//
+	if (!s_filter_is_active(&table->filter)) {
+		s_table_reset_filter(table, cursor);
+	}
+
+	return result;
 }
 
 /******************************************************************************
@@ -389,13 +366,11 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 	}
 
 	//
-	// There has to be at least one match.
+	// There has to be at least one match. This has to be the case with
+	// filtering being active.
 	//
-	// TODO: in future:
-	// if matchtes == 0 => filtering deactivated
 	if (!s_filter_has_matches(&table->filter)) {
-		print_debug_str("s_table_prev_next() Table has no match!\n");
-		return false;
+		print_exit_str("s_table_prev_next() Table has no match!\n");
 	}
 
 	print_debug("s_table_prev_next() cursor row: %d col: %d\n", cursor->row, cursor->col);
