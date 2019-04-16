@@ -29,6 +29,8 @@
 
 void win_footer_init();
 
+void win_footer_set_msg(char *message);
+
 void win_footer_resize();
 
 void win_footer_refresh_no();
