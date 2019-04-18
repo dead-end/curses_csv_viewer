@@ -280,6 +280,13 @@ static void test_table_mean_std_dev() {
 	result = get_table_std_dev(&table, table.no_rows, 4, get_ratio, 0.5);
 	ut_check_double(result, 0.0, "std dev ratio: 4");
 
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
 	print_debug_str("test_table_mean_std_dev() End\n");
 }
 
