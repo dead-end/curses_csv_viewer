@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_table_part.h"
 #include "ncv_parser.h"
 #include "ut_utils.h"
 
@@ -291,6 +292,221 @@ static void test_table_mean_std_dev() {
 }
 
 /******************************************************************************
+ * The function tests the searching and filtering of the table as well as the
+ * moving of the cursor to the next / prev match.
+ *
+ * The prev / next tests search forward / backward until they reach the initial
+ * position.
+ *****************************************************************************/
+
+#define IS_NULL true
+
+#define IS_NOT_NULL !IS_NULL
+
+static void test_table_search_filter() {
+	s_table table;
+	s_cursor cursor;
+	char *result;
+
+	print_debug_str("test_table_search_filter() Start\n");
+
+	const wchar_t *data =
+
+	L"Number" DL "Header-2" DL "Header-3" NL
+	"1" DL "abcd" DL "ABCD" NL
+	"2" DL "efgh" DL "XfgX" NL
+	"3" DL "ixxl" DL "ijXX" NL
+	"4" DL "mnop" DL "XXOP" NL;
+
+	FILE *tmp = ut_create_tmp_file(data);
+
+	parser_process_file(tmp, W_DELIM, &table);
+
+	//
+	// SEARCHING, INSENSITIVE WITH 2 MATCHES
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
+	result = s_table_update_filter(&table, &cursor);
+
+	ut_check_char_null(result, IS_NULL);
+	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
+	ut_check_int(table.filter.count, 2, "search insensitive - 1");
+	ut_check_int(table.no_rows, 5, "search insensitive - 2");
+
+	//
+	// check: cursor
+	//
+	ut_check_int(cursor.row, 1, "search insensitive - 3");
+	ut_check_int(cursor.col, 1, "search insensitive - 4");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "search insensitive - 5");
+	ut_check_int(cursor.col, 2, "search insensitive - 6");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "search insensitive - 7");
+	ut_check_int(cursor.col, 1, "search insensitive - 8");
+
+	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+
+	ut_check_int(cursor.row, 1, "search insensitive - 9");
+	ut_check_int(cursor.col, 2, "search insensitive - 10");
+
+	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+
+	ut_check_int(cursor.row, 1, "search insensitive - 11");
+	ut_check_int(cursor.col, 1, "search insensitive - 12");
+
+	//
+	// SEARCHING, SENSITIVE WITH 1 MATCHES
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_SENSITIVE, SF_IS_SEARCHING);
+	result = s_table_update_filter(&table, &cursor);
+
+	ut_check_char_null(result, IS_NULL);
+	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
+	ut_check_int(table.filter.count, 1, "search sensitive - 1");
+	ut_check_int(table.no_rows, 5, "search sensitive - 2");
+
+	//
+	// check: cursor
+	//
+	ut_check_int(cursor.row, 1, "search sensitive - 3");
+	ut_check_int(cursor.col, 1, "search sensitive - 4");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "search sensitive - 5");
+	ut_check_int(cursor.col, 1, "search sensitive - 6");
+
+	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+
+	ut_check_int(cursor.row, 1, "search sensitive - 7");
+	ut_check_int(cursor.col, 1, "search sensitive - 8");
+
+	//
+	// SEARCHING WITH NO MATCHES
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"hallo", SF_IS_SENSITIVE, SF_IS_SEARCHING);
+	result = s_table_update_filter(&table, &cursor);
+
+	ut_check_char_null(result, IS_NOT_NULL);
+	ut_check_bool(table.filter.is_active, SF_IS_INACTIVE);
+	ut_check_int(table.filter.count, 0, "search  no matches - 1");
+	ut_check_int(table.no_rows, 5, "search  no matches - 2");
+
+	//
+	// last position
+	//
+	ut_check_int(cursor.row, 1, "search no matches - 3");
+	ut_check_int(cursor.col, 1, "search  no matches - 4");
+
+	//
+	// FILTERING, INSENSITIVE WITH 3 MATCHES
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_FILTERING);
+	result = s_table_update_filter(&table, &cursor);
+
+	ut_check_char_null(result, IS_NULL);
+	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
+	ut_check_int(table.filter.count, 3, "filter insensitive - 1");
+	ut_check_int(table.no_rows, 3, "filter insensitive - 2");
+
+	//
+	// check: cursor
+	//
+	ut_check_int(cursor.row, 1, "filter insensitive - 3");
+	ut_check_int(cursor.col, 1, "filter insensitive - 4");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "filter insensitive - 5");
+	ut_check_int(cursor.col, 2, "filter insensitive - 6");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 2, "filter insensitive - 7");
+	ut_check_int(cursor.col, 2, "filter insensitive - 8");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "filter insensitive - 9");
+	ut_check_int(cursor.col, 1, "filter insensitive - 1");
+
+	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+
+	ut_check_int(cursor.row, 2, "filter insensitive - 10");
+	ut_check_int(cursor.col, 2, "filter insensitive - 11");
+
+	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+
+	ut_check_int(cursor.row, 1, "filter insensitive - 12");
+	ut_check_int(cursor.col, 2, "filter insensitive - 13");
+
+	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+
+	ut_check_int(cursor.row, 1, "filter insensitive - 14");
+	ut_check_int(cursor.col, 1, "filter insensitive - 15");
+
+	//
+	// FILTERING, SENSITIVE WITH 1 MATCH
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	result = s_table_update_filter(&table, &cursor);
+
+	ut_check_char_null(result, IS_NULL);
+	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
+	ut_check_int(table.filter.count, 1, "filter sensitive - 1");
+	ut_check_int(table.no_rows, 2, "filter sensitive - 2");
+
+	//
+	// check: cursor
+	//
+	ut_check_int(cursor.row, 1, "filter sensitive - 3");
+	ut_check_int(cursor.col, 1, "filter sensitive - 4");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "filter sensitive - 5");
+	ut_check_int(cursor.col, 1, "filter sensitive - 6");
+
+	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+
+	ut_check_int(cursor.row, 1, "filter sensitive - 7");
+	ut_check_int(cursor.col, 1, "filter sensitive - 8");
+
+	//
+	// FILTERING WITH NO MATCHES
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"eF", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	result = s_table_update_filter(&table, &cursor);
+
+	ut_check_char_null(result, IS_NOT_NULL);
+	ut_check_bool(table.filter.is_active, SF_IS_INACTIVE);
+	ut_check_int(table.filter.count, 0, "filter no matches - 1");
+	ut_check_int(table.no_rows, 5, "filter no matches - 2");
+
+	//
+	// init position after reset
+	//
+	ut_check_int(cursor.row, 0, "filter no matches - 3");
+	ut_check_int(cursor.col, 0, "filter no matches - 4");
+
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
+	print_debug_str("test_table_search_filter() End\n");
+}
+
+// TODO: table_reset tests
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -307,6 +523,8 @@ int main() {
 	test_table_has_header();
 
 	test_table_mean_std_dev();
+
+	test_table_search_filter();
 
 	print_debug_str("ut_table.c - End tests\n");
 
