@@ -99,6 +99,25 @@ void ut_check_wchar_null(const wchar_t *str) {
 }
 
 /******************************************************************************
+ * The function is used for unit tests. It ensures that a given char string is
+ * null or not, depending on the parameter is_null.
+ *****************************************************************************/
+
+void ut_check_char_null(const char *str, const bool is_null) {
+
+	if (is_null && str != NULL) {
+		print_exit("ut_check_char_null() Pointer is not null: '%s'\n", str);
+	}
+
+	if (!is_null && str == NULL) {
+		print_exit_str("ut_check_char_null() Pointer is null!\n");
+	}
+
+	print_debug("ut_check_char_null() OK - String is %s null!\n", is_null ? "" : "not");
+}
+
+
+/******************************************************************************
  * The function is used for unit tests. It compares two bool values.
  *****************************************************************************/
 
