@@ -7,6 +7,26 @@
 set -ue
 
 ###############################################################################
+# Choose build mode "release" or "debug"
+###############################################################################
+
+BUILD_TYPE=Release
+
+if [ "${#}" -eq "1" ] ; then
+
+  if [ "${1}" = "debug" ] ; then
+    BUILD_TYPE=Debug
+    
+  elif [ "${1}" != "release" ] ; then
+    echo "ERROR: Unknown mode: $1 allowwd: 'release' or 'debug'"
+    exit 1
+  fi
+  
+fi
+
+echo "Using build type: $BUILD_TYPE"
+
+###############################################################################
 # Create a clean build directory.
 ###############################################################################
 
@@ -26,8 +46,7 @@ cd "${build_dir}"
 # Do the cmake build, test and packaging
 ###############################################################################
 
-cmake -DCMAKE_BUILD_TYPE=Release ..
-#cmake -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 
 make
 
