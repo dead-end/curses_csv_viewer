@@ -85,15 +85,11 @@ typedef struct s_filter {
 
 #define SF_IS_SENSITIVE !SF_IS_INSENSITIVE
 
-#define SF_HAS_CHANGED true
-
-#define SF_HAS_NOT_CHANGED !SF_HAS_CHANGED
-
 /******************************************************************************
  * Function and macro definitions
  *****************************************************************************/
 
-#define s_filter_init(f) s_filter_set(f, SF_IS_INACTIVE, L"", SF_IS_INSENSITIVE, SF_IS_FILTERING, SF_HAS_NOT_CHANGED)
+#define s_filter_init(f) s_filter_set(f, SF_IS_INACTIVE, L"", SF_IS_INSENSITIVE, SF_IS_FILTERING)
 
 #define s_filter_is_active(f) ((f)->is_active)
 
@@ -105,7 +101,7 @@ typedef struct s_filter {
 
 #define s_filter_len(f) wcslen((f)->str)
 
-void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search, const bool has_changed);
+void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search);
 
 bool s_filter_set_inactive(s_filter *filter);
 
