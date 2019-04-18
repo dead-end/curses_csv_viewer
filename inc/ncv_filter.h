@@ -85,10 +85,6 @@ typedef struct s_filter {
 
 #define SF_IS_SENSITIVE !SF_IS_INSENSITIVE
 
-#define SF_IS_NULL true
-
-#define SF_IS_NOT_NULL !SF_IS_NULL
-
 #define SF_HAS_CHANGED true
 
 #define SF_HAS_NOT_CHANGED !SF_HAS_CHANGED
