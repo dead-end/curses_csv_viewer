@@ -31,12 +31,13 @@
  * The function sets the values of a s_filter.
  *****************************************************************************/
 
-void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search) {
+void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search, const bool has_changed) {
 
 	wcsncpy(filter->str, str, FILTER_STR_LEN);
 	filter->is_active = is_active;
 	filter->case_insensitive = case_insensitive;
 	filter->is_search = is_search;
+	filter->has_changed = has_changed;
 }
 
 /******************************************************************************
