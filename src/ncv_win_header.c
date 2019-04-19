@@ -30,9 +30,13 @@
  * Definition of the label (and its size)
  *****************************************************************************/
 
-#define HEADER_LABEL " ccsvv 0.2"
+#define HEADER_LABEL L" ccsvv 0.2"
 
-#define HEADER_LABEL_LEN 10
+#define FILTER_LABEL  L"Filter"
+
+#define SEARCH_LABEL  L"Search"
+
+#define HEADER_BUF_SIZE 256
 
 /******************************************************************************
  * The window has a natural minimum window size.
@@ -41,13 +45,6 @@
 #define WIN_HEADER_SIZE_COLS 1
 
 #define WIN_HEADER_SIZE_ROWS 1
-
-/******************************************************************************
- * The definition of the minimum cols to be able to print the label (which is
- * of cause the label length).
- *****************************************************************************/
-
-#define WIN_HEADER_MIN_LABEL_COLS HEADER_LABEL_LEN
 
 /******************************************************************************
  * The definition of the header window size which is the complete first row.
@@ -64,23 +61,7 @@
 static WINDOW* win_header = NULL;
 
 /******************************************************************************
- * The function prints the application label if the header window is large
- * enough.
- *****************************************************************************/
-
-static void win_header_print_label() {
-
-	//
-	// If the header window has enough space for the label, it is printed.
-	//
-	if (WIN_HAS_MIN_SIZE(WIN_HEADER_SIZE_ROWS, WIN_HEADER_MIN_LABEL_COLS)) {
-		mvwaddstr(win_header, 0, 0, HEADER_LABEL);
-	}
-}
-
-/******************************************************************************
- * The function is called to initialize the header window. If the window size
- * is OK, the label is printed.
+ * The function is called to initialize the header window.
  *****************************************************************************/
 
 void win_header_init() {
@@ -94,35 +75,56 @@ void win_header_init() {
 	// Set the header window background.
 	//
 	ncurses_attr_back(win_header, COLOR_PAIR(CP_STATUS), A_REVERSE);
-
-	//
-	// Print the label.
-	//
-	win_header_print_label();
 }
 
 /******************************************************************************
- * The function is called on resizing the terminal window.
- *
- * An explicit resizing of the window is not necessary. This is only necessary
- * if the new window size is not trivial.
- *
- * ncurses_win_resize(win_header, WIN_HEADER_ROWS, WIN_HEADER_COLS);
+ * The function does nothing. On resizing only the content has to be printed.
  *****************************************************************************/
 
 void win_header_resize() {
+}
+
+/******************************************************************************
+ * The function prints the header line. If filtering or searching is active,
+ * the filter or search string is printed. Anyway the program label is added.
+ *****************************************************************************/
+
+void win_header_content_print(const s_filter *filter) {
 
 	//
-	// Ensure the minimum size of the window.
+	// Erase window to ensure that no garbage is left behind.
 	//
-	if (WIN_HAS_MIN_SIZE(WIN_HEADER_SIZE_ROWS, WIN_HEADER_SIZE_COLS)) {
-		print_debug_str("win_header_resize() Do resize the window!\n");
-
-		//
-		// Print the label
-		//
-		win_header_print_label();
+	if (werase(win_header) == ERR) {
+		print_exit_str("win_header_content_print() Unable to erase the footer window!\n");
 	}
+
+	const int max_width = getmaxx(win_header);
+
+	int written = 0;
+
+	if (filter->is_active) {
+
+		const wchar_t *label = filter->is_search ? SEARCH_LABEL : FILTER_LABEL;
+
+		wchar_t buf[HEADER_BUF_SIZE];
+
+		swprintf(buf, HEADER_BUF_SIZE, L" %ls: %ls ", label, filter->str);
+
+		written = nc_cond_addstr(win_header, buf, max_width, AT_RIGHT);
+
+		//
+		// If the window is too small, nothing will be written, so we can stop
+		// here.
+		//
+		if (written <= 0) {
+			return;
+		}
+	}
+
+	//
+	// Write the program label
+	//
+	nc_cond_addstr(win_header, HEADER_LABEL, max_width - written, AT_LEFT);
 }
 
 /******************************************************************************
@@ -133,17 +135,6 @@ void win_header_refresh_no() {
 
 	print_debug_str("win_header_refresh_no() Refresh footer window.\n");
 	ncurses_win_refresh_no(win_header, WIN_HEADER_SIZE_ROWS, WIN_HEADER_SIZE_COLS);
-}
-
-/******************************************************************************
- * The function touches the window, so that a refresh has an effect.
- *****************************************************************************/
-
-void win_header_show() {
-
-	if (touchwin(win_header) == ERR) {
-		print_exit_str("win_header_show() Unable to touch header window!\n");
-	}
 }
 
 /******************************************************************************

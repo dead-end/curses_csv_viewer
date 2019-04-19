@@ -25,13 +25,15 @@
 #ifndef INC_NCV_WIN_HEADER_H_
 #define INC_NCV_WIN_HEADER_H_
 
+#include "ncv_filter.h"
+
 void win_header_init();
 
 void win_header_resize();
 
 void win_header_refresh_no();
 
-void win_header_show();
+void win_header_content_print(const s_filter *filter);
 
 void win_header_free();
 
