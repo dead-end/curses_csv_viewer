@@ -152,10 +152,14 @@ typedef struct s_buffer {
 #define max_or_equal(a,b) ((a) >= (b) ? (a) : (b))
 
 /******************************************************************************
- * The macro returns the start index of a centered part.
+ * A function definition for alignments.
  *****************************************************************************/
 
-#define center(t,p) (((t) - (p)) / 2)
+enum e_align {
+	AT_LEFT, AT_RIGHT, AT_CENTER
+};
+
+int get_align_start(const int max, const int len, const enum e_align align);
 
 /******************************************************************************
  * Compute the power of two.

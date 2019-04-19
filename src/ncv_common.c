@@ -274,3 +274,35 @@ void str_array_sizes(const char *msgs[], int *rows, int *cols) {
 		}
 	}
 }
+
+/******************************************************************************
+ * The function computes the start of an aligned string. If the string does not
+ * fit in its container, the function returns -1;
+ *****************************************************************************/
+
+int get_align_start(const int max, const int len, const enum e_align align) {
+
+	if (len > max) {
+		return -1;
+	}
+
+	int start;
+
+	switch (align) {
+
+	case AT_LEFT:
+		start = 0;
+		break;
+
+	case AT_RIGHT:
+		start = max - len;
+		break;
+
+	case AT_CENTER:
+		start = (max - len) / 2;
+		break;
+	}
+
+	return start;
+}
+
