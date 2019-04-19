@@ -179,7 +179,7 @@ static void wins_print(const s_table *table, const s_cursor *cursor, const char 
 
 	win_footer_content_print(table, cursor, filename);
 
-	win_header_show();
+	win_header_content_print(&table->filter);
 
 	//
 	// Show the popups if necessary. They do not change, so they can be simply
