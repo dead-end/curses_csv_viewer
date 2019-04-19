@@ -496,3 +496,41 @@ void ncurses_free() {
 		delscreen(screen);
 	}
 }
+
+/***************************************************************************
+ * The function prints a string to the first row of a window. The alignment
+ * can be given, as well as window attributes. This can be used for
+ * highlighting.
+ **************************************************************************/
+
+int nc_cond_addstr_attr(WINDOW* win, const wchar_t *str, const int max, const enum e_align align, const chtype attr_normal, const chtype attr_highlight) {
+
+	const size_t len = wcslen(str);
+
+	const int start = get_align_start(max, len, align);
+
+	//
+	// If the window is too small, there is nothing to do.
+	//
+	if (start < 0) {
+		return 0;
+	}
+
+	//
+	// Switch the attribute if necessary.
+	//
+	if (attr_normal != attr_highlight) {
+		wattrset(win, attr_highlight);
+	}
+
+	mvwaddwstr(win, 0, start, str);
+
+	//
+	// Switch back the attribute if necessary.
+	//
+	if (attr_normal != attr_highlight) {
+		wattrset(win, attr_normal);
+	}
+
+	return len;
+}
