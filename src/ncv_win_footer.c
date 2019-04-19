@@ -146,6 +146,10 @@ static int print_right_str(const char *buf, const int max_width, const bool is_m
 
 	const int len = (int) strlen(buf);
 
+	if (max_width - len <= 0) {
+		return 0;
+	}
+
 	if (is_msg) {
 		wattrset(win_footer, attr_highlight);
 	}
