@@ -119,7 +119,7 @@ void win_help_init() {
 
 	ncurses_attr_back(win_help, COLOR_PAIR(CP_STATUS), A_REVERSE);
 
-	win_menu = ncurses_derwin_create(win_help, rows, cols, win_help_size_rows - BORDER - 1, center(win_help_size_cols, cols));
+	win_menu = ncurses_derwin_create(win_help, rows, cols, win_help_size_rows - BORDER - 1, get_align_start(win_help_size_cols, cols, AT_CENTER));
 
 	menus_set_wins(menu, win_help, win_menu);
 
@@ -166,7 +166,7 @@ void win_help_resize() {
 			//
 			// Move the menu window to its position, this requires an repost
 			//
-			ncurses_derwin_move(win_menu, win_help_size_rows - BORDER - 1, center(win_help_size_cols, cols));
+			ncurses_derwin_move(win_menu, win_help_size_rows - BORDER - 1, get_align_start(win_help_size_cols, cols, AT_CENTER));
 
 			menus_unpost_post(menu, true);
 
