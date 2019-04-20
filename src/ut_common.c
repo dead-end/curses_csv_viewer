@@ -38,19 +38,19 @@ static void test_wcs_casestr() {
 	// No match
 	//
 	ptr = wcs_casestr(L"AbCdEfGh", L"123");
-	ut_check_wchar_null(ptr);
+	ut_check_wchar_null(ptr, UT_IS_NULL);
 
 	//
 	// Partly match
 	//
 	ptr = wcs_casestr(L"AbCdEfGh", L"aBcDeX");
-	ut_check_wchar_null(ptr);
+	ut_check_wchar_null(ptr, UT_IS_NULL);
 
 	//
 	// Find string is longer
 	//
 	ptr = wcs_casestr(L"AbCdEfGh", L"aBcDeFgHX");
-	ut_check_wchar_null(ptr);
+	ut_check_wchar_null(ptr, UT_IS_NULL);
 
 	//
 	// Match start

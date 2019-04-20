@@ -134,7 +134,7 @@ static void test_search_str() {
 	// Case sensitive and don't find
 	//
 	result = s_filter_search_str(&filter, L"aaa hEllo bbb");
-	ut_check_wchar_null(result);
+	ut_check_wchar_null(result, UT_IS_NULL);
 
 	filter.case_insensitive = true;
 
@@ -148,7 +148,7 @@ static void test_search_str() {
 	// Case insensitive and don't find
 	//
 	result = s_filter_search_str(&filter, L"aaa Hell# bbb");
-	ut_check_wchar_null(result);
+	ut_check_wchar_null(result, UT_IS_NULL);
 
 	print_debug_str("test_search_str() End\n");
 }

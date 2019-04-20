@@ -109,17 +109,17 @@ static void test_get_field_complete_line() {
 	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
 	ut_check_wchar_str(buffer, L"з   ");
 	ut_check_bool(end, false);
-	ut_check_wchar_null(ptr);
+	ut_check_wchar_null(ptr, UT_IS_NULL);
 
 	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
 	ut_check_wchar_str(buffer, L"    ");
 	ut_check_bool(end, true);
-	ut_check_wchar_null(ptr);
+	ut_check_wchar_null(ptr, UT_IS_NULL);
 
 	ptr = get_field_complete_line(ptr, buffer, COL_WIDTH, &end);
 	ut_check_wchar_str(buffer, L"    ");
 	ut_check_bool(end, true);
-	ut_check_wchar_null(ptr);
+	ut_check_wchar_null(ptr, UT_IS_NULL);
 
 	print_debug_str("test_get_field_complete_line() End\n");
 }
