@@ -450,7 +450,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int directi
 			//
 			s_cursor_pos(cursor, row_cur, col_cur);
 
-			print_debug("s_table_prev_next() New cursor row: %d col: %d\n", cursor->row, cursor->col);
+			print_debug("s_table_prev_next() Found cursor row: %d col: %d\n", cursor->row, cursor->col);
 
 			//
 			// Return true to indicate that the cursor position changed.
