@@ -311,9 +311,9 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor) {
  * the filtering or searching, which causes a reset.
  *****************************************************************************/
 
-char *s_table_update_filter(s_table *table, s_cursor *cursor) {
+wchar_t *s_table_update_filter(s_table *table, s_cursor *cursor) {
 
-	char *result = NULL;
+	wchar_t *result = NULL;
 
 	if (s_filter_is_active(&table->filter)) {
 
@@ -333,7 +333,7 @@ char *s_table_update_filter(s_table *table, s_cursor *cursor) {
 		//
 		if (!s_filter_has_matches(&table->filter)) {
 			s_filter_set_inactive(&table->filter);
-			result = "No matches found!";
+			result = L"No matches found!";
 		}
 	}
 
