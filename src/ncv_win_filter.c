@@ -738,7 +738,7 @@ WINDOW *win_filter_get_win() {
 /******************************************************************************
  * The function touches the window, so that a refresh has an effect.
  *****************************************************************************/
-
+// TODO: maybe win_filter_print_content() => consistent with header / footer /table
 void win_filter_show() {
 
 	if (touchwin(popup.win) == ERR) {
