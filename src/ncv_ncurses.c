@@ -509,6 +509,8 @@ int nc_cond_addstr_attr(WINDOW* win, const wchar_t *str, const int max, const en
 
 	const int start = get_align_start(max, len, align);
 
+	print_debug("nc_cond_addstr_attr() String: '%ls' len: %zd max: %d\n", str, len, max);
+
 	//
 	// If the window is too small, there is nothing to do.
 	//
