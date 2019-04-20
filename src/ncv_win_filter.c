@@ -736,13 +736,14 @@ WINDOW *win_filter_get_win() {
 }
 
 /******************************************************************************
- * The function touches the window, so that a refresh has an effect.
+ * The content of the window is constant, so printing the content is simply a
+ * touch of the window.
  *****************************************************************************/
-// TODO: maybe win_filter_print_content() => consistent with header / footer /table
-void win_filter_show() {
+
+void win_filter_content_print() {
 
 	if (touchwin(popup.win) == ERR) {
-		print_exit_str("win_filter_show() Unable to touch filter window!\n");
+		print_exit_str("win_filter_content_print() Unable to touch filter window!\n");
 	}
 }
 

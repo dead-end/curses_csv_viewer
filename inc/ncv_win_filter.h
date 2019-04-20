@@ -37,7 +37,7 @@ void win_filter_resize();
 
 void win_filter_refresh_no();
 
-void win_filter_show();
+void win_filter_content_print();
 
 void win_filter_free();
 
