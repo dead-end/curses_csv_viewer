@@ -299,14 +299,10 @@ static void test_table_mean_std_dev() {
  * position.
  *****************************************************************************/
 
-#define IS_NULL true
-
-#define IS_NOT_NULL !IS_NULL
-
 static void test_table_search_filter() {
 	s_table table;
 	s_cursor cursor;
-	char *result;
+	wchar_t *result;
 
 	print_debug_str("test_table_search_filter() Start\n");
 
@@ -328,7 +324,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_char_null(result, IS_NULL);
+	ut_check_wchar_null(result, UT_IS_NULL);
 	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
 	ut_check_int(table.filter.count, 2, "search insensitive - 1");
 	ut_check_int(table.no_rows, 5, "search insensitive - 2");
@@ -365,7 +361,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_char_null(result, IS_NULL);
+	ut_check_wchar_null(result, UT_IS_NULL);
 	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
 	ut_check_int(table.filter.count, 1, "search sensitive - 1");
 	ut_check_int(table.no_rows, 5, "search sensitive - 2");
@@ -392,7 +388,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"hallo", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_char_null(result, IS_NOT_NULL);
+	ut_check_wchar_null(result, UT_IS_NOT_NULL);
 	ut_check_bool(table.filter.is_active, SF_IS_INACTIVE);
 	ut_check_int(table.filter.count, 0, "search  no matches - 1");
 	ut_check_int(table.no_rows, 5, "search  no matches - 2");
@@ -409,7 +405,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_char_null(result, IS_NULL);
+	ut_check_wchar_null(result, UT_IS_NULL);
 	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
 	ut_check_int(table.filter.count, 3, "filter insensitive - 1");
 	ut_check_int(table.no_rows, 3, "filter insensitive - 2");
@@ -456,7 +452,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_char_null(result, IS_NULL);
+	ut_check_wchar_null(result, UT_IS_NULL);
 	ut_check_bool(table.filter.is_active, SF_IS_ACTIVE);
 	ut_check_int(table.filter.count, 1, "filter sensitive - 1");
 	ut_check_int(table.no_rows, 2, "filter sensitive - 2");
@@ -483,7 +479,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"eF", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_char_null(result, IS_NOT_NULL);
+	ut_check_wchar_null(result, UT_IS_NOT_NULL);
 	ut_check_bool(table.filter.is_active, SF_IS_INACTIVE);
 	ut_check_int(table.filter.count, 0, "filter no matches - 1");
 	ut_check_int(table.no_rows, 5, "filter no matches - 2");
