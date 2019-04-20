@@ -48,6 +48,7 @@ bool s_filter_set_inactive(s_filter *filter) {
 
 	if (filter->is_active) {
 		filter->is_active = false;
+		filter->count = 0;
 		return true;
 	}
 
