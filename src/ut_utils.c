@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ut_utils.h"
 #include "ncv_common.h"
 
 #include <stdbool.h>
@@ -85,37 +86,25 @@ void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2) {
 }
 
 /******************************************************************************
- * The function is used for unit tests. It ensures that a given wchar string is
- * null.
+ * The function is used for unit tests. It ensures that a given char string is
+ * null or not, depending on the parameter ut_null. The enum ut_null is simply
+ * a boolean, but using is makes the code easier to read.
+ *
+ * ut_check_wchar_null(str, UT_IS_NULL);
  *****************************************************************************/
 
-void ut_check_wchar_null(const wchar_t *str) {
+void ut_check_wchar_null(const wchar_t *str, const enum ut_null_check ut_null) {
 
-	if (str != NULL) {
+	if (ut_null == UT_IS_NULL && str != NULL) {
 		print_exit("ut_check_wchar_null() Pointer is not null: '%ls'\n", str);
 	}
 
-	print_debug_str("ut_check_wchar_null() OK - String is null!\n");
-}
-
-/******************************************************************************
- * The function is used for unit tests. It ensures that a given char string is
- * null or not, depending on the parameter is_null.
- *****************************************************************************/
-
-void ut_check_char_null(const char *str, const bool is_null) {
-
-	if (is_null && str != NULL) {
-		print_exit("ut_check_char_null() Pointer is not null: '%s'\n", str);
+	if (ut_null == UT_IS_NOT_NULL && str == NULL) {
+		print_exit_str("ut_check_wchar_null() Pointer is null!\n");
 	}
 
-	if (!is_null && str == NULL) {
-		print_exit_str("ut_check_char_null() Pointer is null!\n");
-	}
-
-	print_debug("ut_check_char_null() OK - String is %s null!\n", is_null ? "" : "not");
+	print_debug("ut_check_wchar_null() OK - String is %s null!\n", ut_null == UT_IS_NULL ? "" : "not");
 }
-
 
 /******************************************************************************
  * The function is used for unit tests. It compares two bool values.

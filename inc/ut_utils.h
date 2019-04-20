@@ -37,14 +37,22 @@ void ut_check_size(const size_t current, const size_t expected, const char *msg)
 
 void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2);
 
-void ut_check_wchar_null(const wchar_t *str);
-
-void ut_check_char_null(const char *str, const bool is_null);
-
 void ut_check_bool(const bool b1, const bool b2);
 
 void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t len, const char *msg);
 
 FILE *ut_create_tmp_file(const wchar_t *data);
+
+//
+// The enum is simply a boolean value. When we are using the enum, the code is
+// much clearer than using 'true' or false'.
+//
+// ut_check_wchar_null(str, UT_IS_NULL);
+//
+enum ut_null_check {
+	UT_IS_NULL, UT_IS_NOT_NULL
+};
+
+void ut_check_wchar_null(const wchar_t *str, const enum ut_null_check ut_null);
 
 #endif
