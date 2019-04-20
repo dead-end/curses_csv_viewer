@@ -29,7 +29,7 @@
 
 void win_footer_init();
 
-void win_footer_set_msg(char *message);
+void win_footer_set_msg(wchar_t *message);
 
 void win_footer_resize();
 
