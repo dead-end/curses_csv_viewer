@@ -32,7 +32,7 @@
  * Size of the string buffer.
  *****************************************************************************/
 
-#define FOOTER_WIN_MAX 1024
+#define FOOTER_BUF_SIZE 1024
 
 /******************************************************************************
  * The footer is only visible if the terminal has at least 3 rows. One row for
@@ -43,7 +43,15 @@
 
 #define WIN_FOOTER_HAS_MIN_ROWS 3
 
-#define FILE_FMT " File: %s"
+/******************************************************************************
+ * Definition the labels, used in the window.
+ *****************************************************************************/
+
+#define LABEL_FILE L"File"
+
+#define LABEL_ROW L"Row"
+
+#define LABEL_COL L"Col"
 
 /******************************************************************************
  * Definition of the footer window.
@@ -51,7 +59,7 @@
 
 static WINDOW* win_footer = NULL;
 
-static char *msg = NULL;
+static wchar_t *msg = NULL;
 
 static chtype attr_normal;
 
@@ -61,8 +69,8 @@ static chtype attr_highlight;
  * The function sets the actual message, if one is necessary.
  *****************************************************************************/
 
-void win_footer_set_msg(char *message) {
-	print_debug("win_footer_set_msg() Message: %s\n", message);
+void win_footer_set_msg(wchar_t *message) {
+	print_debug("win_footer_set_msg() Message: %ls\n", message);
 	msg = message;
 }
 
@@ -117,71 +125,24 @@ void win_footer_resize() {
  * present.
  *****************************************************************************/
 
-static void cursor_to_buf(char *buf, const int max, const s_table *table, const s_cursor *cursor) {
+static void cursor_to_buf(wchar_t *buf, const int max, const s_table *table, const s_cursor *cursor) {
 
 	if (s_filter_is_active(&table->filter) && s_filter_is_filtering(&table->filter)) {
 
 		if (cursor->visible) {
-			snprintf(buf, max, " Row: %d/%d[%d] Col: %d/%d ", cursor->row + 1, table->no_rows, table->__no_rows, cursor->col + 1, table->no_columns);
+			swprintf(buf, max, L" %ls: %d/%d[%d] %ls: %d/%d ", LABEL_ROW, cursor->row + 1, table->no_rows, table->__no_rows, LABEL_COL, cursor->col + 1, table->no_columns);
 
 		} else {
-			snprintf(buf, max, " Row: %d[%d] Col: %d ", table->no_rows, table->__no_rows, table->no_columns);
+			swprintf(buf, max, L" %ls: %d[%d] %ls: %d ", LABEL_ROW, table->no_rows, table->__no_rows, LABEL_COL, table->no_columns);
 		}
 	} else {
 		if (cursor->visible) {
-			snprintf(buf, max, " Row: %d/%d Col: %d/%d ", cursor->row + 1, table->no_rows, cursor->col + 1, table->no_columns);
+			swprintf(buf, max, L" %ls: %d/%d %ls: %d/%d ", LABEL_ROW, cursor->row + 1, table->no_rows, LABEL_COL, cursor->col + 1, table->no_columns);
 
 		} else {
-			snprintf(buf, max, " Row: %d Col: %d ", table->no_rows, table->no_columns);
+			swprintf(buf, max, L" %ls: %d %ls: %d ", LABEL_ROW, table->no_rows, LABEL_COL, table->no_columns);
 		}
 	}
-}
-
-/******************************************************************************
- * The function prints the right message of the footer. This is the current row
- * / column index or an error message. The function returns the written length.
- *****************************************************************************/
-
-static int print_right_str(const char *buf, const int max_width, const bool is_msg) {
-
-	const int len = (int) strlen(buf);
-
-	if (max_width - len <= 0) {
-		return 0;
-	}
-
-	if (is_msg) {
-		wattrset(win_footer, attr_highlight);
-	}
-
-	mvwaddstr(win_footer, 0, max_width - len, buf);
-
-	if (is_msg) {
-		wattrset(win_footer, attr_normal);
-	}
-
-	return len;
-}
-
-/******************************************************************************
- * The function prints a formated string to the beginning of the footer window
- * if the formated string does not exceed the max parameter.
- *****************************************************************************/
-
-static bool print_if_fits(const char *format, const char *str, const int max) {
-	char buf[max];
-
-	//
-	// If the return value is max or more, the string was truncated, so it does
-	// not fit.
-	//
-	const bool fits = snprintf(buf, max, format, str) < max;
-
-	if (fits) {
-		mvwaddstr(win_footer, 0, 0, buf);
-	}
-
-	return fits;
 }
 
 /******************************************************************************
@@ -191,8 +152,7 @@ static bool print_if_fits(const char *format, const char *str, const int max) {
  *****************************************************************************/
 
 void win_footer_content_print(const s_table *table, const s_cursor *cursor, const char *filename) {
-	char buf[FOOTER_WIN_MAX];
-	bool is_msg = false;
+	wchar_t buf[FOOTER_BUF_SIZE];
 
 	//
 	// Erase window to ensure that no garbage is left behind.
@@ -201,19 +161,35 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 		print_exit_str("win_footer_content_print() Unable to erase the footer window!\n");
 	}
 
-	const int max_width = getmaxx(win_footer);
+	//
+	// The window width is our limit for the informations to print.
+	//
+	const int win_width = getmaxx(win_footer);
+
+	int written;
 
 	if (msg != NULL) {
 
-		snprintf(buf, FOOTER_WIN_MAX, " %s ", msg);
-		is_msg = true;
+		swprintf(buf, FOOTER_BUF_SIZE, L" %ls ", msg);
+		written = nc_cond_addstr_attr(win_footer, buf, win_width, AT_RIGHT, attr_normal, attr_highlight);
+
+		//
+		// The message should be displayed only once.
+		//
 		msg = NULL;
 
 	} else {
-		cursor_to_buf(buf, FOOTER_WIN_MAX, table, cursor);
+		cursor_to_buf(buf, FOOTER_BUF_SIZE, table, cursor);
+		written = nc_cond_addstr(win_footer, buf, win_width, AT_RIGHT);
 	}
 
-	const int remaining = max_width - print_right_str(buf, max_width, is_msg);
+	//
+	// If there is not enough space for the row / column informations, we can
+	// stop here.
+	//
+	if (written <= 0) {
+		return;
+	}
 
 	//
 	// If we read the csv file from stdin, no filename is defined.
@@ -225,7 +201,8 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 	//
 	// Try to print the full filename
 	//
-	if (print_if_fits(FILE_FMT, filename, remaining)) {
+	swprintf(buf, FOOTER_BUF_SIZE, L" %ls: %s", LABEL_FILE, filename);
+	if (nc_cond_addstr(win_footer, buf, win_width - written, AT_LEFT) > 0) {
 		return;
 	}
 
@@ -241,7 +218,8 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 	//
 	// Try to print the short filename
 	//
-	print_if_fits(FILE_FMT, short_name, remaining);
+	swprintf(buf, FOOTER_BUF_SIZE, L" %ls: %s", LABEL_FILE, short_name);
+	nc_cond_addstr(win_footer, buf, win_width - written, AT_LEFT);
 }
 
 /******************************************************************************
@@ -252,17 +230,6 @@ void win_footer_refresh_no() {
 
 	print_debug_str("win_footer_refresh_no() Refresh footer window.\n");
 	ncurses_win_refresh_no(win_footer, WIN_FOOTER_HAS_MIN_ROWS, WIN_FOOTER_HAS_MIN_COLS);
-}
-
-/******************************************************************************
- * The function touches the window, so that a refresh has an effect.
- *****************************************************************************/
-
-void win_footer_show() {
-
-	if (touchwin(win_footer) == ERR) {
-		print_exit_str("win_footer_show() Unable to touch footer window!\n");
-	}
 }
 
 /******************************************************************************

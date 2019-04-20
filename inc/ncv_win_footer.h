@@ -35,8 +35,6 @@ void win_footer_resize();
 
 void win_footer_refresh_no();
 
-void win_footer_show();
-
 void win_footer_free();
 
 void win_footer_content_print(const s_table *table, const s_cursor *cursor, const char *filename);
