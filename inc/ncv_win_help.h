@@ -33,7 +33,7 @@ void win_help_refresh_no();
 
 bool win_help_process_input(const int key_type, const wint_t chr);
 
-void win_help_show();
+void win_help_content_print();
 
 void win_help_free();
 

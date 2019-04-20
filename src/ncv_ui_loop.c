@@ -186,10 +186,10 @@ static void wins_print(const s_table *table, const s_cursor *cursor, const char 
 	// touched.
 	//
 	if (mode == MODE_FILTER) {
-		win_filter_show();
+		win_filter_content_print();
 
 	} else if (mode == MODE_HELP) {
-		win_help_show();
+		win_help_content_print();
 	}
 
 	wins_refresh(mode);

@@ -63,13 +63,13 @@ static MENU *menu;
  * enough.
  **************************************************************************/
 
-static void win_help_print_content() {
+static void print_content() {
 
 	//
 	// Add a box
 	//
 	if (box(win_help, 0, 0) != OK) {
-		print_exit_str("win_help_print_content() Unable to setup win!\n");
+		print_exit_str("print_content() Unable to setup win!\n");
 	}
 
 	//
@@ -130,7 +130,7 @@ void win_help_init() {
 	//
 	// Print the label.
 	//
-	win_help_print_content();
+	print_content();
 
 	if (pos_menu_cursor(menu) != E_OK) {
 		print_exit_str("popup_pos_cursor() Unable to set the menu cursor!\n");
@@ -173,7 +173,7 @@ void win_help_resize() {
 			//
 			// now print the content
 			//
-			win_help_print_content();
+			print_content();
 		}
 
 		//
@@ -198,10 +198,10 @@ void win_help_refresh_no() {
  * The function touches the window, so that a refresh has an effect.
  **************************************************************************/
 
-void win_help_show() {
+void win_help_content_print() {
 
 	if (touchwin(win_help) == ERR) {
-		print_exit_str("win_help_show() Unable to touch help window!\n");
+		print_exit_str("win_help_content_print() Unable to touch help window!\n");
 	}
 }
 
