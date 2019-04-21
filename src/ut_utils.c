@@ -86,6 +86,19 @@ void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2) {
 }
 
 /******************************************************************************
+ * The function is used for unit tests. It compares two char strings.
+ *****************************************************************************/
+
+void ut_check_char_str(const char *str1, const char *str2) {
+
+	if (strcmp(str1, str2) != 0) {
+		print_exit("ut_check_char_str() Strings differ: '%s' and: '%s'\n", str1, str2);
+	}
+
+	print_debug("ut_check_char_str() OK - Strings are equal: '%s'\n", str1);
+}
+
+/******************************************************************************
  * The function is used for unit tests. It ensures that a given char string is
  * null or not, depending on the parameter ut_null. The enum ut_null is simply
  * a boolean, but using is makes the code easier to read.

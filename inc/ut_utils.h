@@ -37,6 +37,8 @@ void ut_check_size(const size_t current, const size_t expected, const char *msg)
 
 void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2);
 
+void ut_check_char_str(const char *str1, const char *str2);
+
 void ut_check_bool(const bool b1, const bool b2);
 
 void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t len, const char *msg);

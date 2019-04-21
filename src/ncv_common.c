@@ -131,7 +131,7 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 
 /******************************************************************************
  * The function removes leading and tailing spaces. The process changes the
- * argument string.
+ * argument string. So do not call the function with a literal string.
  *****************************************************************************/
 
 char *trim(char *str) {
@@ -148,6 +148,31 @@ char *trim(char *str) {
 	//
 	size_t len = strlen(ptr);
 	for (int i = len - 1; i >= 0 && isspace(ptr[i]); i--) {
+		ptr[i] = '\0';
+	}
+
+	return ptr;
+}
+
+/******************************************************************************
+ * The function removes leading and tailing spaces. The process changes the
+ * argument string. So do not call the function with a literal string.
+ *****************************************************************************/
+
+wchar_t *wcstrim(wchar_t *str) {
+	wchar_t *ptr;
+
+	//
+	// skip leading white spaces
+	//
+	for (ptr = str; iswspace(*ptr); ptr++)
+		;
+
+	//
+	// skip tailing white spaces by overwriting them with '\0'
+	//
+	size_t len = wcslen(ptr);
+	for (int i = len - 1; i >= 0 && iswspace(ptr[i]); i--) {
 		ptr[i] = '\0';
 	}
 

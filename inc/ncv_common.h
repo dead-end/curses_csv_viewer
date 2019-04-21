@@ -179,6 +179,8 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size);
 
 char *trim(char *str);
 
+wchar_t *wcstrim(wchar_t *str);
+
 wchar_t read_wchar(FILE *file);
 
 wchar_t *wcs_casestr(const wchar_t *s, const wchar_t *find);

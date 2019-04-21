@@ -25,6 +25,8 @@
 #include "ut_utils.h"
 #include "ncv_common.h"
 
+#include <wchar.h>
+
 /******************************************************************************
  * The function tests the wcs_casestr function.
  *****************************************************************************/
@@ -91,6 +93,38 @@ static void test_str_array_sizes() {
 }
 
 /******************************************************************************
+ * The function tests the trimming functions. Remember that the functions trim
+ * and wcstrim change to parameter, so you cannot use a literal string as an
+ * argument.
+ *****************************************************************************/
+
+#define SMALL_BUF_SIZE 256
+
+static void test_trims() {
+	print_debug_str("test_trims() Start\n");
+
+	//
+	// Test trim
+	//
+	char chr_buf[SMALL_BUF_SIZE];
+	snprintf(chr_buf, SMALL_BUF_SIZE, " \t my test \t \n \t");
+	char *chr_out = trim(chr_buf);
+
+	ut_check_char_str(chr_out, "my test");
+
+	//
+	// Test wcstrim
+	//
+	wchar_t wcs_buf[SMALL_BUF_SIZE];
+	swprintf(wcs_buf, SMALL_BUF_SIZE, L" \t my test \t \n \t");
+	wchar_t *wcs_out = wcstrim(wcs_buf);
+
+	ut_check_wchar_str(wcs_out, L"my test");
+
+	print_debug_str("test_trims() End\n");
+}
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -101,6 +135,8 @@ int main() {
 	test_wcs_casestr();
 
 	test_str_array_sizes();
+
+	test_trims();
 
 	print_debug_str("ut_common.c - End tests\n");
 
