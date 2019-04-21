@@ -37,18 +37,18 @@
 #include <unistd.h>
 #include <locale.h>
 
-/***************************************************************************
+/******************************************************************************
  * The table struct is defined static to be able to use it in the function
  * exit_callback().
- **************************************************************************/
+ *****************************************************************************/
 
 static s_table table;
 
-/***************************************************************************
- * A cleanup function for the ncurses stuff. The important call, is the call
- * of endwin() which resets the terminal. So the freeing function before
- * should not fail.
- **************************************************************************/
+/******************************************************************************
+ * A cleanup function for the ncurses stuff. The important call, is the call of
+ * endwin() which resets the terminal. So the freeing function before should
+ * not fail.
+ *****************************************************************************/
 
 static void exit_callback() {
 
@@ -76,22 +76,20 @@ static void exit_callback() {
 	ncurses_free();
 }
 
-/***************************************************************************
- * The function reads the csv file, either from a file or from stdin. If
- * stdin is used, the content is written to a temp file for the processing.
- * This is necessary, because the file is parsed twice and you cannot rewind
- * stdin.
- **************************************************************************/
+/******************************************************************************
+ * The function reads the csv file, either from a file or from stdin. If stdin
+ * is used, the content is written to a temp file for the processing. This is
+ * necessary, because the file is parsed twice and you cannot rewind stdin.
+ *****************************************************************************/
 
-void process_csv_file(const char *filename, const wchar_t delimiter, s_table *table) {
+void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
 
-
-	if (filename != NULL) {
+	if (cfg_parser->filename != NULL) {
 
 		//
 		// If a csv file name is configured, use that file.
 		//
-		parser_process_filename(filename, delimiter, table);
+		parser_process_filename(cfg_parser, table);
 
 	} else {
 
@@ -100,17 +98,17 @@ void process_csv_file(const char *filename, const wchar_t delimiter, s_table *ta
 		//
 		FILE *tmp = stdin_2_tmp();
 
-		parser_process_file(tmp, delimiter, table);
+		parser_process_file(tmp, cfg_parser, table);
 
 		fclose(tmp);
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function writes the program usage. It is called with an error flag.
- * Depending on the flag the stream (stdout / stderr) is selected. The
- * function contains an optional message (not NULL) that will be written.
- **************************************************************************/
+ * Depending on the flag the stream (stdout / stderr) is selected. The function
+ * contains an optional message (not NULL) that will be written.
+ *****************************************************************************/
 
 static void print_usage(const bool has_error, const char* msg) {
 	FILE *stream;
@@ -150,6 +148,7 @@ static void print_usage(const bool has_error, const char* msg) {
 	fprintf(stream, "                interpreted as a header for the table ('-s') or not ('-n').\n");
 	fprintf(stream, "                If none of the flags is given ccsvv tries to detect whether a\n");
 	fprintf(stream, "                header is present or not.\n\n");
+	fprintf(stream, "  -t            Switch off trimming of the csv fields.\n\n");
 	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
 	fprintf(stream, "                the csv data from stdin.\n");
 	//              "--------------------------------------------------------------------------------\n");
@@ -166,16 +165,20 @@ static void print_usage(const bool has_error, const char* msg) {
 	exit(status);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The main function parses the command line options and starts the csv file
  * processing.
- **************************************************************************/
+ *****************************************************************************/
 
 int main(const int argc, char * const argv[]) {
 	int c;
-	char *filename = NULL;
-	wchar_t delimiter = W_DELIM;
 	bool monochrom = false;
+
+	//
+	// Create a default parser configuration.
+	//
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, true);
 
 	//
 	// Import the locale from the environment to allow proper wchar_t's.
@@ -189,7 +192,7 @@ int main(const int argc, char * const argv[]) {
 	//
 	// Parse the command line options.
 	//
-	while ((c = getopt(argc, argv, "hmsnd:")) != -1) {
+	while ((c = getopt(argc, argv, "hmsntd:")) != -1) {
 		switch (c) {
 
 		case 'h':
@@ -211,6 +214,10 @@ int main(const int argc, char * const argv[]) {
 			detect_header = false;
 			break;
 
+		case 't':
+			cfg_parser.do_trim = false;
+			break;
+
 		case 'd':
 
 			//
@@ -227,11 +234,11 @@ int main(const int argc, char * const argv[]) {
 				print_usage(true, "Unable to initialize the conversion to wide chars!");
 			}
 
-			if (mbtowc(&delimiter, optarg, MB_CUR_MAX) < 0) {
+			if (mbtowc(&(cfg_parser.delim), optarg, MB_CUR_MAX) < 0) {
 				print_usage(true, "Unable to convert the delimiter to a wide char!");
 			}
 
-			print_debug("main() Delimiter: %lc\n", delimiter);
+			print_debug("main() Delimiter: %lc\n", cfg_parser.delim);
 			break;
 
 		default:
@@ -243,8 +250,8 @@ int main(const int argc, char * const argv[]) {
 	// Check if a file argument is present.
 	//
 	if (optind == argc - 1) {
-		filename = argv[optind];
-		print_debug("main() Found filename: %s\n", filename);
+		cfg_parser.filename = argv[optind];
+		print_debug("main() Found filename: %s\n", cfg_parser.filename);
 
 		//
 		// Ensure that no more than one filename is present.
@@ -253,13 +260,10 @@ int main(const int argc, char * const argv[]) {
 		print_usage(true, "Unknown option found!");
 	}
 
-
 	//
 	// Process the csv file
 	//
-	process_csv_file(filename, delimiter, &table);
-
-	//TODO: check if file is empty
+	process_csv_file(&cfg_parser, &table);
 
 	//
 	// Set the show_header parameter of table
@@ -272,13 +276,13 @@ int main(const int argc, char * const argv[]) {
 	s_table_dump(&table);
 #endif
 
-	ncurses_init(monochrom, (filename != NULL));
+	ncurses_init(monochrom, (cfg_parser.filename != NULL));
 
 	//
 	// Register exit callback.
 	//
 	if (on_exit(exit_callback, NULL) != 0) {
-		print_exit_str("Unable to register exit function!\n");
+		print_exit_str("main() Unable to register exit function!\n");
 	}
 
 	//
@@ -294,7 +298,7 @@ int main(const int argc, char * const argv[]) {
 
 	win_help_init();
 
-	ui_loop(&table, filename);
+	ui_loop(&table, cfg_parser.filename);
 
 	print_debug_str("main() End\n");
 

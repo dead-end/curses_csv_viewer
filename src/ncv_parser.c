@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_parser.h"
 #include "ncv_table.h"
 #include "ncv_common.h"
 
@@ -30,9 +31,9 @@
 
 #define MAX_FIELD_SIZE 4096
 
-/***************************************************************************
+/******************************************************************************
  * The struct contains the variables necessary to parse the csv file.
- **************************************************************************/
+ *****************************************************************************/
 
 typedef struct s_csv_parser {
 
@@ -71,11 +72,12 @@ typedef struct s_csv_parser {
 
 } s_csv_parser;
 
-/***************************************************************************
+/******************************************************************************
  * The function sets default values to the members of the struct.
- **************************************************************************/
+ *****************************************************************************/
 
 static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
+
 	csv_parser->do_count = do_count;
 	csv_parser->current_row = 0;
 	csv_parser->current_column = 0;
@@ -87,10 +89,10 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 	}
 }
 
-/***************************************************************************
- * The function adds a wchar to the end of the field. It ensures that no
- * buffer overflow happens.
- **************************************************************************/
+/******************************************************************************
+ * The function adds a wchar to the end of the field. It ensures that no buffer
+ * overflow happens.
+ *****************************************************************************/
 
 static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
 
@@ -107,12 +109,12 @@ static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
 	csv_parser->field[csv_parser->field_idx++] = wchar;
 }
 
-/***************************************************************************
- * The function is called each time, the end of a field is encountered. The
- * end of a field can also be the end of a row.
- * The function updates the column and row counters. It ensures that all
- * rows so far have the same number of columns.
- **************************************************************************/
+/******************************************************************************
+ * The function is called each time, the end of a field is encountered. The end
+ * of a field can also be the end of a row. The function updates the column and
+ * row counters. It ensures that all rows so far have the same number of
+ * columns.
+ *****************************************************************************/
 
 static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_end) {
 
@@ -124,10 +126,10 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 	}
 
 	//
-	// The function is called every time a field ends, so we update the
-	// current column number. If the row ends, we need the number of columns
-	// to ensure that all rows have the same number of columns, before we
-	// reset the current number of columns.
+	// The function is called every time a field ends, so we update the current
+	// column number. If the row ends, we need the number of columns to ensure
+	// that all rows have the same number of columns, before we reset the
+	// current number of columns.
 	//
 	csv_parser->current_column++;
 
@@ -155,12 +157,12 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 	}
 }
 
-/***************************************************************************
- * The function is called each time a field in the csv file ends. If the
- * count flag is false, the field is copied to the table.
- **************************************************************************/
+/******************************************************************************
+ * The function is called each time a field in the csv file ends. If the count
+ * flag is false, the field is copied to the table.
+ *****************************************************************************/
 
-static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, s_table *table) {
+static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser, const bool is_row_end, s_table *table) {
 
 	//
 	// If we do not count, we copy.
@@ -173,9 +175,19 @@ static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, 
 		add_wchar_to_field(csv_parser, W_STR_TERM);
 
 		//
+		// If configured, trim the field content.
+		//
+		wchar_t *ptr = csv_parser->field;
+		if (cfg_parser->do_trim) {
+			ptr = wcstrim(csv_parser->field);
+		} else {
+			ptr = csv_parser->field;
+		}
+
+		//
 		// Copy the field data to the table.
 		//
-		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, csv_parser->field);
+		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, ptr);
 
 		//
 		// Reset the field index.
@@ -194,13 +206,13 @@ static void process_column_end(s_csv_parser *csv_parser, const bool is_row_end, 
 	count_columns_and_rows(csv_parser, is_row_end);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function parses the csv file. It is called twice. The first time it
- * counts the columns and rows. And the second time it copies the csv fields
- * to the table structure.
- **************************************************************************/
+ * counts the columns and rows. And the second time it copies the csv fields to
+ * the table structure.
+ *****************************************************************************/
 
-static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_parser, s_table *table) {
+static void parse_csv_file(FILE *file, const s_cfg_parser *cfg_parser, s_csv_parser *csv_parser, s_table *table) {
 
 	//
 	// The two parameters hold the current and the last char read from the
@@ -216,8 +228,8 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 		if (feof(file)) {
 
 			//
-			// If we finished processing and it is still escaped, then a (final)
-			// quote is missing.
+			// If we finished processing and it is still escaped, then a
+			// (final) quote is missing.
 			//
 			if (csv_parser->is_escaped == BOOL_TRUE) {
 				print_exit_str("parse_csv_file() Quote missing!\n");
@@ -228,7 +240,7 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			// row. Otherwise (ending: \n<EOF>) we would do it twice.
 			//
 			if (wchar_last != W_NEW_LINE) {
-				process_column_end(csv_parser, true, table);
+				process_column_end(csv_parser, cfg_parser, true, table);
 			}
 			break;
 		}
@@ -254,15 +266,15 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 			//
 			// Found: delimiter
 			//
-			if (wchar_cur == delim) {
-				process_column_end(csv_parser, false, table);
+			if (wchar_cur == cfg_parser->delim) {
+				process_column_end(csv_parser, cfg_parser, false, table);
 				continue;
 
 				//
 				// Found: new line
 				//
 			} else if (wchar_cur == W_NEW_LINE) {
-				process_column_end(csv_parser, true, table);
+				process_column_end(csv_parser, cfg_parser, true, table);
 				continue;
 			}
 
@@ -272,8 +284,8 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 		} else if (csv_parser->is_escaped == BOOL_TRUE) {
 
 			//
-			// If we found a quote we have to read the next char to decide
-			// what it means.
+			// If we found a quote we have to read the next char to decide what
+			// it means.
 			//
 			if (wchar_cur == W_QUOTE) {
 				wchar_cur = read_wchar(file);
@@ -282,21 +294,21 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 				// Found quote followed by EOF
 				//
 				if (feof(file)) {
-					process_column_end(csv_parser, true, table);
+					process_column_end(csv_parser, cfg_parser, true, table);
 					break;
 
 					//
 					// Found quote followed by new line
 					//
 				} else if (wchar_cur == W_NEW_LINE) {
-					process_column_end(csv_parser, true, table);
+					process_column_end(csv_parser, cfg_parser, true, table);
 					continue;
 
 					//
 					// Found: quote followed by delimiter
 					//
-				} else if (wchar_cur == delim) {
-					process_column_end(csv_parser, false, table);
+				} else if (wchar_cur == cfg_parser->delim) {
+					process_column_end(csv_parser, cfg_parser, false, table);
 					continue;
 
 					//
@@ -318,17 +330,17 @@ static void parse_csv_file(FILE *file, const wchar_t delim, s_csv_parser *csv_pa
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function parses the csv file twice. The fist time it determines the
  * number of rows and columns. Then the table structure allocates fields
- * according to the rows and columns. The last thing is to parse the file
- * again and copy the data to the structure.
+ * according to the rows and columns. The last thing is to parse the file again
+ * and copy the data to the structure.
  *
- * The second time the csv file is read for parsing the data should be in
- * the file system cache so the IO overhead should be limited.
- **************************************************************************/
+ * The second time the csv file is read for parsing the data should be in the
+ * file system cache so the IO overhead should be limited.
+ *****************************************************************************/
 
-void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
+void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *table) {
 
 	s_csv_parser csv_parser;
 
@@ -336,16 +348,9 @@ void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 	// Parse the csv file to get the number of columns and rows.
 	//
 	s_csv_parser_init(&csv_parser, true);
-	parse_csv_file(file, delim, &csv_parser, table);
+	parse_csv_file(file, cfg_parser, &csv_parser, table);
 
 	print_debug("parser_process_file() No rows: %d no columns: %d\n", csv_parser.current_row, csv_parser.no_columns);
-
-	//
-	// If the file is empty, there is nothing to do.
-	//
-	if (csv_parser.current_row == 0 && csv_parser.no_columns == 0) {
-		print_exit_str("parser_process_file() File is empty!\n");
-	}
 
 	//
 	// Rewind the file.
@@ -363,7 +368,7 @@ void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 	// Parse the csv file again to copy the fields to the table structure.
 	//
 	s_csv_parser_init(&csv_parser, false);
-	parse_csv_file(file, delim, &csv_parser, table);
+	parse_csv_file(file, cfg_parser, &csv_parser, table);
 
 	//
 	// Init the table rows and heights
@@ -371,32 +376,32 @@ void parser_process_file(FILE *file, const wchar_t delim, s_table *table) {
 	s_table_reset_rows(table);
 }
 
-/***************************************************************************
- * The function is a wrapper around the parser_process_file() function, that
- * is responsible for opening and closing the file.
- **************************************************************************/
+/******************************************************************************
+ * The function is a wrapper around the parser_process_file() function, that is
+ * responsible for opening and closing the file.
+ *****************************************************************************/
 
-void parser_process_filename(const char *filename, const wchar_t delim, s_table *table) {
+void parser_process_filename(const s_cfg_parser *cfg_parser, s_table *table) {
 
 	//
 	// Open the csv file.
 	//
-	print_debug("parser_process_filename() Reading file: %s\n", filename);
+	print_debug("parser_process_filename() Reading file: %s\n", cfg_parser->filename);
 
-	FILE *file = fopen(filename, "r");
+	FILE *file = fopen(cfg_parser->filename, "r");
 	if (file == NULL) {
-		print_exit("parser_process_filename() Unable to open file %s due to: %s\n", filename, strerror(errno));
+		print_exit("parser_process_filename() Unable to open file %s due to: %s\n", cfg_parser->filename, strerror(errno));
 	}
 
 	//
 	// Delegate the processing.
 	//
-	parser_process_file(file, delim, table);
+	parser_process_file(file, cfg_parser, table);
 
 	//
 	// Close the file.
 	//
 	if (fclose(file) != 0) {
-		print_exit("parser_process_filename() Unable to close file %s due to: %s\n", filename, strerror(errno));
+		print_exit("parser_process_filename() Unable to close file %s due to: %s\n", cfg_parser->filename, strerror(errno));
 	}
 }

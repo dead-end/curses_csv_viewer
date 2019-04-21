@@ -45,7 +45,10 @@ static void test_parser() {
 
 	FILE *tmp = ut_create_tmp_file(data);
 
-	parser_process_file(tmp, W_DELIM, &table);
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+
+	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
 	// Check all fields "by hand"
@@ -103,7 +106,10 @@ static void helper_line_endings(const wchar_t *data) {
 
 	FILE *tmp = ut_create_tmp_file(data);
 
-	parser_process_file(tmp, W_DELIM, &table);
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+
+	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
 	// Check all fields "by hand"
@@ -163,7 +169,10 @@ static void test_parser_empty() {
 
 	FILE *tmp = ut_create_tmp_file(L",\n,");
 
-	parser_process_file(tmp, W_DELIM, &table);
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+
+	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
 	// Check all fields "by hand"

@@ -27,8 +27,33 @@
 
 #include "ncv_table.h"
 
-void parser_process_filename(const char *filename, const wchar_t delim, s_table *table);
+/******************************************************************************
+ * The struct contains the configuration of the parser.
+ *****************************************************************************/
 
-void parser_process_file(FILE *file, const wchar_t delim, s_table *table);
+typedef struct s_cfg_parser {
+
+	//
+	// The csv filename, which is null if the csv data comes from stdin.
+	//
+	char *filename;
+
+	//
+	// The definition of the field delimiter of the csv file.
+	//
+	wchar_t delim;
+
+	//
+	// A flag that whether a trimming should be performed on the fields.
+	//
+	bool do_trim;
+
+} s_cfg_parser;
+
+#define s_cfg_parser_set( c, f, d, t) (c)->filename = f; (c)->delim = d; (c)->do_trim = t
+
+void parser_process_filename(const s_cfg_parser *cfg_parser, s_table *table);
+
+void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *table);
 
 #endif

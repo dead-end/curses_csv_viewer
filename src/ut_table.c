@@ -130,8 +130,10 @@ static void test_table_has_header() {
 
 	FILE *tmp = ut_create_tmp_file(data);
 
-	parser_process_file(tmp, W_DELIM, &table);
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
 
+	parser_process_file(tmp, &cfg_parser, &table);
 	//
 	// column: 0
 	// len   => has header
@@ -222,7 +224,10 @@ static void test_table_mean_std_dev() {
 
 	FILE *tmp = ut_create_tmp_file(data);
 
-	parser_process_file(tmp, W_DELIM, &table);
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+
+	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
 	// column: 0 mean
@@ -408,7 +413,10 @@ static void test_table_search_filter() {
 
 	FILE *tmp = ut_create_tmp_file(data);
 
-	parser_process_file(tmp, W_DELIM, &table);
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+
+	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
 	// SEARCHING, INSENSITIVE WITH 2 MATCHES
