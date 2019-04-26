@@ -36,6 +36,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <locale.h>
+#include <errno.h>
 
 /******************************************************************************
  * The table struct is defined static to be able to use it in the function
@@ -83,24 +84,32 @@ static void exit_callback() {
  *****************************************************************************/
 
 void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
+	FILE *file;
 
 	if (cfg_parser->filename != NULL) {
 
-		//
-		// If a csv file name is configured, use that file.
-		//
-		parser_process_filename(cfg_parser, table);
+		if ((file = fopen(cfg_parser->filename, "r")) == NULL) {
+			print_exit("process_csv_file() Unable to open file %s due to: %s\n", cfg_parser->filename, strerror(errno));
+		}
 
 	} else {
 
 		//
-		// If no csv file name is configured, we use stdin.
+		// Copy stdin to a tmp file
 		//
-		FILE *tmp = stdin_2_tmp();
+		file = stdin_2_tmp();
+	}
 
-		parser_process_file(tmp, cfg_parser, table);
+	//
+	// Delegate the processing.
+	//
+	parser_process_file(file, cfg_parser, table);
 
-		fclose(tmp);
+	//
+	// Close the file.
+	//
+	if (fclose(file) != 0) {
+		print_exit("process_csv_file() Unable to close the file due to: %s\n", strerror(errno));
 	}
 }
 

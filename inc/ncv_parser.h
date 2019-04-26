@@ -52,8 +52,6 @@ typedef struct s_cfg_parser {
 
 #define s_cfg_parser_set( c, f, d, t) (c)->filename = f; (c)->delim = d; (c)->do_trim = t
 
-void parser_process_filename(const s_cfg_parser *cfg_parser, s_table *table);
-
 void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *table);
 
 #endif

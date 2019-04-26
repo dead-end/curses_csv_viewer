@@ -146,6 +146,8 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 		if (csv_parser->current_row > 1) {
 
 			if (csv_parser->no_columns != csv_parser->current_column) {
+				// TODO: seg fault
+				// https://sourceware.org/bugzilla/show_bug.cgi?id=20938
 				print_exit("count_columns_and_rows() row: %d current columns: %d expected columns: %d\n", csv_parser->current_row, csv_parser->current_column, csv_parser->no_columns);
 			}
 		}
@@ -374,34 +376,4 @@ void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *ta
 	// Init the table rows and heights
 	//
 	s_table_reset_rows(table);
-}
-
-/******************************************************************************
- * The function is a wrapper around the parser_process_file() function, that is
- * responsible for opening and closing the file.
- *****************************************************************************/
-
-void parser_process_filename(const s_cfg_parser *cfg_parser, s_table *table) {
-
-	//
-	// Open the csv file.
-	//
-	print_debug("parser_process_filename() Reading file: %s\n", cfg_parser->filename);
-
-	FILE *file = fopen(cfg_parser->filename, "r");
-	if (file == NULL) {
-		print_exit("parser_process_filename() Unable to open file %s due to: %s\n", cfg_parser->filename, strerror(errno));
-	}
-
-	//
-	// Delegate the processing.
-	//
-	parser_process_file(file, cfg_parser, table);
-
-	//
-	// Close the file.
-	//
-	if (fclose(file) != 0) {
-		print_exit("parser_process_filename() Unable to close file %s due to: %s\n", cfg_parser->filename, strerror(errno));
-	}
 }
