@@ -78,9 +78,7 @@ static void exit_callback() {
 }
 
 /******************************************************************************
- * The function reads the csv file, either from a file or from stdin. If stdin
- * is used, the content is written to a temp file for the processing. This is
- * necessary, because the file is parsed twice and you cannot rewind stdin.
+ * The function reads the csv file, either from a file or from stdin.
  *****************************************************************************/
 
 void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
@@ -92,24 +90,21 @@ void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
 			print_exit("process_csv_file() Unable to open file %s due to: %s\n", cfg_parser->filename, strerror(errno));
 		}
 
+		//
+		// Do the file stream parsing.
+		//
+		parser_process_file(file, cfg_parser, table);
+
+		if (fclose(file) != 0) {
+			print_exit("process_csv_file() Unable to close the file due to: %s\n", strerror(errno));
+		}
+
 	} else {
 
 		//
-		// Copy stdin to a tmp file
+		// Do the input stream parsing.
 		//
-		file = stdin_2_tmp();
-	}
-
-	//
-	// Delegate the processing.
-	//
-	parser_process_file(file, cfg_parser, table);
-
-	//
-	// Close the file.
-	//
-	if (fclose(file) != 0) {
-		print_exit("process_csv_file() Unable to close the file due to: %s\n", strerror(errno));
+		parser_process_file(stdin, cfg_parser, table);
 	}
 }
 

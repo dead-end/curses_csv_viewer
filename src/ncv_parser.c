@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_wbuf.h"
 #include "ncv_parser.h"
 #include "ncv_table.h"
 #include "ncv_common.h"
@@ -209,12 +210,12 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 }
 
 /******************************************************************************
- * The function parses the csv file. It is called twice. The first time it
- * counts the columns and rows. And the second time it copies the csv fields to
- * the table structure.
+ * The function parses a s_wbuf. It is called twice. The first time it counts
+ * the columns and rows. And the second time it copies the csv fields to the
+ * table structure.
  *****************************************************************************/
 
-static void parse_csv_file(FILE *file, const s_cfg_parser *cfg_parser, s_csv_parser *csv_parser, s_table *table) {
+static void parse_csv_wbuf(s_wbuf *wbuf, const s_cfg_parser *cfg_parser, s_csv_parser *csv_parser, s_table *table) {
 
 	//
 	// The two parameters hold the current and the last char read from the
@@ -222,19 +223,24 @@ static void parse_csv_file(FILE *file, const s_cfg_parser *cfg_parser, s_csv_par
 	//
 	wchar_t wchar_last, wchar_cur = W_STR_TERM;
 
+	//
+	// Provide a s_wbuf position and initialize it.
+	//
+	s_wbuf_pos cur_pos;
+	s_wbuf_pos_init(&cur_pos);
+
 	while (true) {
 
 		wchar_last = wchar_cur;
-		wchar_cur = read_wchar(file);
 
-		if (feof(file)) {
+		if (!s_wbuf_next(wbuf, &cur_pos, &wchar_cur)) {
 
 			//
 			// If we finished processing and it is still escaped, then a
 			// (final) quote is missing.
 			//
 			if (csv_parser->is_escaped == BOOL_TRUE) {
-				print_exit_str("parse_csv_file() Quote missing!\n");
+				print_exit_str("parse_csv_wbuf() Quote missing!\n");
 			}
 
 			//
@@ -290,12 +296,11 @@ static void parse_csv_file(FILE *file, const s_cfg_parser *cfg_parser, s_csv_par
 			// it means.
 			//
 			if (wchar_cur == W_QUOTE) {
-				wchar_cur = read_wchar(file);
 
 				//
 				// Found quote followed by EOF
 				//
-				if (feof(file)) {
+				if (!s_wbuf_next(wbuf, &cur_pos, &wchar_cur)) {
 					process_column_end(csv_parser, cfg_parser, true, table);
 					break;
 
@@ -318,7 +323,7 @@ static void parse_csv_file(FILE *file, const s_cfg_parser *cfg_parser, s_csv_par
 					// delimiter, new line or EOF.
 					//
 				} else if (wchar_cur != W_QUOTE) {
-					print_exit("parse_csv_file() Invalid char after quote: %lc\n", wchar_cur);
+					print_exit("parse_csv_wbuf() Invalid char after quote: %lc\n", wchar_cur);
 				}
 			}
 		}
@@ -337,12 +342,15 @@ static void parse_csv_file(FILE *file, const s_cfg_parser *cfg_parser, s_csv_par
  * number of rows and columns. Then the table structure allocates fields
  * according to the rows and columns. The last thing is to parse the file again
  * and copy the data to the structure.
- *
- * The second time the csv file is read for parsing the data should be in the
- * file system cache so the IO overhead should be limited.
  *****************************************************************************/
 
 void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *table) {
+
+	//
+	// Create a s_wbuf with the content of the file
+	//
+	s_wbuf *wbuf = s_wbuf_create(WBUF_BLOCK_SIZE);
+	s_wbuf_copy_file(file, wbuf);
 
 	s_csv_parser csv_parser;
 
@@ -350,16 +358,9 @@ void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *ta
 	// Parse the csv file to get the number of columns and rows.
 	//
 	s_csv_parser_init(&csv_parser, true);
-	parse_csv_file(file, cfg_parser, &csv_parser, table);
+	parse_csv_wbuf(wbuf, cfg_parser, &csv_parser, table);
 
 	print_debug("parser_process_file() No rows: %d no columns: %d\n", csv_parser.current_row, csv_parser.no_columns);
-
-	//
-	// Rewind the file.
-	//
-	if (fseek(file, 0L, SEEK_SET) == -1) {
-		print_exit("parser_process_file() Unable to rewind file due to: %s\n", strerror(errno));
-	}
 
 	//
 	// Allocate memory for the number of rows and columns.
@@ -370,10 +371,16 @@ void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *ta
 	// Parse the csv file again to copy the fields to the table structure.
 	//
 	s_csv_parser_init(&csv_parser, false);
-	parse_csv_file(file, cfg_parser, &csv_parser, table);
+	parse_csv_wbuf(wbuf, cfg_parser, &csv_parser, table);
 
 	//
 	// Init the table rows and heights
 	//
 	s_table_reset_rows(table);
+
+	//
+	// Free the allocated s_wbuf
+	//
+	s_wbuf_free(wbuf);
 }
+
