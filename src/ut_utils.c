@@ -106,17 +106,30 @@ void ut_check_char_str(const char *str1, const char *str2) {
  * ut_check_wchar_null(str, UT_IS_NULL);
  *****************************************************************************/
 
-void ut_check_wchar_null(const wchar_t *str, const enum ut_null_check ut_null) {
+void ut_check_wcs_null(const wchar_t *str, const enum ut_null_check ut_null) {
 
 	if (ut_null == UT_IS_NULL && str != NULL) {
-		print_exit("ut_check_wchar_null() Pointer is not null: '%ls'\n", str);
+		print_exit("ut_check_wcs_null() Pointer is not null: '%ls'\n", str);
 	}
 
 	if (ut_null == UT_IS_NOT_NULL && str == NULL) {
-		print_exit_str("ut_check_wchar_null() Pointer is null!\n");
+		print_exit_str("ut_check_wcs_null() Pointer is null!\n");
 	}
 
-	print_debug("ut_check_wchar_null() OK - String is %s null!\n", ut_null == UT_IS_NULL ? "" : "not");
+	print_debug("ut_check_wcs_null() OK - String is %s null!\n", ut_null == UT_IS_NULL ? "" : "not");
+}
+
+/******************************************************************************
+ * The function is used for unit tests. It compares two wchar_t strings.
+ *****************************************************************************/
+
+void ut_check_wchr(const wchar_t current, const wchar_t expected) {
+
+	if (current != expected) {
+		print_exit("ut_check_wchr() current: %lc expected: %lc\n", current, expected);
+	}
+
+	print_debug("ut_check_wchr() OK current: %lc \n", current);
 }
 
 /******************************************************************************
