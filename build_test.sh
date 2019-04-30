@@ -17,14 +17,14 @@ do_exit () {
 
 make clean                || do_exit "make clean"
 
-make                      || do_exit "make"
+make DEBUG="-DDEBUG -g"   || do_exit "make debug"
 
 make clean                || do_exit "make clean"
 
-make DEBUG="-DDEBUG -g"   || do_exit "make debug"
-
-sh cmake_build.sh release || do_exit "cmake release"
+make                      || do_exit "make"
 
 sh cmake_build.sh debug   || do_exit "cmake debug"
+
+sh cmake_build.sh release || do_exit "cmake release"
 
 exit 0
