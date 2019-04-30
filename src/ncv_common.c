@@ -199,11 +199,11 @@ wchar_t read_wchar(FILE *file) {
 	if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
 
 		if (errno == EILSEQ) {
-			close(file);
+			fclose(file);
 			print_exit_str("read_wchar() Character encoding error!\n");
 
 		} else {
-			close(file);
+			fclose(file);
 			print_exit("read_wchar() I/O error: %s\n", strerror(errno));
 		}
 	}
@@ -220,11 +220,11 @@ wchar_t read_wchar(FILE *file) {
 		if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
 
 			if (errno == EILSEQ) {
-				close(file);
+				fclose(file);
 				print_exit_str("read_wchar() Character encoding error!\n");
 
 			} else {
-				close(file);
+				fclose(file);
 				print_exit_str("read_wchar() I/O error!\n");
 			}
 		}
@@ -239,7 +239,7 @@ wchar_t read_wchar(FILE *file) {
 			//
 			//
 			if (wint != WEOF && ungetwc(wint, file) == WEOF) {
-				close(file);
+				fclose(file);
 				print_exit_str("read_wchar() Unable to push back character!\n");
 			}
 
