@@ -326,6 +326,10 @@ int get_align_start(const int max, const int len, const enum e_align align) {
 	case AT_CENTER:
 		start = (max - len) / 2;
 		break;
+
+	default:
+		print_exit("get_align_start() Unknown value for align: %d", align)
+		;
 	}
 
 	return start;
