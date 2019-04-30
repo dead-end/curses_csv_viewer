@@ -127,6 +127,8 @@ bool s_table_has_header(const s_table *table);
  * Some function definitions that are used only for unit tests.
  *****************************************************************************/
 
+#define s_table_set_defaults(t) (t).show_header = true
+
 int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
 
 double get_ratio(const wchar_t *str);

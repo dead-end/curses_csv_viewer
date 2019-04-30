@@ -113,8 +113,10 @@ static void test_table_get_ratio() {
 #define HAS_NO_HEADER 0
 
 static void test_table_has_header() {
-	s_table table;
 	int result;
+
+	s_table table;
+	s_table_set_defaults(table);
 
 	print_debug_str("test_table_has_header() Start\n");
 
@@ -205,10 +207,12 @@ static void test_table_has_header() {
  *****************************************************************************/
 
 static void test_table_mean_std_dev() {
-	s_table table;
 	double result;
 
 	double d_tmp;
+
+	s_table table;
+	s_table_set_defaults(table);
 
 	print_debug_str("test_table_mean_std_dev() Start\n");
 
@@ -397,9 +401,11 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 #define MATCH_3 3
 
 static void test_table_search_filter() {
-	s_table table;
 	s_cursor cursor;
 	wchar_t *result;
+
+	s_table table;
+	s_table_set_defaults(table);
 
 	print_debug_str("test_table_search_filter() Start\n");
 
@@ -424,7 +430,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NULL);
+	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_2, 5, "search insensitive");
 
 	//
@@ -438,7 +444,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NULL);
+	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_1, 5, "search sensitive");
 
 	//
@@ -452,7 +458,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"hallo", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NOT_NULL);
+	ut_check_wcs_null(result, UT_IS_NOT_NULL);
 	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "search no matches");
 	check_cursor(&cursor, 1, 1, "search no matches - cursor 1");
 
@@ -462,7 +468,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NULL);
+	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_3, 3, "filter insensitive");
 
 	//
@@ -476,7 +482,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NULL);
+	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_1, 2, "filter sensitive");
 
 	//
@@ -490,7 +496,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"eF", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NOT_NULL);
+	ut_check_wcs_null(result, UT_IS_NOT_NULL);
 	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "filter no matches");
 	check_cursor(&cursor, 0, 0, "filter no matches - cursor 1");
 
@@ -500,7 +506,7 @@ static void test_table_search_filter() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"XO", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	result = s_table_update_filter(&table, &cursor);
 
-	ut_check_wchar_null(result, UT_IS_NULL);
+	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, 1, 2, "reset - 1");
 	check_cursor(&cursor, 1, 2, "reset cursor - 1");
 
