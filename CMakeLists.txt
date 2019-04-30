@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-add_compile_options(-std=c11 -Wall -Wextra -Wpedantic -Werror)
+add_compile_options(-std=c11 -Wall -Wextra -Wpedantic -Werror -O2)
 
 include_directories(inc)
 
@@ -34,6 +34,7 @@ set(LIBS
   src/ncv_ui_loop.c
   src/ncv_forms.c
   src/ncv_popup.c
+  src/ncv_wbuf.c
   src/ncv_win_header.c
   src/ncv_win_filter.c
   src/ncv_win_table.c
@@ -78,6 +79,7 @@ set(TEST_SRCS
   src/ut_table.c
   src/ut_table_part.c
   src/ut_common.c
+  src/ut_wbuf.c
 )
 
 foreach(src_file ${TEST_SRCS})

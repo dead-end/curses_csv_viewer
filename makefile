@@ -14,7 +14,7 @@ TST_DIR = tests
 CC       = gcc
 #DEBUG    = -DDEBUG -g
 WARNINGS = -Wall -Wextra -Wpedantic -Werror
-CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11
+CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11 -O2
 LIBS     = $(shell ncursesw5-config --libs) -lformw -lmenuw -lm
 
 ###############################################################################
@@ -32,6 +32,7 @@ SRC_LIBS += $(SRC_DIR)/ncv_filter.c
 SRC_LIBS += $(SRC_DIR)/ncv_ui_loop.c
 SRC_LIBS += $(SRC_DIR)/ncv_forms.c
 SRC_LIBS += $(SRC_DIR)/ncv_popup.c
+SRC_LIBS += $(SRC_DIR)/ncv_wbuf.c
 SRC_LIBS += $(SRC_DIR)/ncv_win_header.c
 SRC_LIBS += $(SRC_DIR)/ncv_win_filter.c
 SRC_LIBS += $(SRC_DIR)/ncv_win_table.c
@@ -63,6 +64,7 @@ SRC_TEST += $(SRC_DIR)/ut_table_part.c
 SRC_TEST += $(SRC_DIR)/ut_field.c
 SRC_TEST += $(SRC_DIR)/ut_common.c
 SRC_TEST += $(SRC_DIR)/ut_filter.c
+SRC_TEST += $(SRC_DIR)/ut_wbuf.c
 
 TEST     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
 
