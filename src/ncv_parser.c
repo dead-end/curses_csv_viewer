@@ -147,8 +147,6 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 		if (csv_parser->current_row > 1) {
 
 			if (csv_parser->no_columns != csv_parser->current_column) {
-				// TODO: seg fault
-				// https://sourceware.org/bugzilla/show_bug.cgi?id=20938
 				print_exit("count_columns_and_rows() row: %d current columns: %d expected columns: %d\n", csv_parser->current_row, csv_parser->current_column, csv_parser->no_columns);
 			}
 		}

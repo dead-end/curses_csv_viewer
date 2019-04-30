@@ -183,6 +183,11 @@ wchar_t *wcstrim(wchar_t *str) {
  * The function reads a wchar_t from a stream. It converts the different line
  * endings (windows: \r\n mac: \r) to a standard (unix: \n). It also does error
  * processing.
+ *
+ * Due to the bug, the file has to be closed on errors. If not, a segmentation
+ * fault can happen after calling exit.
+ *
+ * https://sourceware.org/bugzilla/show_bug.cgi?id=20938
  *****************************************************************************/
 
 wchar_t read_wchar(FILE *file) {
@@ -194,9 +199,11 @@ wchar_t read_wchar(FILE *file) {
 	if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
 
 		if (errno == EILSEQ) {
+			close(file);
 			print_exit_str("read_wchar() Character encoding error!\n");
 
 		} else {
+			close(file);
 			print_exit("read_wchar() I/O error: %s\n", strerror(errno));
 		}
 	}
@@ -213,9 +220,11 @@ wchar_t read_wchar(FILE *file) {
 		if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
 
 			if (errno == EILSEQ) {
+				close(file);
 				print_exit_str("read_wchar() Character encoding error!\n");
 
 			} else {
+				close(file);
 				print_exit_str("read_wchar() I/O error!\n");
 			}
 		}
@@ -230,6 +239,7 @@ wchar_t read_wchar(FILE *file) {
 			//
 			//
 			if (wint != WEOF && ungetwc(wint, file) == WEOF) {
+				close(file);
 				print_exit_str("read_wchar() Unable to push back character!\n");
 			}
 
