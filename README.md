@@ -27,6 +27,8 @@ ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]
                 If none of the flags is given ccsvv tries to detect whether a
                 header is present or not.
 
+  -t            Switch off trimming of the csv fields.
+
   file          The name of the csv file. If no filename is defined, ccsvv reads
                 the csv data from stdin.
 
