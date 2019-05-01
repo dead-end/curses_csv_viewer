@@ -577,12 +577,17 @@ void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
 	char raw_str[raw_len + 1];
 
 	//
+	// Ensure the string termination. This seams to be necessary with -O2 gcc
+	// flag.
+	//
+	raw_str[raw_len] = '\0';
+
+	//
 	// Create a copy of the field content that can be modified (trimmed). The
-	// string has by construction the same size as the raw string, so strncpy
-	// will add a \0
+	// string has by construction the same size as the raw string.
 	//
 	strncpy(raw_str, raw_field, raw_len);
-	print_debug("forms_get_input_str() raw len: '%zu'\n", raw_len);
+	print_debug("forms_get_input_str() raw len: '%zu' '%s'\n", raw_len, raw_str);
 
 	//
 	// The field content is filled with blanks, which had to be trimmed before
