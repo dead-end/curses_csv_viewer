@@ -75,8 +75,8 @@ ccsvv -d : /etc/passwd
 
 ## Example: Derby DB
 In this section we want to discuss how to use **ccsvv** to display the result of a database client. We use Derby DB
-as our database, which has a client called **ij**. It accepts a property file, with basic configurations. In our
-case **ij.properties**:
+as our database, which has a client called `ij`. It accepts a property file, with basic configurations. In our
+case `ij.properties`:
 
 ```
 ij.user=user
@@ -87,7 +87,7 @@ ij.showNoCountForSelect=true
 ij.showNoConnectionsAtStart=true
 ```
 For our example, we need to create an example database with a table. This can be done with a 
-sql file **create.sql** with the following content:
+sql file `create.sql` with the following content:
 
 ```sql
 create table mytab(num int, addr varchar(40));
@@ -103,7 +103,7 @@ ij -p ij.properties create.sql
 ```
 
 After we created the database, we can remove the `create=true` from the properties file, to prevent warnings.
-We pipe a sql statement to the ij client, which returns the table data:
+Piping a select statement to the ij client returns the table data.
 
 ```
 echo "select * from mytab;" | ij -p ij.properties show.sql 
@@ -118,25 +118,27 @@ NUM        |ADDR
 ij>
 ```
 
-To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with the
-folloing shell script.
+To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with a
+small shell script. The script is called with a sql statement. It pipes the statement to the ij client (line 3).
+A call of `grep` removes the line, that separates the header from the table data, the ij prompt, the version
+information and lines that only consist of a single `;`. This happens if you forget the `;` after your sql
+statement. The last line pipes the resulting data to **ccsvv**. The field separator is the pipe character `|`: 
 
-```
+```bash
 #!/bin/sh
-
 set -u
-
-derby_output=$(echo "$@" | ij -p ij.properties .derby.sql)
-
+derby_output=$(echo "$@" | ij -p ij.properties)
 csv_data=$(echo "$derby_output" | grep -v -e '^-*$' -e '^ij>' -e '^ij version' -e '^;$')
-
 echo "$csv_data" | ccsvv -s -d '|'
 ```
 
+An example call with the result: 
 
+```
+sh derby_client.sh "select * from mytab;"
+```
 
-## Example: D
-
+![Show query example](img/derby-db.png)
 
 ## Example: Database
 Most databases are able to store tables dumps or queries in csv files, which can be displayed with **ccsvv**. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
