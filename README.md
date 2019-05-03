@@ -74,11 +74,11 @@ ccsvv -d : /etc/passwd
 ![Show /etc/passwd](img/etc-passwd.png)
 
 ## Example: Derby DB
-In this section we want to discuss how to use **ccsvv** to display the result of a database client. We use Derby DB
-as our database, which has a client called `ij`. It accepts a property file, with basic configurations. In our
-case `ij.properties`:
+In this section we want to discuss how to use **ccsvv** to display the result of a database client. 
 
-```
+We use Derby DB as our database, which has a client called `ij`. It accepts a property file, with basic configurations. In our case `ij.properties`:
+
+```properties
 ij.user=user
 ij.password=password
 ij.database=mydb;create=true
@@ -103,10 +103,11 @@ ij -p ij.properties create.sql
 ```
 
 After we created the database, we can remove the `create=true` from the properties file, to prevent warnings.
+
 Piping a select statement to the ij client returns the table data.
 
 ```
-echo "select * from mytab;" | ij -p ij.properties show.sql 
+echo "select * from mytab;" | ij -p ij.properties 
 ij version 10.14
 ij> select * from mytab;
 NUM        |ADDR                                    
