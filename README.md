@@ -138,6 +138,8 @@ An example call with the result:
 sh derby_client.sh "select * from mytab;"
 ```
 
+<img src="https://github.com/dead-end/curses_csv_viewer/img/derby-db.png" width="257" height="228">
+
 ![Show query example](img/derby-db.png = 257x228)
 
 ## Example: Database
