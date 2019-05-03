@@ -95,13 +95,48 @@ insert into mytab values (1,'Derby DB');
 insert into mytab values (2,'PostgreSQL'); 
 insert into mytab values (3,'Maria DB'); 
 insert into mytab values (4,'Mysql'); 
-select * from mytab;
 ```
 We can execute the statements with the following call:
 
 ```bash
 ij -p ij.properties create.sql
 ```
+
+After we created the database, we can remove the `create=true` from the properties file, to prevent warnings.
+We pipe a sql statement to the ij client, which returns the table data:
+
+```
+echo "select * from mytab;" | ij -p ij.properties show.sql 
+ij version 10.14
+ij> select * from mytab;
+NUM        |ADDR                                    
+----------------------------------------------------
+1          |Derby DB                                
+2          |PostgreSQL                              
+3          |Maria DB                                
+4          |Mysql                                   
+ij>
+```
+
+To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with the
+folloing shell script.
+
+```
+#!/bin/sh
+
+set -u
+
+derby_output=$(echo "$@" | ij -p ij.properties .derby.sql)
+
+csv_data=$(echo "$derby_output" | grep -v -e '^-*$' -e '^ij>' -e '^ij version' -e '^;$')
+
+echo "$csv_data" | ccsvv -s -d '|'
+```
+
+
+
+## Example: D
+
 
 ## Example: Database
 Most databases are able to store tables dumps or queries in csv files, which can be displayed with **ccsvv**. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
