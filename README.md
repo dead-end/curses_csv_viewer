@@ -72,6 +72,37 @@ make test
 ccsvv -d : /etc/passwd
 ```
 ![Show /etc/passwd](img/etc-passwd.png)
+
+## Example: Derby DB
+In this section we want to discuss how to use **ccsvv** to display the result of a database client. We use Derby DB
+as our database, which has a client called **ij**. It accepts a property file, with basic configurations. In our
+case **ij.properties**:
+
+```
+ij.user=user
+ij.password=password
+ij.database=mydb;create=true
+ij.protocol=jdbc:derby:/tmp/
+ij.showNoCountForSelect=true
+ij.showNoConnectionsAtStart=true
+```
+For our example, we need to create an example database with a table. This can be done with a 
+sql file **create.sql** with the following content:
+
+```sql
+create table mytab(num int, addr varchar(40));
+insert into mytab values (1,'Derby DB'); 
+insert into mytab values (2,'PostgreSQL'); 
+insert into mytab values (3,'Maria DB'); 
+insert into mytab values (4,'Mysql'); 
+select * from mytab;
+```
+We can execute the statements with the following call:
+
+```bash
+ij -p ij.properties create.sql
+```
+
 ## Example: Database
 Most databases are able to store tables dumps or queries in csv files, which can be displayed with **ccsvv**. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
 
