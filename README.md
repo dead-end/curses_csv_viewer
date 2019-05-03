@@ -85,6 +85,7 @@ ij.database=mydb;create=true
 ij.protocol=jdbc:derby:/tmp/
 ij.showNoCountForSelect=true
 ij.showNoConnectionsAtStart=true
+ij.maximumDisplayWidth=256
 ```
 For our example, we need to create an example database with a table. This can be done with a 
 sql file `create.sql` with the following content:
@@ -104,7 +105,7 @@ ij -p ij.properties create.sql
 
 After we created the database, we can remove the `create=true` from the properties file, to prevent warnings.
 
-Piping a select statement to the ij client returns the table data.
+Piping a select statement to the ij client returns the table data. 
 
 ```
 echo "select * from mytab;" | ij -p ij.properties 
@@ -118,6 +119,7 @@ NUM        |ADDR
 4          |Mysql                                   
 ij>
 ```
+The result is OK as long as the table is small. 
 
 To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with a
 small shell script. The script is called with a sql statement. It pipes the statement to the ij client (line 3).
@@ -140,26 +142,6 @@ sh derby_client.sh "select * from mytab;"
 ```
 
 ![Show query example](img/derby-db.png)
-
-## Example: Database
-Most databases are able to store tables dumps or queries in csv files, which can be displayed with **ccsvv**. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
-
-```sql
-SELECT 'Host', 'User', 'Max Questions', 'Max Updates', 'Max Connections', 'Max User Uonnections'
-UNION ALL
-SELECT Host, User, max_questions, max_updates, max_connections, max_user_connections
-  INTO OUTFILE '/tmp/query.csv'
-  FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
-  LINES TERMINATED BY '\n'
-  from user;
-```
-
-After creating the sql file you can call the following command to display the result with **ccsvv**.
-
-```bash
-sudo rm -f /tmp/query.csv && sudo mysql -u root -h localhost mysql < /tmp/query.sql && ccsvv /tmp/query.csv
-```
-![Show query example](img/query.png)
 
 ### Header detection
 It would be nice if there would be no need for the user of *ccsvv* to configure whether the csv file has a header row or not at the program start. So we can try to detect whether a given table has a header or not. If the csv file has no header, it is reasonable to assume that all rows of the column are similar. To prove this, we compute some characteristics of the first row of the column and compare that characteristics with the rest of the rows.
