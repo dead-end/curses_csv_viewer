@@ -138,9 +138,7 @@ An example call with the result:
 sh derby_client.sh "select * from mytab;"
 ```
 
-<img src="https://github.com/dead-end/curses_csv_viewer/blob/master/img/derby-db.png">
-
-![Show query example](img/derby-db.png = 257x228)
+![Show query example](img/derby-db.png)
 
 ## Example: Database
 Most databases are able to store tables dumps or queries in csv files, which can be displayed with **ccsvv**. The following example shows a sql statement from MariaDB, that stores a query against the `user` table in a csv file. It takes a little affort to add the table header to the csv file:
