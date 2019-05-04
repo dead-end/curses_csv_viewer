@@ -98,13 +98,13 @@ insert into mytab values (2,'PostgreSQL');
 insert into mytab values (3,'Maria DB'); 
 insert into mytab values (4,'Mysql'); 
 ```
-We can execute the statements with the following call:
+We can execute the statements with the following call. (This requires the flag `create=true` to be set in the
+[ij.properties](derby-db/ij.properties) file. Make sure that you removed the flag after you created the database,
+to prevent warnings.)
 
 ```bash
 ij -p ij.properties create.sql
 ```
-
-After we created the database, we can remove the `create=true` from the properties file, to prevent warnings.
 
 Piping a select statement to the ij client returns the table data. 
 
@@ -120,7 +120,7 @@ NUM        |ADDR
 4          |Mysql                                   
 ij>
 ```
-The result is OK as long as the table is small. 
+This result is OK as long as the table is small. 
 
 To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with a
 small shell script. The script is called with a sql statement and the first step is to copy that statement to a file. Using a file rather than piping the statement to the client gives better control over the promt of `ij`.
@@ -130,15 +130,14 @@ information and lines that only consist of a single `;`. This happens if you for
 statement. The last line pipes the resulting data to **ccsvv**. The field separator is the pipe character `|`: 
 
 ```bash
-!/bin/sh
+#!/bin/sh
 set -u
 echo "$@" > .derby.sql
 result=$(ij -p ij.properties .derby.sql | grep -v -e '^-*$' -e '^ij>' -e '^ij version' -e '^;$')
-echo "$result" | ../ccsvv -s -d '|' || echo "$result"
-
+echo "$result" | ./ccsvv -s -d '|' || echo "$result"
 ```
 
-An example call with the result: 
+An example call of the script [derby_client.sh](derby-db/derby_client.sh) with the result: 
 
 ```
 sh derby_client.sh "select * from mytab;"
