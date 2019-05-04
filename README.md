@@ -76,7 +76,7 @@ ccsvv -d : /etc/passwd
 ## Example: Derby DB
 In this section we want to discuss how to use **ccsvv** to display the results of a database client. 
 
-We use Derby DB as our database, which has a client called `ij`. It accepts a property file, with basic configurations. In our case [ij.properties](blob/master/derby-db/ij.properties):
+We use Derby DB as our database, which has a client called `ij`. It accepts a property file, with basic configurations. In our case [ij.properties](derby-db/ij.properties):
 
 ```properties
 ij.user=user
