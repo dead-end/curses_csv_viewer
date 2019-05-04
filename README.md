@@ -89,7 +89,7 @@ ij.showNoConnectionsAtStart=true
 ij.maximumDisplayWidth=256
 ```
 For our example, we need to create an example database with a table. This can be done with a 
-sql file `create.sql` with the following content:
+sql file [create.sql](derby-db/create.sql) with the following content:
 
 ```sql
 create table mytab(idx int, name varchar(40));
@@ -98,9 +98,9 @@ insert into mytab values (2,'PostgreSQL');
 insert into mytab values (3,'Maria DB'); 
 insert into mytab values (4,'Mysql'); 
 ```
-We can execute the statements with the following call. (This requires the flag `create=true` to be set in the
+We can execute the statements with the following call. This requires the flag `create=true` to be set in the
 [ij.properties](derby-db/ij.properties) file. Make sure that you removed the flag after you created the database,
-to prevent warnings.)
+to prevent warnings.
 
 ```bash
 ij -p ij.properties create.sql
@@ -125,9 +125,9 @@ This result is OK as long as the table is small.
 To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with a
 small shell script. The script is called with a sql statement and the first step is to copy that statement to a file. Using a file rather than piping the statement to the client gives better control over the promt of `ij`.
 
-A call of `grep` removes the line, that separates the header from the table data, the ij prompt, the version
-information and lines that only consist of a single `;`. This happens if you forget the `;` after your sql
-statement. The last line pipes the resulting data to **ccsvv**. The field separator is the pipe character `|`: 
+A call of `grep` removes the line, that separates the header from the table data, the `ij` prompt, the version
+information and lines that only consist of a single `;`. This happens if you forget the `;` character after your
+sql statement. The last line pipes the resulting data to **ccsvv**. The field separator is the pipe character `|`: 
 
 ```bash
 #!/bin/sh
@@ -140,7 +140,7 @@ echo "$result" | ./ccsvv -s -d '|' || echo "$result"
 An example call of the script [derby_client.sh](derby-db/derby_client.sh) with the result: 
 
 ```
-sh derby_client.sh "select * from mytab;"
+sh derby_client.sh "select * from mytab"
 ```
 
 ![Show query example](img/derby-db.png)
