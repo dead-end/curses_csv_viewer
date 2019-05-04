@@ -91,7 +91,7 @@ For our example, we need to create an example database with a table. This can be
 sql file `create.sql` with the following content:
 
 ```sql
-create table mytab(num int, addr varchar(40));
+create table mytab(idx int, name varchar(40));
 insert into mytab values (1,'Derby DB'); 
 insert into mytab values (2,'PostgreSQL'); 
 insert into mytab values (3,'Maria DB'); 
@@ -128,11 +128,12 @@ information and lines that only consist of a single `;`. This happens if you for
 statement. The last line pipes the resulting data to **ccsvv**. The field separator is the pipe character `|`: 
 
 ```bash
-#!/bin/sh
+!/bin/sh
 set -u
-derby_output=$(echo "$@" | ij -p ij.properties)
-csv_data=$(echo "$derby_output" | grep -v -e '^-*$' -e '^ij>' -e '^ij version' -e '^;$')
-echo "$csv_data" | ccsvv -s -d '|'
+echo "$@" > .derby.sql
+result=$(ij -p ij.properties .derby.sql | grep -v -e '^-*$' -e '^ij>' -e '^ij version' -e '^;$')
+echo "$result" | ../ccsvv -s -d '|' || echo "$result"
+
 ```
 
 An example call with the result: 
