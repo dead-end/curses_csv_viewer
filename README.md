@@ -81,8 +81,9 @@ We use Derby DB as our database, which has a client called `ij`. It accepts a pr
 ```properties
 ij.user=user
 ij.password=password
-ij.database=mydb;create=true
-ij.protocol=jdbc:derby:/tmp/
+ij.database=mydb
+#ij.database=mydb;create=true
+ij.protocol=jdbc:derby:
 ij.showNoCountForSelect=true
 ij.showNoConnectionsAtStart=true
 ij.maximumDisplayWidth=256
@@ -122,7 +123,8 @@ ij>
 The result is OK as long as the table is small. 
 
 To be able to use the output of ij for **ccsvv**, we have to remove the unnecessary lines. This can be done with a
-small shell script. The script is called with a sql statement. It pipes the statement to the ij client (line 3).
+small shell script. The script is called with a sql statement and the first step is to copy that statement to a file. Using a file rather than piping the statement to the client gives better control over the promt of `ij`.
+
 A call of `grep` removes the line, that separates the header from the table data, the ij prompt, the version
 information and lines that only consist of a single `;`. This happens if you forget the `;` after your sql
 statement. The last line pipes the resulting data to **ccsvv**. The field separator is the pipe character `|`: 
