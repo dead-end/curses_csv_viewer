@@ -64,6 +64,14 @@ dpkg -I "${file}"
 
 dpkg -c "${file}"
 
+md5sum "${file}"
+
+tgz=$(echo "${file}" | sed 's#_amd64.deb#.tgz#')
+
+tar -c --owner=dead --group=end -vzf "${tgz}" ccsvv
+
+md5sum "${tgz}"
+
 ###############################################################################
 # Go to the working directory and exit.
 ###############################################################################
