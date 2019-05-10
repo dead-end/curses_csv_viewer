@@ -48,36 +48,17 @@ Commands:
 ```
 ## Installation
 
-### Dependencies
-**ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*.
-To sucessfully compile **ccsvv** requires a package with the library and a develpoer package with the header files. 
-For ubuntu 18.0.4 this is:
-
-* libncursesw5     (>=6.1)
-* libncursesw5-dev (>=6.1)
-
 ### Debian Package
 The easierst way to install **ccsvv** is to the use the debian package attatched to the 
-![latest release](../../releases/latest). Download the .deb file, check the md5 sum and install the package with
+![latest release](../../releases/latest). Download the *.deb* file, check the md5 sum and install the package:
 
 ```bash
 md5sum ccsvv_X.Y.Z_amd64.deb
 sudo dpkg -i ccsvv_X.Y.Z_amd64.deb
-
 ```
 
-### Binary Tar
-The ![latest release](../../releases/latest) contains a tar file with a compiled binary. Download the .tgz file, check the
-md5 sum and untar the file. Make sure that the dependencies are fullfilled and that the LD_LIBRARY_PATH is properly
-set.
-
-```bash
-md5sum ccsvv_X.Y.Z.tgz
-tar xvzf ccsvv_X.Y.Z_amd64.deb
-
-```
 ### Build from Sources
-Download the sources zipfile for the ![latest release](../../releases/latest). **ccsvv** can be simply build with:
+Ensure that the dependencies are fullfilled (see below). Download the sources zipfile for the ![latest release](../../releases/latest) and compile **ccsvv** with:
 
 ```
 make
@@ -90,6 +71,25 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 make test
 ```
+
+### Binary Tar
+The ![latest release](../../releases/latest) contains a tar file with a compiled binary. Download the *.tgz* file, check the
+md5 sum and untar the file. 
+
+```bash
+md5sum ccsvv_X.Y.Z.tgz
+tar xvzf ccsvv_X.Y.Z_amd64.deb
+```
+
+### Dependencies
+**ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*.
+To sucessfully compile **ccsvv** requires a package with the library and a developer package with the header files. 
+For ubuntu 18.0.4 this is:
+
+* libncursesw5     (>=6.1)
+* libncursesw5-dev (>=6.1)
+
+Make sure that the LD_LIBRARY_PATH is properly set.
 
 ## Example: /etc/passwd
 **ccsvv** can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by *system*.
