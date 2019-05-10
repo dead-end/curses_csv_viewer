@@ -118,9 +118,9 @@ set(VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPA
 set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 
 #
-# Dependencies from my installation (ubuntu 16.0.4)
+# Dependencies from my installation (ubuntu 18.0.4)
 #
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>=2.23), libncursesw5 (>= 5.9)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>=2.27), libncursesw5 (>= 6.1)")
 
 #
 # Various informations 
