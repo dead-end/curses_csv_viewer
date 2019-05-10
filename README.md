@@ -51,14 +51,14 @@ Commands:
 ### Dependencies
 **ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*.
 To sucessfully compile **ccsvv** requires a package with the library and a develpoer package with the header files. 
-For ubuntu this is:
+For ubuntu 18.0.4 this is:
 
-* libncursesw5
-* libncursesw5-dev
+* libncursesw5     (>=6.1)
+* libncursesw5-dev (>=6.1)
 
 ### Debian Package
 The easierst way to install **ccsvv** is to the use the debian package attatched to the 
-![latest release](releases/latest). Download the .deb file, check the md5 sum and install the package with
+![latest release](../../releases/latest). Download the .deb file, check the md5 sum and install the package with
 
 ```bash
 md5sum ccsvv_X.Y.Z_amd64.deb
@@ -67,7 +67,7 @@ sudo dpkg -i ccsvv_X.Y.Z_amd64.deb
 ```
 
 ### Binary Tar
-The ![latest release](releases/latest) contains a tar file with a compiled binary. Download the .tgz file, check the
+The ![latest release](../../releases/latest) contains a tar file with a compiled binary. Download the .tgz file, check the
 md5 sum and untar the file. Make sure that the dependencies are fullfilled and that the LD_LIBRARY_PATH is properly
 set.
 
@@ -77,7 +77,7 @@ tar xvzf ccsvv_X.Y.Z_amd64.deb
 
 ```
 ### Build from Sources
-Download the sources zipfile for the ![latest release](releases/latest). **ccsvv** can be simply build with:
+Download the sources zipfile for the ![latest release](../../releases/latest). **ccsvv** can be simply build with:
 
 ```
 make
