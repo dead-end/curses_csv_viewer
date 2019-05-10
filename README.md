@@ -73,8 +73,8 @@ make test
 ```
 
 ### Binary Tar
-The ![latest release](../../releases/latest) contains a tar file with a compiled binary. Download the *.tgz* file, check the
-md5 sum and untar the file. 
+Ensure that the dependencies are fullfilled (see below). The ![latest release](../../releases/latest) contains a tar 
+file with a compiled binary. Download the *.tgz* file, check the md5 sum and untar the file. 
 
 ```bash
 md5sum ccsvv_X.Y.Z.tgz
