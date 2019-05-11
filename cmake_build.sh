@@ -46,7 +46,7 @@ cd "${build_dir}"
 # Do the cmake build, test and packaging
 ###############################################################################
 
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
+cmake -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" ..
 
 make
 
@@ -58,19 +58,23 @@ cpack ..
 # Print some informations about the newly build package.
 ###############################################################################
 
-file=$(ls ccsvv*deb)
+pkg_file=$(ls ccsvv*deb)
 
-dpkg -I "${file}"
+dpkg -I "${pkg_file}"
 
-dpkg -c "${file}"
+dpkg -c "${pkg_file}"
 
-md5sum "${file}"
+md5sum "${pkg_file}"
 
-tgz=$(echo "${file}" | sed 's#_amd64.deb#.tgz#')
+###############################################################################
+# Create tar file with the executable
+###############################################################################
 
-tar -c --owner=dead --group=end -vzf "${tgz}" ccsvv
+tgz_file=$(echo "${pkg_file}" | sed 's#_amd64.deb#.tgz#')
 
-md5sum "${tgz}"
+tar -c --owner=dead --group=end -vzf "${tgz_file}" ccsvv
+
+md5sum "${tgz_file}"
 
 ###############################################################################
 # Go to the working directory and exit.
