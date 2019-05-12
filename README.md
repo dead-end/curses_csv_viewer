@@ -84,7 +84,7 @@ tar xvzf ccsvv_X.Y.Z_amd64.deb
 ### Dependencies
 **ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*.
 
-For the deb package or the precompiled executable for following list of dependencies is relevant for ubuntu 18.0.4:
+For the deb package or the precompiled executable the following list of dependencies is relevant for ubuntu 18.0.4:
 
 * libc6        (>=2.27)
 * libtinfo5    (>=6.1)
