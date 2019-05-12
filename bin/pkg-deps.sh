@@ -3,18 +3,15 @@
 ###############################################################################
 # The script is called with an executable file and it returns a list of deb
 # packages (including the version), which the executable depends on. This
-# information can be used for the deb package build.
+# information can be used for the deb package build. See:
+# CPACK_DEBIAN_PACKAGE_DEPENDS in CMakeLists.txt.
 #
 # Example:
 #
-#   > sh bin/pkg-deps.sh ccsvv 
-#   Processing: ccsvv
-#   Found dependencies:
-#   libc6 (2.27)
-#   libncursesw5 (6.1)
-#   libncursesw5-dbg (6.1)
-#   libtinfo5 (6.1)
-#   libtinfo5-dbg (6.1)
+#  > sh bin/pkg-deps.sh cmake-build/ccsvv
+#  Processing: cmake-build/ccsvv
+#  Found dependencies:
+#  libc6 (>=2.27), libncursesw5 (>=6.1), libncursesw5-dbg (>=6.1), libtinfo5 (>=6.1), libtinfo5-dbg (>=6.1)
 ###############################################################################
 
 set -ue
@@ -100,13 +97,21 @@ echo "Found dependencies:"
 
 dep_pkgs=$(echo "$dep_pkgs" | sort -u)
 
+sep=
+
 for dep_pkg in ${dep_pkgs} ; do
   version=$(dpkg -s "${dep_pkg}" | grep "Version:")
   log "debug" "version: ${version}"
   
   version=$(echo "${version}" | sed 's#Version: ## ; s#-.*##')
-  echo "${dep_pkg} (${version})"
+  echo -n "${sep}${dep_pkg} (>=${version})"
+  
+  if [ -z "${sep}" ] ; then
+    sep=", "
+  fi
 done
+
+echo
 
 exit 0
 
