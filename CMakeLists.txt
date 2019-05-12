@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-add_compile_options(-std=c11 -Wall -Wextra -Wpedantic -Werror -O2)
+add_compile_options(-Wall -Wextra -Wpedantic -Werror -std=c11 -O2)
 
 include_directories(inc)
 

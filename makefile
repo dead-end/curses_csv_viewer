@@ -13,8 +13,8 @@ TST_DIR = tests
 
 CC       = gcc
 #DEBUG    = -DDEBUG -g
-WARNINGS = -Wall -Wextra -Wpedantic -Werror
-CFLAGS   = $(WARNINGS) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) -std=c11 -O2
+BASE_CFLAGE = -Wall -Wextra -Wpedantic -Werror -std=c11 -O2
+CFLAGS   = $(BASE_CFLAGE) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) 
 LIBS     = $(shell ncursesw5-config --libs) -lformw -lmenuw -lm
 
 ###############################################################################
