@@ -83,13 +83,22 @@ tar xvzf ccsvv_X.Y.Z_amd64.deb
 
 ### Dependencies
 **ccsvv** uses *ncursesw* to create and display the tables. *ncursesw* is the wide character version of *ncurses*.
-To sucessfully compile **ccsvv** requires a package with the library and a developer package with the header files. 
-For ubuntu 18.0.4 this is:
 
-* libncursesw5     (>=6.1)
+For the deb package or the precompiled executable for following list of dependencies is relevant for ubuntu 18.0.4:
+
+* libc6        (>=2.27)
+* libtinfo5    (>=6.1)
+* libncursesw5 (>=6.1)
+
+To sucessfully compile **ccsvv** requires a package with the library and debug informations and a developer package 
+with the header files. For ubuntu 18.0.4 this is:
+
+* libc6            (>=2.27)
+* libtinfo5-dbg    (>=6.1)
+* libncursesw5-dbg (>=6.1)
 * libncursesw5-dev (>=6.1)
 
-Make sure that the LD_LIBRARY_PATH is properly set.
+If you compiled your own *ncursesw5* lib, make sure that the LD_LIBRARY_PATH is properly set.
 
 ## Example: /etc/passwd
 **ccsvv** can be used to browse through all kinds of csv like files. The following example shows the `/etc/passwd` file, filtered by *system*.
