@@ -50,7 +50,7 @@ Commands:
 
 ### Debian Package
 The easierst way to install **ccsvv** is to the use the debian package attatched to the 
-![latest release](../../releases/latest). Download the *.deb* file, check the md5 sum and install the package:
+[latest release](../../releases/latest). Download the *.deb* file, check the md5 sum and install the package:
 
 ```bash
 md5sum ccsvv_X.Y.Z_amd64.deb
@@ -58,7 +58,7 @@ sudo dpkg -i ccsvv_X.Y.Z_amd64.deb
 ```
 
 ### Build from Sources
-Ensure that the dependencies are fullfilled (see below). Download the sources zipfile for the ![latest release](../../releases/latest) and compile **ccsvv** with:
+Ensure that the dependencies are fullfilled (see below). Download the sources zipfile for the [latest release](../../releases/latest) and compile **ccsvv** with:
 
 ```
 make
@@ -73,7 +73,7 @@ make test
 ```
 
 ### Binary Tar
-Ensure that the dependencies are fullfilled (see below). The ![latest release](../../releases/latest) contains a tar 
+Ensure that the dependencies are fullfilled (see below). The [latest release](../../releases/latest) contains a tar 
 file with a compiled binary. Download the *.tgz* file, check the md5 sum and untar the file. 
 
 ```bash
