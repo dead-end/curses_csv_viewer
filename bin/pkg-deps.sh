@@ -8,10 +8,12 @@
 #
 # Example:
 #
-#  > sh bin/pkg-deps.sh cmake-build/ccsvv
-#  Processing: cmake-build/ccsvv
-#  Found dependencies:
-#  libc6 (>=2.27), libncursesw5 (>=6.1), libncursesw5-dbg (>=6.1), libtinfo5 (>=6.1), libtinfo5-dbg (>=6.1)
+#    >sh bin/pkg-deps.sh ccsvv
+#    Processing: ccsvv
+#    Found dependencies:
+#    libc6 (>=2.27), libncursesw5 (>=6.1), libtinfo5 (>=6.1)
+#    Found debug dependencies:
+#    libncursesw5-dbg (>=6.1), libtinfo5-dbg (>=6.1)
 ###############################################################################
 
 set -ue
@@ -42,6 +44,31 @@ log () {
   else
     log "error" "EXIT: Unknown level: ${level}"
   fi
+}
+
+###############################################################################
+# The function prints the list of packages, which the executable depends on.
+###############################################################################
+
+print_pkgs() {
+  dep_pkgs="${1}"
+  
+  sep=
+  result=
+
+  for dep_pkg in ${dep_pkgs} ; do
+    version=$(dpkg -s "${dep_pkg}" | grep "Version:")
+    log "debug" "version: ${version}"
+  
+    version=$(echo "${version}" | sed 's#Version: ## ; s#-.*##')
+    result="${result}${sep}${dep_pkg} (>=${version})"
+  
+    if [ -z "${sep}" ] ; then
+      sep=", "
+    fi
+  done
+  
+  echo "${result}"
 }
 
 ###############################################################################
@@ -93,25 +120,21 @@ done
 # (before: 6.1-1ubuntu1.18.04 after: 6.1)
 ###############################################################################
 
+dep_pkgs=$(echo "${dep_pkgs}" | sort -u)
+
+log "debug" "dep_pkgs: ${dep_pkgs}"
+
+dep_pkgs_debug=$(echo "${dep_pkgs}" | grep -- '-dbg$')
+
+dep_pkgs_normal=$(echo "${dep_pkgs}" | grep -v -- '-dbg$')
+
 echo "Found dependencies:"
 
-dep_pkgs=$(echo "$dep_pkgs" | sort -u)
+print_pkgs "${dep_pkgs_normal}"
 
-sep=
+echo "Found debug dependencies:"
 
-for dep_pkg in ${dep_pkgs} ; do
-  version=$(dpkg -s "${dep_pkg}" | grep "Version:")
-  log "debug" "version: ${version}"
-  
-  version=$(echo "${version}" | sed 's#Version: ## ; s#-.*##')
-  echo -n "${sep}${dep_pkg} (>=${version})"
-  
-  if [ -z "${sep}" ] ; then
-    sep=", "
-  fi
-done
-
-echo
+print_pkgs "${dep_pkgs_debug}"
 
 exit 0
 
