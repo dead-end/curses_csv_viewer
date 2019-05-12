@@ -120,7 +120,7 @@ set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${VERSION}_${CPACK_DEBIAN_PAC
 #
 # Dependencies from my installation (ubuntu 18.0.4)
 #
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>=2.27), libncursesw5 (>= 6.1)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>=2.27), libncursesw5 (>=6.1), libtinfo5 (>=6.1)")
 
 #
 # Various informations 
