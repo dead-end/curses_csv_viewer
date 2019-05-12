@@ -1,7 +1,20 @@
 #/bin/sh
 
 ###############################################################################
-# Some saveguarding definitions. 
+# The script is called with an executable file and it returns a list of deb
+# packages (including the version), which the executable depends on. This
+# information can be used for the deb package build.
+#
+# Example:
+#
+#   > sh bin/pkg-deps.sh ccsvv 
+#   Processing: ccsvv
+#   Found dependencies:
+#   libc6 (2.27)
+#   libncursesw5 (6.1)
+#   libncursesw5-dbg (6.1)
+#   libtinfo5 (6.1)
+#   libtinfo5-dbg (6.1)
 ###############################################################################
 
 set -ue
@@ -9,7 +22,8 @@ set -ue
 DEBUG=
 
 ###############################################################################
-# logging function
+# A logging function that supports the log level "debug", "info", "error". The
+# function exits the script after printing an error message.
 ###############################################################################
 
 log () {
@@ -27,6 +41,7 @@ log () {
   elif [ "${level}" = "error" ] ; then
     echo "ERROR: ${msg}"
     exit 1
+    
   else
     log "error" "EXIT: Unknown level: ${level}"
   fi
