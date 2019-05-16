@@ -27,6 +27,10 @@
 
 #include <locale.h>
 
+#define STRICT_COL_TRUE true
+
+#define DO_TRIM_FALSE false
+
 /******************************************************************************
  * The function reads and parses a csv file. All fields are compared with the
  * expected values.
@@ -46,7 +50,7 @@ static void test_parser() {
 	FILE *tmp = ut_create_tmp_file(data);
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 
@@ -107,7 +111,7 @@ static void helper_line_endings(const wchar_t *data) {
 	FILE *tmp = ut_create_tmp_file(data);
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 
@@ -170,7 +174,7 @@ static void test_parser_empty() {
 	FILE *tmp = ut_create_tmp_file(L",\n,");
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 

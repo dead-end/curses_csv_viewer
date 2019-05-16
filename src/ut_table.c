@@ -30,6 +30,10 @@
 #include <math.h>
 #include <stdarg.h>
 
+#define STRICT_COL_TRUE true
+
+#define DO_TRIM_FALSE false
+
 /******************************************************************************
  * The test checks the s_table_field_dimension function, which computes the
  * width and height of a field. An empty field has width 0 and height 1. The
@@ -133,7 +137,7 @@ static void test_table_has_header() {
 	FILE *tmp = ut_create_tmp_file(data);
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 	//
@@ -229,7 +233,7 @@ static void test_table_mean_std_dev() {
 	FILE *tmp = ut_create_tmp_file(data);
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 
@@ -420,7 +424,7 @@ static void test_table_search_filter() {
 	FILE *tmp = ut_create_tmp_file(data);
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, false);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 
