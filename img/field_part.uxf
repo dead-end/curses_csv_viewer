@@ -12,12 +12,12 @@
     <panel_attributes>halign=left
 bg=orange
 lw=2
-this  is a sample text\n
+this  is a sample text
 this  is a sample
 
-text  \n
+text  
 this  is a 
-samp  le text\n</panel_attributes>
+samp  le text</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -85,7 +85,7 @@ height</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
+      <x>672</x>
       <y>308</y>
       <w>126</w>
       <h>154</h>
@@ -124,11 +124,11 @@ width</panel_attributes>
     <coordinates>
       <x>504</x>
       <y>308</y>
-      <w>210</w>
+      <w>224</w>
       <h>42</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>130.0;10.0;10.0;10.0</additional_attributes>
+    <additional_attributes>140.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -146,11 +146,11 @@ width</panel_attributes>
     <coordinates>
       <x>504</x>
       <y>420</y>
-      <w>210</w>
+      <w>224</w>
       <h>42</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>130.0;10.0;10.0;10.0</additional_attributes>
+    <additional_attributes>140.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -183,7 +183,7 @@ width</panel_attributes>
       <h>168</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;.
-m2=visable</panel_attributes>
+m2=visible</panel_attributes>
     <additional_attributes>10.0;10.0;100.0;100.0</additional_attributes>
   </element>
   <element>
