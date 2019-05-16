@@ -444,7 +444,7 @@ field</panel_attributes>
       <h>44</h>
     </coordinates>
     <panel_attributes>lt=&lt;.&gt;
-visable table part</panel_attributes>
+visible table part</panel_attributes>
     <additional_attributes>10.0;20.0;230.0;20.0</additional_attributes>
   </element>
   <element>
@@ -478,7 +478,7 @@ visable table part</panel_attributes>
       <h>231</h>
     </coordinates>
     <panel_attributes>lt=&lt;.&gt;
-visable
+visible
 table 
 part</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;190.0</additional_attributes>
