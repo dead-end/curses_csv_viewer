@@ -159,6 +159,35 @@ static void count_columns_and_rows(s_csv_parser *csv_parser, const bool is_row_e
 }
 
 /******************************************************************************
+ * The function builds the string, which is stored in the parser struct.
+ *****************************************************************************/
+
+static wchar_t *build_and_reset_field_str(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser) {
+	wchar_t *ptr;
+
+	//
+	// Add the terminating \0 to the field.
+	//
+	add_wchar_to_field(csv_parser, W_STR_TERM);
+
+	//
+	// If configured, trim the field content.
+	//
+	if (cfg_parser->do_trim) {
+		ptr = wcstrim(csv_parser->field);
+	} else {
+		ptr = csv_parser->field;
+	}
+
+	//
+	// Reset the field index.
+	//
+	csv_parser->field_idx = 0;
+
+	return ptr;
+}
+
+/******************************************************************************
  * The function is called each time a field in the csv file ends. If the count
  * flag is false, the field is copied to the table.
  *****************************************************************************/
@@ -170,30 +199,12 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 	//
 	if (!csv_parser->do_count) {
 
-		//
-		// Add the terminating \0 to the field.
-		//
-		add_wchar_to_field(csv_parser, W_STR_TERM);
-
-		//
-		// If configured, trim the field content.
-		//
-		wchar_t *ptr = csv_parser->field;
-		if (cfg_parser->do_trim) {
-			ptr = wcstrim(csv_parser->field);
-		} else {
-			ptr = csv_parser->field;
-		}
+		wchar_t *ptr = build_and_reset_field_str(csv_parser, cfg_parser);
 
 		//
 		// Copy the field data to the table.
 		//
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, ptr);
-
-		//
-		// Reset the field index.
-		//
-		csv_parser->field_idx = 0;
 	}
 
 	//
