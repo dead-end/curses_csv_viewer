@@ -233,10 +233,13 @@ If the table width and hight is larger than the window size, only a part of
 the table will be visualized.
 
 The table view has a reference field. The reference field is aligned with one
-of the corners. The fields at the oposite sides of the window may be truncated.
+of the four corners. The fields along the opposite side are truncated if the
+sizes do not fit.
 
 ![table part](img/table_part.png?raw=true "Table Part")
 
-A truncated field may be truncated left or right or at top or bottom.
+A truncated field may be truncated left or right or at top or bottom. To compute the
+truncated sizes, we start at the reference field and sum up the widths or hights until
+the sum exceeds the width or hight of the visible part of the table.
 
 ![field part](img/field_part.png?raw=true "Field Part")
