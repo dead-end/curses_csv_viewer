@@ -48,9 +48,15 @@ typedef struct s_cfg_parser {
 	//
 	bool do_trim;
 
+	//
+	// A flag that indicates that a missing column in one row is an error. A
+	// value of false means, that missing columns are added.
+	//
+	bool strict_cols;
+
 } s_cfg_parser;
 
-#define s_cfg_parser_set( c, f, d, t) (c)->filename = f; (c)->delim = d; (c)->do_trim = t
+#define s_cfg_parser_set( c, f, d, t, s) (c)->filename = f; (c)->delim = d; (c)->do_trim = t; (c)->strict_cols = s
 
 void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *table);
 
