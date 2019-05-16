@@ -182,7 +182,7 @@ int main(const int argc, char * const argv[]) {
 	// Create a default parser configuration.
 	//
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, true);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, true, false);
 
 	//
 	// Import the locale from the environment to allow proper wchar_t's.
@@ -196,7 +196,7 @@ int main(const int argc, char * const argv[]) {
 	//
 	// Parse the command line options.
 	//
-	while ((c = getopt(argc, argv, "hmsntd:")) != -1) {
+	while ((c = getopt(argc, argv, "hmsntd:c")) != -1) {
 		switch (c) {
 
 		case 'h':
@@ -243,6 +243,10 @@ int main(const int argc, char * const argv[]) {
 			}
 
 			print_debug("main() Delimiter: %lc\n", cfg_parser.delim);
+			break;
+
+		case 'c':
+			cfg_parser.strict_cols = true;
 			break;
 
 		default:
