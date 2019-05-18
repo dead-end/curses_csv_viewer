@@ -153,6 +153,8 @@ static void print_usage(const bool has_error, const char* msg) {
 	fprintf(stream, "                If none of the flags is given ccsvv tries to detect whether a\n");
 	fprintf(stream, "                header is present or not.\n\n");
 	fprintf(stream, "  -t            Switch off trimming of the csv fields.\n\n");
+	fprintf(stream, "  -c            By default ccsvv adds missing fields in a row. The flag switches\n");
+	fprintf(stream, "                on strict checks. A missing field results in an error.\n\n");
 	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
 	fprintf(stream, "                the csv data from stdin.\n");
 	//              "--------------------------------------------------------------------------------\n");
