@@ -28,6 +28,10 @@ ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]
                 header is present or not.
 
   -t            Switch off trimming of the csv fields.
+  
+  -c            By default ccsvv adds missing fields in a row. The flag switches
+                on strict checks. A missing field results in an error.
+
 
   file          The name of the csv file. If no filename is defined, ccsvv reads
                 the csv data from stdin.
