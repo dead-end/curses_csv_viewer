@@ -29,6 +29,8 @@
 
 #define STRICT_COL_TRUE true
 
+#define STRICT_COL_FALSE false
+
 #define DO_TRIM_FALSE false
 
 /******************************************************************************
@@ -207,6 +209,52 @@ static void test_parser_empty() {
 }
 
 /******************************************************************************
+ * The function check the strict flag 'false'. This means that missing columns
+ * should be added.
+ *****************************************************************************/
+
+static void test_strict_false() {
+	s_table table;
+	s_table_set_defaults(table);
+
+	print_debug_str("test_strict_false() Start\n");
+
+	const wchar_t *data =
+
+	L"header" NL
+	"first" DL "next" NL
+	"second" DL "hallo" DL "end" NL;
+
+	FILE *tmp = ut_create_tmp_file(data);
+
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_FALSE);
+
+	parser_process_file(tmp, &cfg_parser, &table);
+
+	ut_check_wchar_str(table.fields[0][0], L"header");
+	ut_check_wchar_str(table.fields[0][1], L"");
+	ut_check_wchar_str(table.fields[0][2], L"");
+
+	ut_check_wchar_str(table.fields[1][0], L"first");
+	ut_check_wchar_str(table.fields[1][1], L"next");
+	ut_check_wchar_str(table.fields[1][2], L"");
+
+	ut_check_wchar_str(table.fields[2][0], L"second");
+	ut_check_wchar_str(table.fields[2][1], L"hallo");
+	ut_check_wchar_str(table.fields[2][2], L"end");
+
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
+	print_debug_str("test_strict_false() End\n");
+}
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -221,6 +269,8 @@ int main() {
 	test_line_endings();
 
 	test_parser_empty();
+
+	test_strict_false();
 
 	print_debug_str("ut_parser.c - End tests\n");
 
