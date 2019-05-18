@@ -187,7 +187,7 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 				// We compare the column number of the first row with that of
 				// the current.
 				//
-				if (s_csv_parser_last_col_idx(csv_parser) != csv_parser->current_column) {
+				if (csv_parser->current_column != s_csv_parser_last_col_idx(csv_parser)) {
 					print_exit("count_columns_and_rows() row: %d current columns: %d expected columns: %d\n", csv_parser->current_row + 1, csv_parser->current_column, csv_parser->no_columns);
 				}
 			}
