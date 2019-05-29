@@ -125,7 +125,6 @@ void s_wbuf_free(s_wbuf *wbuf) {
  *****************************************************************************/
 
 void s_wbuf_add(s_wbuf *wbuf, const wchar_t wchar) {
-	print_debug_str("s_wbuf_add() \n");
 
 	if (wbuf->root == NULL) {
 
