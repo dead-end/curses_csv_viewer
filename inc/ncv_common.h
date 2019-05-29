@@ -87,6 +87,17 @@
 #define DL         ","
 
 /******************************************************************************
+ * An enum value for a direction (example: direction * width)
+ *****************************************************************************/
+
+// todo: remove #define DIR_BACKWARD -1
+enum e_direction {
+	E_DIR_BACKWARD = -1, E_DIR_FORWARD = 1
+};
+
+#define e_direction_str(d) (d) == E_DIR_FORWARD ? "FORWARD" : "BACKWARD"
+
+/******************************************************************************
  * A boolean type that can be undefined.
  *****************************************************************************/
 
