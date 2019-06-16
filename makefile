@@ -29,6 +29,7 @@ SRC_LIBS += $(SRC_DIR)/ncv_table_part.c
 SRC_LIBS += $(SRC_DIR)/ncv_corners.c
 SRC_LIBS += $(SRC_DIR)/ncv_field.c
 SRC_LIBS += $(SRC_DIR)/ncv_filter.c
+SRC_LIBS += $(SRC_DIR)/ncv_sort.c
 SRC_LIBS += $(SRC_DIR)/ncv_ui_loop.c
 SRC_LIBS += $(SRC_DIR)/ncv_forms.c
 SRC_LIBS += $(SRC_DIR)/ncv_popup.c
