@@ -32,6 +32,7 @@
 bool s_sort_set_inactive(s_sort *sort) {
 
 	if (sort->is_active) {
+		sort->is_active = false;
 		sort->column = -1;
 		sort->direction = E_DIR_FORWARD;
 		return true;
