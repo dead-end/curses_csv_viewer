@@ -546,6 +546,78 @@ static void test_table_search_filter() {
 	print_debug_str("test_table_search_filter() End\n");
 }
 
+// TODO: comments & check
+/******************************************************************************
+ *
+ *****************************************************************************/
+
+static void test_sort() {
+	s_table table;
+	s_cursor cursor;
+	s_table_set_defaults(table);
+
+	print_debug_str("test_sort() Start\n");
+
+	const wchar_t *data =
+
+	L"bb" DL "BB" NL
+	"cc" DL "CC" NL
+	"dd" DL "DD" NL
+	"aa" DL "AA" NL;
+
+	FILE *tmp = ut_create_tmp_file(data);
+
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
+
+	parser_process_file(tmp, &cfg_parser, &table);
+
+	table.show_header = false;
+
+	s_filter_set_inactive(&table.filter);
+
+	s_table_sort(&table, &cursor, 0, E_DIR_FORWARD);
+
+	ut_check_wchar_str(table.fields[0][0], L"aa");
+	ut_check_wchar_str(table.fields[1][0], L"bb");
+	ut_check_wchar_str(table.fields[2][0], L"cc");
+	ut_check_wchar_str(table.fields[3][0], L"dd");
+
+	s_table_sort(&table, &cursor, 1, E_DIR_BACKWARD);
+
+	ut_check_wchar_str(table.fields[0][1], L"DD");
+	ut_check_wchar_str(table.fields[1][1], L"CC");
+	ut_check_wchar_str(table.fields[2][1], L"BB");
+	ut_check_wchar_str(table.fields[3][1], L"AA");
+
+	table.show_header = true;
+	s_table_sort(&table, &cursor, 0, E_DIR_FORWARD);
+
+	ut_check_wchar_str(table.fields[0][0], L"bb");
+	ut_check_wchar_str(table.fields[1][0], L"aa");
+	ut_check_wchar_str(table.fields[2][0], L"cc");
+	ut_check_wchar_str(table.fields[3][0], L"dd");
+
+	//
+	// Forward again => reset
+	//
+	s_table_sort(&table, &cursor, 0, E_DIR_FORWARD);
+
+	ut_check_wchar_str(table.fields[0][0], L"bb");
+	ut_check_wchar_str(table.fields[1][0], L"cc");
+	ut_check_wchar_str(table.fields[2][0], L"dd");
+	ut_check_wchar_str(table.fields[3][0], L"aa");
+
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
+	print_debug_str("test_sort() End\n");
+}
+
 /******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
@@ -565,6 +637,8 @@ int main() {
 	test_table_mean_std_dev();
 
 	test_table_search_filter();
+
+	test_sort();
 
 	print_debug_str("ut_table.c - End tests\n");
 
