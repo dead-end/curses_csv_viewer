@@ -25,8 +25,10 @@
 #ifndef INC_NCV_TABLE_H_
 #define INC_NCV_TABLE_H_
 
+#include "ncv_sort.h"
 #include "ncv_filter.h"
 #include "ncv_cursor.h"
+#include "ncv_common.h"
 
 /******************************************************************************
  * The structure contains all the table related data, that is the csv data, the
@@ -82,6 +84,13 @@ typedef struct s_table {
 	//
 	s_filter filter;
 
+// TODO: comment
+	//
+	// If sorting is applied to the table, the sorting column and direction is
+	// stored here.
+	//
+	s_sort sort;
+
 } s_table;
 
 /******************************************************************************
@@ -107,7 +116,10 @@ void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
 
-bool s_table_reset_rows(s_table *table);
+// TODO: remove
+bool s_table_reset_rows_old(s_table *table);
+
+void s_table_reset_rows(s_table *table);
 
 void s_table_copy(s_table *table, const int rows, const int columns, wchar_t *str);
 
@@ -115,7 +127,17 @@ void s_table_field_dimension(wchar_t *str, int *width, int *height);
 
 void s_table_reset_filter(s_table *table, s_cursor *cursor);
 
+void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor);
+
+// todo check name
+//bool s_table_sort_update(s_table *table, const int column, const enum e_direction direction);
+
+// todo: remove
 wchar_t *s_table_update_filter(s_table *table, s_cursor *cursor);
+
+//wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool do_reset);
+// TODO:
+wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed);
 
 bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction);
 
@@ -138,5 +160,8 @@ double get_str_len(const wchar_t *str);
 double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
 
 double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str), const double mean);
+
+// TODO:
+void s_table_sort(s_table *table, s_cursor *cursor, const int column, const int direction);
 
 #endif
