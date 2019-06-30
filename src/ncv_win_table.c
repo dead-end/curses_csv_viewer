@@ -228,6 +228,13 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 void win_table_set_cursor(const s_table *table, s_cursor *cursor, const int dir) {
 
 	//
+	// Ensure that the cursor is on the table
+	//
+#ifdef DEBUG
+	s_table_cursor_on_table(table, cursor);
+#endif
+
+	//
 	// update the visible part of the table
 	//
 	s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, dir, getmaxy(win_table));
@@ -378,9 +385,35 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 				}
 			}
 
+
+// TODO: add border for sorted values 
+
 			//
 			// row borders
 			//
+//			chtype ch;
+//			if (s_table_is_sorted(table) && table->sort.column == idx.col) {
+//				ch = table->sort.direction == E_DIR_FORWARD ? '>' : '<';
+//			} else {
+//				ch = ACS_HLINE;
+//			}
+//
+//			if (row_table_part.direction == DIR_FORWARD) {
+//				mvwhline(win_table, win_field.row, win_text.col, ch, col_field_part.size);
+//
+//				if (is_not_truncated_and_last(&row_table_part, idx.row)) {
+//					mvwhline(win_table, win_field_end.row, win_text.col, ch, col_field_part.size);
+//					num_borders.row++;
+//				}
+//			} else {
+//				mvwhline(win_table, win_field_end.row, win_text.col, ch, col_field_part.size);
+//
+//				if (is_not_truncated_and_first(&row_table_part, idx.row)) {
+//					mvwhline(win_table, win_field.row, win_text.col, ch, col_field_part.size);
+//					num_borders.row++;
+//				}
+//			}
+
 			if (row_table_part.direction == DIR_FORWARD) {
 				mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 
