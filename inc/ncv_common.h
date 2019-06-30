@@ -178,6 +178,13 @@ int get_align_start(const int max, const int len, const enum e_align align);
 
 #define pow2(a) (a) * (a)
 
+#define bool_str(b) (b) ? "true" : "false"
+
+//
+// chtype cht = (chtype) (unsigned char) chr;
+//
+#define char_to_chtype(ch) ((chtype) (unsigned char) (ch))
+
 /******************************************************************************
  * Various function definitions.
  *****************************************************************************/
