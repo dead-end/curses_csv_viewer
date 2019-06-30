@@ -28,6 +28,7 @@
 #include "ncv_win_footer.h"
 #include "ncv_win_help.h"
 
+//#include "ncv_sort.h"
 #include "ncv_filter.h"
 #include "ncv_table_part.h"
 #include "ncv_ncurses.h"
@@ -341,34 +342,32 @@ void ui_loop(s_table *table, const char *filename) {
 			//
 			case NCV_KEY_ESC:
 				print_debug("ui_loop() Found esc char: %d\n", chr);
-
-				bool is_filter_reset;
-
+// TODO: check
 				//
-				// Reset the filtering, if the table is filtered. This is
-				// independent of the mode. In HELP mode the table can be
-				// filtered.
+				// Deactivate filtering and sorting.
 				//
-				if ((is_filter_reset = s_filter_set_inactive(&table->filter))) {
+				const bool is_filter_reset = s_filter_set_inactive(&table->filter);
+				const bool is_sort_reset = s_sort_set_inactive(&table->sort);
+
+				if (is_filter_reset || is_sort_reset) {
 
 					//
-					// If the table was reset, the cursor position has changed.
+					// If one of the values changed, do a reset and print the
+					// result.
 					//
-					s_table_reset_filter(table, &cursor);
+					s_table_update_filter_sort(table, &cursor, is_filter_reset, is_sort_reset);
 
-					//
-					// After reseting the filtering the table changed.
-					//
 					win_table_on_table_change(table, &cursor);
 				}
 
+// TODO: check
 				//
 				// If the mode changed or the filter was reset, we need to
 				// redraw the windows. The function change_mode, has always to
 				// be called, so the function call has to be the first
 				// condition in the if statement.
 				//
-				if (change_mode(&win, &cursor, &mode, MODE_TABLE) || is_filter_reset) {
+				if (change_mode(&win, &cursor, &mode, MODE_TABLE) || is_filter_reset || is_sort_reset) {
 
 					//
 					// Prints the content, with the table mode. The cursor is
@@ -398,6 +397,35 @@ void ui_loop(s_table *table, const char *filename) {
 
 				continue;
 
+// TODO: check
+				//
+				// Sort forward
+				//
+			case CTRL('s'):
+				print_debug_str("ui_loop() Found <ctrl>-s\n");
+
+				s_sort_update(&table->sort, cursor.col, E_DIR_FORWARD);
+
+				s_table_update_filter_sort(table, &cursor, false, true);
+
+				wins_print(table, &cursor, filename, mode, true);
+
+				continue;
+
+// TODO: check
+				//
+				// Sort backward
+				//
+			case CTRL('r'):
+				print_debug_str("ui_loop() Found <ctrl>-r\n");
+
+				s_sort_update(&table->sort, cursor.col, E_DIR_BACKWARD);
+
+				s_table_update_filter_sort(table, &cursor, false, true);
+
+				wins_print(table, &cursor, filename, mode, true);
+
+				continue;
 				//
 				// Show help
 				//
@@ -476,10 +504,11 @@ void ui_loop(s_table *table, const char *filename) {
 
 					print_debug_str("ui_loop() Filter changed, update table!\n");
 
+// TODO: check
 					//
 					// Do the filtering of the table.
 					//
-					win_footer_set_msg(s_table_update_filter(table, &cursor));
+					win_footer_set_msg(s_table_update_filter_sort(table, &cursor, true, false));
 
 					//
 					// After filtering the table changed.
