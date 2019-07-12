@@ -28,6 +28,7 @@ set(LIBS
   src/ncv_parser.c
   src/ncv_table.c
   src/ncv_table_part.c
+  src/ncv_table_sort.c
   src/ncv_corners.c
   src/ncv_field.c
   src/ncv_sort.c

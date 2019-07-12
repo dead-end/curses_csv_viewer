@@ -26,6 +26,7 @@ SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
 SRC_LIBS += $(SRC_DIR)/ncv_parser.c
 SRC_LIBS += $(SRC_DIR)/ncv_table.c
 SRC_LIBS += $(SRC_DIR)/ncv_table_part.c
+SRC_LIBS += $(SRC_DIR)/ncv_table_sort.c
 SRC_LIBS += $(SRC_DIR)/ncv_corners.c
 SRC_LIBS += $(SRC_DIR)/ncv_field.c
 SRC_LIBS += $(SRC_DIR)/ncv_filter.c
