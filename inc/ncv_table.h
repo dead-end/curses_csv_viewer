@@ -133,11 +133,11 @@ void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor);
 //bool s_table_sort_update(s_table *table, const int column, const enum e_direction direction);
 
 // todo: remove
-wchar_t *s_table_update_filter(s_table *table, s_cursor *cursor);
+wchar_t* s_table_update_filter(s_table *table, s_cursor *cursor);
 
 //wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool do_reset);
 // TODO:
-wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed);
+wchar_t* s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed);
 
 bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction);
 
@@ -160,8 +160,5 @@ double get_str_len(const wchar_t *str);
 double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
 
 double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str), const double mean);
-
-// TODO:
-void s_table_sort(s_table *table, s_cursor *cursor, const int column, const int direction);
 
 #endif
