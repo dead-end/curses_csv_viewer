@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_table_sort.h"
 #include "ncv_table.h"
 
 #include <math.h>
@@ -88,7 +89,7 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	//
 	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
 
-// TODO: check
+	// TODO: check
 	//
 	// Initialize filtering and sorting.
 	//
@@ -135,38 +136,9 @@ void s_table_free(s_table *table) {
 
 /******************************************************************************
  * The function initializes /resets the rows and the row heights of the table.
- * Up front it is checked if the table is actually filtered or sorted. If not,
- * there is nothing to do.
- * The function returns true if the table was initialized / reset.
- *****************************************************************************/
-// TODO: check
-bool s_table_reset_rows_old(s_table *table) {
-
-	//
-	// Ensure that the table is actually filtered or sorted.
-	//
-	if (!s_table_is_filtered(table) && !s_sort_is_active(&table->sort)) {
-		print_debug("s_table_reset_rows() Table is not filtered and not sorted - rows: %d\n", table->__no_rows);
-		return false;
-	}
-
-	//
-	// Reset the row pointers and the row heights.
-	//
-	for (int row = 0; row < table->__no_rows; row++) {
-		table->fields[row] = table->__fields[row];
-		table->height[row] = table->__height[row];
-	}
-
-	table->no_rows = table->__no_rows;
-
-	return true;
-}
-// TODO: check
-/******************************************************************************
- * The function initializes /resets the rows and the row heights of the table.
- * There are no checks if the action is necessary. This has to be done before
- * calling the function.
+ * There are no checks if the action is necessary, which is only the case if
+ * the table is filtered or sorted. The check have to be done before calling
+ * this function.
  *****************************************************************************/
 
 void s_table_reset_rows(s_table *table) {
@@ -185,79 +157,24 @@ void s_table_reset_rows(s_table *table) {
 }
 
 /******************************************************************************
- *
+ * The function initializes /resets the rows and the row heights of the table,
+ * if necessary. If the table is not filtered or sorted, then there is nothing
+ * to do.
  *****************************************************************************/
 
-//TODO:unused
-bool s_table_reset(s_table *table) {
+static bool s_table_reset_rows_opt(s_table *table) {
 
 	//
-	// The function sets the filter to inactive. The filter can be filtering
-	// and searching. For searching the table has not to be reset.
+	// Ensure that the table is actually filtered or sorted.
 	//
-	const bool is_filter_reset = s_filter_set_inactive(&table->filter);
-
-	//
-	// Deactivate the sorting if necessary.
-	//
-	//TODO: control
-	bool is_sorted_reset = false;
-	if (s_sort_is_active(&table->sort)) {
-		s_sort_set_inactive(&table->sort);
+	if (!s_table_is_filtered(table) && !s_sort_is_active(&table->sort)) {
+		print_debug_str("s_table_reset_rows_opt() Table is not filtered and not sorted!\n");
+		return false;
 	}
 
-	//
-	// If the table was filtered (not searched) or sorted, a reset of the rows
-	// is necessary.
-	//
-	if (s_table_is_filtered(table) || is_sorted_reset) {
-		s_table_reset_rows(table);
-		return true;
-	}
+	s_table_reset_rows(table);
 
-	//
-	// At this point the table was not reset. We return true if the table was
-	// searched, which requires a printing of the table.
-	//
-	return is_filter_reset;
-}
-
-/******************************************************************************
- *
- *****************************************************************************/
-// TODO: check
-static int compare(const void *ptr_row_prt_1, const void *ptr_row_ptr_2, void *sort_ptr) {
-
-	s_sort *sort = (s_sort *) sort_ptr;
-
-	wchar_t **row_ptr_1 = (*(wchar_t***) ptr_row_prt_1);
-	wchar_t **row_ptr_2 = (*(wchar_t***) ptr_row_ptr_2);
-
-	const int result = (sort->direction) * wcscmp(row_ptr_1[sort->column], row_ptr_2[sort->column]);
-
-	print_debug("compare() direction: %s\n", e_direction_str(sort->direction));
-
-	print_debug("compare() result: %d '%ls' '%ls'\n", result, row_ptr_1[sort->column], row_ptr_2[sort->column]);
-
-	return result;
-}
-
-/******************************************************************************
- *
- *****************************************************************************/
-
-static void s_table_do_sort(s_table *table, s_cursor *cursor) {
-
-	print_debug_str("s_table_do_sort()\n");
-
-	//if (cursor->col != table->sort.column && s_sort_is_active(&table->sort)) {
-	if (cursor->col != table->sort.column) {
-		s_cursor_pos(cursor, 0, table->sort.column);
-	}
-
-	const int offset = table->show_header ? 1 : 0;
-
-	qsort_r(&table->fields[offset], table->no_rows - offset, sizeof(wchar_t **), compare, (void *) &table->sort);
+	return true;
 }
 
 /******************************************************************************
@@ -275,7 +192,7 @@ static void s_table_do_search(s_table *table, s_cursor *cursor) {
 	//
 	// Reset the row pointers and the row heights, if the table is filtered.
 	//
-	s_table_reset_rows_old(table);
+	s_table_reset_rows_opt(table);
 
 	table->filter.count = 0;
 
@@ -376,159 +293,6 @@ static void s_table_do_filter(s_table *table, s_cursor *cursor) {
 }
 
 /******************************************************************************
- * The function does a reset of the filtering.
- *****************************************************************************/
-
-void s_table_reset_filter(s_table *table, s_cursor *cursor) {
-
-	//
-	// Ensure that the filtering is not active when we reset the table.
-	//
-	if (s_filter_is_active(&table->filter)) {
-		print_exit_str("s_table_reset_filter() Cannot reset filter that is active!\n");
-	}
-
-	//
-	// Ensure that a reset is necessary. A filtering that includes all rows or
-	// a searching does not require an action.
-	//
-	if (s_table_reset_rows_old(table)) {
-
-		//
-		// Init the cursor to the start position. This is only necessary, after
-		// a reset after a filtering. Searching does not need a reset.
-		//
-		s_cursor_pos(cursor, 0, 0);
-
-	} else {
-		print_debug_str("s_table_reset_filter() Table is already reset.\n");
-	}
-
-}
-
-/******************************************************************************
- * The function is called in case the filter struct changed. This means the
- * searching / filtering can be deactivated or the table can be searched or
- * filtered. If no matches are found, the filtering will be deactivated after
- * the filtering or searching, which causes a reset.
- *****************************************************************************/
-// TODO: check
-wchar_t *s_table_update_filter(s_table *table, s_cursor *cursor) {
-
-	wchar_t *result = NULL;
-	bool do_sort = false;
-
-	if (s_filter_is_active(&table->filter)) {
-
-		//
-		// Do the filtering or searching
-		//
-		if (table->filter.is_search) {
-			s_table_do_search(table, cursor);
-
-		} else {
-			s_table_do_filter(table, cursor);
-			do_sort = true;
-		}
-
-		//
-		// If no match was found, deactivate the filtering and set an error
-		// message.
-		//
-		if (!s_filter_has_matches(&table->filter)) {
-			s_filter_set_inactive(&table->filter);
-			result = L"No matches found!";
-		}
-	}
-
-	//
-	// If the filtering is not active we do a reset.
-	//
-	if (!s_filter_is_active(&table->filter)) {
-		s_table_reset_filter(table, cursor);
-		do_sort = true;
-	}
-
-	if (s_sort_is_active(&table->sort) && do_sort) {
-		s_table_do_sort(table, cursor);
-	}
-
-	return result;
-}
-// TODO: check
-/******************************************************************************
- *
- * A reset is necessary if:
- *
- * - filtering changed from active to inactive
- *
- * - sorting changed from active to inactive and filtering was inactive
- *****************************************************************************/
-
-// TODO: cursor ???
-wchar_t *s_table_update_filter_sort_older(s_table *table, s_cursor *cursor, const bool do_reset) {
-
-	wchar_t *result = NULL;
-
-	//
-	// Do a reset if configured.
-	//
-	if (do_reset) {
-		s_table_reset_rows(table);
-	}
-
-	if (s_filter_is_active(&table->filter)) {
-
-		//
-		// Do the filtering or searching
-		//
-		if (table->filter.is_search) {
-			s_table_do_search(table, cursor);
-
-		} else {
-			s_table_do_filter(table, cursor);
-		}
-
-		//
-		// If no match was found, deactivate the filtering and set an error
-		// message.
-		//
-		if (!s_filter_has_matches(&table->filter)) {
-			s_filter_set_inactive(&table->filter);
-			result = L"No matches found!";
-
-			//
-			// On filtering reset the table
-			//
-			if (s_filter_is_filtering(&table->filter)) {
-				s_table_reset_rows(table);
-			}
-		}
-
-	}
-
-	//
-	// At this point we know that filtering is not active. If the table is
-	// filtered we need a reset.
-	//
-	else if (s_table_is_filtered(table)) {
-		s_table_reset_rows(table);
-	}
-
-	//
-	// Do sort the table only if the table data changed. If you switch off
-	// searching, for example, the table data does not change, only the
-	// displaying of the matches.
-	//
-	//if (s_table_is_sorted(table) && has_table_changed) {
-	if (s_sort_is_active(&table->sort)) {
-		s_table_do_sort(table, cursor);
-	}
-
-	return result;
-}
-// TODO: check
-/******************************************************************************
  * The function does the filtering and sorting. It is called with the table
  * struct, which contains the s_filter and the s_sort struct. Both have to be
  * applied to the table. Additionally the function is called with two flags
@@ -537,7 +301,7 @@ wchar_t *s_table_update_filter_sort_older(s_table *table, s_cursor *cursor, cons
  * The function can return a string, that is displayed in the status line.
  *****************************************************************************/
 
-wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed) {
+wchar_t* s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed) {
 
 	//
 	// Ensure that there is something to do.
@@ -576,9 +340,8 @@ wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool
 			result = L"No matches found!";
 
 			//
-			// On filtering reset the table. At this point:
-			//   did_reset = true;
-			// is already set.
+			// If filtering is active, the table has to be reset. At this
+			// point: "did_reset = true;" is already set.
 			//
 			if (s_filter_is_filtering(&table->filter)) {
 				s_table_reset_rows(table);
@@ -601,7 +364,7 @@ wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool
 	// Do sorting if configured.
 	//
 	if (s_sort_is_active(&table->sort)) {
-		s_table_do_sort(table, cursor);
+		s_table_do_sort(table);
 
 	} else {
 
@@ -815,9 +578,7 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	int col_size;
 	s_table_field_dimension(str, &col_size, &row_size);
 
-	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);
-	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);
-	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
+	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
 
 	//
 	// Update the row height if necessary.
@@ -831,6 +592,22 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	//
 	if (col_size > table->width[column]) {
 		table->width[column] = col_size;
+	}
+}
+
+/******************************************************************************
+ * The function ensures that the cursor is on the table. If this program is
+ * properly implemented, this should not happen.
+ *****************************************************************************/
+
+void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor) {
+
+	if (cursor->row < 0 || cursor->row >= table->no_rows) {
+		print_exit("s_table_cursor_on_table() Cursor col: %d row: %d table no rows: %d!", cursor->col, cursor->row, table->no_rows);
+	}
+
+	if (cursor->col < 0 || cursor->col >= table->no_columns) {
+		print_exit("s_table_cursor_on_table() Cursor col: %d row: %d table no cols: %d!", cursor->col, cursor->row, table->no_columns);
 	}
 }
 
@@ -984,8 +761,7 @@ int check_column_characteristic(const s_table *table, const int max_rows, const 
 	//
 	const double first = (*fct_ptr)(table->__fields[0][column]);
 
-	print_debug("check_column() col: %d first: '%ls'\n", column, table->__fields[0][column]);
-	print_debug("check_column_len() mean: %lf stddev: %lf first: %lf\n", mean, std_dev, first);
+	print_debug("check_column() col: %d first: '%ls'\n", column, table->__fields[0][column]);print_debug("check_column_len() mean: %lf stddev: %lf first: %lf\n", mean, std_dev, first);
 
 	//
 	// compare the first row with the mean
@@ -1043,43 +819,4 @@ bool s_table_has_header(const s_table *table) {
 	}
 
 	return false;
-}
-
-// ----------------------------------------------------------------------------------------------------------
-// TODO: check
-/******************************************************************************
- * The function is called if a sort change is triggered. The means sorting a
- * column or resetting a sorted column. Sorted or not sorted columns can be
- * filtered. The filtering has to be preserved.
- *****************************************************************************/
-// todo: replace with s_table_update_filter_sort
-void s_table_sort(s_table *table, s_cursor *cursor, const int column, const enum e_direction direction) {
-
-	//
-	// Update the sort struct of the table. The function returns false if the
-	// column should be reset.
-	//
-	if (!s_sort_update(&table->sort, column, direction)) {
-		s_table_reset_rows(table);
-	}
-
-	// todo: one function for filtering and sorting.
-	print_debug_str("s_table_sort() Do sort\n");
-	s_table_update_filter(table, cursor);
-}
-
-/******************************************************************************
- * The function ensures that the cursor is on the table. If this program is
- * properly implemented, this should not happen.
- *****************************************************************************/
-// TODO: check
-void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor) {
-
-	if (cursor->row < 0 || cursor->row >= table->no_rows) {
-		print_exit("s_table_cursor_on_table() Cursor col: %d row: %d table no rows: %d!", cursor->col, cursor->row, table->no_rows);
-	}
-
-	if (cursor->col < 0 || cursor->col >= table->no_columns) {
-		print_exit("s_table_cursor_on_table() Cursor col: %d row: %d table no cols: %d!", cursor->col, cursor->row, table->no_columns);
-	}
 }

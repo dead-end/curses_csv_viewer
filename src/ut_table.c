@@ -316,7 +316,9 @@ static void check_cursor(const s_cursor *cursor, const int row, const int col, c
 }
 
 /******************************************************************************
- * The function checks the results of filtering the table.
+ * The function checks the results of filtering the table, which is the number
+ * of matches, the number of filtered rows and the active flag. If no match
+ * was found, the filtering will be deactivated.
  *****************************************************************************/
 
 static void check_filter_result(const s_table *table, const bool is_active, const int count, const int rows, const char *msg) {
@@ -405,7 +407,7 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 #define MATCH_3 3
 
 static void test_table_search_filter() {
-	s_cursor cursor;
+	s_cursor cursor, cursor_save;
 	wchar_t *result;
 
 	s_table table;
@@ -432,7 +434,7 @@ static void test_table_search_filter() {
 	// SEARCHING, INSENSITIVE WITH 2 MATCHES
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
-	result = s_table_update_filter(&table, &cursor);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_2, 5, "search insensitive");
@@ -446,7 +448,7 @@ static void test_table_search_filter() {
 	// SEARCHING, SENSITIVE WITH 1 MATCHES
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_SENSITIVE, SF_IS_SEARCHING);
-	result = s_table_update_filter(&table, &cursor);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_1, 5, "search sensitive");
@@ -460,7 +462,7 @@ static void test_table_search_filter() {
 	// SEARCHING WITH NO MATCHES
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"hallo", SF_IS_SENSITIVE, SF_IS_SEARCHING);
-	result = s_table_update_filter(&table, &cursor);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NOT_NULL);
 	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "search no matches");
@@ -470,7 +472,7 @@ static void test_table_search_filter() {
 	// FILTERING, INSENSITIVE WITH 3 MATCHES
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_FILTERING);
-	result = s_table_update_filter(&table, &cursor);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_3, 3, "filter insensitive");
@@ -484,7 +486,7 @@ static void test_table_search_filter() {
 	// FILTERING, SENSITIVE WITH 1 MATCH
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	result = s_table_update_filter(&table, &cursor);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, MATCH_1, 2, "filter sensitive");
@@ -495,33 +497,36 @@ static void test_table_search_filter() {
 	check_prev_next(&table, &cursor, "filter sensitive", MATCH_1, 1, 1);
 
 	//
-	// FILTERING WITH NO MATCHES
+	// FILTERING WITH NO MATCHES (cursor is unchanged)
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"eF", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	result = s_table_update_filter(&table, &cursor);
+	s_cursor_pos(&cursor_save, cursor.row, cursor.col);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NOT_NULL);
 	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "filter no matches");
-	check_cursor(&cursor, 0, 0, "filter no matches - cursor 1");
+	check_cursor(&cursor, cursor_save.row, cursor_save.col, "filter no matches - cursor 1");
 
 	//
 	// RESET AFTER FILTERING, SENSITIVE WITH 1 MATCH
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"XO", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	result = s_table_update_filter(&table, &cursor);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
 	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_ACTIVE, 1, 2, "reset - 1");
 	check_cursor(&cursor, 1, 2, "reset cursor - 1");
 
 	//
-	// Do the reset
+	// Do the reset (cursor is unchanged)
 	//
 	s_filter_set_inactive(&table.filter);
-	s_table_reset_filter(&table, &cursor);
+	s_cursor_pos(&cursor_save, cursor.row, cursor.col);
+	result = s_table_update_filter_sort(&table, &cursor, true, false);
 
+	ut_check_wcs_null(result, UT_IS_NULL);
 	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "reset - 2");
-	check_cursor(&cursor, 0, 0, "reset cursor - 2");
+	check_cursor(&cursor, cursor_save.row, cursor_save.col, "reset cursor - 2");
 
 	//
 	// Calling prev / next has no effect if filtering is inactive
@@ -545,10 +550,19 @@ static void test_table_search_filter() {
 
 	print_debug_str("test_table_search_filter() End\n");
 }
+// TODO:
+void check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]) {
 
-// TODO: comments & check
+	ut_check_int(table->no_rows, num_rows, "check num rows");
+
+	for (int i = 0; i < num_rows; i++) {
+		ut_check_wchar_str(table->fields[i][column], fields[i]);
+	}
+}
+
 /******************************************************************************
- *
+ * The function checks the sorting of the table by a given column with a given
+ * direction,
  *****************************************************************************/
 
 static void test_sort() {
@@ -573,25 +587,41 @@ static void test_sort() {
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = false;
-
 	s_filter_set_inactive(&table.filter);
 
-	s_table_sort(&table, &cursor, 0, E_DIR_FORWARD);
+	//
+	// Forward with column 0
+	//
+	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
 
 	ut_check_wchar_str(table.fields[0][0], L"aa");
 	ut_check_wchar_str(table.fields[1][0], L"bb");
 	ut_check_wchar_str(table.fields[2][0], L"cc");
 	ut_check_wchar_str(table.fields[3][0], L"dd");
 
-	s_table_sort(&table, &cursor, 1, E_DIR_BACKWARD);
+	//
+	// Backward with column 1
+	//
+	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
 
 	ut_check_wchar_str(table.fields[0][1], L"DD");
 	ut_check_wchar_str(table.fields[1][1], L"CC");
 	ut_check_wchar_str(table.fields[2][1], L"BB");
 	ut_check_wchar_str(table.fields[3][1], L"AA");
 
+	//
+	// If we switch on the header showing, a reset is necessary.
+	//
 	table.show_header = true;
-	s_table_sort(&table, &cursor, 0, E_DIR_FORWARD);
+	s_table_reset_rows(&table);
+
+	//
+	// Forward (with header)
+	//
+	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
 
 	ut_check_wchar_str(table.fields[0][0], L"bb");
 	ut_check_wchar_str(table.fields[1][0], L"aa");
@@ -601,7 +631,8 @@ static void test_sort() {
 	//
 	// Forward again => reset
 	//
-	s_table_sort(&table, &cursor, 0, E_DIR_FORWARD);
+	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
 
 	ut_check_wchar_str(table.fields[0][0], L"bb");
 	ut_check_wchar_str(table.fields[1][0], L"cc");
@@ -616,6 +647,80 @@ static void test_sort() {
 	fclose(tmp);
 
 	print_debug_str("test_sort() End\n");
+}
+
+/******************************************************************************
+ * The function checks the combination of sorting and filtering.
+ *****************************************************************************/
+
+static void test_filter_and_sort() {
+	s_table table;
+	s_cursor cursor;
+	s_table_set_defaults(table);
+
+	print_debug_str("test_filter_and_sort() Start\n");
+
+	const wchar_t *data =
+
+	L"0" DL "DD" DL "-z-" NL
+	"1" DL "CC" DL "---" NL
+	"2" DL "BB" DL "--z" NL
+	"3" DL "AA" DL "" NL
+	"4" DL "EE" DL "z--" NL;
+
+	FILE *tmp = ut_create_tmp_file(data);
+
+	s_cfg_parser cfg_parser;
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
+
+	parser_process_file(tmp, &cfg_parser, &table);
+
+	table.show_header = false;
+
+	//
+	// Set a filter for "z"
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"z", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_table_update_filter_sort(&table, &cursor, true, false);
+
+	const wchar_t *col_filter[] = { L"DD", L"BB", L"EE" };
+	check_table_column(&table, 1, 3, col_filter);
+
+	//
+	// Sort the already filtered data
+	//
+	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
+
+	const wchar_t *col_sort[] = { L"BB", L"DD", L"EE" };
+	check_table_column(&table, 1, 3, col_sort);
+
+	//
+	// Change the sorted column and direction
+	//
+	s_sort_update(&table.sort, 0, E_DIR_BACKWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
+
+	const wchar_t *col_sort_back[] = { L"EE", L"BB", L"DD" };
+	check_table_column(&table, 1, 3, col_sort_back);
+
+	//
+	// Change the sorted column and direction
+	//
+	s_filter_set_inactive(&table.filter);
+	s_table_update_filter_sort(&table, &cursor, true, false);
+
+	const wchar_t *col_resort[] = { L"EE", L"AA", L"BB", L"CC", L"DD" };
+	check_table_column(&table, 1, 5, col_resort);
+
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
+	print_debug_str("test_filter_and_sort() End\n");
 }
 
 /******************************************************************************
@@ -639,6 +744,8 @@ int main() {
 	test_table_search_filter();
 
 	test_sort();
+
+	test_filter_and_sort();
 
 	print_debug_str("ut_table.c - End tests\n");
 
