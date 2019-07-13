@@ -550,104 +550,6 @@ static void test_table_search_filter() {
 
 	print_debug_str("test_table_search_filter() End\n");
 }
-// TODO:
-void check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]) {
-
-	ut_check_int(table->no_rows, num_rows, "check num rows");
-
-	for (int i = 0; i < num_rows; i++) {
-		ut_check_wchar_str(table->fields[i][column], fields[i]);
-	}
-}
-
-/******************************************************************************
- * The function checks the sorting of the table by a given column with a given
- * direction,
- *****************************************************************************/
-
-static void test_sort() {
-	s_table table;
-	s_cursor cursor;
-	s_table_set_defaults(table);
-
-	print_debug_str("test_sort() Start\n");
-
-	const wchar_t *data =
-
-	L"bb" DL "BB" NL
-	"cc" DL "CC" NL
-	"dd" DL "DD" NL
-	"aa" DL "AA" NL;
-
-	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
-	parser_process_file(tmp, &cfg_parser, &table);
-
-	table.show_header = false;
-	s_filter_set_inactive(&table.filter);
-
-	//
-	// Forward with column 0
-	//
-	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
-	s_table_update_filter_sort(&table, &cursor, false, true);
-
-	ut_check_wchar_str(table.fields[0][0], L"aa");
-	ut_check_wchar_str(table.fields[1][0], L"bb");
-	ut_check_wchar_str(table.fields[2][0], L"cc");
-	ut_check_wchar_str(table.fields[3][0], L"dd");
-
-	//
-	// Backward with column 1
-	//
-	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
-	s_table_update_filter_sort(&table, &cursor, false, true);
-
-	ut_check_wchar_str(table.fields[0][1], L"DD");
-	ut_check_wchar_str(table.fields[1][1], L"CC");
-	ut_check_wchar_str(table.fields[2][1], L"BB");
-	ut_check_wchar_str(table.fields[3][1], L"AA");
-
-	//
-	// If we switch on the header showing, a reset is necessary.
-	//
-	table.show_header = true;
-	s_table_reset_rows(&table);
-
-	//
-	// Forward (with header)
-	//
-	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
-	s_table_update_filter_sort(&table, &cursor, false, true);
-
-	ut_check_wchar_str(table.fields[0][0], L"bb");
-	ut_check_wchar_str(table.fields[1][0], L"aa");
-	ut_check_wchar_str(table.fields[2][0], L"cc");
-	ut_check_wchar_str(table.fields[3][0], L"dd");
-
-	//
-	// Forward again => reset
-	//
-	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
-	s_table_update_filter_sort(&table, &cursor, false, true);
-
-	ut_check_wchar_str(table.fields[0][0], L"bb");
-	ut_check_wchar_str(table.fields[1][0], L"cc");
-	ut_check_wchar_str(table.fields[2][0], L"dd");
-	ut_check_wchar_str(table.fields[3][0], L"aa");
-
-	//
-	// Cleanup
-	//
-	s_table_free(&table);
-
-	fclose(tmp);
-
-	print_debug_str("test_sort() End\n");
-}
 
 /******************************************************************************
  * The function checks the combination of sorting and filtering.
@@ -742,8 +644,6 @@ int main() {
 	test_table_mean_std_dev();
 
 	test_table_search_filter();
-
-	test_sort();
 
 	test_filter_and_sort();
 
