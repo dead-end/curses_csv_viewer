@@ -80,6 +80,7 @@ set(TEST_SRCS
   src/ut_parser.c
   src/ut_table.c
   src/ut_table_part.c
+  src/ut_table_sort.c
   src/ut_common.c
   src/ut_wbuf.c
 )

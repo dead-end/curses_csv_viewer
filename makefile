@@ -62,7 +62,8 @@ OBJ_MAIN = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_MAIN)))
 
 SRC_TEST += $(SRC_DIR)/ut_parser.c 
 SRC_TEST += $(SRC_DIR)/ut_table.c
-SRC_TEST += $(SRC_DIR)/ut_table_part.c 
+SRC_TEST += $(SRC_DIR)/ut_table_part.c
+SRC_TEST += $(SRC_DIR)/ut_table_sort.c 
 SRC_TEST += $(SRC_DIR)/ut_field.c
 SRC_TEST += $(SRC_DIR)/ut_common.c
 SRC_TEST += $(SRC_DIR)/ut_filter.c
