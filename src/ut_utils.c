@@ -169,7 +169,7 @@ void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t 
  * The function creates a tmp file with a given content.
  *****************************************************************************/
 
-FILE *ut_create_tmp_file(const wchar_t *data) {
+FILE* ut_create_tmp_file(const wchar_t *data) {
 	FILE *tmp;
 
 	//
@@ -194,5 +194,23 @@ FILE *ut_create_tmp_file(const wchar_t *data) {
 	}
 
 	return tmp;
+}
+
+/******************************************************************************
+ * The function checks the elements of a column.
+ *****************************************************************************/
+
+void check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]) {
+
+	//
+	// Checking the number of rows is only reasonable if the table is filtered.
+	// But if the num_rows value is wrong, the function call can lead to a
+	// segmentation fault.
+	//
+	ut_check_int(table->no_rows, num_rows, "check num rows");
+
+	for (int i = 0; i < num_rows; i++) {
+		ut_check_wchar_str(table->fields[i][column], fields[i]);
+	}
 }
 

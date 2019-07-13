@@ -25,6 +25,7 @@
 #ifndef INC_UT_UTILS_H_
 #define INC_UT_UTILS_H_
 
+#include "ncv_table.h"
 #include "ncv_common.h"
 
 #include <stdbool.h>
@@ -45,7 +46,7 @@ void ut_check_bool(const bool b1, const bool b2);
 
 void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t len, const char *msg);
 
-FILE *ut_create_tmp_file(const wchar_t *data);
+FILE* ut_create_tmp_file(const wchar_t *data);
 
 //
 // The enum is simply a boolean value. When we are using the enum, the code is
@@ -58,5 +59,7 @@ enum ut_null_check {
 };
 
 void ut_check_wcs_null(const wchar_t *str, const enum ut_null_check ut_null);
+
+void check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]);
 
 #endif
