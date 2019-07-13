@@ -30,7 +30,7 @@
 
 /******************************************************************************
  * The struct is used to sort the table by a column with numerical values. A
- * helper array is created, that contains the numerical value, represented by
+ * helper array is created, that contains the numerical values, represented by
  * a double value. This helper array is sorted and the sorting is applied to
  * the table. The helper array consists of s_comp_num elements.
  *****************************************************************************/
@@ -39,12 +39,14 @@ typedef struct s_comp_num {
 
 	//
 	// The double value of a wchar_t string. Empty strings are represented with
-	// DBL_MAX, so that they appear at the end of the sorted column,
+	// DBL_MAX, so that they appear at the end of the sorted column, with a
+	// forward direction.
+	//
 	//
 	double value;
 
 	//
-	// A pointer to the row that contains the columns value.
+	// A pointer to the row that contains the column value.
 	//
 	wchar_t **row;
 
@@ -62,10 +64,10 @@ static int compare_num(const void *ptr_1, const void *ptr_2, void *sort_ptr) {
 	//
 	// Get the s_sort stuct for the sort direction and column.
 	//
-	const s_sort *sort = (s_sort*) sort_ptr;
+	const s_sort *sort = (const s_sort*) sort_ptr;
 
-	const s_comp_num *comp_num_1 = (s_comp_num*) ptr_1;
-	const s_comp_num *comp_num_2 = (s_comp_num*) ptr_2;
+	const s_comp_num *comp_num_1 = (const s_comp_num*) ptr_1;
+	const s_comp_num *comp_num_2 = (const s_comp_num*) ptr_2;
 
 	//
 	// Compare the double values. The difference would be ok, but we have to
@@ -82,8 +84,7 @@ static int compare_num(const void *ptr_1, const void *ptr_2, void *sort_ptr) {
 		result = 0;
 	}
 
-	print_debug("compare_num() direction: %s result: %d '%ls' '%ls'\n", e_direction_str(sort->direction), result,
-			comp_num_1->row[sort->column], comp_num_2->row[sort->column]);
+	print_debug("compare_num() direction: %s result: %d '%ls' '%ls'\n", e_direction_str(sort->direction), result, comp_num_1->row[sort->column], comp_num_2->row[sort->column]);
 
 	return result;
 }
@@ -101,7 +102,7 @@ static int compare_wcs(const void *ptr_row_prt_1, const void *ptr_row_ptr_2, voi
 	//
 	// Get the s_sort stuct for the sort direction and column.
 	//
-	const s_sort *sort = (s_sort*) sort_ptr;
+	const s_sort *sort = (const s_sort*) sort_ptr;
 
 	const wchar_t **row_ptr_1 = (*(const wchar_t***) ptr_row_prt_1);
 	const wchar_t **row_ptr_2 = (*(const wchar_t***) ptr_row_ptr_2);
@@ -111,8 +112,7 @@ static int compare_wcs(const void *ptr_row_prt_1, const void *ptr_row_ptr_2, voi
 	//
 	const int result = (sort->direction) * wcscmp(row_ptr_1[sort->column], row_ptr_2[sort->column]);
 
-	print_debug("compare_wcs() direction: %s result: %d '%ls' '%ls'\n", e_direction_str(sort->direction), result,
-			row_ptr_1[sort->column], row_ptr_2[sort->column]);
+	print_debug("compare_wcs() direction: %s result: %d '%ls' '%ls'\n", e_direction_str(sort->direction), result, row_ptr_1[sort->column], row_ptr_2[sort->column]);
 
 	return result;
 }
@@ -129,7 +129,7 @@ static void apply_num_sorting(s_table *table, const s_comp_num *comp_num) {
 #endif
 
 	//
-	// The comp_num array is sorted and contains a pointer to the row of the
+	// The s_comp_num array is sorted and contains a pointer to the row of the
 	// column value.
 	//
 	for (int row = 0; row < table->no_rows; row++) {
@@ -147,8 +147,8 @@ static void apply_num_sorting(s_table *table, const s_comp_num *comp_num) {
  *
  * Empty strings are converted to DBL_MAX.
  *
- * It is possible that the column values have a non numerical postfix. If so,
- * all postfixes have to be equal. An example is a column with currencies like:
+ * It is possible that the column values have a non numerical suffix. If so,
+ * all suffixes have to be equal. An example is a column with currencies like:
  *
  * "1000,00 Euro"
  *****************************************************************************/
@@ -156,7 +156,7 @@ static void apply_num_sorting(s_table *table, const s_comp_num *comp_num) {
 bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 
 	//
-	// Two pointer to postfixes. The first postfix found is stored in:
+	// Two pointer to suffixes. The first suffix found is stored in:
 	// init_tailptr. All other are stored in: tailptr and are compared
 	// with the init_tailptr.
 	//
@@ -164,16 +164,20 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 	wchar_t *tailptr;
 
 	//
+	// The column that should be sorted.
+	//
+	const int col = table->sort.column;
+
+	//
 	// Iterate through the rows to convert the column values.
 	//
 	for (int row = 0; row < table->no_rows; row++) {
 
-		print_debug("set_num_comp_array() %ls\n", table->fields[row][table->sort.column]);
-
 		//
-		// Column value is empty
+		// Check if the column value is empty.
 		//
-		if (wcslen(table->fields[row][table->sort.column]) == 0) {
+		//
+		if (wcs_is_empty(table->fields[row][col])) {
 			num_comp[row].value = DBL_MAX;
 			print_debug_str("try_convert_num() String is empty, set value to: DBL_MAX\n");
 
@@ -183,13 +187,13 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 			// Set errno to 0 to be able to detect errors and to the conversion.
 			//
 			errno = 0;
-			num_comp[row].value = wcstod(table->fields[row][table->sort.column], &tailptr);
+			num_comp[row].value = wcstod(table->fields[row][col], &tailptr);
 
 			//
 			// Check for errors (for example overflows)
 			//
 			if (errno != 0) {
-				print_debug("try_convert_num() Unable to convert: %ls - %s\n", table->fields[row][table->sort.column], strerror(errno));
+				print_debug("try_convert_num() Unable to convert: '%ls' - %s\n", table->fields[row][col], strerror(errno));
 				return false;
 			}
 
@@ -197,15 +201,15 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 			// If the tail pointer is equal to the column value, no conversion
 			// was possible. (the column value is not a number)
 			//
-			if (table->fields[row][table->sort.column] == tailptr) {
-				print_debug("try_convert_num() Unable to convert: %ls\n", table->fields[row][table->sort.column]);
+			if (table->fields[row][col] == tailptr) {
+				print_debug("try_convert_num() Unable to convert: %ls\n", table->fields[row][col]);
 				return false;
 			}
 
-			print_debug("try_convert_num() '%ls' %f '%ls'\n", table->fields[row][table->sort.column], num_comp[row].value, tailptr);
+			print_debug("try_convert_num() '%ls' %f '%ls'\n", table->fields[row][col], num_comp[row].value, tailptr);
 
 			//
-			// Save the first postfix.
+			// Save the first suffix.
 			//
 			if (init_tailptr == NULL) {
 				init_tailptr = tailptr;
@@ -214,11 +218,10 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 			}
 
 			//
-			// If a postfix exists, we have to ensure, that the new is the
-			// same.
+			// If a suffix exists, we have to ensure, that the new is the same.
 			//
 			else if (wcscmp(init_tailptr, tailptr) != 0) {
-				print_debug("try_convert_num() String: '%ls' does not end with: '%ls'\n", table->fields[row][table->sort.column], init_tailptr);
+				print_debug("try_convert_num() String: '%ls' does not end with: '%ls'\n", table->fields[row][col], init_tailptr);
 				return false;
 			}
 		}
@@ -240,12 +243,10 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
  * First it is tried to do the sorting by numerical values. For this, the
  * column entries are converted to double values. If the conversion of the
  * column succeeded, the sorting is done numerically. If not the sorting is
- * done by strings.
+ * done by (wchar_t) strings.
  *****************************************************************************/
 
 void s_table_do_sort(s_table *table) {
-
-	print_debug_str("s_table_do_sort()\n");
 
 	//
 	// If the table has a header, the first row is excluded from the sorting.
@@ -283,4 +284,3 @@ void s_table_do_sort(s_table *table) {
 		qsort_r(&table->fields[offset], table->no_rows - offset, sizeof(wchar_t**), compare_wcs, (void*) &table->sort);
 	}
 }
-

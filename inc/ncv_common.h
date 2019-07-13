@@ -86,6 +86,8 @@
 #define NL         "\n"
 #define DL         ","
 
+#define wcs_is_empty(ptr) (*(ptr) == W_STR_TERM)
+
 /******************************************************************************
  * An enum value for a direction (example: direction * width)
  *****************************************************************************/
@@ -189,19 +191,19 @@ int get_align_start(const int max, const int len, const enum e_align align);
  * Various function definitions.
  *****************************************************************************/
 
-void *xmalloc(const size_t size);
+void* xmalloc(const size_t size);
 
-FILE *stdin_2_tmp();
+FILE* stdin_2_tmp();
 
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size);
 
-char *trim(char *str);
+char* trim(char *str);
 
-wchar_t *wcstrim(wchar_t *str);
+wchar_t* wcstrim(wchar_t *str);
 
 wchar_t read_wchar(FILE *file);
 
-wchar_t *wcs_casestr(const wchar_t *s, const wchar_t *find);
+wchar_t* wcs_casestr(const wchar_t *s, const wchar_t *find);
 
 void str_array_sizes(const char *msgs[], int *rows, int *cols);
 
