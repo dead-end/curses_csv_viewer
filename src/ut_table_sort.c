@@ -66,8 +66,7 @@ static void test_sort_wcs() {
 	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_0_forward[] = { L"aa", L"bb", L"cc", L"dd" };
-	check_table_column(&table, 0, 4, col_0_forward);
+	check_table_column(&table, 0, 4, (const wchar_t*[] ) { L"aa", L"bb", L"cc", L"dd" });
 
 	//
 	// Backward with column 1
@@ -75,8 +74,7 @@ static void test_sort_wcs() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_1_backward[] = { L"DD", L"CC", L"BB", L"AA" };
-	check_table_column(&table, 1, 4, col_1_backward);
+	check_table_column(&table, 1, 4, (const wchar_t*[] ) { L"DD", L"CC", L"BB", L"AA" });
 
 	//
 	// If we switch on the header showing, a reset is necessary.
@@ -90,8 +88,7 @@ static void test_sort_wcs() {
 	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_0_forward_head[] = { L"bb", L"aa", L"cc", L"dd" };
-	check_table_column(&table, 0, 4, col_0_forward_head);
+	check_table_column(&table, 0, 4, (const wchar_t*[] ) { L"bb", L"aa", L"cc", L"dd" });
 
 	//
 	// Forward again => reset
@@ -99,8 +96,7 @@ static void test_sort_wcs() {
 	s_sort_update(&table.sort, 0, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_0_orig[] = { L"bb", L"cc", L"dd", L"aa" };
-	check_table_column(&table, 0, 4, col_0_orig);
+	check_table_column(&table, 0, 4, (const wchar_t*[] ) { L"bb", L"cc", L"dd", L"aa" });
 
 	//
 	// Cleanup

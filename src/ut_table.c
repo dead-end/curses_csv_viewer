@@ -585,8 +585,7 @@ static void test_filter_and_sort() {
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"z", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	s_table_update_filter_sort(&table, &cursor, true, false);
 
-	const wchar_t *col_filter[] = { L"DD", L"BB", L"EE" };
-	check_table_column(&table, 1, 3, col_filter);
+	check_table_column(&table, 1, 3, (const wchar_t*[] ) { L"DD", L"BB", L"EE" });
 
 	//
 	// Sort the already filtered data
@@ -594,8 +593,7 @@ static void test_filter_and_sort() {
 	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_sort[] = { L"BB", L"DD", L"EE" };
-	check_table_column(&table, 1, 3, col_sort);
+	check_table_column(&table, 1, 3, (const wchar_t*[] ) { L"BB", L"DD", L"EE" });
 
 	//
 	// Change the sorted column and direction
@@ -603,8 +601,7 @@ static void test_filter_and_sort() {
 	s_sort_update(&table.sort, 0, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_sort_back[] = { L"EE", L"BB", L"DD" };
-	check_table_column(&table, 1, 3, col_sort_back);
+	check_table_column(&table, 1, 3, (const wchar_t*[] ) { L"EE", L"BB", L"DD" });
 
 	//
 	// Change the sorted column and direction
@@ -612,8 +609,7 @@ static void test_filter_and_sort() {
 	s_filter_set_inactive(&table.filter);
 	s_table_update_filter_sort(&table, &cursor, true, false);
 
-	const wchar_t *col_resort[] = { L"EE", L"AA", L"BB", L"CC", L"DD" };
-	check_table_column(&table, 1, 5, col_resort);
+	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"EE", L"AA", L"BB", L"CC", L"DD" });
 
 	//
 	// Cleanup
