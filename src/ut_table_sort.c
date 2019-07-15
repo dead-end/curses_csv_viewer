@@ -126,16 +126,16 @@ static void test_sort_num() {
 
 	const wchar_t *data =
 
-	L"0" SC "11.11 Euro" NL
-	"1" SC "2.22 Euro" NL
-	"2" SC "" NL
-	"3" SC "333.33 Euro" NL
-	"4" SC "0.00 Euro" NL;
+	L"0" DL "11.11 Euro" NL
+	"1" DL "2.22 Euro" NL
+	"2" DL "" NL
+	"3" DL "333.33 Euro" NL
+	"4" DL "0.00 Euro" NL;
 
 	FILE *tmp = ut_create_tmp_file(data);
 
 	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_SEMI, DO_TRIM_FALSE, STRICT_COL_TRUE);
+	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
 	parser_process_file(tmp, &cfg_parser, &table);
 
@@ -148,8 +148,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_1_forward[] = { L"0.00 Euro", L"2.22 Euro", L"11.11 Euro", L"333.33 Euro", L"" };
-	check_table_column(&table, 1, 5, col_1_forward);
+	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"0.00 Euro", L"2.22 Euro", L"11.11 Euro", L"333.33 Euro", L"" });
 
 	//
 	// Backward with column 1
@@ -157,8 +156,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_1_backward[] = { L"", L"333.33 Euro", L"11.11 Euro", L"2.22 Euro", L"0.00 Euro" };
-	check_table_column(&table, 1, 5, col_1_backward);
+	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"", L"333.33 Euro", L"11.11 Euro", L"2.22 Euro", L"0.00 Euro" });
 
 	//
 	// Backward again with column 1 => reset
@@ -166,8 +164,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_1_backward_reset[] = { L"11.11 Euro", L"2.22 Euro", L"", L"333.33 Euro", L"0.00 Euro" };
-	check_table_column(&table, 1, 5, col_1_backward_reset);
+	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"11.11 Euro", L"2.22 Euro", L"", L"333.33 Euro", L"0.00 Euro" });
 
 	//
 	// If we switch on the header showing, a reset is necessary.
@@ -181,8 +178,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_1_forward_head[] = { L"11.11 Euro", L"0.00 Euro", L"2.22 Euro", L"333.33 Euro", L"" };
-	check_table_column(&table, 1, 5, col_1_forward_head);
+	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"11.11 Euro", L"0.00 Euro", L"2.22 Euro", L"333.33 Euro", L"" });
 
 	//
 	// Backward with column 1 with header
@@ -190,8 +186,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	const wchar_t *col_1_backward_head[] = { L"11.11 Euro", L"", L"333.33 Euro", L"2.22 Euro", L"0.00 Euro" };
-	check_table_column(&table, 1, 5, col_1_backward_head);
+	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"11.11 Euro", L"", L"333.33 Euro", L"2.22 Euro", L"0.00 Euro" });
 
 	//
 	// Cleanup
