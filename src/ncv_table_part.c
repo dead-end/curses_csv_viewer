@@ -39,12 +39,12 @@
  *
  * The num parameter defines the number of rows or columns.
  *
- * The direction can be DIR_FORWARD or DIR_BACKWARD.
+ * The direction can be E_DIR_FORWARD or E_DIR_BACKWARD.
  *
  * The win_size parameter is the size of the window.
  **************************************************************************/
 
-void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int num, const int direction, const int win_size) {
+void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int num, const enum e_direction direction, const int win_size) {
 
 	int precursor = 0;
 	int sum;
@@ -101,7 +101,7 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	// If the direction is backwards swap the first and the last. This
 	// ensures that first <= last
 	//
-	if (direction == DIR_BACKWARD) {
+	if (direction == E_DIR_BACKWARD) {
 		const int tmp = table_part->first;
 		table_part->first = table_part->last;
 		table_part->last = tmp;
@@ -139,8 +139,8 @@ bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
 	// On enlarging of the window the fist table row / column has completely
 	// appeared. Check if there are fields at the end that are not visible.
 	//
-	if (table_part->first == 0 && table_part->last != table_end && table_part->direction == DIR_BACKWARD) {
-		table_part->direction = DIR_FORWARD;
+	if (table_part->first == 0 && table_part->last != table_end && table_part->direction == E_DIR_BACKWARD) {
+		table_part->direction = E_DIR_FORWARD;
 		return true;
 	}
 
@@ -149,8 +149,8 @@ bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
 	// appeared. Check if there are fields at the beginning that are not
 	// visible.
 	//
-	if (table_part->first != 0 && table_part->last == table_end && table_part->direction == DIR_FORWARD) {
-		table_part->direction = DIR_BACKWARD;
+	if (table_part->first != 0 && table_part->last == table_end && table_part->direction == E_DIR_FORWARD) {
+		table_part->direction = E_DIR_BACKWARD;
 		return true;
 	}
 
