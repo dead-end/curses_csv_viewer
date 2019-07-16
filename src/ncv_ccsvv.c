@@ -28,6 +28,8 @@
 #include "ncv_win_table.h"
 #include "ncv_win_help.h"
 
+#include "ncv_table_header.h"
+
 #include "ncv_ui_loop.h"
 #include "ncv_parser.h"
 #include "ncv_ncurses.h"
@@ -114,7 +116,7 @@ void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
  * contains an optional message (not NULL) that will be written.
  *****************************************************************************/
 
-static void print_usage(const bool has_error, const char* msg) {
+static void print_usage(const bool has_error, const char *msg) {
 	FILE *stream;
 	int status;
 
@@ -176,7 +178,7 @@ static void print_usage(const bool has_error, const char* msg) {
  * processing.
  *****************************************************************************/
 
-int main(const int argc, char * const argv[]) {
+int main(const int argc, char *const argv[]) {
 	int c;
 	bool monochrom = false;
 
