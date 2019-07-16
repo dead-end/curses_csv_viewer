@@ -211,7 +211,7 @@ static bool is_not_truncated_and_border(const s_table_part *table_part, const in
 	// If the direction is DIR_FORWARD, the first corner is always visible. If
 	// the table part is untruncated and the last corner is also visible.
 	//
-	if (table_part->direction == DIR_FORWARD) {
+	if (table_part->direction == E_DIR_FORWARD) {
 		return table_part->last == idx;
 
 	} else {
@@ -234,9 +234,9 @@ void s_corner_print(WINDOW *win, const s_field *idx, const s_field *win_field, c
 	//
 	// print the field corners
 	//
-	if (row_table_part->direction == DIR_FORWARD) {
+	if (row_table_part->direction == E_DIR_FORWARD) {
 
-		if (col_table_part->direction == DIR_FORWARD) {
+		if (col_table_part->direction == E_DIR_FORWARD) {
 
 			//
 			// corners - row: FORWARD / column: FORWARD
@@ -255,7 +255,7 @@ void s_corner_print(WINDOW *win, const s_field *idx, const s_field *win_field, c
 
 	} else {
 
-		if (col_table_part->direction == DIR_FORWARD) {
+		if (col_table_part->direction == E_DIR_FORWARD) {
 
 			//
 			// corners - row: BACKWARD / column: FORWARD
