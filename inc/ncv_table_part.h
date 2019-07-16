@@ -25,14 +25,9 @@
 #ifndef INC_NCV_TABLE_PART_H_
 #define INC_NCV_TABLE_PART_H_
 
+#include "ncv_common.h"
+
 #include <stdbool.h>
-
-//
-// Defintion of directions (can be used to increment in loops)
-//
-#define DIR_FORWARD 1
-
-#define DIR_BACKWARD -1
 
 /***************************************************************************
  * The table has two s_table_part structures, one for the row and one for
@@ -89,7 +84,7 @@ typedef struct s_table_part {
 // The macro is called with a table part and returns the first or the last
 // table part index depending on the direction.
 //
-#define s_table_part_start(p) ((p)->direction == DIR_FORWARD ? (p)->first : (p)->last)
+#define s_table_part_start(p) ((p)->direction == E_DIR_FORWARD ? (p)->first : (p)->last)
 
 //
 // The macro ensures that a table part is not truncated and the current index
@@ -103,7 +98,7 @@ typedef struct s_table_part {
 //
 #define is_not_truncated_and_last(p, i) ((p)->truncated == -1 && (i) == (p)->last)
 
-void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int index_max, const int direction, const int win_size);
+void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int index_max, const enum e_direction direction, const int win_size);
 
 bool adjust_dir_on_resize(s_table_part *table_part, const int table_end);
 
