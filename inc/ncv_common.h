@@ -91,7 +91,6 @@
  * An enum value for a direction (example: direction * width)
  *****************************************************************************/
 
-// todo: remove #define DIR_BACKWARD -1
 enum e_direction {
 	E_DIR_BACKWARD = -1, E_DIR_FORWARD = 1
 };

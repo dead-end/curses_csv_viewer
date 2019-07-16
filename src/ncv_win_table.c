@@ -192,7 +192,7 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, E_DIR_FORWARD, getmaxy(win_table));
 
 		//
-		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
+		// ensure that the cursor is visible: cursor is last with E_DIR_BACKWARD
 		//
 	} else if (is_index_after_last(&row_table_part, cursor->row)) {
 		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, E_DIR_BACKWARD, getmaxy(win_table));
@@ -211,7 +211,7 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, E_DIR_FORWARD, getmaxx(win_table));
 
 		//
-		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
+		// ensure that the cursor is visible: cursor is last with E_DIR_BACKWARD
 		//
 	} else if (is_index_after_last(&col_table_part, cursor->col)) {
 		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, E_DIR_BACKWARD, getmaxx(win_table));
