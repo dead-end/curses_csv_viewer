@@ -143,22 +143,6 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_dire
 
 void s_table_dump(const s_table *table);
 
-bool s_table_has_header(const s_table *table);
-
-/******************************************************************************
- * Some function definitions that are used only for unit tests.
- *****************************************************************************/
-
 #define s_table_set_defaults(t) (t).show_header = true
-
-int check_column_characteristic(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
-
-double get_ratio(const wchar_t *str);
-
-double get_str_len(const wchar_t *str);
-
-double get_table_mean(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str));
-
-double get_table_std_dev(const s_table *table, const int max_rows, const int column, double (*fct_ptr)(const wchar_t *str), const double mean);
 
 #endif
