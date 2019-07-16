@@ -60,7 +60,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 1\n");
 	int sizes_1[3] = { 4, 1, 3 };
-	s_table_part_update(&table_part, sizes_1, 0, 3, DIR_FORWARD, 10);
+	s_table_part_update(&table_part, sizes_1, 0, 3, E_DIR_FORWARD, 10);
 	check_table_part(&table_part, 0, 2, 2, 2);
 
 	//
@@ -70,7 +70,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 2\n");
 	int sizes_2[3] = { 4, 3, 1 };
-	s_table_part_update(&table_part, sizes_2, 0, 3, DIR_FORWARD, 10);
+	s_table_part_update(&table_part, sizes_2, 0, 3, E_DIR_FORWARD, 10);
 	check_table_part(&table_part, 0, 1, -1, 0);
 
 	//
@@ -80,7 +80,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 3\n");
 	int sizes_3[3] = { 4, 2, 3 };
-	s_table_part_update(&table_part, sizes_3, 0, 3, DIR_FORWARD, 10);
+	s_table_part_update(&table_part, sizes_3, 0, 3, E_DIR_FORWARD, 10);
 	check_table_part(&table_part, 0, 2, 2, 1);
 
 	//
@@ -90,7 +90,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 4\n");
 	int sizes_4[3] = { 4, 1, 3 };
-	s_table_part_update(&table_part, sizes_4, 0, 3, DIR_FORWARD, 20);
+	s_table_part_update(&table_part, sizes_4, 0, 3, E_DIR_FORWARD, 20);
 	check_table_part(&table_part, 0, 2, -1, 0);
 
 	//
@@ -100,7 +100,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 5\n");
 	int sizes_5[3] = { 3, 1, 4 };
-	s_table_part_update(&table_part, sizes_5, 2, 3, DIR_BACKWARD, 10);
+	s_table_part_update(&table_part, sizes_5, 2, 3, E_DIR_BACKWARD, 10);
 	check_table_part(&table_part, 0, 2, 0, 2);
 
 	//
@@ -110,7 +110,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 6\n");
 	int sizes_6[3] = { 1, 3, 4 };
-	s_table_part_update(&table_part, sizes_6, 2, 3, DIR_BACKWARD, 10);
+	s_table_part_update(&table_part, sizes_6, 2, 3, E_DIR_BACKWARD, 10);
 	check_table_part(&table_part, 1, 2, -1, 0);
 
 	//
@@ -120,7 +120,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 7\n");
 	int sizes_7[3] = { 3, 2, 4 };
-	s_table_part_update(&table_part, sizes_7, 2, 3, DIR_BACKWARD, 10);
+	s_table_part_update(&table_part, sizes_7, 2, 3, E_DIR_BACKWARD, 10);
 	check_table_part(&table_part, 0, 2, 0, 1);
 
 	//
@@ -130,7 +130,7 @@ static void test_table_part_update() {
 	//
 	print_debug_str("test_table_part_update() test 8\n");
 	int sizes_8[3] = { 3, 1, 4 };
-	s_table_part_update(&table_part, sizes_8, 2, 3, DIR_BACKWARD, 20);
+	s_table_part_update(&table_part, sizes_8, 2, 3, E_DIR_BACKWARD, 20);
 
 	print_debug_str("test_table_part_update() End\n");
 }
