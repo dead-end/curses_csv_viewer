@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /******************************************************************************
  * Definition of the print_debug macro. It is only defined if the DEBUG flag is
@@ -85,8 +86,6 @@
 
 #define NL         "\n"
 #define DL         ","
-
-#define wcs_is_empty(ptr) (*(ptr) == W_STR_TERM)
 
 /******************************************************************************
  * An enum value for a direction (example: direction * width)
@@ -204,6 +203,8 @@ wchar_t* wcstrim(wchar_t *str);
 wchar_t read_wchar(FILE *file);
 
 wchar_t* wcs_casestr(const wchar_t *s, const wchar_t *find);
+
+bool wcs_is_empty(wchar_t *str);
 
 void str_array_sizes(const char *msgs[], int *rows, int *cols);
 

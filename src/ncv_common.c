@@ -36,7 +36,7 @@
  * error.
  *****************************************************************************/
 
-void *xmalloc(const size_t size) {
+void* xmalloc(const size_t size) {
 
 	void *ptr = malloc(size);
 
@@ -53,7 +53,7 @@ void *xmalloc(const size_t size) {
  * rewind() and fgetws().
  *****************************************************************************/
 
-FILE *stdin_2_tmp() {
+FILE* stdin_2_tmp() {
 	ssize_t bytes_read, bytes_write;
 	char buf[BUF_SIZE];
 	FILE *tmp;
@@ -134,7 +134,7 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
  * argument string. So do not call the function with a literal string.
  *****************************************************************************/
 
-char *trim(char *str) {
+char* trim(char *str) {
 	char *ptr;
 
 	//
@@ -159,7 +159,7 @@ char *trim(char *str) {
  * argument string. So do not call the function with a literal string.
  *****************************************************************************/
 
-wchar_t *wcstrim(wchar_t *str) {
+wchar_t* wcstrim(wchar_t *str) {
 	wchar_t *ptr;
 
 	//
@@ -177,6 +177,23 @@ wchar_t *wcstrim(wchar_t *str) {
 	}
 
 	return ptr;
+}
+
+/******************************************************************************
+ * The function checks if a wchar_t string is empty, which means, that the
+ * string has length 0 or consists only of whitespaces.
+ *****************************************************************************/
+
+bool wcs_is_empty(wchar_t *str) {
+	wchar_t *ptr;
+
+	for (ptr = str; *ptr != W_STR_TERM; ptr++) {
+		if (!iswspace(*ptr)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /******************************************************************************
@@ -259,7 +276,7 @@ wchar_t read_wchar(FILE *file) {
  * The function is a wchar_t variant of the strstr function.
  *****************************************************************************/
 
-wchar_t *wcs_casestr(const wchar_t *str, const wchar_t *find) {
+wchar_t* wcs_casestr(const wchar_t *str, const wchar_t *find) {
 	wchar_t first_chr, str_chr;
 	size_t len;
 
@@ -289,7 +306,7 @@ wchar_t *wcs_casestr(const wchar_t *str, const wchar_t *find) {
 		str--;
 	}
 
-	return ((wchar_t *) str);
+	return ((wchar_t*) str);
 }
 
 /******************************************************************************
