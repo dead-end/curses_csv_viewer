@@ -43,12 +43,12 @@ static void test_sort_wcs() {
 
 	print_debug_str("test_sort_wcs() Start\n");
 
-	const wchar_t *data =
+	const wchar_t data[] =
 
 	L"bb" DL "BB" NL
-	"cc" DL "CC" NL
-	"dd" DL "DD" NL
-	"aa" DL "AA" NL;
+	L"cc" DL "CC" NL
+	L"dd" DL "DD" NL
+	L"aa" DL "AA" NL;
 
 	FILE *tmp = ut_create_tmp_file(data);
 
@@ -120,13 +120,13 @@ static void test_sort_num() {
 
 	print_debug_str("test_sort_num() Start\n");
 
-	const wchar_t *data =
+	const wchar_t data[] =
 
-	L"0" DL "11.11 Euro" NL
-	"1" DL "2.22 Euro" NL
-	"2" DL "" NL
-	"3" DL "333.33 Euro" NL
-	"4" DL "0.00 Euro" NL;
+	L"0" DL " 11.11 Euro" NL
+	L"1" DL "  2.22 Euro" NL
+	L"2" DL "           " NL
+	L"3" DL "333.33 Euro" NL
+	L"4" DL "  0.01 Euro" NL;
 
 	FILE *tmp = ut_create_tmp_file(data);
 
@@ -144,7 +144,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"0.00 Euro", L"2.22 Euro", L"11.11 Euro", L"333.33 Euro", L"" });
+	check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"4", L"1", L"0", L"3", L"2" });
 
 	//
 	// Backward with column 1
@@ -152,7 +152,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"", L"333.33 Euro", L"11.11 Euro", L"2.22 Euro", L"0.00 Euro" });
+	check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"2", L"3", L"0", L"1", L"4" });
 
 	//
 	// Backward again with column 1 => reset
@@ -160,7 +160,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"11.11 Euro", L"2.22 Euro", L"", L"333.33 Euro", L"0.00 Euro" });
+	check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"0", L"1", L"2", L"3", L"4" });
 
 	//
 	// If we switch on the header showing, a reset is necessary.
@@ -174,7 +174,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"11.11 Euro", L"0.00 Euro", L"2.22 Euro", L"333.33 Euro", L"" });
+	check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"0", L"4", L"1", L"3", L"2" });
 
 	//
 	// Backward with column 1 with header
@@ -182,7 +182,7 @@ static void test_sort_num() {
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"11.11 Euro", L"", L"333.33 Euro", L"2.22 Euro", L"0.00 Euro" });
+	check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"0", L"2", L"3", L"1", L"4" });
 
 	//
 	// Cleanup
