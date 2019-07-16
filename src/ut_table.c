@@ -372,7 +372,7 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 		//
 		int idx = (i + 1) % num_matches;
 
-		s_table_prev_next(table, cursor, DIR_FORWARD);
+		s_table_prev_next(table, cursor, E_DIR_FORWARD);
 
 		snprintf(buf, MAX_LINE, "%s forward match: %d (%d, %d)\n", msg, idx, row[idx], col[idx]);
 
@@ -384,7 +384,7 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 	//
 	for (int idx = num_matches - 1; idx >= 0; idx--) {
 
-		s_table_prev_next(table, cursor, DIR_BACKWARD);
+		s_table_prev_next(table, cursor, E_DIR_BACKWARD);
 
 		snprintf(buf, MAX_LINE, "%s backward match: %d (%d, %d)\n", msg, idx, row[idx], col[idx]);
 
@@ -533,12 +533,12 @@ static void test_table_search_filter() {
 	//
 	s_cursor_pos(&cursor, 1, 2);
 
-	s_table_prev_next(&table, &cursor, DIR_FORWARD);
+	s_table_prev_next(&table, &cursor, E_DIR_FORWARD);
 	check_cursor(&cursor, 1, 2, "reset - cursor 4");
 
 	s_cursor_pos(&cursor, 2, 1);
 
-	s_table_prev_next(&table, &cursor, DIR_BACKWARD);
+	s_table_prev_next(&table, &cursor, E_DIR_BACKWARD);
 	check_cursor(&cursor, 2, 1, "reset - cursor 5");
 
 	//
