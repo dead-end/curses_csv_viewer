@@ -139,7 +139,7 @@ wchar_t* s_table_update_filter(s_table *table, s_cursor *cursor);
 // TODO:
 wchar_t* s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed);
 
-bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction);
+bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_direction direction);
 
 void s_table_dump(const s_table *table);
 
