@@ -39,7 +39,7 @@
  * Definition of the table window.
  **************************************************************************/
 
-static WINDOW* win_table = NULL;
+static WINDOW *win_table = NULL;
 
 /***************************************************************************
  * The definitions of the various field text looks. Each text can contain
@@ -156,7 +156,7 @@ void win_table_on_table_change(const s_table *table, s_cursor *cursor) {
 	//
 	// Set the new position of the cursor.
 	//
-	win_table_set_cursor(table, cursor, DIR_FORWARD);
+	win_table_set_cursor(table, cursor, E_DIR_FORWARD);
 
 	//
 	// Initialize the corners
@@ -189,13 +189,13 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
 		//
 	} else if (is_index_before_first(&row_table_part, cursor->row)) {
-		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, E_DIR_FORWARD, getmaxy(win_table));
 
 		//
 		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
 		//
 	} else if (is_index_after_last(&row_table_part, cursor->row)) {
-		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+		s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, E_DIR_BACKWARD, getmaxy(win_table));
 	}
 
 	//
@@ -208,13 +208,13 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 		// ensure that the cursor is visible: cursor is first with DIR_FORWARD
 		//
 	} else if (is_index_before_first(&col_table_part, cursor->col)) {
-		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, E_DIR_FORWARD, getmaxx(win_table));
 
 		//
 		// ensure that the cursor is visible: cursor is last with DIR_BACKWARD
 		//
 	} else if (is_index_after_last(&col_table_part, cursor->col)) {
-		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+		s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, E_DIR_BACKWARD, getmaxx(win_table));
 	}
 }
 
@@ -225,7 +225,7 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
  * the upper left corner if it is possible.
  **************************************************************************/
 
-void win_table_set_cursor(const s_table *table, s_cursor *cursor, const int dir) {
+void win_table_set_cursor(const s_table *table, s_cursor *cursor, const enum e_direction dir) {
 
 	//
 	// Ensure that the cursor is on the table
@@ -259,7 +259,7 @@ void win_table_set_cursor(const s_table *table, s_cursor *cursor, const int dir)
  * Top or left starts with border => field has an offset
  **************************************************************************/
 
-#define get_row_col_offset(p, i) (((p).direction == DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
+#define get_row_col_offset(p, i) (((p).direction == E_DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
 
 /***************************************************************************
  * The function prints the visible part of the table, including the table
@@ -385,8 +385,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 				}
 			}
 
-
-// TODO: add border for sorted values 
+// TODO: add border for sorted values
 
 			//
 			// row borders
@@ -414,7 +413,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 //				}
 //			}
 
-			if (row_table_part.direction == DIR_FORWARD) {
+			if (row_table_part.direction == E_DIR_FORWARD) {
 				mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_last(&row_table_part, idx.row)) {
@@ -433,7 +432,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			//
 			// col borders
 			//
-			if (col_table_part.direction == DIR_FORWARD) {
+			if (col_table_part.direction == E_DIR_FORWARD) {
 				mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_last(&col_table_part, idx.col)) {
@@ -492,7 +491,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 				cursor->row--;
 
 				if (is_index_before_first(&row_table_part, cursor->row)) {
-					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_FORWARD, getmaxy(win_table));
+					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, E_DIR_FORWARD, getmaxy(win_table));
 				}
 
 				result = true;
@@ -508,7 +507,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 				cursor->row++;
 
 				if (is_index_after_last(&row_table_part, cursor->row)) {
-					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, DIR_BACKWARD, getmaxy(win_table));
+					s_table_part_update(&row_table_part, table->height, cursor->row, table->no_rows, E_DIR_BACKWARD, getmaxy(win_table));
 				}
 
 				result = true;
@@ -524,7 +523,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 				cursor->col--;
 
 				if (is_index_before_first(&col_table_part, cursor->col)) {
-					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_FORWARD, getmaxx(win_table));
+					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, E_DIR_FORWARD, getmaxx(win_table));
 				}
 
 				result = true;
@@ -540,7 +539,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 				cursor->col++;
 
 				if (is_index_after_last(&col_table_part, cursor->col)) {
-					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, DIR_BACKWARD, getmaxx(win_table));
+					s_table_part_update(&col_table_part, table->width, cursor->col, table->no_columns, E_DIR_BACKWARD, getmaxx(win_table));
 				}
 
 				result = true;
@@ -554,12 +553,12 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 			if (cursor->row > 0) {
 
-				if (row_table_part.direction == DIR_FORWARD) {
-					row_table_part.direction = DIR_BACKWARD;
+				if (row_table_part.direction == E_DIR_FORWARD) {
+					row_table_part.direction = E_DIR_BACKWARD;
 				}
 
 				cursor->row = row_table_part.first;
-				win_table_set_cursor(table, cursor, DIR_BACKWARD);
+				win_table_set_cursor(table, cursor, E_DIR_BACKWARD);
 				result = true;
 			}
 			break;
@@ -571,12 +570,12 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 
 			if (cursor->row < table->no_rows - 1) {
 
-				if (row_table_part.direction == DIR_BACKWARD) {
-					row_table_part.direction = DIR_FORWARD;
+				if (row_table_part.direction == E_DIR_BACKWARD) {
+					row_table_part.direction = E_DIR_FORWARD;
 				}
 
 				cursor->row = row_table_part.last;
-				win_table_set_cursor(table, cursor, DIR_FORWARD);
+				win_table_set_cursor(table, cursor, E_DIR_FORWARD);
 				result = true;
 			}
 			break;
@@ -589,7 +588,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 			if (cursor->row != 0 || cursor->col != 0) {
 
 				s_cursor_pos(cursor, 0, 0);
-				win_table_set_cursor(table, cursor, DIR_FORWARD);
+				win_table_set_cursor(table, cursor, E_DIR_FORWARD);
 				result = true;
 			}
 			break;
@@ -602,7 +601,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 			if (cursor->row != table->no_rows - 1 || cursor->col != table->no_columns - 1) {
 
 				s_cursor_pos(cursor, table->no_rows - 1, table->no_columns - 1);
-				win_table_set_cursor(table, cursor, DIR_BACKWARD);
+				win_table_set_cursor(table, cursor, E_DIR_BACKWARD);
 				result = true;
 			}
 			break;
@@ -626,9 +625,9 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 		//
 		case CTRL('n'):
 
-			if (s_table_prev_next(table, cursor, DIR_FORWARD)) {
+			if (s_table_prev_next(table, cursor, E_DIR_FORWARD)) {
 
-				win_table_set_cursor(table, cursor, DIR_FORWARD);
+				win_table_set_cursor(table, cursor, E_DIR_FORWARD);
 				result = true;
 			}
 
@@ -639,9 +638,9 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 			//
 		case CTRL('p'):
 
-			if (s_table_prev_next(table, cursor, DIR_BACKWARD)) {
+			if (s_table_prev_next(table, cursor, E_DIR_BACKWARD)) {
 
-				win_table_set_cursor(table, cursor, DIR_BACKWARD);
+				win_table_set_cursor(table, cursor, E_DIR_BACKWARD);
 				result = true;
 			}
 
@@ -664,7 +663,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
  * The function returns the window for the table, which is static.
  **************************************************************************/
 
-WINDOW *win_table_get_win() {
+WINDOW* win_table_get_win() {
 	return win_table;
 }
 
