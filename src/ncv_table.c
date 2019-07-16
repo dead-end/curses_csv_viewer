@@ -388,7 +388,7 @@ wchar_t* s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool
  * table that contains the filter string.
  *****************************************************************************/
 
-bool s_table_prev_next(const s_table *table, s_cursor *cursor, const int direction) {
+bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_direction direction) {
 
 	//
 	// The filter has to be set to find the next matching field.
@@ -578,7 +578,9 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	int col_size;
 	s_table_field_dimension(str, &col_size, &row_size);
 
-	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
+	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);
+	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);
+	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
 
 	//
 	// Update the row height if necessary.
@@ -761,7 +763,8 @@ int check_column_characteristic(const s_table *table, const int max_rows, const 
 	//
 	const double first = (*fct_ptr)(table->__fields[0][column]);
 
-	print_debug("check_column() col: %d first: '%ls'\n", column, table->__fields[0][column]);print_debug("check_column_len() mean: %lf stddev: %lf first: %lf\n", mean, std_dev, first);
+	print_debug("check_column() col: %d first: '%ls'\n", column, table->__fields[0][column]);
+	print_debug("check_column_len() mean: %lf stddev: %lf first: %lf\n", mean, std_dev, first);
 
 	//
 	// compare the first row with the mean
