@@ -28,6 +28,7 @@ set(LIBS
   src/ncv_parser.c
   src/ncv_table.c
   src/ncv_table_part.c
+  src/ncv_table_header.c
   src/ncv_table_sort.c
   src/ncv_corners.c
   src/ncv_field.c
@@ -80,6 +81,7 @@ set(TEST_SRCS
   src/ut_parser.c
   src/ut_table.c
   src/ut_table_part.c
+  src/ut_table_header.c
   src/ut_table_sort.c
   src/ut_common.c
   src/ut_wbuf.c
