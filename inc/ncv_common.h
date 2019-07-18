@@ -85,7 +85,9 @@
 #define W_SPACE    L' '
 
 #define NL         "\n"
+#define CR         "\r"
 #define DL         ","
+#define EC         "\""
 
 /******************************************************************************
  * An enum value for a direction (example: direction * width)
