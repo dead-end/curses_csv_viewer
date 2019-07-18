@@ -197,20 +197,51 @@ FILE* ut_create_tmp_file(const wchar_t *data) {
 }
 
 /******************************************************************************
- * The function checks the elements of a column.
+ * The function checks the elements of a column. It is called with an array of
+ * row values and the size of the array.
  *****************************************************************************/
 
-void ut_check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]) {
+void ut_check_table_column(s_table *table, const int col, const int num_rows, const wchar_t *rows[]) {
 
 	//
-	// Checking the number of rows is only reasonable if the table is filtered.
-	// But if the num_rows value is wrong, the function call can lead to a
-	// segmentation fault.
+	// Ensure that the number of rows is correct.
 	//
 	ut_check_int(table->no_rows, num_rows, "check num rows");
 
-	for (int i = 0; i < num_rows; i++) {
-		ut_check_wchar_str(table->fields[i][column], fields[i]);
+	for (int row = 0; row < num_rows; row++) {
+		ut_check_wchar_str(table->fields[row][col], rows[row]);
 	}
+}
+
+/******************************************************************************
+ * The function checks the elements of a row. It is called with an array of
+ * column values and the size of the array.
+ *****************************************************************************/
+
+void ut_check_table_row(s_table *table, const int row, const int num_cols, const wchar_t *cols[]) {
+
+	//
+	// Ensure that the number of columns is correct.
+	//
+	ut_check_int(table->no_columns, num_cols, "check num columns");
+
+	for (int col = 0; col < num_cols; col++) {
+		ut_check_wchar_str(table->fields[row][col], cols[col]);
+	}
+}
+
+/******************************************************************************
+ * The function check int array.
+ *****************************************************************************/
+
+void ut_check_int_array(const int current[], const int expected[], const int size, const char *msg) {
+
+	for (int i = 0; i < size; i++) {
+		if (current[i] != expected[i]) {
+			print_exit("ut_check_int_array() [%s] idx: %d current: %d expected: %d\n", msg, i, current[i], expected[i]);
+		}
+	}
+
+	print_debug("ut_check_int_array() [%s] OK \n", msg);
 }
 
