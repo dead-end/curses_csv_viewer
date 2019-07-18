@@ -41,6 +41,7 @@
 static void test_parser() {
 	s_table table;
 
+	// TODO: readable
 	const wchar_t *data = L"f00,\"f01->\nf01\",f02\n"
 			"\"f10\",\"f11->\r\"\"d111\"\"\",\"f12\"\n"
 			"f20,f21,f22\n"
@@ -59,6 +60,7 @@ static void test_parser() {
 	//
 	// Check all fields "by hand"
 	//
+	// TODO: use check_table_column
 	ut_check_wchar_str(table.fields[0][0], L"f00");
 	ut_check_wchar_str(table.fields[0][1], L"f01->\nf01");
 	ut_check_wchar_str(table.fields[0][2], L"f02");
@@ -120,6 +122,7 @@ static void helper_line_endings(const wchar_t *data) {
 	//
 	// Check all fields "by hand"
 	//
+	// TODO: use check_table_column
 	ut_check_wchar_str(table.fields[0][0], L"a0");
 	ut_check_wchar_str(table.fields[1][0], L"a1");
 	ut_check_wchar_str(table.fields[2][0], L"a2");
@@ -156,10 +159,11 @@ static void test_line_endings() {
 
 	print_debug_str("test_line_endings() Start\n");
 
-	helper_line_endings(L"a0\na1\ra2\r\na3");
-	helper_line_endings(L"a0\na1\ra2\r\na3\r");
-	helper_line_endings(L"a0\na1\ra2\r\na3\n");
-	helper_line_endings(L"a0\na1\ra2\r\na3\r\n");
+	// TODO: use definitions (in commons.h)
+	helper_line_endings(L"a0" NL "a1\ra2\r\na3");
+	helper_line_endings(L"a0" NL "a1\ra2\r\na3\r");
+	helper_line_endings(L"a0" NL "a1\ra2\r\na3\n");
+	helper_line_endings(L"a0" NL "a1\ra2\r\na3\r\n");
 
 	print_debug_str("test_line_endings() End\n");
 }
@@ -175,6 +179,7 @@ static void test_parser_empty() {
 
 	FILE *tmp = ut_create_tmp_file(L",\n,");
 
+	// TODO: used struct init
 	s_cfg_parser cfg_parser;
 	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
 
@@ -232,6 +237,7 @@ static void test_strict_false() {
 
 	parser_process_file(tmp, &cfg_parser, &table);
 
+	// TODO: use check_table_column
 	ut_check_wchar_str(table.fields[0][0], L"header");
 	ut_check_wchar_str(table.fields[0][1], L"");
 	ut_check_wchar_str(table.fields[0][2], L"");
