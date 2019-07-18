@@ -27,72 +27,43 @@
 
 #include <locale.h>
 
-#define STRICT_COL_TRUE true
-
-#define STRICT_COL_FALSE false
-
-#define DO_TRIM_FALSE false
-
 /******************************************************************************
  * The function reads and parses a csv file. All fields are compared with the
- * expected values.
+ * expected values. The unit test should test escaping.
  *****************************************************************************/
+
+#define __
+#define ___
 
 static void test_parser() {
 	s_table table;
 
-	// TODO: readable
-	const wchar_t *data = L"f00,\"f01->\nf01\",f02\n"
-			"\"f10\",\"f11->\r\"\"d111\"\"\",\"f12\"\n"
-			"f20,f21,f22\n"
-			"\"f30->,d30\",\"f31\",\"f32->\r\nd32\"\n"
-			",end,";
+	const wchar_t *data =
+
+	L"f00" __ __ __ DL EC"f01->\nf01"EC __ __ __ DL "f02" NL
+	EC"f10"EC __ __ DL EC"f11->\r\"\"d111\"\""EC DL EC"f12"EC NL
+	"f20" __ __ ___ DL "f21" __ __ __ __ ___ ___ DL "f22" NL
+	EC"f30->,d30"EC DL EC"f31"EC __ __ __ __ ___ DL EC"f32->\r\nd32"EC NL
+	__ __ __ __ ___ DL "end" __ __ __ __ ___ ___ DL;
 
 	print_debug_str("test_parser2() Start\n");
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
-	//
-	// Check all fields "by hand"
-	//
-	// TODO: use check_table_column
-	ut_check_wchar_str(table.fields[0][0], L"f00");
-	ut_check_wchar_str(table.fields[0][1], L"f01->\nf01");
-	ut_check_wchar_str(table.fields[0][2], L"f02");
-
-	ut_check_wchar_str(table.fields[1][0], L"f10");
-	ut_check_wchar_str(table.fields[1][1], L"f11->\n\"d111\"");
-	ut_check_wchar_str(table.fields[1][2], L"f12");
-
-	ut_check_wchar_str(table.fields[2][0], L"f20");
-	ut_check_wchar_str(table.fields[2][1], L"f21");
-	ut_check_wchar_str(table.fields[2][2], L"f22");
-
-	ut_check_wchar_str(table.fields[3][0], L"f30->,d30");
-	ut_check_wchar_str(table.fields[3][1], L"f31");
-	ut_check_wchar_str(table.fields[3][2], L"f32->\nd32");
-
-	ut_check_wchar_str(table.fields[4][0], L"");
-	ut_check_wchar_str(table.fields[4][1], L"end");
-	ut_check_wchar_str(table.fields[4][2], L"");
+	ut_check_table_row(&table, 0, 3, (const wchar_t*[] ) { L"f00", L"f01->\nf01", L"f02" });
+	ut_check_table_row(&table, 1, 3, (const wchar_t*[] ) { L"f10", L"f11->\n\"d111\"", L"f12" });
+	ut_check_table_row(&table, 2, 3, (const wchar_t*[] ) { L"f20", L"f21", L"f22" });
+	ut_check_table_row(&table, 3, 3, (const wchar_t*[] ) { L"f30->,d30", L"f31", L"f32->\nd32" });
+	ut_check_table_row(&table, 4, 3, (const wchar_t*[] ) { L"", L"end", L"" });
 
 	//
-	// Check the meta data
+	// Check the widths of the columns and the heights of the rows.
 	//
-	ut_check_int(table.width[0], 9, "col width: 0");
-	ut_check_int(table.width[1], 6, "col width: 1");
-	ut_check_int(table.width[2], 5, "col width: 2");
-
-	ut_check_int(table.height[0], 2, "row_height: 0");
-	ut_check_int(table.height[1], 2, "row_height: 1");
-	ut_check_int(table.height[2], 1, "row_height: 2");
-	ut_check_int(table.height[3], 2, "row_height: 3");
-	ut_check_int(table.height[4], 1, "row_height: 4");
+	ut_check_int_array(table.width, (int[] ) { 9, 6, 5 }, 3, "column widths");
+	ut_check_int_array(table.height, (int[] ) { 2, 2, 1, 2, 1 }, 5, "row heights");
 
 	//
 	// cleanup
@@ -112,31 +83,18 @@ static void test_parser() {
 static void helper_line_endings(const wchar_t *data) {
 	s_table table;
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
-	//
-	// Check all fields "by hand"
-	//
-	// TODO: use check_table_column
-	ut_check_wchar_str(table.fields[0][0], L"a0");
-	ut_check_wchar_str(table.fields[1][0], L"a1");
-	ut_check_wchar_str(table.fields[2][0], L"a2");
-	ut_check_wchar_str(table.fields[3][0], L"a3");
+	ut_check_table_column(&table, 0, 4, (const wchar_t*[] ) { L"a0", L"a1", L"a2", L"a3" });
 
 	//
-	// Check the meta data
+	// Check the widths of the columns and the heights of the rows.
 	//
-	ut_check_int(table.width[0], 2, "col width: 0");
-
-	ut_check_int(table.height[0], 1, "row_height: 0");
-	ut_check_int(table.height[1], 1, "row_height: 1");
-	ut_check_int(table.height[2], 1, "row_height: 2");
-	ut_check_int(table.height[3], 1, "row_height: 3");
+	ut_check_int_array(table.width, (int[] ) { 2 }, 1, "column widths");
+	ut_check_int_array(table.height, (int[] ) { 1, 1, 1, 1 }, 4, "row heights");
 
 	//
 	// cleanup
@@ -159,11 +117,10 @@ static void test_line_endings() {
 
 	print_debug_str("test_line_endings() Start\n");
 
-	// TODO: use definitions (in commons.h)
-	helper_line_endings(L"a0" NL "a1\ra2\r\na3");
-	helper_line_endings(L"a0" NL "a1\ra2\r\na3\r");
-	helper_line_endings(L"a0" NL "a1\ra2\r\na3\n");
-	helper_line_endings(L"a0" NL "a1\ra2\r\na3\r\n");
+	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3");
+	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3" CR);
+	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3" NL);
+	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3" CR NL);
 
 	print_debug_str("test_line_endings() End\n");
 }
@@ -177,31 +134,19 @@ static void test_parser_empty() {
 
 	print_debug_str("test_parser_empty() Start\n");
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(L",\n,");
-
-	// TODO: used struct init
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
-	//
-	// Check all fields "by hand"
-	//
-	ut_check_wchar_str(table.fields[0][0], L"");
-	ut_check_wchar_str(table.fields[0][1], L"");
-
-	ut_check_wchar_str(table.fields[1][0], L"");
-	ut_check_wchar_str(table.fields[1][1], L"");
+	ut_check_table_column(&table, 0, 2, (const wchar_t*[] ) { L"", L"" });
+	ut_check_table_column(&table, 1, 2, (const wchar_t*[] ) { L"", L"" });
 
 	//
-	// Check the meta data
+	// Check the widths of the columns and the heights of the rows.
 	//
-	ut_check_int(table.width[0], 1, "col empty: 0");
-	ut_check_int(table.width[1], 1, "col empty: 1");
-
-	ut_check_int(table.height[0], 1, "row empty: 0");
-	ut_check_int(table.height[1], 1, "row empty: 1");
+	ut_check_int_array(table.width, (int[] ) { 1, 1 }, 2, "column widths");
+	ut_check_int_array(table.height, (int[] ) { 1, }, 2, "row heights");
 
 	//
 	// Cleanup
@@ -226,29 +171,18 @@ static void test_strict_false() {
 
 	const wchar_t *data =
 
-	L"header" NL
-	"first" DL "next" NL
-	"second" DL "hallo" DL "end" NL;
+	L"col0-0" NL
+	L"col0-1" DL "col1-1" NL
+	L"col0-2" DL "col1-2" DL "col2-2" NL;
+
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = false };
 
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_FALSE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
-	// TODO: use check_table_column
-	ut_check_wchar_str(table.fields[0][0], L"header");
-	ut_check_wchar_str(table.fields[0][1], L"");
-	ut_check_wchar_str(table.fields[0][2], L"");
-
-	ut_check_wchar_str(table.fields[1][0], L"first");
-	ut_check_wchar_str(table.fields[1][1], L"next");
-	ut_check_wchar_str(table.fields[1][2], L"");
-
-	ut_check_wchar_str(table.fields[2][0], L"second");
-	ut_check_wchar_str(table.fields[2][1], L"hallo");
-	ut_check_wchar_str(table.fields[2][2], L"end");
+	ut_check_table_row(&table, 0, 3, (const wchar_t*[] ) { L"col0-0", L"", L"" });
+	ut_check_table_row(&table, 1, 3, (const wchar_t*[] ) { L"col0-1", L"col1-1", L"" });
+	ut_check_table_row(&table, 2, 3, (const wchar_t*[] ) { L"col0-2", L"col1-2", L"col2-2" });
 
 	//
 	// Cleanup
