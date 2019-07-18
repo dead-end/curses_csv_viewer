@@ -60,6 +60,6 @@ enum ut_null_check {
 
 void ut_check_wcs_null(const wchar_t *str, const enum ut_null_check ut_null);
 
-void check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]);
+void ut_check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]);
 
 #endif

@@ -200,7 +200,7 @@ FILE* ut_create_tmp_file(const wchar_t *data) {
  * The function checks the elements of a column.
  *****************************************************************************/
 
-void check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]) {
+void ut_check_table_column(s_table *table, const int column, const int num_rows, const wchar_t *fields[]) {
 
 	//
 	// Checking the number of rows is only reasonable if the table is filtered.
