@@ -28,15 +28,21 @@
 #include <assert.h>
 
 /******************************************************************************
- * The function sets the values of a s_filter.
+ * The function sets the values of a s_filter. The function returns true to
+ * indicate that the filter has changed.
  *****************************************************************************/
 
-void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search) {
+bool s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search) {
 
 	wcsncpy(filter->str, str, FILTER_STR_LEN);
 	filter->is_active = is_active;
 	filter->case_insensitive = case_insensitive;
 	filter->is_search = is_search;
+
+	//
+	// The filter changed
+	//
+	return true;
 }
 
 /******************************************************************************
@@ -112,7 +118,7 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
  * given string. If the filter string was not found, the function returns NULL.
  *****************************************************************************/
 
-wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str) {
+wchar_t* s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 
 	if (filter->case_insensitive) {
 		return wcs_casestr(str, filter->str);

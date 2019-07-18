@@ -101,13 +101,13 @@ typedef struct s_filter {
 
 #define s_filter_len(f) wcslen((f)->str)
 
-void s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search);
+bool s_filter_set(s_filter *filter, const bool is_active, const wchar_t *str, const bool case_insensitive, const bool is_search);
 
 bool s_filter_set_inactive(s_filter *filter);
 
 bool s_filter_update(s_filter *to_filter, const s_filter *from_filter);
 
-wchar_t *s_filter_search_str(const s_filter *filter, const wchar_t *str);
+wchar_t* s_filter_search_str(const s_filter *filter, const wchar_t *str);
 
 //
 // Function declarations that only make sense with debug mode.
