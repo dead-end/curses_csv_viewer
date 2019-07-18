@@ -29,10 +29,6 @@
 #include <locale.h>
 #include <stdarg.h>
 
-#define STRICT_COL_TRUE true
-
-#define DO_TRIM_FALSE false
-
 /******************************************************************************
  * The macro checks the dimension of a field, that is the width and hight.
  *****************************************************************************/
@@ -190,18 +186,8 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 #define check_table_update_filter_sort(t,c,fc,sc,n) ut_check_wcs_null(s_table_update_filter_sort(t, c, fc, sc), n)
 
 /******************************************************************************
- * The function tests the searching and filtering of the table as well as the
- * moving of the cursor to the next / prev match.
- *
- * The prev / next tests search forward / backward until they reach the initial
- * position.
+ * The function tests the searching and filtering of the table.
  *****************************************************************************/
-
-#define MATCH_1 1
-
-#define MATCH_2 2
-
-#define MATCH_3 3
 
 static void test_table_search_filter() {
 	s_cursor cursor, cursor_save;
@@ -214,89 +200,67 @@ static void test_table_search_filter() {
 	const wchar_t *data =
 
 	L"Number" DL "Header-2" DL "Header-3" NL
-	"1" DL "abcd" DL "ABCD" NL
-	"2" DL "efgh" DL "XfgX" NL
-	"3" DL "ixxl" DL "ijXX" NL
-	"4" DL "mnop" DL "XXOP" NL;
+	"1" DL "azza" DL "AZZA" NL
+	"2" DL "bbbb" DL "BBBB" NL
+	"3" DL "cxxc" DL "CCXX" NL
+	"4" DL "dddd" DL "XXDD" NL;
+
+	s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
 	// SEARCHING, INSENSITIVE WITH 2 MATCHES
 	//
-	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"zz", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NULL);
-	check_filter_result(&table, SF_IS_ACTIVE, MATCH_2, 5, "search insensitive");
-
-	//
-	// matches: 2 points: (1,1) (1,2)
-	//
-	check_prev_next(&table, &cursor, "search insensitive", MATCH_2, (const s_row_col[] ) { { 1, 1 }, { 1, 2 } });
+	check_filter_result(&table, SF_IS_ACTIVE, 2, 5, "search insensitive - result");
 
 	//
 	// SEARCHING, SENSITIVE WITH 1 MATCHES
 	//
-	s_filter_set(&table.filter, SF_IS_ACTIVE, L"bc", SF_IS_SENSITIVE, SF_IS_SEARCHING);
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"zz", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NULL);
-	check_filter_result(&table, SF_IS_ACTIVE, MATCH_1, 5, "search sensitive");
-
-	//
-	// matches: 1 points: (1,1)
-	//
-	check_prev_next(&table, &cursor, "search insensitive", MATCH_1, (const s_row_col[] ) { { 1, 1 } });
+	check_filter_result(&table, SF_IS_ACTIVE, 1, 5, "search sensitive - result");
 
 	//
 	// SEARCHING WITH NO MATCHES
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"hallo", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NOT_NULL);
-	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "search no matches - filter");
-	check_cursor(&cursor, 1, 1, "search no matches - cursor");
+	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "search sensitive - no matches - result");
+	check_cursor(&cursor, 1, 1, "search sensitive - no matches - cursor");
 
 	//
 	// FILTERING, INSENSITIVE WITH 3 MATCHES
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_FILTERING);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NULL);
-	check_filter_result(&table, SF_IS_ACTIVE, MATCH_3, 3, "filter insensitive - filter");
-
-	//
-	// matches: 3 points: (1,1) (1,2) (2,2)
-	//
-	check_prev_next(&table, &cursor, "filter insensitive", MATCH_3, (const s_row_col[] ) { { 1, 1 }, { 1, 2 }, { 2, 2 } });
+	check_filter_result(&table, SF_IS_ACTIVE, 3, 3, "filter insensitive - result");
 
 	//
 	// FILTERING, SENSITIVE WITH 1 MATCH
 	//
 	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NULL);
-	check_filter_result(&table, SF_IS_ACTIVE, MATCH_1, 2, "filter sensitive - filter");
-
-	//
-	// matches: 1 points: (1,1)
-	//
-	check_prev_next(&table, &cursor, "filter sensitive", MATCH_1, (const s_row_col[] ) { { 1, 1 } });
+	check_filter_result(&table, SF_IS_ACTIVE, 1, 2, "filter sensitive - result");
 
 	//
 	// FILTERING WITH NO MATCHES (cursor is unchanged)
 	//
-	s_filter_set(&table.filter, SF_IS_ACTIVE, L"eF", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"hallo", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	s_cursor_pos(&cursor_save, cursor.row, cursor.col);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NOT_NULL);
-	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "filter no matches - filter");
-	check_cursor(&cursor, cursor_save.row, cursor_save.col, "filter no matches - cursor");
+	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "filter sensitive - no matches - result");
+	check_cursor(&cursor, cursor_save.row, cursor_save.col, "filter sensitive - no matches - cursor");
 
 	//
 	// RESET AFTER FILTERING, SENSITIVE WITH 1 MATCH
 	//
-	s_filter_set(&table.filter, SF_IS_ACTIVE, L"XO", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"DD", SF_IS_SENSITIVE, SF_IS_FILTERING);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NULL);
-	check_filter_result(&table, SF_IS_ACTIVE, 1, 2, "reset after filtering - filter");
+	check_filter_result(&table, SF_IS_ACTIVE, 1, 2, "reset after filtering - result");
 	check_cursor(&cursor, 1, 2, "reset after filtering - cursor");
 
 	//
@@ -305,8 +269,79 @@ static void test_table_search_filter() {
 	s_filter_set_inactive(&table.filter);
 	s_cursor_pos(&cursor_save, cursor.row, cursor.col);
 	check_table_update_filter_sort(&table, &cursor, true, false, UT_IS_NULL);
-	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "no filtering - filter");
+	check_filter_result(&table, SF_IS_INACTIVE, 0, 5, "no filtering - result");
 	check_cursor(&cursor, cursor_save.row, cursor_save.col, "no filtering - cursor");
+
+	//
+	// Cleanup
+	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
+	print_debug_str("test_table_search_filter() End\n");
+}
+
+/******************************************************************************
+ * The function tests prev / next function on searching and filtering of the
+ * table. The prev / next tests search forward / backward until they reach the
+ * initial position.
+ *****************************************************************************/
+
+static void test_table_prev_next() {
+	s_cursor cursor;
+
+	s_table table;
+	s_table_set_defaults(table);
+
+	print_debug_str("test_table_prev_next() Start\n");
+
+	const wchar_t *data =
+
+	L"Number" DL "Header-2" DL "Header-3" NL
+	"1" DL "aaaa" DL "AAAA" NL
+	"2" DL "bxxb" DL "BBXX" NL
+	"3" DL "cccc" DL "CCCC" NL
+	"4" DL "dddd" DL "XXDD" NL;
+
+	s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
+	FILE *tmp = ut_create_tmp_file(data);
+	parser_process_file(tmp, &cfg_parser, &table);
+
+	//
+	// SEARCHING, INSENSITIVE
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
+	s_table_update_filter_sort(&table, &cursor, true, false);
+	check_prev_next(&table, &cursor, "search insensitive", 3, (const s_row_col[] ) { { 2, 1 }, { 2, 2 }, { 4, 2 } });
+
+	//
+	// SEARCHING, SENSITIVE
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_SEARCHING);
+	s_table_update_filter_sort(&table, &cursor, true, false);
+	check_prev_next(&table, &cursor, "search insensitive", 1, (const s_row_col[] ) { { 2, 1 } });
+
+	//
+	// FILTERING, INSENSITIVE
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_INSENSITIVE, SF_IS_FILTERING);
+	s_table_update_filter_sort(&table, &cursor, true, false);
+	check_prev_next(&table, &cursor, "filter insensitive", 3, (const s_row_col[] ) { { 1, 1 }, { 1, 2 }, { 2, 2 } });
+
+	//
+	// FILTERING, SENSITIVE
+	//
+	s_filter_set(&table.filter, SF_IS_ACTIVE, L"xx", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_table_update_filter_sort(&table, &cursor, true, false);
+	check_prev_next(&table, &cursor, "filter insensitive", 1, (const s_row_col[] ) { { 1, 1 } });
+
+	//
+	// FILTERING INACTIVE
+	//
+	s_filter_set_inactive(&table.filter);
+	s_table_update_filter_sort(&table, &cursor, true, false);
 
 	//
 	// Calling prev / next has no effect if filtering is inactive. This should
@@ -327,10 +362,8 @@ static void test_table_search_filter() {
 
 	fclose(tmp);
 
-	print_debug_str("test_table_search_filter() End\n");
+	print_debug_str("test_table_prev_next() End\n");
 }
-
-// TODO: split test case => separate test for prev / next.
 
 /******************************************************************************
  * The function checks the combination of sorting and filtering.
@@ -353,11 +386,9 @@ static void test_filter_and_sort() {
 	L"3" DL "AA" DL "" NL
 	L"4" DL "EE" DL "z--" NL;
 
+	s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = false;
@@ -409,6 +440,8 @@ int main() {
 	test_table_field_dimension();
 
 	test_table_search_filter();
+
+	test_table_prev_next();
 
 	test_filter_and_sort();
 
