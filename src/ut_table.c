@@ -138,6 +138,14 @@ typedef struct s_row_col {
 static void check_prev_next(const s_table *table, s_cursor *cursor, const char *msg, const int num_matches, const s_row_col row_col[num_matches]) {
 
 	//
+	// Ensure that there is at least one match. (Without this test msg is
+	// unused without DEBUG set.
+	//
+	if (num_matches < 1) {
+		print_exit("check_prev_next() Number of matches: %d - %s!\n", num_matches, msg);
+	}
+
+	//
 	// Check the current match position
 	//
 	print_debug("check_prev_next() start match idx: %d - %s\n", 0, msg);
