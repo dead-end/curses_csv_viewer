@@ -35,7 +35,7 @@ make DEBUG="-DDEBUG -g"   || do_exit "make debug failed"
 
 make clean                || do_exit "make clean failed"
 
-make                      || do_exit "make failed"
+make DEBUG=""             || do_exit "make failed"
 
 sh "${bin_dir}/cmake_build.sh" debug   || do_exit "cmake debug failed"
 
