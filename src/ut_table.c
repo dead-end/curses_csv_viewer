@@ -336,6 +336,8 @@ static void test_table_search_filter() {
  * The function checks the combination of sorting and filtering.
  *****************************************************************************/
 
+#define UNCHANGED false
+
 static void test_filter_and_sort() {
 	s_table table;
 	s_cursor cursor;
@@ -363,33 +365,25 @@ static void test_filter_and_sort() {
 	//
 	// Set a filter for "z"
 	//
-	s_filter_set(&table.filter, SF_IS_ACTIVE, L"z", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	s_table_update_filter_sort(&table, &cursor, true, false);
-
+	s_table_update_filter_sort(&table, &cursor, s_filter_set(&table.filter, SF_IS_ACTIVE, L"z", SF_IS_SENSITIVE, SF_IS_FILTERING), UNCHANGED);
 	ut_check_table_column(&table, 1, 3, (const wchar_t*[] ) { L"DD", L"BB", L"EE" });
 
 	//
 	// Sort the already filtered data
 	//
-	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
-	s_table_update_filter_sort(&table, &cursor, false, true);
-
+	s_table_update_filter_sort(&table, &cursor, UNCHANGED, s_sort_update(&table.sort, 1, E_DIR_FORWARD));
 	ut_check_table_column(&table, 1, 3, (const wchar_t*[] ) { L"BB", L"DD", L"EE" });
 
 	//
 	// Change the sorted column and direction
 	//
-	s_sort_update(&table.sort, 0, E_DIR_BACKWARD);
-	s_table_update_filter_sort(&table, &cursor, false, true);
-
+	s_table_update_filter_sort(&table, &cursor, UNCHANGED, s_sort_update(&table.sort, 0, E_DIR_BACKWARD));
 	ut_check_table_column(&table, 1, 3, (const wchar_t*[] ) { L"EE", L"BB", L"DD" });
 
 	//
 	// Change the sorted column and direction
 	//
-	s_filter_set_inactive(&table.filter);
-	s_table_update_filter_sort(&table, &cursor, true, false);
-
+	s_table_update_filter_sort(&table, &cursor, s_filter_set_inactive(&table.filter), UNCHANGED);
 	ut_check_table_column(&table, 1, 5, (const wchar_t*[] ) { L"EE", L"AA", L"BB", L"CC", L"DD" });
 
 	//
