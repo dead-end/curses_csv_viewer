@@ -109,7 +109,7 @@ FILE* stdin_2_tmp() {
  * The function converts a multi byte char string to a wide char string. The
  * buffer has to be large enough or the program terminates with an error.
  *****************************************************************************/
-
+// TODO: unit tests
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 
 	const size_t result = mbstowcs(buffer, mbs, buf_size);
@@ -183,7 +183,7 @@ wchar_t* wcstrim(wchar_t *str) {
  * The function checks if a wchar_t string is empty, which means, that the
  * string has length 0 or consists only of whitespaces.
  *****************************************************************************/
-
+// TODO: unit tests
 bool wcs_is_empty(wchar_t *str) {
 	wchar_t *ptr;
 
@@ -331,7 +331,7 @@ void str_array_sizes(const char *msgs[], int *rows, int *cols) {
  * The function computes the start of an aligned string. If the string does not
  * fit in its container, the function returns -1;
  *****************************************************************************/
-
+// TODO: unit tests
 int get_align_start(const int max, const int len, const enum e_align align) {
 
 	if (len > max) {
