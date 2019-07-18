@@ -28,7 +28,6 @@
 #include "ncv_win_footer.h"
 #include "ncv_win_help.h"
 
-//#include "ncv_sort.h"
 #include "ncv_filter.h"
 #include "ncv_table_part.h"
 #include "ncv_ncurses.h"
@@ -60,7 +59,7 @@ enum MODE {
  * The function returns a string representation of the mode enum.
  *****************************************************************************/
 
-static inline char *mode_str(const enum MODE mode) {
+static inline char* mode_str(const enum MODE mode) {
 
 	switch (mode) {
 
