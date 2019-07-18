@@ -205,7 +205,7 @@ static void test_table_search_filter() {
 	"3" DL "cxxc" DL "CCXX" NL
 	"4" DL "dddd" DL "XXDD" NL;
 
-	s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -304,7 +304,7 @@ static void test_table_prev_next() {
 	"3" DL "cccc" DL "CCCC" NL
 	"4" DL "dddd" DL "XXDD" NL;
 
-	s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -386,7 +386,7 @@ static void test_filter_and_sort() {
 	L"3" DL "AA" DL "" NL
 	L"4" DL "EE" DL "z--" NL;
 
-	s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
