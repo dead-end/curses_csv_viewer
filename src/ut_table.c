@@ -435,6 +435,7 @@ int main() {
 
 	print_debug_str("ut_table.c - Start tests\n");
 
+	// TODO: C
 	setlocale(LC_ALL, "");
 
 	test_table_field_dimension();

@@ -202,6 +202,7 @@ int main() {
 
 	print_debug_str("ut_parser.c - Start tests\n");
 
+	// TODO: C
 	setlocale(LC_ALL, "");
 
 	test_parser();
