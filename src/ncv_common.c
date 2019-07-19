@@ -106,6 +106,82 @@ FILE* stdin_2_tmp() {
 }
 
 /******************************************************************************
+ * The function reads a wchar_t from a stream. It converts the different line
+ * endings (windows: \r\n mac: \r) to a standard (unix: \n). It also does error
+ * processing.
+ *
+ * Due to the bug, the file has to be closed on errors. If not, a segmentation
+ * fault can happen after calling exit.
+ *
+ * https://sourceware.org/bugzilla/show_bug.cgi?id=20938
+ *****************************************************************************/
+
+wchar_t read_wchar(FILE *file) {
+	wint_t wint;
+
+	//
+	// Check for WEOF which indicates EOF or an error
+	//
+	if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
+
+		if (errno == EILSEQ) {
+			fclose(file);
+			print_exit_str("read_wchar() Character encoding error!\n");
+
+		} else {
+			fclose(file);
+			print_exit("read_wchar() I/O error: %s\n", strerror(errno));
+		}
+	}
+
+	//
+	// For processing the line ending means dealing with carriage returns.
+	//
+	if ((wchar_t) wint == W_CR) {
+
+		//
+		// Read the next char. If it is \n then we have a windows line
+		// ending. If not, we have a mac.
+		//
+		if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
+
+			if (errno == EILSEQ) {
+				fclose(file);
+				print_exit_str("read_wchar() Character encoding error!\n");
+
+			} else {
+				fclose(file);
+				print_exit_str("read_wchar() I/O error!\n");
+			}
+		}
+
+		//
+		// If the char after the carriage return is not a line feed we have
+		// a mac and we have to push back the char.
+		//
+		if ((wchar_t) wint != W_NEW_LINE) {
+
+			//
+			//
+			//
+			if (wint != WEOF && ungetwc(wint, file) == WEOF) {
+				fclose(file);
+				print_exit_str("read_wchar() Unable to push back character!\n");
+			}
+
+			return W_NEW_LINE;
+		}
+
+		//
+		// If the char after the carriage return is a line feed, we simply
+		// return that char, which means that we ignore the carriage before.
+		//
+	}
+
+	return (wchar_t) wint;
+}
+
+/******************************************************************************
  * The function converts a multi byte char string to a wide char string. The
  * buffer has to be large enough or the program terminates with an error.
  *****************************************************************************/
@@ -194,82 +270,6 @@ bool wcs_is_empty(wchar_t *str) {
 	}
 
 	return true;
-}
-
-/******************************************************************************
- * The function reads a wchar_t from a stream. It converts the different line
- * endings (windows: \r\n mac: \r) to a standard (unix: \n). It also does error
- * processing.
- *
- * Due to the bug, the file has to be closed on errors. If not, a segmentation
- * fault can happen after calling exit.
- *
- * https://sourceware.org/bugzilla/show_bug.cgi?id=20938
- *****************************************************************************/
-
-wchar_t read_wchar(FILE *file) {
-	wint_t wint;
-
-	//
-	// Check for WEOF which indicates EOF or an error
-	//
-	if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
-
-		if (errno == EILSEQ) {
-			fclose(file);
-			print_exit_str("read_wchar() Character encoding error!\n");
-
-		} else {
-			fclose(file);
-			print_exit("read_wchar() I/O error: %s\n", strerror(errno));
-		}
-	}
-
-	//
-	// For processing the line ending means dealing with carriage returns.
-	//
-	if ((wchar_t) wint == W_CR) {
-
-		//
-		// Read the next char. If it is \n then we have a windows line
-		// ending. If not, we have a mac.
-		//
-		if ((wint = fgetwc(file)) == WEOF && ferror(file)) {
-
-			if (errno == EILSEQ) {
-				fclose(file);
-				print_exit_str("read_wchar() Character encoding error!\n");
-
-			} else {
-				fclose(file);
-				print_exit_str("read_wchar() I/O error!\n");
-			}
-		}
-
-		//
-		// If the char after the carriage return is not a line feed we have
-		// a mac and we have to push back the char.
-		//
-		if ((wchar_t) wint != W_NEW_LINE) {
-
-			//
-			//
-			//
-			if (wint != WEOF && ungetwc(wint, file) == WEOF) {
-				fclose(file);
-				print_exit_str("read_wchar() Unable to push back character!\n");
-			}
-
-			return W_NEW_LINE;
-		}
-
-		//
-		// If the char after the carriage return is a line feed, we simply
-		// return that char, which means that we ignore the carriage before.
-		//
-	}
-
-	return (wchar_t) wint;
 }
 
 /******************************************************************************
