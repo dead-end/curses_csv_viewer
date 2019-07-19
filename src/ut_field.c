@@ -276,6 +276,7 @@ int main() {
 
 	print_debug_str("ut_field.c - Start tests\n");
 
+	// TODO: C
 	setlocale(LC_ALL, "");
 
 	test_field_part_update();

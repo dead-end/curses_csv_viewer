@@ -268,6 +268,7 @@ int main() {
 
 	print_debug_str("ut_table_header.c - Start tests\n");
 
+	// TODO: C
 	setlocale(LC_ALL, "");
 
 	test_table_get_ratio();

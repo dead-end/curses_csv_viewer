@@ -143,6 +143,7 @@ int main() {
 
 	print_debug_str("ut_table_part.c - Start tests\n");
 
+	// TODO: C
 	setlocale(LC_ALL, "");
 
 	test_table_part_update();
