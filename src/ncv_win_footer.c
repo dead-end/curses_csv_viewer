@@ -57,7 +57,7 @@
  * Definition of the footer window.
  *****************************************************************************/
 
-static WINDOW* win_footer = NULL;
+static WINDOW *win_footer = NULL;
 
 static wchar_t *msg = NULL;
 
@@ -70,7 +70,7 @@ static chtype attr_highlight;
  *****************************************************************************/
 
 void win_footer_set_msg(wchar_t *message) {
-	print_debug("win_footer_set_msg() Message: %ls\n", message);
+	log_debug("Message: %ls", message);
 	msg = message;
 }
 
@@ -110,7 +110,7 @@ void win_footer_resize() {
 	// Ensure the minimum size of the window.
 	//
 	if (WIN_HAS_MIN_SIZE(WIN_FOOTER_HAS_MIN_ROWS, WIN_FOOTER_HAS_MIN_COLS)) {
-		print_debug_str("win_footer_resize() Do resize the window!\n");
+		log_debug_str("Do resize the window!");
 
 		//
 		// Move the footer to the bottom of the terminal. This is necessary
@@ -158,7 +158,7 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 	// Erase window to ensure that no garbage is left behind.
 	//
 	if (werase(win_footer) == ERR) {
-		print_exit_str("win_footer_content_print() Unable to erase the footer window!\n");
+		log_exit_str("Unable to erase the footer window!");
 	}
 
 	//
@@ -228,7 +228,7 @@ void win_footer_content_print(const s_table *table, const s_cursor *cursor, cons
 
 void win_footer_refresh_no() {
 
-	print_debug_str("win_footer_refresh_no() Refresh footer window.\n");
+	log_debug_str("Refresh footer window.");
 	ncurses_win_refresh_no(win_footer, WIN_FOOTER_HAS_MIN_ROWS, WIN_FOOTER_HAS_MIN_COLS);
 }
 
@@ -238,6 +238,6 @@ void win_footer_refresh_no() {
 
 void win_footer_free() {
 
-	print_debug_str("win_footer_free() Removing footer window.\n");
+	log_debug_str("Removing footer window.");
 	ncurses_win_free(win_footer);
 }
