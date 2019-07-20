@@ -50,7 +50,7 @@ bool s_sort_set_inactive(s_sort *sort) {
 
 bool s_sort_update(s_sort *sort, const int column, const enum e_direction direction) {
 
-	print_debug("s_sort_update() Before - active: %s column: %d direction: %s\n", bool_str(sort->is_active), sort->column, e_direction_str(sort->direction));
+	log_debug("Before - active: %s column: %d direction: %s", bool_str(sort->is_active), sort->column, e_direction_str(sort->direction));
 
 	if (sort->is_active && sort->column == column && sort->direction == direction) {
 		sort->is_active = false;
@@ -63,7 +63,7 @@ bool s_sort_update(s_sort *sort, const int column, const enum e_direction direct
 		sort->direction = direction;
 	}
 
-	print_debug("s_sort_update() After - active: %s column: %d direction: %s\n", bool_str(sort->is_active), sort->column, e_direction_str(sort->direction));
+	log_debug("After - active: %s column: %d direction: %s", bool_str(sort->is_active), sort->column, e_direction_str(sort->direction));
 
 	return sort->is_active;
 }
