@@ -160,16 +160,16 @@ typedef struct s_wbuf {
 
 #define WBUF_BLOCK_SIZE 4096
 
-s_wbuf *s_wbuf_create(const int size);
+s_wbuf* s_wbuf_create(const int size);
 
 void s_wbuf_copy_file(FILE *file, s_wbuf *wbuf);
 
 void s_wbuf_add(s_wbuf *wbuf, const wchar_t wchar);
 
-bool s_wbuf_next(s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr);
+bool s_wbuf_next(const s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr);
 
 void s_wbuf_free(s_wbuf *wbuf);
 
-void s_wbuf_add_str(s_wbuf *wbuf, wchar_t *str);
+void s_wbuf_add_str(s_wbuf *wbuf, const wchar_t *str);
 
 #endif /* INC_NCV_WBUF_H_ */

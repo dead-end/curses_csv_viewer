@@ -31,9 +31,9 @@
  * The function is called to create a new s_wblock for a s_wbuf.
  *****************************************************************************/
 
-static s_wblock *s_wblock_create(const int idx, const int size) {
+static s_wblock* s_wblock_create(const int idx, const int size) {
 
-	print_debug("s_wblock_create() Block: %d size: %d\n", idx, size);
+	log_debug("Block: %d size: %d", idx, size);
 
 	//
 	// Allocate the memory for the struct and the buffer of the struct.
@@ -59,9 +59,9 @@ static s_wblock *s_wblock_create(const int idx, const int size) {
  * next member of the linked list.
  *****************************************************************************/
 
-static s_wblock *s_wblock_free(s_wblock *wblock) {
+static s_wblock* s_wblock_free(s_wblock *wblock) {
 
-	print_debug("s_wblock_free() Block: %d size: %d\n", wblock->idx, wblock->size);
+	log_debug("Block: %d size: %d", wblock->idx, wblock->size);
 
 	s_wblock *next = wblock->next;
 
@@ -76,14 +76,14 @@ static s_wblock *s_wblock_free(s_wblock *wblock) {
  * The function creates a s_wbuf struct with a given block size.
  *****************************************************************************/
 
-s_wbuf *s_wbuf_create(const int block_size) {
+s_wbuf* s_wbuf_create(const int block_size) {
 
-	print_debug("s_wbuf_create() Creating s_wbuf with block size: %d\n", block_size);
+	log_debug("Creating s_wbuf with block size: %d", block_size);
 
 	//
 	// Allocate the memory
 	//
-	s_wbuf * wbuf = xmalloc(sizeof(s_wbuf));
+	s_wbuf *wbuf = xmalloc(sizeof(s_wbuf));
 
 	//
 	// Initialize the struct members. A newly created s_wbuf has no s_wblocks.
@@ -103,7 +103,7 @@ s_wbuf *s_wbuf_create(const int block_size) {
 
 void s_wbuf_free(s_wbuf *wbuf) {
 
-	print_debug_str("s_wbuf_free() Freeing s_wbuf\n");
+	log_debug_str("Freeing s_wbuf");
 
 	//
 	// Free the s_wblocks of the s_wbuf struct.
@@ -131,7 +131,7 @@ void s_wbuf_add(s_wbuf *wbuf, const wchar_t wchar) {
 		//
 		// On the first call of the function, the s_wbuf has no blocks.
 		//
-		print_debug_str("s_wbuf_add() s_wbuf is empty\n");
+		log_debug_str("Struct s_wbuf is empty");
 
 		//
 		// Create the first s_wblock and set the end position the first wchar_t
@@ -147,7 +147,7 @@ void s_wbuf_add(s_wbuf *wbuf, const wchar_t wchar) {
 		// Create a new s_wblock and move the position to the beginning of the
 		// newly created block. On every call, we double the size of the block.
 		//
-		print_debug("s_wbuf_add() Reached end of block: %d\n", wbuf->end_pos.block->idx);
+		log_debug("Reached end of block: %d", wbuf->end_pos.block->idx);
 
 		//
 		// Create a new s_wblock and set the position to the first wchar_t for
@@ -165,7 +165,7 @@ void s_wbuf_add(s_wbuf *wbuf, const wchar_t wchar) {
 		wbuf->end_pos.idx++;
 	}
 
-	print_debug("s_wbuf_add() Block: %d size: %d index: %d wchar: %lc\n", wbuf->end_pos.block->idx, wbuf->end_pos.block->size, wbuf->end_pos.idx, wchar);
+	log_debug("Block: %d size: %d index: %d wchar: %lc", wbuf->end_pos.block->idx, wbuf->end_pos.block->size, wbuf->end_pos.idx, wchar);
 
 	//
 	// Set the wchar_t to the new end position.
@@ -179,14 +179,14 @@ void s_wbuf_add(s_wbuf *wbuf, const wchar_t wchar) {
  * reached it returns false.
  *****************************************************************************/
 
-bool s_wbuf_next(s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr) {
+bool s_wbuf_next(const s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr) {
 
 	if (!s_wbuf_pos_is_set(cur_pos)) {
 
 		//
 		// At the first function call the current position is not initialized.
 		//
-		print_debug_str("s_wbuf_add() Initialize s_wbuf\n");
+		log_debug_str("Initialize s_wbuf");
 
 		s_wbuf_pos_set(cur_pos, wbuf->root, 0);
 
@@ -196,7 +196,7 @@ bool s_wbuf_next(s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr) {
 		// The current position is the last valid wchar_t in the buffer, so we
 		// do not switch to the next position.
 		//
-		print_debug_str("s_wbuf_add() Reached end of s_wbuf\n");
+		log_debug_str("Reached end of s_wbuf");
 
 		return false;
 
@@ -206,7 +206,7 @@ bool s_wbuf_next(s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr) {
 		// The last if condition checks for the end of the buffer, so we are
 		// save to switch to the next block.
 		//
-		print_debug_str("s_wbuf_add() Switch to next s_wblock\n");
+		log_debug_str("Switch to next s_wblock");
 
 		s_wbuf_pos_next_block(cur_pos);
 
@@ -214,8 +214,8 @@ bool s_wbuf_next(s_wbuf *wbuf, s_wbuf_pos *cur_pos, wchar_t *wchr) {
 		cur_pos->idx++;
 	}
 
-	print_debug("s_wbuf_add() Current block: %d size: %d index: %d\n", cur_pos->block->idx, cur_pos->block->size, cur_pos->idx);
-	print_debug("s_wbuf_add() End     block: %d size: %d index: %d\n", wbuf->end_pos.block->idx, wbuf->end_pos.block->size, wbuf->end_pos.idx);
+	log_debug("Current block: %d size: %d index: %d", cur_pos->block->idx, cur_pos->block->size, cur_pos->idx);
+	log_debug("End     block: %d size: %d index: %d", wbuf->end_pos.block->idx, wbuf->end_pos.block->size, wbuf->end_pos.idx);
 
 	//
 	// Set the current wchar_t to the parameter location.
@@ -250,10 +250,9 @@ void s_wbuf_copy_file(FILE *file, s_wbuf *wbuf) {
  * The function adds a string to a s_wbuf. This is used for unit tests.
  *****************************************************************************/
 
-void s_wbuf_add_str(s_wbuf *wbuf, wchar_t *str) {
+void s_wbuf_add_str(s_wbuf *wbuf, const wchar_t *str) {
 
-	for (wchar_t *ptr = str; *ptr != L'\0'; ptr++) {
+	for (const wchar_t *ptr = str; *ptr != L'\0'; ptr++) {
 		s_wbuf_add(wbuf, *ptr);
 	}
 }
-
