@@ -41,7 +41,7 @@ void* xmalloc(const size_t size) {
 	void *ptr = malloc(size);
 
 	if (ptr == NULL) {
-		print_exit("xmalloc() Unable to allocate: %zu bytes of memory!\n", size);
+		log_exit("Unable to allocate: %zu bytes of memory!", size);
 	}
 
 	return ptr;
@@ -62,7 +62,7 @@ FILE* stdin_2_tmp() {
 	// Create a temp file
 	//
 	if ((tmp = tmpfile()) == NULL) {
-		print_exit("stdin_2_tmp() Unable to create tmp file: %s\n", strerror(errno));
+		log_exit("Unable to create tmp file: %s", strerror(errno));
 	}
 
 	int in = fileno(stdin);
@@ -81,9 +81,9 @@ FILE* stdin_2_tmp() {
 		if (bytes_write != bytes_read) {
 
 			if (bytes_write == -1) {
-				print_exit("stdin_2_tmp() Unable to write to temp file: %s\n", strerror (errno));
+				log_exit("Unable to write to temp file: %s", strerror (errno));
 			} else {
-				print_exit_str("stdin_2_tmp() Could not write the whole buffer!\n");
+				log_exit_str("Could not write the whole buffer!");
 			}
 		}
 	}
@@ -92,14 +92,14 @@ FILE* stdin_2_tmp() {
 	// Check for read errors.
 	//
 	if (bytes_read == -1) {
-		print_exit("stdin_2_tmp() Could not read from stdin: %s\n", strerror (errno));
+		log_exit("Could not read from stdin: %s", strerror (errno));
 	}
 
 	//
 	// Rewind the file.
 	//
 	if (fseek(tmp, 0L, SEEK_SET) == -1) {
-		print_exit("stdin_2_tmp() Unable to rewind file due to: %s\n", strerror(errno));
+		log_exit("Unable to rewind file due to: %s", strerror(errno));
 	}
 
 	return tmp;
@@ -126,11 +126,11 @@ wchar_t read_wchar(FILE *file) {
 
 		if (errno == EILSEQ) {
 			fclose(file);
-			print_exit_str("read_wchar() Character encoding error!\n");
+			log_exit_str("Character encoding error!");
 
 		} else {
 			fclose(file);
-			print_exit("read_wchar() I/O error: %s\n", strerror(errno));
+			log_exit("I/O error: %s", strerror(errno));
 		}
 	}
 
@@ -147,11 +147,11 @@ wchar_t read_wchar(FILE *file) {
 
 			if (errno == EILSEQ) {
 				fclose(file);
-				print_exit_str("read_wchar() Character encoding error!\n");
+				log_exit_str("Character encoding error!");
 
 			} else {
 				fclose(file);
-				print_exit_str("read_wchar() I/O error!\n");
+				log_exit_str("I/O error!");
 			}
 		}
 
@@ -166,7 +166,7 @@ wchar_t read_wchar(FILE *file) {
 			//
 			if (wint != WEOF && ungetwc(wint, file) == WEOF) {
 				fclose(file);
-				print_exit_str("read_wchar() Unable to push back character!\n");
+				log_exit_str("Unable to push back character!");
 			}
 
 			return W_NEW_LINE;
@@ -191,7 +191,7 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 	const size_t result = mbstowcs(buffer, mbs, buf_size);
 
 	if (result == (size_t) -1) {
-		print_exit_str("mbs_2_wchars() Encountered an invalid multibyte sequence!\n");
+		log_exit_str("Encountered an invalid multibyte sequence!");
 	}
 
 	//
@@ -199,7 +199,7 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 	// error.
 	//
 	if (result >= (size_t) buf_size) {
-		print_exit("mbs_2_wchars() Buffer too small (required: %zu provided: %zu)\n", result, (size_t ) buf_size);
+		log_exit("Buffer too small (required: %zu provided: %zu)", result, (size_t ) buf_size);
 	}
 
 	return result;
@@ -260,8 +260,8 @@ wchar_t* wcstrim(wchar_t *str) {
  * string has length 0 or consists only of whitespaces.
  *****************************************************************************/
 // TODO: unit tests
-bool wcs_is_empty(wchar_t *str) {
-	wchar_t *ptr;
+bool wcs_is_empty(const wchar_t *str) {
+	const wchar_t *ptr;
 
 	for (ptr = str; *ptr != W_STR_TERM; ptr++) {
 		if (!iswspace(*ptr)) {
@@ -278,7 +278,6 @@ bool wcs_is_empty(wchar_t *str) {
 
 wchar_t* wcs_casestr(const wchar_t *str, const wchar_t *find) {
 	wchar_t first_chr, str_chr;
-	size_t len;
 
 	//
 	// Split the find string in the first char and the rest
@@ -286,7 +285,7 @@ wchar_t* wcs_casestr(const wchar_t *str, const wchar_t *find) {
 	if ((first_chr = *find++) != 0) {
 
 		first_chr = (wchar_t) towlower((wint_t) first_chr);
-		len = wcslen(find);
+		const size_t len = wcslen(find);
 
 		do {
 
@@ -355,7 +354,7 @@ int get_align_start(const int max, const int len, const enum e_align align) {
 		break;
 
 	default:
-		print_exit("get_align_start() Unknown value for align: %d", align)
+		log_exit("Unknown value for align: %d", align)
 		;
 	}
 
