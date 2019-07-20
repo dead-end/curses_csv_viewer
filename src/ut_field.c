@@ -37,7 +37,7 @@ static void test_field_part_update() {
 	s_table_part table_part;
 	s_field_part field_part;
 
-	print_debug_str("test_field_part_update() Start\n");
+	log_debug_str("Start");
 
 	//
 	// truncated right
@@ -71,7 +71,7 @@ static void test_field_part_update() {
 	ut_check_int(field_part.start, 0, "test 7 - start");
 	ut_check_int(field_part.size, 4, "test 8 - size");
 
-	print_debug_str("test_field_part_update() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -83,7 +83,7 @@ static void test_field_part_update() {
 
 static void test_get_field_complete_line() {
 
-	print_debug_str("test_get_field_complete_line() Start\n");
+	log_debug_str("Start");
 
 	wchar_t buffer[COL_WIDTH + 1];
 	wchar_t *ptr;
@@ -121,7 +121,7 @@ static void test_get_field_complete_line() {
 	ut_check_bool(end, true);
 	ut_check_wcs_null(ptr, UT_IS_NULL);
 
-	print_debug_str("test_get_field_complete_line() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -130,7 +130,7 @@ static void test_get_field_complete_line() {
 
 static void test_intersection() {
 
-	print_debug_str("test_get_field_complete_line() Start\n");
+	log_debug_str("Start");
 
 	s_buffer visible;
 	s_buffer print;
@@ -265,7 +265,7 @@ static void test_intersection() {
 	intersection(&visible, &print, &result);
 	ut_check_s_buffer(&result, NULL, 0, "Test 9");
 
-	print_debug_str("test_get_field_complete_line() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -274,10 +274,9 @@ static void test_intersection() {
 
 int main() {
 
-	print_debug_str("ut_field.c - Start tests\n");
+	log_debug_str("Start");
 
-	// TODO: C
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "C");
 
 	test_field_part_update();
 
@@ -285,7 +284,7 @@ int main() {
 
 	test_intersection();
 
-	print_debug_str("ut_field.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
