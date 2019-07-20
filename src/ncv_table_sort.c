@@ -84,7 +84,7 @@ static int compare_num(const void *ptr_1, const void *ptr_2, void *sort_ptr) {
 		result = 0;
 	}
 
-	print_debug("compare_num() direction: %s result: %d '%ls' '%ls'\n", e_direction_str(sort->direction), result, comp_num_1->row[sort->column], comp_num_2->row[sort->column]);
+	log_debug("Direction: %s result: %d '%ls' '%ls'", e_direction_str(sort->direction), result, comp_num_1->row[sort->column], comp_num_2->row[sort->column]);
 
 	return result;
 }
@@ -112,7 +112,7 @@ static int compare_wcs(const void *ptr_row_prt_1, const void *ptr_row_ptr_2, voi
 	//
 	const int result = (sort->direction) * wcscmp(row_ptr_1[sort->column], row_ptr_2[sort->column]);
 
-	print_debug("compare_wcs() direction: %s result: %d '%ls' '%ls'\n", e_direction_str(sort->direction), result, row_ptr_1[sort->column], row_ptr_2[sort->column]);
+	log_debug("Direction: %s result: %d '%ls' '%ls'", e_direction_str(sort->direction), result, row_ptr_1[sort->column], row_ptr_2[sort->column]);
 
 	return result;
 }
@@ -135,7 +135,7 @@ static void apply_num_sorting(s_table *table, const s_comp_num *comp_num) {
 	for (int row = 0; row < table->no_rows; row++) {
 		table->fields[row] = comp_num[row].row;
 
-		print_debug("apply_num_sorting() Sorted value: %ls\n", table->fields[row][col]);
+		log_debug("Sorted value: %ls", table->fields[row][col]);
 	}
 }
 
@@ -179,7 +179,7 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 		//
 		if (wcs_is_empty(table->fields[row][col])) {
 			num_comp[row].value = DBL_MAX;
-			print_debug_str("try_convert_num() String is empty, set value to: DBL_MAX\n");
+			log_debug_str("String is empty, set value to: DBL_MAX");
 
 		} else {
 
@@ -193,7 +193,7 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 			// Check for errors (for example overflows)
 			//
 			if (errno != 0) {
-				print_debug("try_convert_num() Unable to convert: '%ls' - %s\n", table->fields[row][col], strerror(errno));
+				log_debug("Unable to convert: '%ls' - %s", table->fields[row][col], strerror(errno));
 				return false;
 			}
 
@@ -202,18 +202,18 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 			// was possible. (the column value is not a number)
 			//
 			if (table->fields[row][col] == tailptr) {
-				print_debug("try_convert_num() Unable to convert: %ls\n", table->fields[row][col]);
+				log_debug("Unable to convert: %ls", table->fields[row][col]);
 				return false;
 			}
 
-			print_debug("try_convert_num() '%ls' %f '%ls'\n", table->fields[row][col], num_comp[row].value, tailptr);
+			log_debug("'%ls' %f '%ls'", table->fields[row][col], num_comp[row].value, tailptr);
 
 			//
 			// Save the first suffix.
 			//
 			if (init_tailptr == NULL) {
 				init_tailptr = tailptr;
-				print_debug("try_convert_num() Save suffix: '%ls'\n", init_tailptr);
+				log_debug("Save suffix: '%ls'", init_tailptr);
 
 			}
 
@@ -221,7 +221,7 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 			// If a suffix exists, we have to ensure, that the new is the same.
 			//
 			else if (wcscmp(init_tailptr, tailptr) != 0) {
-				print_debug("try_convert_num() String: '%ls' does not end with: '%ls'\n", table->fields[row][col], init_tailptr);
+				log_debug("String: '%ls' does not end with: '%ls'", table->fields[row][col], init_tailptr);
 				return false;
 			}
 		}
@@ -233,7 +233,7 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 		num_comp[row].row = table->fields[row];
 	}
 
-	print_debug_str("try_convert_num() Succeeded!\n");
+	log_debug_str("Succeeded!");
 
 	return true;
 }
@@ -262,7 +262,7 @@ void s_table_do_sort(s_table *table) {
 	// Try a numerical sorting first.
 	//
 	if (try_convert_num(table, comp_num_array)) {
-		print_debug_str("s_table_do_sort() Sort by numerical values.\n");
+		log_debug_str("Sort by numerical values.");
 
 		//
 		// Do the numerical sorting.
@@ -279,7 +279,7 @@ void s_table_do_sort(s_table *table) {
 	// The fallback is (wchar_t-) string sorting.
 	//
 	else {
-		print_debug_str("s_table_do_sort() Sort by string values.\n");
+		log_debug_str("Sort by string values.");
 
 		qsort_r(&table->fields[offset], table->no_rows - offset, sizeof(wchar_t**), compare_wcs, (void*) &table->sort);
 	}
