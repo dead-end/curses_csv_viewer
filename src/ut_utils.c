@@ -161,7 +161,7 @@ void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t 
 		log_exit("[%s] length current: %zu expected: %zu", msg, buffer->len, len);
 	}
 
-	log_debug("[%s] OK \n", msg);
+	log_debug("[%s] OK", msg);
 }
 
 /******************************************************************************
