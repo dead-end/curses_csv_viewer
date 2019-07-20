@@ -89,7 +89,7 @@ void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
 	if (cfg_parser->filename != NULL) {
 
 		if ((file = fopen(cfg_parser->filename, "r")) == NULL) {
-			print_exit("process_csv_file() Unable to open file %s due to: %s\n", cfg_parser->filename, strerror(errno));
+			log_exit("Unable to open file %s due to: %s", cfg_parser->filename, strerror(errno));
 		}
 
 		//
@@ -98,7 +98,7 @@ void process_csv_file(const s_cfg_parser *cfg_parser, s_table *table) {
 		parser_process_file(file, cfg_parser, table);
 
 		if (fclose(file) != 0) {
-			print_exit("process_csv_file() Unable to close the file due to: %s\n", strerror(errno));
+			log_exit("Unable to close the file due to: %s", strerror(errno));
 		}
 
 	} else {
@@ -193,7 +193,7 @@ int main(const int argc, char *const argv[]) {
 	//
 	setlocale(LC_ALL, "");
 
-	print_debug_str("main() Start\n");
+	log_debug_str("Start");
 
 	bool detect_header = true;
 
@@ -209,7 +209,7 @@ int main(const int argc, char *const argv[]) {
 
 		case 'm':
 			monochrom = true;
-			print_debug_str("main() Use monochrom.\n");
+			log_debug_str("Use monochrom.");
 			break;
 
 		case 's':
@@ -246,7 +246,7 @@ int main(const int argc, char *const argv[]) {
 				print_usage(true, "Unable to convert the delimiter to a wide char!");
 			}
 
-			print_debug("main() Delimiter: %lc\n", cfg_parser.delim);
+			log_debug("Delimiter: %lc", cfg_parser.delim);
 			break;
 
 		case 'c':
@@ -263,7 +263,7 @@ int main(const int argc, char *const argv[]) {
 	//
 	if (optind == argc - 1) {
 		cfg_parser.filename = argv[optind];
-		print_debug("main() Found filename: %s\n", cfg_parser.filename);
+		log_debug("Found filename: %s", cfg_parser.filename);
 
 		//
 		// Ensure that no more than one filename is present.
@@ -294,7 +294,7 @@ int main(const int argc, char *const argv[]) {
 	// Register exit callback.
 	//
 	if (on_exit(exit_callback, NULL) != 0) {
-		print_exit_str("main() Unable to register exit function!\n");
+		log_exit_str("Unable to register exit function!");
 	}
 
 	//
@@ -312,7 +312,7 @@ int main(const int argc, char *const argv[]) {
 
 	ui_loop(&table, cfg_parser.filename);
 
-	print_debug_str("main() End\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
