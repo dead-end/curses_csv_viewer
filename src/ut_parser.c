@@ -46,7 +46,7 @@ static void test_parser() {
 	EC"f30->,d30"EC DL EC"f31"EC __ __ __ __ ___ DL EC"f32->\r\nd32"EC NL
 	__ __ __ __ ___ DL "end" __ __ __ __ ___ ___ DL;
 
-	print_debug_str("test_parser2() Start\n");
+	log_debug_str("Start");
 
 	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
@@ -72,7 +72,7 @@ static void test_parser() {
 
 	fclose(tmp);
 
-	print_debug_str("test_parser() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -115,14 +115,14 @@ static void helper_line_endings(const wchar_t *data) {
 
 static void test_line_endings() {
 
-	print_debug_str("test_line_endings() Start\n");
+	log_debug_str("Start");
 
 	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3");
 	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3" CR);
 	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3" NL);
 	helper_line_endings(L"a0" NL "a1" CR "a2" CR NL "a3" CR NL);
 
-	print_debug_str("test_line_endings() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -132,7 +132,7 @@ static void test_line_endings() {
 static void test_parser_empty() {
 	s_table table;
 
-	print_debug_str("test_parser_empty() Start\n");
+	log_debug_str("Start");
 
 	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
@@ -155,7 +155,7 @@ static void test_parser_empty() {
 
 	fclose(tmp);
 
-	print_debug_str("test_parser_empty() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -167,7 +167,7 @@ static void test_strict_false() {
 	s_table table;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_strict_false() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t *data =
 
@@ -191,7 +191,7 @@ static void test_strict_false() {
 
 	fclose(tmp);
 
-	print_debug_str("test_strict_false() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -200,10 +200,9 @@ static void test_strict_false() {
 
 int main() {
 
-	print_debug_str("ut_parser.c - Start tests\n");
+	log_debug_str("Start");
 
-	// TODO: C
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "C");
 
 	test_parser();
 
@@ -213,7 +212,7 @@ int main() {
 
 	test_strict_false();
 
-	print_debug_str("ut_parser.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
