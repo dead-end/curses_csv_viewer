@@ -31,7 +31,7 @@
  * The function creates a s_wbuf from a wchar_t string and checks the result.
  *****************************************************************************/
 
-void ut_check_s_wbuf(const int init_block_size, const wchar_t *str, const int num_blocks, const int end_idx) {
+static void ut_check_s_wbuf(const int init_block_size, const wchar_t *str, const int num_blocks, const int end_idx) {
 
 	log_debug("Checking: %ls", str);
 
