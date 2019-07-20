@@ -31,85 +31,85 @@
  * The function checks if two s_filter structs are equal.
  *****************************************************************************/
 
-static void s_filter_cmp(const s_filter *f1, const s_filter *f2) {
+static void s_filter_cmp(const s_filter *filter_1, const s_filter *filter_2) {
 
-	ut_check_wchar_str(f1->str, f2->str);
-	ut_check_bool(f1->is_active, f2->is_active);
-	ut_check_bool(f1->case_insensitive, f2->case_insensitive);
-	ut_check_bool(f1->is_search, f2->is_search);
+	ut_check_wchar_str(filter_1->str, filter_2->str);
+	ut_check_bool(filter_1->is_active, filter_2->is_active);
+	ut_check_bool(filter_1->case_insensitive, filter_2->case_insensitive);
+	ut_check_bool(filter_1->is_search, filter_2->is_search);
 }
 
 /******************************************************************************
- * The function the update of the s_filter struct.
+ * The function checks the update of the s_filter struct.
  *****************************************************************************/
 
 #define HAS_CHANGED true
 
 #define HAS_NOT_CHANGED !HAS_CHANGED
 
-static void test_filter_update() {
-	s_filter to_filter;
-	s_filter from_filter;
+static void test_s_filter_update() {
+	s_filter dst_filter;
+	s_filter src_filter;
 	bool result;
 
-	print_debug_str("test_filter_update() Start\n");
+	log_debug_str("Start");
 
 	//
-	// From and to struct are equal => no update
+	// src and dst struct are equal => no update
 	//
-	s_filter_set(&to_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	s_filter_set(&from_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&dst_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&src_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
 
-	result = s_filter_update(&to_filter, &from_filter);
-	s_filter_cmp(&to_filter, &from_filter);
+	result = s_filter_update(&dst_filter, &src_filter);
+	s_filter_cmp(&dst_filter, &src_filter);
 
 	ut_check_bool(result, HAS_NOT_CHANGED);
 
 	//
 	// String differ => update
 	//
-	s_filter_set(&to_filter, SF_IS_ACTIVE, L"hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	s_filter_set(&from_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&dst_filter, SF_IS_ACTIVE, L"Xello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&src_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
 
-	result = s_filter_update(&to_filter, &from_filter);
-	s_filter_cmp(&to_filter, &from_filter);
+	result = s_filter_update(&dst_filter, &src_filter);
+	s_filter_cmp(&dst_filter, &src_filter);
 
 	ut_check_bool(result, HAS_CHANGED);
 
 	//
 	// Active flag differ => update
 	//
-	s_filter_set(&to_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
-	s_filter_set(&from_filter, SF_IS_INACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&dst_filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&src_filter, SF_IS_INACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
 
-	result = s_filter_update(&to_filter, &from_filter);
-	s_filter_cmp(&to_filter, &from_filter);
+	result = s_filter_update(&dst_filter, &src_filter);
+	s_filter_cmp(&dst_filter, &src_filter);
 
 	ut_check_bool(result, HAS_CHANGED);
 
 	//
 	// case sensitive flag differs => update
 	//
-	s_filter_set(&to_filter, SF_IS_INACTIVE, L"Hello", SF_IS_INSENSITIVE, SF_IS_FILTERING);
-	s_filter_set(&from_filter, SF_IS_INACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&dst_filter, SF_IS_INACTIVE, L"Hello", SF_IS_INSENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&src_filter, SF_IS_INACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_FILTERING);
 
-	result = s_filter_update(&to_filter, &from_filter);
-	s_filter_cmp(&to_filter, &from_filter);
+	result = s_filter_update(&dst_filter, &src_filter);
+	s_filter_cmp(&dst_filter, &src_filter);
 
 	ut_check_bool(result, HAS_CHANGED);
 
 	//
 	// Search flag differs => update
 	//
-	s_filter_set(&to_filter, SF_IS_INACTIVE, L"Hello", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
-	s_filter_set(&from_filter, SF_IS_INACTIVE, L"Hello", SF_IS_INSENSITIVE, SF_IS_FILTERING);
+	s_filter_set(&dst_filter, SF_IS_INACTIVE, L"Hello", SF_IS_INSENSITIVE, SF_IS_SEARCHING);
+	s_filter_set(&src_filter, SF_IS_INACTIVE, L"Hello", SF_IS_INSENSITIVE, SF_IS_FILTERING);
 
-	result = s_filter_update(&to_filter, &from_filter);
-	s_filter_cmp(&to_filter, &from_filter);
+	result = s_filter_update(&dst_filter, &src_filter);
+	s_filter_cmp(&dst_filter, &src_filter);
 
 	ut_check_bool(result, HAS_CHANGED);
 
-	print_debug_str("test_filter_update() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -120,7 +120,7 @@ static void test_search_str() {
 	s_filter filter;
 	wchar_t *result;
 
-	print_debug_str("test_search_str() Start\n");
+	log_debug_str("Start");
 
 	s_filter_set(&filter, SF_IS_ACTIVE, L"Hello", SF_IS_SENSITIVE, SF_IS_SEARCHING);
 
@@ -150,7 +150,7 @@ static void test_search_str() {
 	result = s_filter_search_str(&filter, L"aaa Hell# bbb");
 	ut_check_wcs_null(result, UT_IS_NULL);
 
-	print_debug_str("test_search_str() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -159,13 +159,13 @@ static void test_search_str() {
 
 int main() {
 
-	print_debug_str("ut_filter.c - Start tests\n");
+	log_debug_str("Start");
 
-	test_filter_update();
+	test_s_filter_update();
 
 	test_search_str();
 
-	print_debug_str("ut_filter.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
