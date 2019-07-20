@@ -41,7 +41,7 @@
 static void test_table_get_ratio() {
 	double result;
 
-	print_debug_str("test_table_get_ratio() Start\n");
+	log_debug_str("Start");
 
 	result = get_ratio(L"123456");
 	ut_check_double(result, 1.0, "get_ratio - 123456");
@@ -58,7 +58,7 @@ static void test_table_get_ratio() {
 	result = get_ratio(L"");
 	ut_check_double(result, 0.0, "get_ratio - ''");
 
-	print_debug_str("test_table_get_ratio() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -77,15 +77,15 @@ static void test_table_has_header() {
 	s_table table;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_table_has_header() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t *data =
 
 	L"Number" DL "Date" DL "Price" DL "Mix" DL "Mix111" NL
-	"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
-	"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
-	"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
-	"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
+	L"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
+	L"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
+	L"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
+	L"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
 	"16" DL "01.01.218" DL "100 Euro" DL "ee" DL "ee11" NL
 	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
@@ -157,7 +157,7 @@ static void test_table_has_header() {
 
 	fclose(tmp);
 
-	print_debug_str("test_table_has_header() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -173,15 +173,15 @@ static void test_table_mean_std_dev() {
 	s_table table;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_table_mean_std_dev() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t *data =
 
 	L"Number" DL "Date" DL "Price" DL "Mix" DL "Mix111" NL
-	"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
-	"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
-	"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
-	"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
+	L"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
+	L"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
+	L"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
+	L"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
 	"16" DL "01.01.218" DL "100 Euro" DL "ee" DL "ee11" NL
 	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
@@ -211,8 +211,6 @@ static void test_table_mean_std_dev() {
 
 	result = get_table_std_dev(&table, table.no_rows, 0, get_ratio, 1.0);
 	ut_check_double(result, 0.0, "std dev ratio: 0");
-
-	print_debug_str("test_table_mean_std_dev() End\n");
 
 	//
 	// column: 3 mean
@@ -257,7 +255,7 @@ static void test_table_mean_std_dev() {
 
 	fclose(tmp);
 
-	print_debug_str("test_table_mean_std_dev() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -266,10 +264,9 @@ static void test_table_mean_std_dev() {
 
 int main() {
 
-	print_debug_str("ut_table_header.c - Start tests\n");
+	log_debug_str("Start");
 
-	// TODO: C
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "C");
 
 	test_table_get_ratio();
 
@@ -277,7 +274,7 @@ int main() {
 
 	test_table_mean_std_dev();
 
-	print_debug_str("ut_table_header.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
