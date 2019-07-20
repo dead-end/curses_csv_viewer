@@ -60,9 +60,9 @@ enum ut_null_check {
 
 void ut_check_wcs_null(const wchar_t *str, const enum ut_null_check ut_null);
 
-void ut_check_table_column(s_table *table, const int col, const int num_rows, const wchar_t *rows[]);
+void ut_check_table_column(const s_table *table, const int col, const int num_rows, const wchar_t *rows[]);
 
-void ut_check_table_row(s_table *table, const int row, const int num_cols, const wchar_t *cols[]);
+void ut_check_table_row(const s_table *table, const int row, const int num_cols, const wchar_t *cols[]);
 
 void ut_check_int_array(const int current[], const int expected[], const int size, const char *msg);
 

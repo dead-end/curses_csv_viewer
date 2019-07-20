@@ -31,77 +31,76 @@
 #include <wchar.h>
 
 /******************************************************************************
- * The function is used for unit tests. It checks whether an int parameter has
- * the expected value or not.
+ * The function checks whether an int parameter has the expected value or not.
  *****************************************************************************/
 
 void ut_check_int(const int current, const int expected, const char *msg) {
 
 	if (current != expected) {
-		print_exit("ut_check_int() [%s] current: %d expected: %d\n", msg, current, expected);
+		log_exit("[%s] current: %d expected: %d", msg, current, expected);
 	}
 
-	print_debug("ut_check_int() [%s] OK current: %d \n", msg, current);
+	log_debug("[%s] OK current: %d", msg, current);
 }
 
 /******************************************************************************
- * The function is used for unit tests. It checks whether an double parameter
- * has the expected value or not.
+ * The function checks whether an double parameter has the expected value or
+ * not.
  *****************************************************************************/
 
 void ut_check_double(const double current, const double expected, const char *msg) {
 
 	if (current != expected) {
-		print_exit("ut_check_double() [%s] current: %lf expected: %lf\n", msg, current, expected);
+		log_exit("[%s] current: %lf expected: %lf", msg, current, expected);
 	}
 
-	print_debug("ut_check_double() [%s] OK current: %lf \n", msg, current);
+	log_debug("[%s] OK current: %lf", msg, current);
 }
 
 /******************************************************************************
- * The function is used for unit tests. It checks whether an size_t parameter
- * has the expected value or not.
+ * The function checks whether an size_t parameter has the expected value or
+ * not.
  *****************************************************************************/
 
 void ut_check_size(const size_t current, const size_t expected, const char *msg) {
 
 	if (current != expected) {
-		print_exit("ut_check_size() [%s] current: %zu expected: %zu\n", msg, current, expected);
+		log_exit("[%s] current: %zu expected: %zu", msg, current, expected);
 	}
 
-	print_debug("ut_check_size() [%s] OK size: %zu \n", msg, current);
+	log_debug("[%s] OK size: %zu", msg, current);
 }
 
 /******************************************************************************
- * The function is used for unit tests. It compares two wchar strings.
+ * The function compares two wchar_t strings.
  *****************************************************************************/
 
-void ut_check_wchar_str(const wchar_t *str1, const wchar_t *str2) {
+void ut_check_wchar_str(const wchar_t *current, const wchar_t *expected) {
 
-	if (wcscmp(str1, str2) != 0) {
-		print_exit("ut_check_wchar_str() Strings differ: '%ls' and: '%ls'\n", str1, str2);
+	if (wcscmp(current, expected) != 0) {
+		log_exit("Current: '%ls' expected: '%ls'", current, expected);
 	}
 
-	print_debug("ut_check_wchar_str() OK - Strings are equal: '%ls'\n", str1);
+	log_debug("OK - Strings are equal: '%ls'", current);
 }
 
 /******************************************************************************
- * The function is used for unit tests. It compares two char strings.
+ * The function compares two char strings.
  *****************************************************************************/
 
-void ut_check_char_str(const char *str1, const char *str2) {
+void ut_check_char_str(const char *current, const char *expected) {
 
-	if (strcmp(str1, str2) != 0) {
-		print_exit("ut_check_char_str() Strings differ: '%s' and: '%s'\n", str1, str2);
+	if (strcmp(current, expected) != 0) {
+		log_exit("Current: '%s' expected: '%s'", current, expected);
 	}
 
-	print_debug("ut_check_char_str() OK - Strings are equal: '%s'\n", str1);
+	log_debug("OK - Strings are equal: '%s'", current);
 }
 
 /******************************************************************************
- * The function is used for unit tests. It ensures that a given char string is
- * null or not, depending on the parameter ut_null. The enum ut_null is simply
- * a boolean, but using is makes the code easier to read.
+ * The function ensures that a given char string is null or not, depending on
+ * the parameter ut_null. The enum ut_null is simply a boolean, but using is
+ * makes the code easier to read.
  *
  * ut_check_wchar_null(str, UT_IS_NULL);
  *****************************************************************************/
@@ -109,40 +108,40 @@ void ut_check_char_str(const char *str1, const char *str2) {
 void ut_check_wcs_null(const wchar_t *str, const enum ut_null_check ut_null) {
 
 	if (ut_null == UT_IS_NULL && str != NULL) {
-		print_exit("ut_check_wcs_null() Pointer is not null: '%ls'\n", str);
+		log_exit("Pointer is not null: '%ls'", str);
 	}
 
 	if (ut_null == UT_IS_NOT_NULL && str == NULL) {
-		print_exit_str("ut_check_wcs_null() Pointer is null!\n");
+		log_exit_str("Pointer is null!");
 	}
 
-	print_debug("ut_check_wcs_null() OK - String is %s null!\n", ut_null == UT_IS_NULL ? "" : "not");
+	log_debug("OK - String is %s null!", ut_null == UT_IS_NULL ? "" : "not");
 }
 
 /******************************************************************************
- * The function is used for unit tests. It compares two wchar_t strings.
+ * The function compares two wchar_t characters.
  *****************************************************************************/
 
 void ut_check_wchr(const wchar_t current, const wchar_t expected) {
 
 	if (current != expected) {
-		print_exit("ut_check_wchr() current: %lc expected: %lc\n", current, expected);
+		log_exit("Current: %lc expected: %lc", current, expected);
 	}
 
-	print_debug("ut_check_wchr() OK current: %lc \n", current);
+	log_debug("OK current: %lc", current);
 }
 
 /******************************************************************************
  * The function is used for unit tests. It compares two bool values.
  *****************************************************************************/
 
-void ut_check_bool(const bool b1, const bool b2) {
+void ut_check_bool(const bool current, const bool expected) {
 
-	if (b1 != b2) {
-		print_exit("ut_check_bool() Boolean differ: '%d' and: '%d'\n", b1, b2);
+	if (current != expected) {
+		log_exit("Current: '%d' expected: '%d'", current, expected);
 	}
 
-	print_debug("ut_check_bool() OK - Boolean are equal: '%d'\n", b1);
+	log_debug("OK - Boolean are equal: '%d'", current);
 }
 
 /******************************************************************************
@@ -155,14 +154,14 @@ void ut_check_bool(const bool b1, const bool b2) {
 void ut_check_s_buffer(const s_buffer *buffer, const wchar_t *str, const size_t len, const char *msg) {
 
 	if (buffer->ptr != str) {
-		print_exit("ut_check_s_buffer() [%s] pointer current: %ls expected: %ls\n", msg, buffer->ptr, str);
+		log_exit("[%s] pointer current: %ls expected: %ls", msg, buffer->ptr, str);
 	}
 
 	if (buffer->len != len) {
-		print_exit("ut_check_s_buffer() [%s] length current: %zu expected: %zu\n", msg, buffer->len, len);
+		log_exit("[%s] length current: %zu expected: %zu", msg, buffer->len, len);
 	}
 
-	print_debug("ut_check_s_buffer() [%s] OK \n", msg);
+	log_debug("[%s] OK \n", msg);
 }
 
 /******************************************************************************
@@ -176,21 +175,21 @@ FILE* ut_create_tmp_file(const wchar_t *data) {
 	// Create a temp file
 	//
 	if ((tmp = tmpfile()) == NULL) {
-		print_exit("create_tmp_file() Unable to create tmp file: %s\n", strerror(errno));
+		log_exit("Unable to create tmp file: %s", strerror(errno));
 	}
 
 	//
 	// Write the required content
 	//
 	if (fputws(data, tmp) == -1) {
-		print_exit_str("create_tmp_file() Unable write data to the tmp file!\n");
+		log_exit_str("Unable write data to the tmp file!");
 	}
 
 	//
 	// Rewind the file.
 	//
 	if (fseek(tmp, 0L, SEEK_SET) == -1) {
-		print_exit("create_tmp_file() Unable to rewind file due to: %s\n", strerror(errno));
+		log_exit("Unable to rewind file due to: %s", strerror(errno));
 	}
 
 	return tmp;
@@ -201,7 +200,7 @@ FILE* ut_create_tmp_file(const wchar_t *data) {
  * row values and the size of the array.
  *****************************************************************************/
 
-void ut_check_table_column(s_table *table, const int col, const int num_rows, const wchar_t *rows[]) {
+void ut_check_table_column(const s_table *table, const int col, const int num_rows, const wchar_t *rows[]) {
 
 	//
 	// Ensure that the number of rows is correct.
@@ -218,7 +217,7 @@ void ut_check_table_column(s_table *table, const int col, const int num_rows, co
  * column values and the size of the array.
  *****************************************************************************/
 
-void ut_check_table_row(s_table *table, const int row, const int num_cols, const wchar_t *cols[]) {
+void ut_check_table_row(const s_table *table, const int row, const int num_cols, const wchar_t *cols[]) {
 
 	//
 	// Ensure that the number of columns is correct.
@@ -231,17 +230,17 @@ void ut_check_table_row(s_table *table, const int row, const int num_cols, const
 }
 
 /******************************************************************************
- * The function check int array.
+ * The function checks an array of int's.
  *****************************************************************************/
 
 void ut_check_int_array(const int current[], const int expected[], const int size, const char *msg) {
 
 	for (int i = 0; i < size; i++) {
 		if (current[i] != expected[i]) {
-			print_exit("ut_check_int_array() [%s] idx: %d current: %d expected: %d\n", msg, i, current[i], expected[i]);
+			log_exit("[%s] idx: %d current: %d expected: %d", msg, i, current[i], expected[i]);
 		}
 	}
 
-	print_debug("ut_check_int_array() [%s] OK \n", msg);
+	log_debug("[%s] OK", msg);
 }
 
