@@ -41,7 +41,7 @@ static void test_sort_wcs() {
 	s_cursor cursor;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_sort_wcs() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t data[] =
 
@@ -50,11 +50,9 @@ static void test_sort_wcs() {
 	L"dd" DL "DD" NL
 	L"aa" DL "AA" NL;
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = false;
@@ -105,7 +103,7 @@ static void test_sort_wcs() {
 
 	fclose(tmp);
 
-	print_debug_str("test_sort_wcs() End\n");
+	log_debug_str("Start");
 }
 
 /******************************************************************************
@@ -118,7 +116,7 @@ static void test_sort_num() {
 	s_cursor cursor;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_sort_num() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t data[] =
 
@@ -128,11 +126,9 @@ static void test_sort_num() {
 	L"3" DL "333.33 Euro" NL
 	L"4" DL "  0.01 Euro" NL;
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = false;
@@ -191,8 +187,10 @@ static void test_sort_num() {
 
 	fclose(tmp);
 
-	print_debug_str("test_sort_num() End\n");
+	log_debug_str("Start");
 }
+
+// TODO: test s_sort_update()
 
 /******************************************************************************
  * The main function simply starts the test.
@@ -200,7 +198,7 @@ static void test_sort_num() {
 
 int main() {
 
-	print_debug_str("ut_table_sort.c - Start tests\n");
+	log_debug_str("Start");
 
 	//
 	// Use the default locale ('C' or 'POSIX') to ensure that the double
@@ -215,7 +213,7 @@ int main() {
 
 	test_sort_num();
 
-	print_debug_str("ut_table_sort.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }

@@ -81,20 +81,19 @@ static void test_table_has_header() {
 
 	const wchar_t *data =
 
-	L"Number" DL "Date" DL "Price" DL "Mix" DL "Mix111" NL
-	L"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
-	L"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
-	L"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
-	L"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
-	"16" DL "01.01.218" DL "100 Euro" DL "ee" DL "ee11" NL
+	L"Number" DL "Date" DL "Price      " DL "Mix " DL "Mix111" NL
+	" 1" DL "01.01.218" DL "     1 Euro" DL "aa  " DL "aa11" NL
+	" 2" DL "01.01.218" DL "  1.20 Euro" DL "aabb" DL "aabb1122" NL
+	" 4" DL "01.01.218" DL "    10 Euro" DL "cc  " DL "cc11" NL
+	" 8" DL "01.01.218" DL " 10.20 Euro" DL "ccdd" DL "ccdd1122" NL
+	"16" DL "01.01.218" DL "   100 Euro" DL "ee  " DL "ee11" NL
 	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
+
 	//
 	// column: 0
 	// len   => has header
@@ -177,19 +176,17 @@ static void test_table_mean_std_dev() {
 
 	const wchar_t *data =
 
-	L"Number" DL "Date" DL "Price" DL "Mix" DL "Mix111" NL
-	L"1" DL "01.01.218" DL "1 Euro" DL "aa" DL "aa11" NL
-	L"2" DL "01.01.218" DL "1.20 Euro" DL "aabb" DL "aabb1122" NL
-	L"4" DL "01.01.218" DL "10 Euro" DL "cc" DL "cc11" NL
-	L"8" DL "01.01.218" DL "10.20 Euro" DL "ccdd" DL "ccdd1122" NL
-	"16" DL "01.01.218" DL "100 Euro" DL "ee" DL "ee11" NL
+	L"Number" DL "Date" DL "Price      " DL "Mix " DL "Mix111" NL
+	" 1" DL "01.01.218" DL "     1 Euro" DL "aa  " DL "aa11" NL
+	" 2" DL "01.01.218" DL "  1.20 Euro" DL "aabb" DL "aabb1122" NL
+	" 4" DL "01.01.218" DL "    10 Euro" DL "cc  " DL "cc11" NL
+	" 8" DL "01.01.218" DL " 10.20 Euro" DL "ccdd" DL "ccdd1122" NL
+	"16" DL "01.01.218" DL "   100 Euro" DL "ee  " DL "ee11" NL
 	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = true };
+
 	FILE *tmp = ut_create_tmp_file(data);
-
-	s_cfg_parser cfg_parser;
-	s_cfg_parser_set(&cfg_parser, NULL, W_DELIM, DO_TRIM_FALSE, STRICT_COL_TRUE);
-
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	//
