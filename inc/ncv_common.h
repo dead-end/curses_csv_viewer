@@ -35,16 +35,22 @@
  *****************************************************************************/
 
 #ifdef DEBUG
-
+//TODO: remove
 #define print_debug(fmt, ...) fprintf(stderr, "DEBUG - " fmt, ##__VA_ARGS__)
 #define print_debug_str(fmt)  fprintf(stderr, "DEBUG - " fmt)
+
+#define log_debug(fmt, ...) fprintf(stderr, "DEBUG %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+#define log_debug_str(fmt)  fprintf(stderr, "DEBUG %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__)
 
 #define DEBUG_USED
 
 #else
-
+//TODO: remove
 #define print_debug(fmt, ...)
 #define print_debug_str(fmt)
+
+#define log_debug(fmt, ...)
+#define log_debug_str(fmt)
 
 #define DEBUG_USED __attribute__((unused))
 
@@ -57,6 +63,9 @@
 
 #define print_exit(fmt, ...) fprintf(stderr, "FATAL - " fmt, ##__VA_ARGS__); exit(EXIT_FAILURE)
 #define print_exit_str(fmt)  fprintf(stderr, "FATAL - " fmt); exit(EXIT_FAILURE)
+
+#define log_exit(fmt, ...) fprintf(stderr, "FATAL %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__); exit(EXIT_FAILURE)
+#define log_exit_str(fmt)  fprintf(stderr, "FATAL %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__); exit(EXIT_FAILURE)
 
 /******************************************************************************
  * Simple macro to print readable bool values.
@@ -205,7 +214,7 @@ wchar_t read_wchar(FILE *file);
 
 wchar_t* wcs_casestr(const wchar_t *s, const wchar_t *find);
 
-bool wcs_is_empty(wchar_t *str);
+bool wcs_is_empty(const wchar_t *str);
 
 void str_array_sizes(const char *msgs[], int *rows, int *cols);
 
