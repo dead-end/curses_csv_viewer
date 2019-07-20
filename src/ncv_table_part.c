@@ -107,7 +107,7 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 		table_part->last = tmp;
 	}
 
-	print_debug("s_table_part_update() first: %d last: %d truncated: %d size: %d dir: %d\n", table_part->first, table_part->last, table_part->truncated, table_part->size, table_part->direction);
+	log_debug("First: %d last: %d truncated: %d size: %d dir: %d", table_part->first, table_part->last, table_part->truncated, table_part->size, table_part->direction);
 }
 
 /***************************************************************************
