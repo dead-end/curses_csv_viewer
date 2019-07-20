@@ -75,7 +75,7 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	//
 	if (wcscmp(to_filter->str, from_filter->str) != 0) {
 
-		print_debug("s_filter_update() Filter string changed from: %ls to: %ls\n", to_filter->str, from_filter->str);
+		log_debug("Filter string changed from: %ls to: %ls", to_filter->str, from_filter->str);
 		wcsncpy(to_filter->str, from_filter->str, FILTER_STR_LEN);
 		result = true;
 	}
@@ -85,7 +85,7 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	//
 	if (to_filter->case_insensitive != from_filter->case_insensitive) {
 
-		print_debug("s_filter_update() Filter case flag changed from: %d to: %d\n", to_filter->case_insensitive, from_filter->case_insensitive);
+		log_debug("Filter case flag changed from: %d to: %d", to_filter->case_insensitive, from_filter->case_insensitive);
 		to_filter->case_insensitive = from_filter->case_insensitive;
 		result = true;
 	}
@@ -95,7 +95,7 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	//
 	if (to_filter->is_search != from_filter->is_search) {
 
-		print_debug("s_filter_update() Search flag changed from: %d to: %d\n", to_filter->is_search, from_filter->is_search);
+		log_debug("Search flag changed from: %d to: %d", to_filter->is_search, from_filter->is_search);
 		to_filter->is_search = from_filter->is_search;
 		result = true;
 	}
@@ -105,7 +105,7 @@ bool s_filter_update(s_filter *to_filter, const s_filter *from_filter) {
 	//
 	if (to_filter->is_active != from_filter->is_active) {
 
-		print_debug("s_filter_update() Filter active flag changed from: %d to: %d\n", to_filter->is_active, from_filter->is_active);
+		log_debug("Filter active flag changed from: %d to: %d", to_filter->is_active, from_filter->is_active);
 		to_filter->is_active = from_filter->is_active;
 		result = true;
 	}
@@ -138,7 +138,7 @@ wchar_t* s_filter_search_str(const s_filter *filter, const wchar_t *str) {
 
 void s_filter_print(const s_filter *filter) {
 
-	print_debug("s_filter_print() is active: '%s' case insensitive: '%s' is search: '%s' has changed: '%s' filter: '%ls'\n",
+	log_debug("Is active: '%s' case insensitive: '%s' is search: '%s' has changed: '%s' filter: '%ls'",
 
 	bool_2_str(filter->is_active), bool_2_str(filter->case_insensitive), bool_2_str(filter->is_search), bool_2_str(filter->has_changed),
 
