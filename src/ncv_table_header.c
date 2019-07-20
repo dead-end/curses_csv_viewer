@@ -147,8 +147,8 @@ int check_column_characteristic(const s_table *table, const int max_rows, const 
 	//
 	const double first = (*fct_ptr)(table->__fields[0][column]);
 
-	print_debug("check_column() col: %d first: '%ls'\n", column, table->__fields[0][column]);
-	print_debug("check_column_len() mean: %lf stddev: %lf first: %lf\n", mean, std_dev, first);
+	log_debug("Col: %d first: '%ls'", column, table->__fields[0][column]);
+	log_debug("Mean: %lf stddev: %lf first: %lf", mean, std_dev, first);
 
 	//
 	// compare the first row with the mean
