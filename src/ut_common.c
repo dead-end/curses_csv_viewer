@@ -34,7 +34,7 @@
 static void test_wcs_casestr() {
 	wchar_t *ptr;
 
-	print_debug_str("test_wcs_casestr() Start\n");
+	log_debug_str("Start");
 
 	//
 	// No match
@@ -72,7 +72,7 @@ static void test_wcs_casestr() {
 	ptr = wcs_casestr(L"aAbBcC", L"Bb");
 	ut_check_wchar_str(ptr, L"bBcC");
 
-	print_debug_str("test_wcs_casestr() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -83,13 +83,13 @@ static void test_str_array_sizes() {
 	int rows, cols;
 	const char *msgs[] = { "22", "", "1", "4444", "333", NULL };
 
-	print_debug_str("test_str_array_sizes() Start\n");
+	log_debug_str("Start");
 
 	str_array_sizes(msgs, &rows, &cols);
 	ut_check_int(rows, 5, "Checking rows");
 	ut_check_int(cols, 4, "Checking cols");
 
-	print_debug_str("test_str_array_sizes() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -101,7 +101,7 @@ static void test_str_array_sizes() {
 #define SMALL_BUF_SIZE 256
 
 static void test_trims() {
-	print_debug_str("test_trims() Start\n");
+	log_debug_str("Start");
 
 	//
 	// Test trim
@@ -121,7 +121,7 @@ static void test_trims() {
 
 	ut_check_wchar_str(wcs_out, L"my test");
 
-	print_debug_str("test_trims() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -130,7 +130,7 @@ static void test_trims() {
 
 int main() {
 
-	print_debug_str("ut_common.c - Start tests\n");
+	log_debug_str("Start");
 
 	test_wcs_casestr();
 
@@ -138,7 +138,7 @@ int main() {
 
 	test_trims();
 
-	print_debug_str("ut_common.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
