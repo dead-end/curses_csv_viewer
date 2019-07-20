@@ -31,14 +31,14 @@
  * The function creates a s_wbuf from a wchar_t string and checks the result.
  *****************************************************************************/
 
-void ut_check_s_wbuf(const int block_size, wchar_t *str, const int num_blocks, const int end_idx) {
+void ut_check_s_wbuf(const int init_block_size, const wchar_t *str, const int num_blocks, const int end_idx) {
 
-	print_debug("ut_check_s_wbuf() Checking: %ls\n", str);
+	log_debug("Checking: %ls", str);
 
 	//
-	// Create the s_wbuf from the string.
+	// Create the s_wbuf from the string with an initial block size.
 	//
-	s_wbuf *wbuf = s_wbuf_create(block_size);
+	s_wbuf *wbuf = s_wbuf_create(init_block_size);
 	s_wbuf_add_str(wbuf, str);
 
 	//
@@ -55,7 +55,7 @@ void ut_check_s_wbuf(const int block_size, wchar_t *str, const int num_blocks, c
 
 	wchar_t wchr;
 
-	for (wchar_t *ptr = str; *ptr != L'\0'; ptr++) {
+	for (const wchar_t *ptr = str; *ptr != L'\0'; ptr++) {
 
 		//
 		// Get the next wchar_t and ensure that we are not at the end of the
@@ -78,23 +78,38 @@ void ut_check_s_wbuf(const int block_size, wchar_t *str, const int num_blocks, c
 	// The buffer has to be freed.
 	//
 	s_wbuf_free(wbuf);
+
+	log_debug_str("End");
 }
 
 /******************************************************************************
- * The function checks s_wbuf functions.
+ * The function checks s_wbuf functions. Remember that the block size is
+ * doubled on every new block.
  *****************************************************************************/
 
 static void test_s_wbuf() {
 
-	print_debug_str("test_s_wbuf() Start\n");
+	log_debug_str("Start");
 
+	//
+	// 1111 22222222 <- blocks
+	// 0123 012345   <- string / block index
+	//
 	ut_check_s_wbuf(4, L"0123012345", 2, 5);
 
+	//
+	// 1111 22222222 <- blocks
+	// 0123 01234567 <- string / block index
+	//
 	ut_check_s_wbuf(4, L"012301234567", 2, 7);
 
+	//
+	// 1111 22222222 3333333333333333 <- blocks
+	// 0123 01234567 0                <- string / block index
+	//
 	ut_check_s_wbuf(4, L"0123012345670", 3, 0);
 
-	print_debug_str("test_s_wbuf() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -103,13 +118,17 @@ static void test_s_wbuf() {
 
 int main() {
 
-	print_debug_str("ut_wbuf.c - Start tests\n");
+	log_debug_str("Start");
 
-	setlocale(LC_ALL, "");
+	//
+	// Use the default locale ('C' or 'POSIX'). See:
+	// https://www.gnu.org/software/libc/manual/html_node/Choosing-Locale.html
+	//
+	setlocale(LC_ALL, "C");
 
 	test_s_wbuf();
 
-	print_debug_str("ut_wbuf.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
