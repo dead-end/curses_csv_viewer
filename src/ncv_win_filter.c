@@ -74,7 +74,7 @@ static s_popup popup;
 // Type definition for the function pointer to the input processing function of
 // a field.
 //
-typedef void (*fp_driver)(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+typedef void (*fp_driver)(FORM *form, const FIELD *field, const int key_type, const wint_t chr);
 
 //
 // There is a user data struct associate with every form field.
@@ -156,7 +156,7 @@ s_popup_sizes popup_sizes;
  * void forms_user_ptr_free(const FORM *form);
  *****************************************************************************/
 
-static s_field_user_ptr *field_user_ptr_create(FIELD *field, const enum FIELD_TYPE type, char *label, const fp_driver driver) {
+static s_field_user_ptr* field_user_ptr_create(FIELD *field, const enum FIELD_TYPE type, char *label, const fp_driver driver) {
 
 	//
 	// NULL labels are not allowed, use empty strings instead.
@@ -223,7 +223,7 @@ static void form_get_field_sizes(const FORM *form, int *num_fields, int *max_lab
 		//
 		// Get the user ptr from the field, which contains the label.
 		//
-		s_field_user_ptr *user_ptr = (s_field_user_ptr *) field_userptr(*field_ptr);
+		s_field_user_ptr *user_ptr = (s_field_user_ptr*) field_userptr(*field_ptr);
 		if (user_ptr == NULL) {
 			print_exit_str("form_get_field_sizes() Field has no user ptr!\n");
 		}
@@ -373,7 +373,7 @@ static void win_filter_print_content() {
 		// Get the user ptr from the field, which contains the label and the
 		// field type.
 		//
-		s_field_user_ptr *user_ptr = (s_field_user_ptr *) field_userptr(*field_ptr);
+		s_field_user_ptr *user_ptr = (s_field_user_ptr*) field_userptr(*field_ptr);
 		if (user_ptr == NULL) {
 			print_exit_str("win_filter_print_content() Field has no user ptr!\n");
 		}
@@ -444,7 +444,7 @@ void win_filter_init() {
 	//
 	// Create the buttons, which are menu items.
 	//
-	char *labels[] = { "  OK  ", "Cancel", NULL };
+	const char *labels[] = { "  OK  ", "Cancel", NULL };
 	popup.menu = menus_create_menu(labels);
 
 	menus_format_menu(popup.menu, attr_normal, true);
@@ -667,7 +667,7 @@ static bool process_form_input(s_filter *filter, s_popup *popup, const int key_t
 	//
 	FIELD *field = current_field(popup->form);
 
-	const s_field_user_ptr *driver = (s_field_user_ptr *) field_userptr(field);
+	const s_field_user_ptr *driver = (s_field_user_ptr*) field_userptr(field);
 	if (driver == NULL) {
 		print_exit_str("process_form_input() Unable to get field user ptr!\n");
 	}
@@ -731,7 +731,7 @@ void win_filter_refresh_no() {
  * The function returns the filter window (which is defined static).
  *****************************************************************************/
 
-WINDOW *win_filter_get_win() {
+WINDOW* win_filter_get_win() {
 	return popup.win;
 }
 

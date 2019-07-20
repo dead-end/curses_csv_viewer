@@ -61,13 +61,13 @@ bool forms_is_last(const FORM *form);
 
 bool menus_is_last(const MENU *menu);
 
-FIELD **forms_create_fields(const int num_fields);
+FIELD** forms_create_fields(const int num_fields);
 
-FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
+FIELD* forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr);
 
-FORM *forms_create_form(FIELD **fields);
+FORM* forms_create_form(FIELD **fields);
 
-MENU *menus_create_menu(char **labels);
+MENU* menus_create_menu(const char **labels);
 
 void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal);
 
@@ -83,13 +83,13 @@ void menus_free(MENU *menu);
 
 void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size);
 
-bool forms_checkbox_is_checked(FIELD *field);
+bool forms_checkbox_is_checked(const FIELD *field);
 
-bool forms_get_checkbox_value(FIELD *field, bool *checked);
+bool forms_get_checkbox_value(const FIELD *field, bool *checked);
 
-void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+void forms_process_checkbox(FORM *form, const FIELD *field, const int key_type, const wint_t chr);
 
-void forms_process_input_field(FORM *form, FIELD *field, const int key_type, const wint_t chr);
+void forms_process_input_field(FORM *form, const FIELD *field, const int key_type, const wint_t chr);
 
 void menus_switch_on_off(MENU *menu, const bool on);
 

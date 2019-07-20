@@ -50,7 +50,7 @@ void forms_driver(FORM *form, const int key_type, const wint_t chr) {
 	// start or after the end of the field.
 	//
 	if (result != E_OK && result != E_REQUEST_DENIED) {
-		print_exit("forms_driver() Unable to process key request for key code: %d key: %lc result: %d\n", key_type, chr, result);
+		log_exit("Unable to process key request for key code: %d key: %lc result: %d", key_type, chr, result);
 	}
 }
 
@@ -68,7 +68,7 @@ void menus_driver(MENU *menu, const int chr) {
 	// request.
 	//
 	if (result != E_OK && result != E_REQUEST_DENIED) {
-		print_exit("menus_driver() Unable to process request for key: %d result: %d\n", chr, result);
+		log_exit("Unable to process request for key: %d result: %d", chr, result);
 	}
 }
 
@@ -83,7 +83,7 @@ int forms_get_index(const FORM *form) {
 	//
 	const FIELD *field = current_field(form);
 	if (field == NULL) {
-		print_exit_str("forms_get_index() Unable to get current form field\n");
+		log_exit_str("Unable to get current form field");
 	}
 
 	//
@@ -91,10 +91,10 @@ int forms_get_index(const FORM *form) {
 	//
 	const int idx = field_index(field);
 	if (idx == ERR) {
-		print_exit_str("forms_get_index() Unable to get the index of a field\n");
+		log_exit_str("Unable to get the index of a field");
 	}
 
-	print_debug("forms_get_index() Form field has index: %d\n", idx);
+	log_debug("Form field has index: %d", idx);
 
 	return idx;
 }
@@ -110,7 +110,7 @@ int menus_get_index(const MENU *menu) {
 	//
 	const ITEM *item = current_item(menu);
 	if (item == NULL) {
-		print_exit_str("menus_get_index() Unable to get current menu item\n");
+		log_exit_str("Unable to get current menu item");
 	}
 
 	//
@@ -118,10 +118,10 @@ int menus_get_index(const MENU *menu) {
 	//
 	const int idx = item_index(item);
 	if (idx == ERR) {
-		print_exit_str("menus_get_index() Unable to get the index of an item\n");
+		log_exit_str("Unable to get the index of an item");
 	}
 
-	print_debug("menus_get_index() Menu item has index: %d\n", idx);
+	log_debug("Menu item has index: %d", idx);
 
 	return idx;
 }
@@ -137,12 +137,12 @@ bool forms_is_last(const FORM *form) {
 	//
 	const int num_fields = field_count(form);
 	if (num_fields == ERR) {
-		print_exit_str("forms_is_last() Unable to get the number of fields from the form!\n");
+		log_exit_str("Unable to get the number of fields from the form!");
 	}
 
 	const int idx = forms_get_index(form);
 
-	print_debug("forms_is_last() current idx: %d last idx: %d\n", idx, num_fields - 1);
+	log_debug("Current idx: %d last idx: %d", idx, num_fields - 1);
 
 	return idx == num_fields - 1;
 }
@@ -158,12 +158,12 @@ bool menus_is_last(const MENU *menu) {
 	//
 	const int num_items = item_count(menu);
 	if (num_items == ERR) {
-		print_exit_str("menus_is_last() Unable to get the number of fields from the form!\n");
+		log_exit_str("Unable to get the number of fields from the form!");
 	}
 
 	const int idx = menus_get_index(menu);
 
-	print_debug("menus_is_last() current idx: %d last idx: %d\n", idx, num_items - 1);
+	log_debug("Current idx: %d last idx: %d", idx, num_items - 1);
 
 	return idx == num_items - 1;
 }
@@ -172,7 +172,7 @@ bool menus_is_last(const MENU *menu) {
  * The function creates, configures and returns a field.
  *****************************************************************************/
 
-FIELD *forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr) {
+FIELD* forms_create_field(const int rows, const int cols, const int start_row, const int start_col, const chtype attr) {
 	int result;
 
 	//
@@ -180,7 +180,7 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 	//
 	FIELD *field = new_field(rows, cols, start_row, start_col, 0, 0);
 	if (field == NULL) {
-		print_exit_str("forms_create_field() Unable to create filter field!\n");
+		log_exit_str("Unable to create filter field!");
 	}
 
 	//
@@ -188,14 +188,14 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
 	// if the first char is changed.
 	//
 	if ((result = field_opts_off(field, O_AUTOSKIP | O_BLANK)) != E_OK) {
-		print_exit("forms_create_field() Unable to set option: O_AUTOSKIP and O_BLANK result: %d\n", result);
+		log_exit("Unable to set option: O_AUTOSKIP and O_BLANK result: %d", result);
 	}
 
 	//
 	// Set the background of the field.
 	//
 	if ((result = set_field_back(field, attr)) != E_OK) {
-		print_exit("forms_create_field() Unable to set field background result: %d\n", result);
+		log_exit("Unable to set field background result: %d", result);
 	}
 
 	return field;
@@ -208,14 +208,14 @@ FIELD *forms_create_field(const int rows, const int cols, const int start_row, c
  * called to get a reference to it.
  *****************************************************************************/
 
-MENU *menus_create_menu(char **labels) {
+MENU* menus_create_menu(const char **labels) {
 	int num_items = 0;
 
 	//
 	// Count the number of labels.
 	//
-	for (char **ptr = labels; *ptr != NULL; ptr++, num_items++) {
-		print_debug("menus_create_menu() Item label: '%s'\n", *ptr);
+	for (const char **ptr = labels; *ptr != NULL; ptr++, num_items++) {
+		log_debug("Item label: '%s'", *ptr);
 	}
 
 	//
@@ -223,7 +223,7 @@ MENU *menus_create_menu(char **labels) {
 	// can be determined with menu_items(menu). This is used for freeing the
 	// array.
 	//
-	ITEM **items = xmalloc(sizeof(ITEM *) * (num_items + 1));
+	ITEM **items = xmalloc(sizeof(ITEM*) * (num_items + 1));
 
 	//
 	// Set the terminating NULL
@@ -234,10 +234,10 @@ MENU *menus_create_menu(char **labels) {
 	// Create the items.
 	//
 	for (int i = 0; i < num_items; i++) {
-		print_debug("menus_create_menu() Creating item: '%s'\n", labels[i]);
+		log_debug("Creating item: '%s'", labels[i]);
 
 		if ((items[i] = new_item(labels[i], "")) == NULL) {
-			print_exit("menus_create_menu() Unable to create item: '%s'\n", labels[i]);
+			log_exit("Unable to create item: '%s'", labels[i]);
 		}
 	}
 
@@ -246,7 +246,7 @@ MENU *menus_create_menu(char **labels) {
 	//
 	MENU *menu = new_menu(items);
 	if (menu == NULL) {
-		print_exit_str("menus_create_menu() Unable to create the menu!\n");
+		log_exit_str("Unable to create the menu!");
 	}
 
 	return menu;
@@ -262,9 +262,9 @@ void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal) {
 	//
 	// Get the number of item from the menu.
 	//
-	int num_items = item_count(menu);
+	const int num_items = item_count(menu);
 	if (num_items == ERR) {
-		print_exit_str("menus_format_menu() to get the number of items!\n");
+		log_exit_str("Unable to get the number of items!");
 	}
 
 	//
@@ -281,21 +281,21 @@ void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal) {
 	}
 
 	if (set_menu_format(menu, rows, cols) != E_OK) {
-		print_exit("menus_format_menu() Unable to set menu format with rows: 1 cols: %d\n", num_items);
+		log_exit("Unable to set menu format with rows: 1 cols: %d", num_items);
 	}
 
 	//
 	// Do not mark the current item.
 	//
 	if (set_menu_mark(menu, "") != E_OK) {
-		print_exit_str("menus_format_menu() Unable to set menu mark!\n");
+		log_exit_str("Unable to set menu mark!");
 	}
 
 	//
 	// Set the background of the menu.
 	//
 	if (set_menu_back(menu, attr) != E_OK) {
-		print_exit_str("menus_format_menu() Unable to set menu background!\n");
+		log_exit_str("Unable to set menu background!");
 	}
 }
 
@@ -304,9 +304,9 @@ void menus_format_menu(MENU *menu, const chtype attr, const bool horizontal) {
  * not part of the num_fiels parameter.
  *****************************************************************************/
 
-FIELD **forms_create_fields(const int num_fields) {
+FIELD** forms_create_fields(const int num_fields) {
 
-	FIELD **fields = xmalloc(sizeof(FIELD *) * (num_fields + 1));
+	FIELD **fields = xmalloc(sizeof(FIELD*) * (num_fields + 1));
 
 	fields[num_fields] = NULL;
 
@@ -318,14 +318,14 @@ FIELD **forms_create_fields(const int num_fields) {
  * options are set.
  *****************************************************************************/
 
-FORM *forms_create_form(FIELD **fields) {
+FORM* forms_create_form(FIELD **fields) {
 
 	//
 	// Create the form.
 	//
 	FORM *form = new_form(fields);
 	if (form == NULL) {
-		print_exit_str("forms_create_form() Unable to create filter form!\n");
+		log_exit_str("Unable to create filter form!");
 	}
 
 	//
@@ -333,7 +333,7 @@ FORM *forms_create_form(FIELD **fields) {
 	// buffer.
 	//
 	if (form_opts_off(form, O_BS_OVERLOAD) != E_OK) {
-		print_exit_str("forms_create_form() Unable to switch off O_BS_OVERLOAD\n");
+		log_exit_str("Unable to switch off O_BS_OVERLOAD");
 	}
 
 	return form;
@@ -350,11 +350,11 @@ void menus_set_wins(MENU *menu, WINDOW *win, WINDOW *win_menu) {
 	// Set the menu to the window and the sub window.
 	//
 	if ((result = set_menu_win(menu, win)) != E_OK) {
-		print_exit("menus_set_wins() Unable to set menu to the window! (result: %d)\n", result);
+		log_exit("Unable to set menu to the window! (result: %d)", result);
 	}
 
 	if ((result = set_menu_sub(menu, win_menu)) != E_OK) {
-		print_exit("menus_set_wins() Unable to set menu to the sub window! (result: %d)\n", result);
+		log_exit("Unable to set menu to the sub window! (result: %d)", result);
 	}
 }
 
@@ -369,11 +369,11 @@ void forms_set_wins(FORM *form, WINDOW *win, WINDOW *win_form) {
 	// Set the form to the window and the sub window.
 	//
 	if ((result = set_form_win(form, win)) != E_OK) {
-		print_exit("forms_set_wins() Unable to set form to the window! (result: %d)\n", result);
+		log_exit("Unable to set form to the window! (result: %d)", result);
 	}
 
 	if ((result = set_form_sub(form, win_form)) != E_OK) {
-		print_exit("forms_set_wins() Unable to set form to the sub window! (result: %d)\n", result);
+		log_exit("Unable to set form to the sub window! (result: %d)", result);
 	}
 }
 
@@ -440,7 +440,7 @@ void forms_free(FORM *form) {
 	//
 	const int result = unpost_form(form);
 	if (result != E_OK && result != E_NOT_POSTED) {
-		print_exit_str("forms_free() Unable to unpost form!\n");
+		log_exit_str("Unable to unpost form!");
 	}
 
 	//
@@ -448,7 +448,7 @@ void forms_free(FORM *form) {
 	// the fields were connected.
 	//
 	if (free_form(form) != E_OK) {
-		print_exit_str("forms_free() Unable to free form!\n");
+		log_exit_str("Unable to free form!");
 	}
 
 	//
@@ -467,10 +467,10 @@ void forms_free(FORM *form) {
 		// Loop through the field array, which is NULL terminated.
 		//
 		for (FIELD **ptr = field_ptr; *ptr != NULL; ptr++) {
-			print_debug_str("forms_free() Freeing field!\n");
+			log_debug_str("Freeing field!");
 
 			if (free_field(*ptr) != E_OK) {
-				print_exit_str("forms_free() Unable to free field!\n");
+				log_exit_str("Unable to free field!");
 			}
 		}
 	}
@@ -478,7 +478,7 @@ void forms_free(FORM *form) {
 	//
 	// The last step is to free the fields array.
 	//
-	print_debug_str("forms_free() Freeing the fields array!\n");
+	log_debug_str("Freeing the fields array!");
 	free(field_ptr);
 }
 
@@ -509,7 +509,7 @@ void menus_free(MENU *menu) {
 	//
 	const int result = unpost_menu(menu);
 	if (result != E_OK && result != E_NOT_POSTED) {
-		print_exit_str("menus_free() Unable to unpost menu!\n");
+		log_exit_str("Unable to unpost menu!");
 	}
 
 	//
@@ -517,7 +517,7 @@ void menus_free(MENU *menu) {
 	// items were connected.
 	//
 	if (free_menu(menu) != E_OK) {
-		print_exit_str("menus_free() Unable to free menu!\n");
+		log_exit_str("Unable to free menu!");
 	}
 
 	//
@@ -536,10 +536,10 @@ void menus_free(MENU *menu) {
 		// Loop through the item array, which is NULL terminated.
 		//
 		for (ITEM **ptr = item_ptr; *ptr != NULL; ptr++) {
-			print_debug("menus_free() Freeing item: '%s'\n", item_name(*ptr));
+			log_debug("Freeing item: '%s'", item_name(*ptr));
 
 			if (free_item(*ptr) != E_OK) {
-				print_exit_str("menus_free() Unable to free item!\n");
+				log_exit_str("Unable to free item!");
 			}
 		}
 	}
@@ -547,7 +547,7 @@ void menus_free(MENU *menu) {
 	//
 	// The last step is to free the items array.
 	//
-	print_debug_str("menus_free() Freeing the items array!\n");
+	log_debug_str("Freeing the items array!");
 	free(item_ptr);
 }
 
@@ -566,7 +566,7 @@ void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
 	//
 	char *raw_field = field_buffer(field, 0);
 	if (raw_field == NULL) {
-		print_exit_str("forms_get_input_str() Unable to get field buffer!\n");
+		log_exit_str("Unable to get field buffer!");
 	}
 
 	//
@@ -587,7 +587,7 @@ void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
 	// string has by construction the same size as the raw string.
 	//
 	strncpy(raw_str, raw_field, raw_len);
-	print_debug("forms_get_input_str() raw len: '%zu' '%s'\n", raw_len, raw_str);
+	log_debug("Raw len: '%zu' '%s'", raw_len, raw_str);
 
 	//
 	// The field content is filled with blanks, which had to be trimmed before
@@ -607,14 +607,14 @@ void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
  * the buffer is 'x'. If the checkbox is not checked it is ' '.
  *****************************************************************************/
 
-bool forms_checkbox_is_checked(FIELD *field) {
+bool forms_checkbox_is_checked(const FIELD *field) {
 
 	//
 	// Get the buffer string.
 	//
 	const char *buffer = field_buffer(field, 0);
 	if (buffer == NULL) {
-		print_exit_str("forms_checkbox_is_checked() Unable to get field buffer!\n");
+		log_exit_str("Unable to get field buffer!");
 	}
 
 	return buffer[0] == CHECK_CHAR;
@@ -625,7 +625,7 @@ bool forms_checkbox_is_checked(FIELD *field) {
  * returns true if the value changed.
  *****************************************************************************/
 
-bool forms_get_checkbox_value(FIELD *field, bool *checked) {
+bool forms_get_checkbox_value(const FIELD *field, bool *checked) {
 
 	//
 	// Get the new value from the checkbox field.
@@ -650,7 +650,7 @@ bool forms_get_checkbox_value(FIELD *field, bool *checked) {
  * unchecked. The status is toggled with the space key or a 'x'.
  *****************************************************************************/
 
-void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
+void forms_process_checkbox(FORM *form, const FIELD *field, const int key_type, const wint_t chr) {
 
 	//
 	// We are only processing spaces.
@@ -658,7 +658,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 	if (key_type == OK && ((wchar_t) chr == W_SPACE || (wchar_t) chr == CHECK_WCHAR)) {
 
 		if (forms_checkbox_is_checked(field)) {
-			print_debug_str("forms_process_checkbox() Unchecking checkbox!\n");
+			log_debug_str("Unchecking checkbox!");
 
 			//
 			// If the checkbox is checked, the buffer (with one char) is full
@@ -667,7 +667,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
 			forms_driver(form, KEY_CODE_YES, REQ_DEL_CHAR);
 
 		} else {
-			print_debug_str("forms_process_checkbox() Checking checkbox!\n");
+			log_debug_str("forms_process_checkbox() Checking checkbox!");
 
 			//
 			// Set the first and only char to 'x'. The field cursor is at the
@@ -693,7 +693,7 @@ void forms_process_checkbox(FORM *form, FIELD *field, const int key_type, const 
  * pointer for "forms_process_checkbox" and "forms_process_input_field".
  *****************************************************************************/
 
-void forms_process_input_field(FORM *form, FIELD *field, const int key_type, const wint_t chr) {
+void forms_process_input_field(FORM *form, const FIELD *field, const int key_type, const wint_t chr) {
 
 	switch (key_type) {
 
@@ -739,7 +739,7 @@ void forms_process_input_field(FORM *form, FIELD *field, const int key_type, con
 			break;
 
 		default:
-			print_debug("forms_process_input_field() Found key code: %d\n", chr);
+			log_debug("Found key code: %d", chr);
 			break;
 		}
 
@@ -752,12 +752,12 @@ void forms_process_input_field(FORM *form, FIELD *field, const int key_type, con
 		//
 		forms_driver(form, OK, (wchar_t) chr);
 		forms_driver(form, KEY_CODE_YES, REQ_VALIDATION);
-		print_debug("forms_process_input_field() Found char: %d field content: %s\n", chr, field_buffer(field, 0));
+		log_debug("Found char: %d field content: %s", chr, field_buffer(field, 0));
 
 		break; // case OK
 
 	default:
-		print_exit("forms_process_input_field() Unknown key code: %d key: %lc for field: %d\n", key_type, chr, field_index(field))
+		log_exit("Unknown key code: %d key: %lc for field: %d", key_type, chr, field_index(field))
 		;
 		break;
 	}
@@ -772,11 +772,11 @@ void menus_switch_on_off(MENU *menu, const bool on) {
 	const chtype type = on ? A_NORMAL : A_REVERSE;
 
 	if (set_menu_fore(menu, type) != E_OK) {
-		print_exit_str("menus_switch_on_off() Unable to change the menu foreground!\n");
+		log_exit_str("Unable to change the menu foreground!");
 	}
 
 	if (curs_set(!on) == ERR) {
-		print_exit_str("menus_switch_on_off() Unable to switch on/off the cursor!\n");
+		log_exit_str("Unable to switch on/off the cursor!");
 	}
 }
 
@@ -790,11 +790,11 @@ void menus_unpost_post(MENU *menu, const bool doUnpost) {
 	int result;
 
 	if (doUnpost && (result = unpost_menu(menu)) != E_OK) {
-		print_exit("menus_unpost_post() Unable to unpost menu! (result: %d)\n", result);
+		log_exit("Unable to unpost menu! (result: %d)", result);
 	}
 
 	if ((result = post_menu(menu)) != E_OK) {
-		print_exit("menus_unpost_post() Unable to post menu! (result: %d)\n", result);
+		log_exit("Unable to post menu! (result: %d)", result);
 	}
 }
 

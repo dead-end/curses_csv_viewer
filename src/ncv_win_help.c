@@ -36,15 +36,8 @@ static int win_help_size_cols;
 
 static int win_help_size_rows;
 
-static const char *msgs[] = {
-		"CTRL-H        Shows this message.",
-		"ESC           Hides dialog window.",
-		"CTRL-C CTRL-Q Terminates the program.",
-		"CTRL-F        Shows filter dialog.",
-		"CTRL-P        Searches previous filter match.",
-		"CTRL-N        Searches next filter match.",
-		"CTRL-X        Deletes filter content.",
-		NULL };
+static const char *msgs[] = { "CTRL-H        Shows this message.", "ESC           Hides dialog window.", "CTRL-C CTRL-Q Terminates the program.", "CTRL-F        Shows filter dialog.", "CTRL-P        Searches previous filter match.", "CTRL-N        Searches next filter match.", "CTRL-X        Deletes filter content.",
+NULL };
 
 #define BORDER 2
 
@@ -52,9 +45,9 @@ static const char *msgs[] = {
  * Definition of the help window.
  **************************************************************************/
 
-static WINDOW* win_help = NULL;
+static WINDOW *win_help = NULL;
 
-static WINDOW* win_menu = NULL;
+static WINDOW *win_menu = NULL;
 
 static MENU *menu;
 
@@ -99,7 +92,7 @@ void win_help_init() {
 	win_help_size_cols = cols + 2 * BORDER;
 	win_help_size_rows = rows + 2 + 2 * BORDER;
 
-	char *labels[] = { " OK ", NULL };
+	const char *labels[] = { " OK ", NULL };
 	menu = menus_create_menu(labels);
 
 	const chtype attr_normal = ncurses_attr_color(COLOR_PAIR(CP_STATUS), A_REVERSE);
