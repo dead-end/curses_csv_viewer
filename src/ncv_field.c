@@ -74,7 +74,9 @@ void s_field_part_update(s_field_part *field_part, const s_table_part *table_par
 		field_part->size = size;
 	}
 
-	print_debug("s_field_part_update() index: %d truncated: %d first: %d last: %d\n", index, table_part->truncated, table_part->first, table_part->last);print_debug("s_field_part_update() start: %d size: %d\n", field_part->start, field_part->size);
+	log_debug("Index: %d truncated: %d first: %d last: %d", index, table_part->truncated, table_part->first, table_part->last);
+
+	log_debug("Start: %d size: %d", field_part->start, field_part->size);
 }
 
 /******************************************************************************
@@ -86,7 +88,7 @@ void s_field_part_update(s_field_part *field_part, const s_table_part *table_par
  * to the start of the next line of NULL is no more lines are present.
  *****************************************************************************/
 
-wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int width, bool *end) {
+wchar_t* get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int width, bool *end) {
 
 	//
 	// The bool value is used to avoid unnecessary calls of wmemset. If the
@@ -117,7 +119,7 @@ wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int wi
 			*end = true;
 		}
 
-		print_debug_str("get_field_complete_line() Function called with null string\n");
+		log_debug_str("Function called with null string");
 		return NULL;
 	}
 
@@ -161,7 +163,7 @@ wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int wi
 	//
 	// The width is the maximum width of the column, so this should not happen.
 	//
-	print_exit("get_field_complete_line() String is too long: %ls\n", str_ptr);
+	log_exit("String is too long: %ls", str_ptr);
 }
 
 /******************************************************************************
@@ -329,7 +331,7 @@ void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part
 	int row;
 	bool end = false;
 
-	print_debug("print_field_content() win row: %d win col: %d field: '%ls'\n", win_row_col->row, win_row_col->col, field_content);
+	log_debug("Win row: %d win col: %d field: '%ls'", win_row_col->row, win_row_col->col, field_content);
 
 	//
 	// A pointer to mark the current position in the field content, while it is
@@ -361,7 +363,7 @@ void print_field_content(WINDOW *win, wchar_t *field_content, const s_field_part
 		// may contain padding chars.
 		//
 		ptr = get_field_complete_line(ptr, buffer, width, &end);
-		print_debug("print_field_content() field line: %d '%ls'\n", field_line_no, buffer);
+		log_debug("Field line: %d '%ls'", field_line_no, buffer);
 
 		//
 		// Skip the first lines if necessary,
