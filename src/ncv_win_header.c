@@ -58,7 +58,7 @@
  * Definition of the header window.
  *****************************************************************************/
 
-static WINDOW* win_header = NULL;
+static WINDOW *win_header = NULL;
 
 /******************************************************************************
  * The function is called to initialize the header window.
@@ -95,7 +95,7 @@ void win_header_content_print(const s_filter *filter) {
 	// Erase window to ensure that no garbage is left behind.
 	//
 	if (werase(win_header) == ERR) {
-		print_exit_str("win_header_content_print() Unable to erase the footer window!\n");
+		log_exit_str("Unable to erase the footer window!");
 	}
 
 	const int max_width = getmaxx(win_header);
@@ -133,7 +133,7 @@ void win_header_content_print(const s_filter *filter) {
 
 void win_header_refresh_no() {
 
-	print_debug_str("win_header_refresh_no() Refresh footer window.\n");
+	log_debug_str("Refresh footer window.");
 	ncurses_win_refresh_no(win_header, WIN_HEADER_SIZE_ROWS, WIN_HEADER_SIZE_COLS);
 }
 
@@ -143,6 +143,6 @@ void win_header_refresh_no() {
 
 void win_header_free() {
 
-	print_debug_str("win_header_free() Removing header window.\n");
+	log_debug_str("Removing header window.");
 	ncurses_win_free(win_header);
 }
