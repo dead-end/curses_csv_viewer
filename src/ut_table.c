@@ -49,7 +49,7 @@ static void test_table_field_dimension() {
 	int row_size;
 	int col_size;
 
-	print_debug_str("test_table_field_dimension() Start\n");
+	log_debug_str("Start");
 
 	//
 	// Test: Empty field
@@ -75,7 +75,7 @@ static void test_table_field_dimension() {
 	s_table_field_dimension(L"привет\nпривет привет\nпривет", &col_size, &row_size);
 	ut_check_dim(col_size, wcslen(L"привет привет"), row_size, 3, "multi lines");
 
-	print_debug_str("test_table_field_dimension() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -123,7 +123,7 @@ typedef struct s_row_col {
 
 /******************************************************************************
  * The function tests the prev / next function. We start at the current match
- * and go forward / backward until we are again at the start position.
+ * and goes forward / backward until we are again at the start position.
  *
  * A calling example:
  *
@@ -138,13 +138,13 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 	// unused without DEBUG set.
 	//
 	if (num_matches < 1) {
-		print_exit("check_prev_next() Number of matches: %d - %s!\n", num_matches, msg);
+		log_exit("Number of matches: %d - %s!", num_matches, msg);
 	}
 
 	//
 	// Check the current match position
 	//
-	print_debug("check_prev_next() start match idx: %d - %s\n", 0, msg);
+	log_debug("Start match idx: %d - %s", 0, msg);
 	ut_check_int(cursor->row, row_col[0].row, "row - start match");
 	ut_check_int(cursor->col, row_col[0].col, "col - start match");
 
@@ -156,11 +156,11 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 		//
 		// The index of the next match
 		//
-		int idx = (i + 1) % num_matches;
+		const int idx = (i + 1) % num_matches;
 
 		s_table_prev_next(table, cursor, E_DIR_FORWARD);
 
-		print_debug("check_prev_next() forward match idx: %d - %s\n", idx, msg);
+		log_debug("Forward match idx: %d - %s", idx, msg);
 		ut_check_int(cursor->row, row_col[idx].row, "row - forward match");
 		ut_check_int(cursor->col, row_col[idx].col, "col - forward match");
 	}
@@ -172,7 +172,7 @@ static void check_prev_next(const s_table *table, s_cursor *cursor, const char *
 
 		s_table_prev_next(table, cursor, E_DIR_BACKWARD);
 
-		print_debug("check_prev_next() backward match idx: %d - %s\n", idx, msg);
+		log_debug("Backward match idx: %d - %s", idx, msg);
 		ut_check_int(cursor->row, row_col[idx].row, "row - backward match");
 		ut_check_int(cursor->col, row_col[idx].col, "col - backward match");
 	}
@@ -195,7 +195,7 @@ static void test_table_search_filter() {
 	s_table table;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_table_search_filter() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t *data =
 
@@ -279,7 +279,7 @@ static void test_table_search_filter() {
 
 	fclose(tmp);
 
-	print_debug_str("test_table_search_filter() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -294,7 +294,7 @@ static void test_table_prev_next() {
 	s_table table;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_table_prev_next() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t *data =
 
@@ -362,7 +362,7 @@ static void test_table_prev_next() {
 
 	fclose(tmp);
 
-	print_debug_str("test_table_prev_next() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -376,7 +376,7 @@ static void test_filter_and_sort() {
 	s_cursor cursor;
 	s_table_set_defaults(table);
 
-	print_debug_str("test_filter_and_sort() Start\n");
+	log_debug_str("Start");
 
 	const wchar_t *data =
 
@@ -424,7 +424,7 @@ static void test_filter_and_sort() {
 
 	fclose(tmp);
 
-	print_debug_str("test_filter_and_sort() End\n");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -433,10 +433,9 @@ static void test_filter_and_sort() {
 
 int main() {
 
-	print_debug_str("ut_table.c - Start tests\n");
+	log_debug_str("Start");
 
-	// TODO: C
-	setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "C");
 
 	test_table_field_dimension();
 
@@ -446,7 +445,7 @@ int main() {
 
 	test_filter_and_sort();
 
-	print_debug_str("ut_table.c - End tests\n");
+	log_debug_str("End");
 
 	return EXIT_SUCCESS;
 }
