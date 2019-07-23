@@ -162,7 +162,7 @@ static s_field_user_ptr* field_user_ptr_create(FIELD *field, const enum FIELD_TY
 	// NULL labels are not allowed, use empty strings instead.
 	//
 	if (label == NULL) {
-		print_exit_str("field_user_ptr_create() Label is NULL!\n");
+		log_exit_str("Label is NULL!");
 	}
 
 	//
@@ -181,7 +181,7 @@ static s_field_user_ptr* field_user_ptr_create(FIELD *field, const enum FIELD_TY
 	// Add the struct to the field.
 	//
 	if (set_field_userptr(field, field_user_ptr) != E_OK) {
-		print_exit_str("field_user_ptr_create() Unable to set user ptr for field!\n");
+		log_exit_str("Unable to set user ptr for field!");
 	}
 
 	return field_user_ptr;
@@ -212,7 +212,7 @@ static void form_get_field_sizes(const FORM *form, int *num_fields, int *max_lab
 	//
 	FIELD **field_ptr = form_fields(form);
 	if (field_ptr == NULL) {
-		print_exit_str("form_get_field_sizes() Unable to get form fields!\n");
+		log_exit_str("Unable to get form fields!");
 	}
 
 	//
@@ -225,7 +225,7 @@ static void form_get_field_sizes(const FORM *form, int *num_fields, int *max_lab
 		//
 		s_field_user_ptr *user_ptr = (s_field_user_ptr*) field_userptr(*field_ptr);
 		if (user_ptr == NULL) {
-			print_exit_str("form_get_field_sizes() Field has no user ptr!\n");
+			log_exit_str("Field has no user ptr!");
 		}
 
 		//
@@ -241,7 +241,7 @@ static void form_get_field_sizes(const FORM *form, int *num_fields, int *max_lab
 		// not interested in the rest of the data, so we use a dummy parameter.
 		//
 		if (field_info(*field_ptr, &tmp_rows, &tmp_cols, &dummy, &dummy, &dummy, &dummy) != E_OK) {
-			print_exit("form_get_field_sizes() Unable to get rows of field with label: %s\n", user_ptr->label);
+			log_exit("Unable to get rows of field with label: %s", user_ptr->label);
 		}
 
 		//
@@ -307,7 +307,7 @@ void popup_get_sizes(const s_popup *popup, s_popup_sizes *popup_sizes, const int
 	// The button menu has one row.
 	//
 	if (scale_menu(popup->menu, &(popup_sizes->menu_rows), &(popup_sizes->menu_cols)) != E_OK) {
-		print_exit_str("popup_get_sizes() Unable to determine the menu width and height!\n");
+		log_exit_str("Unable to determine the menu width and height!");
 	}
 
 	//
@@ -320,7 +320,7 @@ void popup_get_sizes(const s_popup *popup, s_popup_sizes *popup_sizes, const int
 	// This is a task for the future.
 	//
 	if (popup_sizes->win_cols < popup_sizes->menu_cols) {
-		print_exit_str("popup_get_sizes() Menu is larger than form!\n");
+		log_exit_str("Menu is larger than form!");
 	}
 
 	//
@@ -348,7 +348,7 @@ static void win_filter_print_content() {
 	// Add a box
 	//
 	if (box(popup.win, 0, 0) != OK) {
-		print_exit_str("win_filter_print_content() Unable to setup win!\n");
+		log_exit_str("Unable to setup win!");
 	}
 
 	//
@@ -361,7 +361,7 @@ static void win_filter_print_content() {
 	//
 	FIELD **field_ptr = form_fields(popup.form);
 	if (field_ptr == NULL) {
-		print_exit_str("win_filter_print_content() Unable to get form fields!\n");
+		log_exit_str("Unable to get form fields!");
 	}
 
 	//
@@ -375,7 +375,7 @@ static void win_filter_print_content() {
 		//
 		s_field_user_ptr *user_ptr = (s_field_user_ptr*) field_userptr(*field_ptr);
 		if (user_ptr == NULL) {
-			print_exit_str("win_filter_print_content() Field has no user ptr!\n");
+			log_exit_str("Field has no user ptr!");
 		}
 
 		//
@@ -468,7 +468,7 @@ void win_filter_init() {
 	// Necessary to enable function keys like arrows
 	//
 	if (keypad(popup.win, TRUE) != OK) {
-		print_exit_str("win_filter_init() Unable to call keypad!");
+		log_exit_str("Unable to call keypad!");
 	}
 
 	popup.win_form = ncurses_derwin_create(popup.win, popup_sizes.form_rows, popup_sizes.form_cols, popup_sizes.form_start_row, popup_sizes.form_start_col);
@@ -495,7 +495,7 @@ void win_filter_resize() {
 	// Ensure the minimum size of the window.
 	//
 	if (WIN_HAS_MIN_SIZE(popup_sizes.win_rows, popup_sizes.win_cols)) {
-		print_debug_str("win_filter_resize() Do resize the window!\n");
+		log_debug_str("Do resize the window!");
 
 		//
 		// All of the 3 functions have to be called to ensure that all window
@@ -514,7 +514,7 @@ void win_filter_resize() {
 		// second test is skipped.
 		//
 		if (do_update_win || do_update_form || do_update_menu) {
-			print_debug_str("win_filter_resize() Do update!\n");
+			log_debug_str("Do update!");
 
 			//
 			// On resize do an unpost at the beginning. (Resizing the window does
@@ -553,7 +553,7 @@ static void win_filter_get_filter(s_filter *to_filter, s_popup *popup, const boo
 
 	FIELD **fields = form_fields(popup->form);
 	if (fields == NULL) {
-		print_exit_str("win_filter_get_filter() Unable to get form fields!\n");
+		log_exit_str("Unable to get form fields!");
 	}
 
 	//
@@ -646,14 +646,14 @@ static bool process_form_input(s_filter *filter, s_popup *popup, const int key_t
 			FIELD **fields;
 
 			if ((fields = form_fields(popup->form)) == NULL) {
-				print_exit_str("process_form_input() Unable to get fields!\n");
+				log_exit_str("Unable to get fields!");
 			}
 
 			//
 			// Clear filter input
 			//
 			if (set_field_buffer(fields[0], 0, "") != E_OK) {
-				print_exit_str("process_form_input() Unable to reset the buffer\n");
+				log_exit_str("Unable to reset the buffer");
 			}
 		}
 
@@ -669,7 +669,7 @@ static bool process_form_input(s_filter *filter, s_popup *popup, const int key_t
 
 	const s_field_user_ptr *driver = (s_field_user_ptr*) field_userptr(field);
 	if (driver == NULL) {
-		print_exit_str("process_form_input() Unable to get field user ptr!\n");
+		log_exit_str("Unable to get field user ptr!");
 	}
 
 	driver->driver(popup->form, field, key_type, chr);
@@ -723,7 +723,7 @@ void win_filter_prepair_show() {
 
 void win_filter_refresh_no() {
 
-	print_debug_str("win_filter_refresh_no() Refresh footer window.\n");
+	log_debug_str("Refresh footer window.");
 	ncurses_win_refresh_no(popup.win, popup_sizes.win_rows, popup_sizes.win_cols);
 }
 
@@ -743,7 +743,7 @@ WINDOW* win_filter_get_win() {
 void win_filter_content_print() {
 
 	if (touchwin(popup.win) == ERR) {
-		print_exit_str("win_filter_content_print() Unable to touch filter window!\n");
+		log_exit_str("Unable to touch filter window!");
 	}
 }
 
@@ -753,7 +753,7 @@ void win_filter_content_print() {
 
 void win_filter_free() {
 
-	print_debug_str("win_filter_free() Removing filter windows, forms and fields.\n");
+	log_debug_str("Removing filter windows, forms and fields.");
 
 	forms_user_ptr_free(popup.form);
 
