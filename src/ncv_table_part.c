@@ -25,6 +25,7 @@
 #include "ncv_table_part.h"
 #include "ncv_common.h"
 
+// TODO: comments
 /***************************************************************************
  * The method updates the row /column table part for the table. It is called
  * with a start_index and a direction. It computes the end_index and checks

@@ -27,6 +27,7 @@
 #include "ncv_common.h"
 #include <string.h>
 
+//TODO: comment
 /***************************************************************************
  * Definition of the text to be displayed. From the string array, the number
  * of rows and columns can be derived. The values include a border.

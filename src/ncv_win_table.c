@@ -26,6 +26,7 @@
 #include "ncv_corners.h"
 #include "ncv_ncurses.h"
 
+// TODO: comment
 /***************************************************************************
  * With a min height of 2, the table window is shown. One row for the header
  * and one row for the table.

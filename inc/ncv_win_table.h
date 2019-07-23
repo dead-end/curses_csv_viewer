@@ -29,6 +29,7 @@
 
 #include <ncursesw/ncurses.h>
 
+// TODO: comments
 /***************************************************************************
  * The struct defines an attribute that can be highlighted. It is used for
  * field texts to highlight the filter string.

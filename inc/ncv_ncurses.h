@@ -28,6 +28,7 @@
 #include "ncv_common.h"
 #include <ncursesw/ncurses.h>
 
+// TODO: comments
 /***************************************************************************
  * Check for control modifier. Usage: CTRL('f')
  **************************************************************************/
@@ -97,9 +98,9 @@ chtype ncurses_attr_color(const chtype color, const chtype alt);
 
 void ncurses_attr_back(WINDOW *win, const chtype color, const chtype alt);
 
-WINDOW *ncurses_win_create(const int rows, const int cols, const int begin_y, const int begin_x);
+WINDOW* ncurses_win_create(const int rows, const int cols, const int begin_y, const int begin_x);
 
-WINDOW *ncurses_derwin_create(WINDOW *win, const int rows, const int cols, const int begin_y, const int begin_x);
+WINDOW* ncurses_derwin_create(WINDOW *win, const int rows, const int cols, const int begin_y, const int begin_x);
 
 void ncurses_win_move(WINDOW *win, const int to_y, const int to_x);
 
@@ -115,7 +116,7 @@ void ncurses_win_refresh_no(WINDOW *win, const int min_rows, const int min_cols)
 
 void ncurses_win_free(WINDOW *win);
 
-int nc_cond_addstr_attr(WINDOW* win, const wchar_t *str, const int max, const enum e_align align, const chtype attr_normal, const chtype attr_highlight);
+int nc_cond_addstr_attr(WINDOW *win, const wchar_t *str, const int max, const enum e_align align, const chtype attr_normal, const chtype attr_highlight);
 
 #define nc_cond_addstr(w,s,m,a) nc_cond_addstr_attr(w,s,m,a,A_NORMAL,A_NORMAL)
 
