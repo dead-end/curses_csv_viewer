@@ -73,7 +73,7 @@ static inline char* mode_str(const enum MODE mode) {
 		return "HELP";
 
 	default:
-		print_exit("mode_str() Unknown mode: %d\n", mode)
+		log_exit("Unknown mode: %d", mode)
 		;
 	}
 
@@ -96,7 +96,7 @@ static void wins_refresh(const enum MODE mode) {
 	if (getmaxx(stdscr) > 0) {
 
 		if (wnoutrefresh(stdscr) != OK) {
-			print_exit_str("ncurses_refresh() Unable to refresh the stdscr!\n");
+			log_exit_str("Unable to refresh the stdscr!");
 		}
 
 		//
@@ -124,7 +124,7 @@ static void wins_refresh(const enum MODE mode) {
 		// Copy the updates to the terminal.
 		//
 		if (doupdate() != OK) {
-			print_exit_str("ncurses_refresh() Unable to update all wins!\n");
+			log_exit_str("Unable to update all wins!");
 		}
 	}
 }
@@ -161,7 +161,7 @@ static void wins_resize(const s_table *table, s_cursor *cursor) {
 
 static void wins_print(const s_table *table, const s_cursor *cursor, const char *filename, const enum MODE mode, const bool do_erase) {
 
-	print_debug("wins_print() Print wins with mode: %s\n", mode_str(mode));
+	log_debug("Print wins with mode: %s", mode_str(mode));
 
 	//
 	// If the table content does not include the whole window, the content of
@@ -169,7 +169,7 @@ static void wins_print(const s_table *table, const s_cursor *cursor, const char 
 	// the a popup window
 	//
 	if (do_erase && werase(win_table_get_win()) == ERR) {
-		print_exit_str("wins_print() Unable to erase table window!\n");
+		log_exit_str("Unable to erase table window!");
 	}
 
 	//
@@ -209,7 +209,7 @@ static bool change_mode(WINDOW **win, s_cursor *cursor, enum MODE *mode_current,
 	// Check if the application has already the new mode.
 	//
 	if ((*mode_current) == mode_new) {
-		print_debug_str("change_mode() Mode has not changed.\n");
+		log_debug_str("Mode has not changed.");
 		return false;
 	}
 
@@ -292,7 +292,7 @@ void ui_loop(s_table *table, const char *filename) {
 
 	while (do_continue) {
 
-		print_debug("ui_loop() mode: %s (%d) rows: %d cols: %d\n", mode_str(mode), mode, getmaxy(win), getmaxx(win));
+		log_debug("Mode: %s (%d) rows: %d cols: %d", mode_str(mode), mode, getmaxy(win), getmaxx(win));
 
 		//
 		// Without moving the cursor at the end a flickering occurs, when the
@@ -327,7 +327,7 @@ void ui_loop(s_table *table, const char *filename) {
 				break;
 
 			default:
-				print_debug("ui_loop() Found key code: %d\n", chr);
+				log_debug("Found key code: %d", chr);
 				break;
 			}
 
@@ -340,7 +340,7 @@ void ui_loop(s_table *table, const char *filename) {
 			// ESC char
 			//
 			case NCV_KEY_ESC:
-				print_debug("ui_loop() Found esc char: %d\n", chr);
+				log_debug("Found esc char: %d", chr);
 // TODO: check
 				//
 				// Deactivate filtering and sorting.
@@ -381,7 +381,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Switch to FILTER mode
 				//
 			case CTRL('f'):
-				print_debug_str("ui_loop() Found <ctrl>-f\n");
+				log_debug_str("Found <ctrl>-f");
 
 				//
 				// On toggling the mode always changes.
@@ -401,7 +401,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Sort forward
 				//
 			case CTRL('s'):
-				print_debug_str("ui_loop() Found <ctrl>-s\n");
+				log_debug_str("Found <ctrl>-s");
 
 				s_sort_update(&table->sort, cursor.col, E_DIR_FORWARD);
 
@@ -416,7 +416,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Sort backward
 				//
 			case CTRL('r'):
-				print_debug_str("ui_loop() Found <ctrl>-r\n");
+				log_debug_str("Found <ctrl>-r");
 
 				s_sort_update(&table->sort, cursor.col, E_DIR_BACKWARD);
 
@@ -429,7 +429,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Show help
 				//
 			case CTRL('h'):
-				print_debug_str("ui_loop() Found <ctrl>-h\n");
+				log_debug_str("Found <ctrl>-h");
 
 				//
 				// On toggling the mode always changes.
@@ -449,13 +449,13 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 			case CTRL('c'):
 			case CTRL('q'):
-				print_debug_str("ui_loop() Found <ctrl>-c or <ctrl>-q\n");
+				log_debug_str("Found <ctrl>-c or <ctrl>-q");
 				do_continue = false;
 				continue;
 
 			default:
 
-				//print_debug("ui_loop() Delegate processed: %s\n", (is_processed ? "true" : "false"));
+				//log_debug("Delegate processed: %s", (is_processed ? "true" : "false"));
 				break;
 			}
 
@@ -466,7 +466,7 @@ void ui_loop(s_table *table, const char *filename) {
 			//
 			// An error from wget_wch
 			//
-			print_exit_str("ui_loop() The user input caused an error!\n")
+			log_exit_str("The user input caused an error!")
 			;
 			break;
 		}
@@ -501,7 +501,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				if (s_filter_has_changed(&table->filter)) {
 
-					print_debug_str("ui_loop() Filter changed, update table!\n");
+					log_debug_str("Filter changed, update table!");
 
 // TODO: check
 					//
@@ -544,9 +544,9 @@ void ui_loop(s_table *table, const char *filename) {
 			}
 
 		} else {
-			print_exit("Invalid mode for input processing delegation: %d\n", mode);
+			log_exit("Invalid mode for input processing delegation: %d", mode);
 		}
 	}
 
-	print_debug_str("ui_loop() end\n");
+	log_debug_str("End");
 }
