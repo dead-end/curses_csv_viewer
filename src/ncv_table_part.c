@@ -25,15 +25,13 @@
 #include "ncv_table_part.h"
 #include "ncv_common.h"
 
-// TODO: comments
-/***************************************************************************
+/******************************************************************************
  * The method updates the row /column table part for the table. It is called
  * with a start_index and a direction. It computes the end_index and checks
  * whether the end field is truncated. In this case the truncated size is
  * computed.
  *
- * The sizes parameter is an array with the row heights or the column
- * widths.
+ * The sizes parameter is an array with the row heights or the column widths.
  *
  * The index_start can be the first or the last index depending on the
  * direction.
@@ -43,7 +41,7 @@
  * The direction can be E_DIR_FORWARD or E_DIR_BACKWARD.
  *
  * The win_size parameter is the size of the window.
- **************************************************************************/
+ *****************************************************************************/
 
 void s_table_part_update(s_table_part *table_part, const int *sizes, const int index_start, const int num, const enum e_direction direction, const int win_size) {
 
@@ -111,21 +109,21 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 	log_debug("First: %d last: %d truncated: %d size: %d dir: %d", table_part->first, table_part->last, table_part->truncated, table_part->size, table_part->direction);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function reverses the direction of a table part in certain
  * situations.
  *
  * Example:
  *
- * You have a table with 10 fields. Visible are fields 5-8. If you enlarge
- * the window you can make visible fields 5-9 and then 5-10. If you keep on
- * enlarging the window you have to check whether there are fields that are
- * not visible at the other end. In this example you can make visible fields
- * 4-10 and then 3-10 and so on until all fields are visible.
+ * You have a table with 10 fields. Visible are fields 5-8. If you enlarge the
+ * window you can make visible fields 5-9 and then 5-10. If you keep on
+ * enlarging the window you have to check whether there are fields that are not
+ * visible at the other end. In this example you can make visible fields 4-10
+ * and then 3-10 and so on until all fields are visible.
  *
  * The parameter table_end is 'table->no_rows - 1' or table->no_column - 1'
  * depending on the table part.
- **************************************************************************/
+ *****************************************************************************/
 
 bool adjust_dir_on_resize(s_table_part *table_part, const int table_end) {
 
