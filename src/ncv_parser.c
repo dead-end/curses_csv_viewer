@@ -106,7 +106,7 @@ static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
 	// Ensure the size.
 	//
 	if (csv_parser->field_idx >= MAX_FIELD_SIZE) {
-		print_exit_str("set_field() Field is too long!");
+		log_exit_str("Field is too long!");
 	}
 
 	//
@@ -120,7 +120,7 @@ static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
  * does a trimming, if configured.
  *****************************************************************************/
 
-static wchar_t *get_str_from_field(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser) {
+static wchar_t* get_str_from_field(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser) {
 
 	//
 	// Add the terminating \0 to the field.
@@ -157,7 +157,7 @@ static void add_missing_field(s_csv_parser *csv_parser, s_table *table) {
 
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, L"");
 
-		print_debug("add_missing_field() Missing column: %d of total %d in row: %d\n", csv_parser->current_column + 1 ,csv_parser->no_columns, csv_parser->current_row + 1);
+		log_debug("Missing column: %d of total %d in row: %d", csv_parser->current_column + 1, csv_parser->no_columns, csv_parser->current_row + 1);
 	}
 }
 
@@ -188,7 +188,7 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 				// the current.
 				//
 				if (csv_parser->current_column != s_csv_parser_last_col_idx(csv_parser)) {
-					print_exit("count_columns_and_rows() row: %d current columns: %d expected columns: %d\n", csv_parser->current_row + 1, csv_parser->current_column, csv_parser->no_columns);
+					log_exit("Row: %d current columns: %d expected columns: %d", csv_parser->current_row + 1, csv_parser->current_column, csv_parser->no_columns);
 				}
 			}
 		} else {
@@ -275,7 +275,7 @@ static void parse_csv_wbuf(s_wbuf *wbuf, const s_cfg_parser *cfg_parser, s_csv_p
 			// (final) quote is missing.
 			//
 			if (csv_parser->is_escaped == BOOL_TRUE) {
-				print_exit_str("parse_csv_wbuf() Quote missing!\n");
+				log_exit_str("Quote missing!");
 			}
 
 			//
@@ -358,7 +358,7 @@ static void parse_csv_wbuf(s_wbuf *wbuf, const s_cfg_parser *cfg_parser, s_csv_p
 					// delimiter, new line or EOF.
 					//
 				} else if (wchar_cur != W_QUOTE) {
-					print_exit("parse_csv_wbuf() Invalid char after quote: %lc\n", wchar_cur);
+					log_exit("Invalid char after quote: %lc", wchar_cur);
 				}
 			}
 		}
@@ -395,7 +395,7 @@ void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *ta
 	s_csv_parser_init(&csv_parser, true);
 	parse_csv_wbuf(wbuf, cfg_parser, &csv_parser, table);
 
-	print_debug("parser_process_file() No rows: %d no columns: %d\n", csv_parser.current_row, csv_parser.no_columns);
+	log_debug("No rows: %d no columns: %d", csv_parser.current_row, csv_parser.no_columns);
 
 	//
 	// Allocate memory for the number of rows and columns.
