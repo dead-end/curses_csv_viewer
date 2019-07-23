@@ -35,9 +35,6 @@
  *****************************************************************************/
 
 #ifdef DEBUG
-//TODO: remove
-#define print_debug(fmt, ...) fprintf(stderr, "DEBUG - " fmt, ##__VA_ARGS__)
-#define print_debug_str(fmt)  fprintf(stderr, "DEBUG - " fmt)
 
 #define log_debug(fmt, ...) fprintf(stderr, "DEBUG %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define log_debug_str(fmt)  fprintf(stderr, "DEBUG %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__)
@@ -45,9 +42,6 @@
 #define DEBUG_USED
 
 #else
-//TODO: remove
-#define print_debug(fmt, ...)
-#define print_debug_str(fmt)
 
 #define log_debug(fmt, ...)
 #define log_debug_str(fmt)
@@ -60,9 +54,6 @@
  * Definition of the print_error macro, that finishes the program after
  * printing the error message.
  *****************************************************************************/
-
-#define print_exit(fmt, ...) fprintf(stderr, "FATAL - " fmt, ##__VA_ARGS__); exit(EXIT_FAILURE)
-#define print_exit_str(fmt)  fprintf(stderr, "FATAL - " fmt); exit(EXIT_FAILURE)
 
 #define log_exit(fmt, ...) fprintf(stderr, "FATAL %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__); exit(EXIT_FAILURE)
 #define log_exit_str(fmt)  fprintf(stderr, "FATAL %s:%d:%s() " fmt "\n", __FILE__, __LINE__, __func__); exit(EXIT_FAILURE)
