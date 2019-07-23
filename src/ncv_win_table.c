@@ -118,7 +118,7 @@ void win_table_resize() {
 	// Ensure the minimum size of the window.
 	//
 	if (WIN_HAS_MIN_SIZE(WIN_TABLE_MIN_ROWS, WIN_TABLE_MIN_COLS)) {
-		print_debug_str("win_table_resize() Do resize the window!\n");
+		log_debug_str("Do resize the window!");
 
 		getmaxyx(stdscr, win_y, win_x);
 
@@ -151,7 +151,7 @@ void win_table_resize() {
 
 void win_table_on_table_change(const s_table *table, s_cursor *cursor) {
 
-	print_debug_str("win_table_on_table_change() Initialize win table\n");
+	log_debug_str("Initialize win table.");
 
 	//
 	// Set the new position of the cursor.
@@ -315,12 +315,12 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
 		win_field.col = 0;
 
-		print_debug("win_table_content_print() calling: s_field_part_update row: %d\n", idx.row);
+		log_debug("Calling: s_field_part_update row: %d", idx.row);
 		s_field_part_update(&row_field_part, &row_table_part, idx.row, table->height[idx.row]);
 
 		for (idx.col = col_table_part.first; idx.col <= col_table_part.last; idx.col++) {
 
-			print_debug("win_table_content_print() calling: s_field_part_update col: %d\n", idx.col);
+			log_debug("Calling: s_field_part_update col: %d", idx.col);
 			s_field_part_update(&col_field_part, &col_table_part, idx.col, table->width[idx.col]);
 
 			//
@@ -341,7 +341,7 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			win_field_end.row = win_text.row + row_field_part.size;
 			win_field_end.col = win_text.col + col_field_part.size;
 
-			print_debug("win_table_content_print() dir row: %d col: %d\n", row_table_part.direction, col_table_part.direction);
+			log_debug("Dir row: %d col: %d", row_table_part.direction, col_table_part.direction);
 
 			//
 			// Print the field content. It is possible that the visible part of the field
@@ -453,8 +453,8 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			//
 			s_corner_print(win_table, &idx, &win_field, &win_field_end, &row_table_part, &col_table_part);
 
-			print_debug("win_table_content_print() row index: %d start: %d size: %d\n", idx.row, row_field_part.start, row_field_part.size);
-			print_debug("win_table_content_print() col index: %d start: %d size: %d\n", idx.col, col_field_part.start, col_field_part.size);
+			log_debug("Row index: %d start: %d size: %d", idx.row, row_field_part.start, row_field_part.size);
+			log_debug("Col index: %d start: %d size: %d", idx.col, col_field_part.start, col_field_part.size);
 
 			win_field.col += col_field_part.size + num_borders.col;
 		}
@@ -607,7 +607,7 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 			break;
 
 		default:
-			print_debug("win_filter_process_input() Found key code: %d\n", chr);
+			log_debug("Found key code: %d", chr);
 			break;
 		}
 
@@ -647,14 +647,14 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 			break;
 
 		default:
-			print_debug("win_filter_process_input() Found key code: %d\n", chr);
+			log_debug("Found key code: %d", chr);
 			break;
 		}
 
 		break; // case OK
 	}
 
-	print_debug("win_table_process_input() new cursor position row: %d col: %d update: %d\n", cursor->row, cursor->col, result);
+	log_debug("New cursor position row: %d col: %d update: %d", cursor->row, cursor->col, result);
 
 	return result;
 }
@@ -674,7 +674,7 @@ WINDOW* win_table_get_win() {
 
 void win_table_refresh_no() {
 
-	print_debug_str("win_table_refresh_no() Refresh table window.\n");
+	log_debug_str("Refresh table window.");
 	ncurses_win_refresh_no(win_table, WIN_TABLE_MIN_ROWS, WIN_TABLE_MIN_COLS);
 }
 
@@ -685,7 +685,7 @@ void win_table_refresh_no() {
 void win_table_show() {
 
 	if (touchwin(win_table) == ERR) {
-		print_exit_str("win_table_show() Unable to touch table window!\n");
+		log_exit_str("Unable to touch table window!");
 	}
 }
 
@@ -695,7 +695,7 @@ void win_table_show() {
 
 void win_table_free() {
 
-	print_debug_str("win_table_free() Removing table window.\n");
+	log_debug_str("Removing table window.");
 	ncurses_win_free(win_table);
 }
 
