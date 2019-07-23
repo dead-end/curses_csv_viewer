@@ -48,7 +48,7 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	//
 	table->no_rows = -1;
 
-	print_debug("s_table_init() Allocate memory for rows: %d columns: %d\n", no_rows, no_columns);
+	log_debug("Allocate memory for rows: %d columns: %d", no_rows, no_columns);
 
 	//
 	// Allocate and initialize an array for the widths of the columns.
@@ -101,7 +101,7 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 
 void s_table_free(s_table *table) {
 
-	print_debug_str("s_table_free() Freeing allocated memory for the table.\n");
+	log_debug_str("Freeing allocated memory for the table.");
 
 	//
 	// Free the arrays with the widths and heights of the columns and rows.
@@ -139,7 +139,7 @@ void s_table_free(s_table *table) {
 
 void s_table_reset_rows(s_table *table) {
 
-	print_debug_str("s_table_reset_rows() Do reset table.\n");
+	log_debug_str("Do reset table.");
 
 	//
 	// Reset the row pointers and the row heights.
@@ -164,7 +164,7 @@ static bool s_table_reset_rows_opt(s_table *table) {
 	// Ensure that the table is actually filtered or sorted.
 	//
 	if (!s_table_is_filtered(table) && !s_sort_is_active(&table->sort)) {
-		print_debug_str("s_table_reset_rows_opt() Table is not filtered and not sorted!\n");
+		log_debug_str("Table is not filtered and not sorted!");
 		return false;
 	}
 
@@ -183,7 +183,7 @@ static bool s_table_reset_rows_opt(s_table *table) {
 
 static void s_table_do_search(s_table *table, s_cursor *cursor) {
 
-	print_debug("s_table_do_search() Do search the table data with: %ls\n", table->filter.str);
+	log_debug("Do search the table data with: %ls", table->filter.str);
 
 	//
 	// Reset the row pointers and the row heights, if the table is filtered.
@@ -212,7 +212,7 @@ static void s_table_do_search(s_table *table, s_cursor *cursor) {
 		}
 	}
 
-	print_debug("s_table_do_search() Found total: %d cursor row: %d col: %d\n", table->filter.count, cursor->row, cursor->col);
+	log_debug("Found total: %d cursor row: %d col: %d", table->filter.count, cursor->row, cursor->col);
 }
 
 /******************************************************************************
@@ -226,7 +226,7 @@ static void s_table_do_search(s_table *table, s_cursor *cursor) {
 static void s_table_do_filter(s_table *table, s_cursor *cursor) {
 	bool found_in_row;
 
-	print_debug("s_table_do_filter() Do filter the table data with: %ls\n", table->filter.str);
+	log_debug("Do filter the table data with: %ls", table->filter.str);
 
 	//
 	// Init the number of rows of the filtered table and the number of matches.
@@ -285,7 +285,7 @@ static void s_table_do_filter(s_table *table, s_cursor *cursor) {
 		}
 	}
 
-	print_debug("s_table_do_filter() Found total: %d rows: %d cursor row: %d col: %d\n", table->filter.count, table->no_rows, cursor->row, cursor->col);
+	log_debug("Found total: %d rows: %d cursor row: %d col: %d", table->filter.count, table->no_rows, cursor->row, cursor->col);
 }
 
 /******************************************************************************
@@ -303,7 +303,7 @@ wchar_t* s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool
 	// Ensure that there is something to do.
 	//
 	if (!filter_changed && !sort_changed) {
-		print_exit_str("s_table_update_filter_sort() Nothing changed!\n");
+		log_exit_str("Nothing changed!");
 	}
 
 	wchar_t *result = NULL;
@@ -390,7 +390,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_dire
 	// The filter has to be set to find the next matching field.
 	//
 	if (!s_filter_is_active(&table->filter)) {
-		print_debug_str("s_table_prev_next() Table is not filtered!\n");
+		log_debug_str("Table is not filtered!");
 		return false;
 	}
 
@@ -399,10 +399,10 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_dire
 	// filtering being active.
 	//
 	if (!s_filter_has_matches(&table->filter)) {
-		print_exit_str("s_table_prev_next() Table has no match!\n");
+		log_exit_str("Table has no match!");
 	}
 
-	print_debug("s_table_prev_next() cursor row: %d col: %d\n", cursor->row, cursor->col);
+	log_debug("Cursor row: %d col: %d", cursor->row, cursor->col);
 
 	//
 	// The start position is the current cursor position.
@@ -454,14 +454,14 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_dire
 			}
 		}
 
-		print_debug("s_table_prev_next() New cursor row: %d column: %d\n", row_cur, col_cur);
+		log_debug("New cursor row: %d column: %d", row_cur, col_cur);
 
 		//
 		// If there is only one filter match, we end up at the initial cursor
 		// position and we are finished.
 		//
 		if (row_cur == cursor->row && col_cur == cursor->col) {
-			print_debug_str("s_table_prev_next() Search reached the initial cursor position.\n");
+			log_debug_str("Search reached the initial cursor position.");
 
 			//
 			// Return false to indicate that nothing changed.
@@ -479,7 +479,7 @@ bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_dire
 			//
 			s_cursor_pos(cursor, row_cur, col_cur);
 
-			print_debug("s_table_prev_next() Found cursor row: %d col: %d\n", cursor->row, cursor->col);
+			log_debug("Found cursor row: %d col: %d", cursor->row, cursor->col);
 
 			//
 			// Return true to indicate that the cursor position changed.
@@ -564,7 +564,7 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	table->__fields[row][column] = wcsdup(str);
 
 	if (table->__fields[row][column] == NULL) {
-		print_exit_str("s_table_copy() Unable to allocate memory!\n");
+		log_exit_str("Unable to allocate memory!");
 	}
 
 	//
@@ -574,9 +574,9 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	int col_size;
 	s_table_field_dimension(str, &col_size, &row_size);
 
-	print_debug("s_table_copy() row: %d column: %d field: '%ls'\n", row, column, str);
-	print_debug("s_table_copy() height current: %d max: %d\n", row_size, table->__height[row]);
-	print_debug("s_table_copy() width  current: %d max: %d\n", col_size, table->width[column]);
+	log_debug("Row: %d column: %d field: '%ls'", row, column, str);
+	log_debug("Height current: %d max: %d", row_size, table->__height[row]);
+	log_debug("Width  current: %d max: %d", col_size, table->width[column]);
 
 	//
 	// Update the row height if necessary.
@@ -601,11 +601,11 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor) {
 
 	if (cursor->row < 0 || cursor->row >= table->no_rows) {
-		print_exit("s_table_cursor_on_table() Cursor col: %d row: %d table no rows: %d!", cursor->col, cursor->row, table->no_rows);
+		log_exit("Cursor col: %d row: %d table no rows: %d!", cursor->col, cursor->row, table->no_rows);
 	}
 
 	if (cursor->col < 0 || cursor->col >= table->no_columns) {
-		print_exit("s_table_cursor_on_table() Cursor col: %d row: %d table no cols: %d!", cursor->col, cursor->row, table->no_columns);
+		log_exit("Cursor col: %d row: %d table no cols: %d!", cursor->col, cursor->row, table->no_columns);
 	}
 }
 
@@ -620,21 +620,23 @@ void s_table_dump(const s_table *table) {
 	//
 	for (int row = 0; row < table->__no_rows; row++) {
 		for (int column = 0; column < table->no_columns; column++) {
-			print_debug("s_table_dump() row: %d column: %d '%ls'\n", row, column, table->__fields[row][column]);
-		}print_debug_str("s_table_dump()\n");
+			log_debug("Row: %d column: %d '%ls'", row, column, table->__fields[row][column]);
+		}
+
+		log_debug_str("");
 	}
 
 	//
 	// Print the column widths.
 	//
 	for (int column = 0; column < table->no_columns; column++) {
-		print_debug("s_table_dump() column: %d width: %d\n", column, table->width[column]);
+		log_debug("Column: %d width: %d", column, table->width[column]);
 	}
 
 	//
 	// Print the row heights.
 	//
 	for (int row = 0; row < table->__no_rows; row++) {
-		print_debug("s_table_dump() row: %d height: %d\n", row, table->__height[row]);
+		log_debug("Row: %d height: %d", row, table->__height[row]);
 	}
 }
