@@ -59,14 +59,14 @@ void popup_post(const s_popup *popup) {
 	// Post the form. (E_NO_ROOM is returned if the window is too small)
 	//
 	if ((result = post_form(popup->form)) != E_OK) {
-		print_exit("popup_post() Unable to post popup form! (result: %d)\n", result);
+		log_exit("Unable to post popup form! (result: %d)", result);
 	}
 
 	//
 	// Post the menu. (E_NO_ROOM is returned if the window is too small)
 	//
 	if ((result = post_menu(popup->menu)) != E_OK) {
-		print_exit("popup_post() Unable to post popup menu! (result: %d)\n", result);
+		log_exit("Unable to post popup menu! (result: %d)", result);
 	}
 }
 
@@ -78,11 +78,11 @@ void popup_post(const s_popup *popup) {
 void popup_unpost(const s_popup *popup) {
 
 	if (unpost_form(popup->form) != E_OK) {
-		print_exit_str("popup_unpost() Unable to unpost popup form!\n");
+		log_exit_str("Unable to unpost popup form!");
 	}
 
 	if (unpost_menu(popup->menu) != E_OK) {
-		print_exit_str("popup_unpost() Unable to unpost popup menu!\n");
+		log_exit_str("Unable to unpost popup menu!");
 	}
 }
 
@@ -96,12 +96,12 @@ void popup_pos_cursor(s_popup *popup) {
 	if (popup->is_on_form) {
 
 		if (pos_form_cursor(popup->form) != E_OK) {
-			print_exit_str("popup_pos_cursor() Unable to set the form cursor!\n");
+			log_exit_str("Unable to set the form cursor!");
 		}
 	} else {
 
 		if (pos_menu_cursor(popup->menu) != E_OK) {
-			print_exit_str("popup_pos_cursor() Unable to set the menu cursor!\n");
+			log_exit_str("Unable to set the menu cursor!");
 		}
 	}
 }
@@ -117,7 +117,7 @@ static void popup_switch_to_menu(s_popup *popup) {
 	// Check if the popup state is already on the menu.
 	//
 	if (!popup->is_on_form) {
-		print_debug_str("popup_switch_to_form() Popup is already on menu!\n");
+		log_debug_str("Popup is already on menu!");
 		return;
 	}
 
@@ -132,7 +132,7 @@ static void popup_switch_to_menu(s_popup *popup) {
 	menus_driver(popup->menu, REQ_FIRST_ITEM);
 	popup->is_on_form = false;
 
-	print_debug_str("popup_switch_to_menu() Switch to menu.\n");
+	log_debug_str("Switch to menu.");
 }
 
 /******************************************************************************
@@ -149,7 +149,7 @@ static void popup_switch_to_form(s_popup *popup, const wint_t req_first_last) {
 	// Ensure the valid values of req_first_last
 	//
 	if (req_first_last != REQ_FIRST_FIELD && req_first_last != REQ_LAST_FIELD) {
-		print_exit("popup_switch_to_form() Invalid req_first_last: %lc\n", req_first_last);
+		log_exit("Invalid req_first_last: %lc", req_first_last);
 	}
 #endif
 
@@ -157,7 +157,7 @@ static void popup_switch_to_form(s_popup *popup, const wint_t req_first_last) {
 	// Check if the popup state is already on the form.
 	//
 	if (popup->is_on_form) {
-		print_debug_str("popup_switch_to_form() Popup is already on form!\n");
+		log_debug_str("Popup is already on form!");
 		return;
 	}
 
@@ -173,7 +173,7 @@ static void popup_switch_to_form(s_popup *popup, const wint_t req_first_last) {
 	forms_driver(popup->form, KEY_CODE_YES, REQ_END_FIELD);
 	popup->is_on_form = true;
 
-	print_debug_str("popup_switch_to_form() Switch to form.\n");
+	log_debug_str("Switch to form.");
 }
 
 /******************************************************************************
@@ -199,7 +199,7 @@ static void popup_req_prev_next_field(s_popup *popup, const wint_t req_prev_next
 	// Ensure the valid values of req_prev_next
 	//
 	if (req_prev_next != REQ_NEXT_FIELD && req_prev_next != REQ_PREV_FIELD) {
-		print_exit("popup_req_prev_next_field() Invalid prev / next value: %lc\n", req_prev_next);
+		log_exit("Invalid prev / next value: %lc", req_prev_next);
 	}
 #endif
 
