@@ -62,7 +62,7 @@ static void print_content() {
 	// Add a box
 	//
 	if (box(win_help, 0, 0) != OK) {
-		print_exit_str("print_content() Unable to setup win!\n");
+		log_exit_str("Unable to setup win!");
 	}
 
 	//
@@ -102,7 +102,7 @@ void win_help_init() {
 	// Reuse of rows, cols to determine the menu sizes.
 	//
 	if (scale_menu(menu, &rows, &cols) != E_OK) {
-		print_exit_str("win_help_init() Unable to determine the menu width and height!\n");
+		log_exit_str("Unable to determine the menu width and height!");
 	}
 
 	//
@@ -126,7 +126,7 @@ void win_help_init() {
 	print_content();
 
 	if (pos_menu_cursor(menu) != E_OK) {
-		print_exit_str("popup_pos_cursor() Unable to set the menu cursor!\n");
+		log_exit_str("Unable to set the menu cursor!");
 	}
 
 	menus_switch_on_off(menu, true);
@@ -144,11 +144,11 @@ void win_help_resize() {
 	// Ensure the minimum size of the window.
 	//
 	if (WIN_HAS_MIN_SIZE(win_help_size_rows, win_help_size_cols)) {
-		print_debug_str("win_help_resize() Do resize the window!\n");
+		log_debug_str("Do resize the window!");
 
 		int rows, cols;
 		if (scale_menu(menu, &rows, &cols) != E_OK) {
-			print_exit_str("win_help_resize() Unable to determine the menu width and height!\n");
+			log_exit_str("Unable to determine the menu width and height!");
 		}
 
 		const bool do_update_win = ncurses_win_ensure_size(win_help, win_help_size_rows, win_help_size_cols);
@@ -183,7 +183,7 @@ void win_help_resize() {
 
 void win_help_refresh_no() {
 
-	print_debug_str("win_help_refresh_no() Refresh help window.\n");
+	log_debug_str("Refresh help window.");
 	ncurses_win_refresh_no(win_help, win_help_size_rows, win_help_size_cols);
 }
 
@@ -194,7 +194,7 @@ void win_help_refresh_no() {
 void win_help_content_print() {
 
 	if (touchwin(win_help) == ERR) {
-		print_exit_str("win_help_content_print() Unable to touch help window!\n");
+		log_exit_str("Unable to touch help window!");
 	}
 }
 
@@ -204,7 +204,7 @@ void win_help_content_print() {
 
 void win_help_free() {
 
-	print_debug_str("win_help_free() Freeing help window data.\n");
+	log_debug_str("Freeing help window data.");
 
 	//
 	// Free the menu and the associated items (including the items array).
