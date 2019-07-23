@@ -262,7 +262,7 @@ static void form_get_field_sizes(const FORM *form, int *num_fields, int *max_lab
 		(*num_fields)++;
 	}
 
-	print_debug("form_get_field_sizes() Max label size: %d max field size: %d, num fields: %d num rows: %d \n", *max_label_size, *max_col_size, *num_fields, *num_rows);
+	log_debug("Max label size: %d max field size: %d, num fields: %d num rows: %d", *max_label_size, *max_col_size, *num_fields, *num_rows);
 }
 
 /******************************************************************************
@@ -505,9 +505,9 @@ void win_filter_resize() {
 		const bool do_update_form = ncurses_win_ensure_size(popup.win_form, popup_sizes.form_rows, popup_sizes.form_cols);
 		const bool do_update_menu = ncurses_win_ensure_size(popup.win_menu, popup_sizes.menu_rows, popup_sizes.menu_cols);
 
-		print_debug("win_filter_resize() do_update_win: %s\n", bool_2_str(do_update_win));
-		print_debug("win_filter_resize() do_update_form: %s\n", bool_2_str(do_update_form));
-		print_debug("win_filter_resize() do_update_menu: %s\n", bool_2_str(do_update_menu));
+		log_debug("do_update_win: %s", bool_2_str(do_update_win));
+		log_debug("do_update_form: %s", bool_2_str(do_update_form));
+		log_debug("do_update_menu: %s", bool_2_str(do_update_menu));
 
 		//
 		// Both checks have to be executed. If do_update_win is true the
