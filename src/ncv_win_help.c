@@ -27,24 +27,35 @@
 #include "ncv_common.h"
 #include <string.h>
 
-//TODO: comment
-/***************************************************************************
- * Definition of the text to be displayed. From the string array, the number
- * of rows and columns can be derived. The values include a border.
- **************************************************************************/
+//
+// Definition of the border (border char and space, example "| ")
+//
+#define BORDER 2
+
+/******************************************************************************
+ * Definition of the text to be displayed. From the string array, the number of
+ * rows and columns can be derived. The values include a border.
+ *****************************************************************************/
 
 static int win_help_size_cols;
 
 static int win_help_size_rows;
 
-static const char *msgs[] = { "CTRL-H        Shows this message.", "ESC           Hides dialog window.", "CTRL-C CTRL-Q Terminates the program.", "CTRL-F        Shows filter dialog.", "CTRL-P        Searches previous filter match.", "CTRL-N        Searches next filter match.", "CTRL-X        Deletes filter content.",
-NULL };
-
-#define BORDER 2
-
-/***************************************************************************
+// @formatter:off
+static const char *msgs[] = {
+		"CTRL-H        Shows this message.",
+		"ESC           Hides dialog window.",
+		"CTRL-C CTRL-Q Terminates the program.",
+		"CTRL-F        Shows filter dialog.",
+		"CTRL-P        Searches previous filter match.",
+		"CTRL-N        Searches next filter match.",
+		"CTRL-X        Deletes filter content.",
+		NULL
+};
+// @formatter:on
+/******************************************************************************
  * Definition of the help window.
- **************************************************************************/
+ *****************************************************************************/
 
 static WINDOW *win_help = NULL;
 
@@ -52,10 +63,10 @@ static WINDOW *win_menu = NULL;
 
 static MENU *menu;
 
-/***************************************************************************
+/******************************************************************************
  * The function prints the application label if the help window is large
  * enough.
- **************************************************************************/
+ *****************************************************************************/
 
 static void print_content() {
 
@@ -77,10 +88,10 @@ static void print_content() {
 	}
 }
 
-/***************************************************************************
- * The function is called to initialize the help window. If the window
- * size is OK, the label is printed.
- **************************************************************************/
+/******************************************************************************
+ * The function is called to initialize the help window. If the window size is
+ * OK, the label is printed.
+ *****************************************************************************/
 
 void win_help_init() {
 	int rows, cols;
@@ -135,9 +146,9 @@ void win_help_init() {
 	menus_driver(menu, REQ_FIRST_ITEM);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function is called on resizing the terminal window.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_help_resize() {
 
@@ -177,10 +188,9 @@ void win_help_resize() {
 	}
 }
 
-/***************************************************************************
- * The function does a refresh with no update if the terminal is large
- * enough.
- **************************************************************************/
+/******************************************************************************
+ * The function does a refresh with no update if the terminal is large enough.
+ *****************************************************************************/
 
 void win_help_refresh_no() {
 
@@ -188,9 +198,9 @@ void win_help_refresh_no() {
 	ncurses_win_refresh_no(win_help, win_help_size_rows, win_help_size_cols);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function touches the window, so that a refresh has an effect.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_help_content_print() {
 
@@ -199,9 +209,9 @@ void win_help_content_print() {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function frees the allocated resources.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_help_free() {
 
@@ -217,10 +227,10 @@ void win_help_free() {
 	ncurses_win_free(win_help);
 }
 
-/***************************************************************************
- * The function processes the input of the help window. The only input that
- * is relevant is the OK button.
- **************************************************************************/
+/******************************************************************************
+ * The function processes the input of the help window. The only input that is
+ * relevant is the OK button.
+ *****************************************************************************/
 
 bool win_help_process_input(const int key_type, const wint_t chr) {
 	return key_type == OK && (chr == KEY_ENTER || chr == NCV_KEY_NEWLINE);
