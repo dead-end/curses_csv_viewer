@@ -26,27 +26,26 @@
 #include "ncv_corners.h"
 #include "ncv_ncurses.h"
 
-// TODO: comment
-/***************************************************************************
+/******************************************************************************
  * With a min height of 2, the table window is shown. One row for the header
  * and one row for the table.
- **************************************************************************/
+ *****************************************************************************/
 
 #define WIN_TABLE_MIN_COLS 1
 
 #define WIN_TABLE_MIN_ROWS 2
 
-/***************************************************************************
+/******************************************************************************
  * Definition of the table window.
- **************************************************************************/
+ *****************************************************************************/
 
 static WINDOW *win_table = NULL;
 
-/***************************************************************************
+/******************************************************************************
  * The definitions of the various field text looks. Each text can contain
  * highlighted parts. The structure contains the normal look to be able to
  * reset the look after highlighting parts of the text.
- **************************************************************************/
+ *****************************************************************************/
 
 static s_attr attr_table;
 
@@ -56,30 +55,30 @@ static s_attr attr_cursor;
 
 static s_attr attr_header_cursor;
 
-/***************************************************************************
+/******************************************************************************
  * The two table parts define the visible part of the table.
- **************************************************************************/
+ *****************************************************************************/
 
 static s_table_part row_table_part;
 
 static s_table_part col_table_part;
 
-/***************************************************************************
+/******************************************************************************
  * The macro is called with a s_cursor and a s_field. If checks whether the
  * field is the cursor field of the table.
- **************************************************************************/
+ *****************************************************************************/
 
 #define is_field_cursor(c,i) ((i)->row == (c)->row && (i)->col == (c)->col)
 
-/***************************************************************************
+/******************************************************************************
  * The function initializes the table window.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_init() {
 
 	//
-	// Create the table window. The size is the size of the stdscr
-	// subtracted by two lines, one for the header and one for the footer.
+	// Create the table window. The size is the size of the stdscr subtracted
+	// by two lines, one for the header and one for the footer.
 	//
 	win_table = ncurses_win_create(getmaxy(stdscr) - 2, getmaxx(stdscr), 1, 0);
 
@@ -108,9 +107,9 @@ void win_table_init() {
 	attr_header_cursor.highlight = ncurses_attr_color(COLOR_PAIR(CP_HEADER_CURSOR_HL) | A_BOLD, A_REVERSE | A_BOLD | A_UNDERLINE);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function is called on resizing the terminal window.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_resize() {
 	int win_y, win_x;
@@ -142,13 +141,13 @@ void win_table_resize() {
 	}
 }
 
-/***************************************************************************
- * The function is called if the number of rows / columns of the table
- * changes. This happens on filtering and reseting the filter and after the
+/******************************************************************************
+ * The function is called if the number of rows / columns of the table changes.
+ * This happens on filtering and reseting the filter and after the
  * initializing.
  *
  * The function has to be called after filtering and before printing.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_on_table_change(const s_table *table, s_cursor *cursor) {
 
@@ -165,12 +164,12 @@ void win_table_on_table_change(const s_table *table, s_cursor *cursor) {
 	s_corner_inits(table->no_rows, table->no_columns);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function is called on resizing the win table. It updates the row /
  * column table parts depending on the new win table size and the cursor
  * position. It has to be ensured that the (field) cursor is always visible
  * after resizing the win.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 
@@ -219,12 +218,12 @@ void win_table_content_resize(const s_table *table, s_cursor *cursor) {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function sets the field cursor to a new position. By default the
- * direction is set to DIR_FORWARD. After this it has to be checked whether
- * the direction has to be changed. So the default is to put the cursor in
- * the upper left corner if it is possible.
- **************************************************************************/
+ * direction is set to DIR_FORWARD. After this it has to be checked whether the
+ * direction has to be changed. So the default is to put the cursor in the
+ * upper left corner if it is possible.
+ *****************************************************************************/
 
 void win_table_set_cursor(const s_table *table, s_cursor *cursor, const enum e_direction dir) {
 
@@ -256,16 +255,16 @@ void win_table_set_cursor(const s_table *table, s_cursor *cursor, const enum e_d
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * Top or left starts with border => field has an offset
- **************************************************************************/
+ *****************************************************************************/
 
 #define get_row_col_offset(p, i) (((p).direction == E_DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
 
-/***************************************************************************
+/******************************************************************************
  * The function prints the visible part of the table, including the table
  * header (if present), the field cursor (if present).
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 
@@ -345,8 +344,9 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			log_debug("Dir row: %d col: %d", row_table_part.direction, col_table_part.direction);
 
 			//
-			// Print the field content. It is possible that the visible part of the field
-			// only consists of a border, so the field size has to be checked first.
+			// Print the field content. It is possible that the visible part of
+			// the field only consists of a border, so the field size has to be
+			// checked first.
 			//
 			if (row_field_part.size > 0 && col_field_part.size > 0) {
 
@@ -370,7 +370,8 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 				}
 
 				//
-				// Set the attribute for the current look, if it is not the default table look.
+				// Set the attribute for the current look, if it is not the
+				// default table look.
 				//
 				if (attr_cur != &attr_table) {
 					wattrset(win_table, attr_cur->normal);
@@ -464,11 +465,11 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function processes the user input for the table, which is moving the
  * field cursor through the table. It returns a bool value, to indicate an
  * update.
- **************************************************************************/
+ *****************************************************************************/
 
 bool win_table_process_input(const s_table *table, s_cursor *cursor, const int key_type, const wint_t chr) {
 
@@ -660,18 +661,17 @@ bool win_table_process_input(const s_table *table, s_cursor *cursor, const int k
 	return result;
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function returns the window for the table, which is static.
- **************************************************************************/
+ *****************************************************************************/
 
 WINDOW* win_table_get_win() {
 	return win_table;
 }
 
-/***************************************************************************
- * The function does a refresh with no update if the terminal is large
- * enough.
- **************************************************************************/
+/******************************************************************************
+ * The function does a refresh with no update if the terminal is large enough.
+ *****************************************************************************/
 
 void win_table_refresh_no() {
 
@@ -679,9 +679,9 @@ void win_table_refresh_no() {
 	ncurses_win_refresh_no(win_table, WIN_TABLE_MIN_ROWS, WIN_TABLE_MIN_COLS);
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function touches the window, so that a refresh has an effect.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_show() {
 
@@ -690,9 +690,9 @@ void win_table_show() {
 	}
 }
 
-/***************************************************************************
+/******************************************************************************
  * The function frees the allocated resources.
- **************************************************************************/
+ *****************************************************************************/
 
 void win_table_free() {
 
