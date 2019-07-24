@@ -189,6 +189,40 @@ static void test_wcs_is_empty() {
 }
 
 /******************************************************************************
+ * The function tests the get_align_start() function.
+ *****************************************************************************/
+
+#define ALIGN_MAX 10
+
+static void test_get_align_start() {
+
+	log_debug_str("Start");
+
+	//
+	// Check too long
+	//
+	ut_check_int(get_align_start(ALIGN_MAX, ALIGN_MAX + 1, AT_LEFT), -1, "too long - left");
+	ut_check_int(get_align_start(ALIGN_MAX, ALIGN_MAX + 1, AT_CENTER), -1, "too long - center");
+	ut_check_int(get_align_start(ALIGN_MAX, ALIGN_MAX + 1, AT_RIGHT), -1, "too long - right");
+
+	//
+	// String is fitting
+	//
+	ut_check_int(get_align_start(ALIGN_MAX, 6, AT_LEFT), 0, "fit - left");
+	ut_check_int(get_align_start(ALIGN_MAX, 6, AT_CENTER), 2, "fit - left");
+	ut_check_int(get_align_start(ALIGN_MAX, 6, AT_RIGHT), 4, "fit - left");
+
+	//
+	// String is fitting, but has to be rounded
+	//
+	ut_check_int(get_align_start(ALIGN_MAX, 5, AT_LEFT), 0, "round - left");
+	ut_check_int(get_align_start(ALIGN_MAX, 5, AT_CENTER), 2, "round - left");
+	ut_check_int(get_align_start(ALIGN_MAX, 5, AT_RIGHT), 5, "round - left");
+
+	log_debug_str("End");
+}
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -210,6 +244,8 @@ int main() {
 	test_mbs_2_wchars();
 
 	test_wcs_is_empty();
+
+	test_get_align_start();
 
 	log_debug_str("End");
 

@@ -330,7 +330,7 @@ void str_array_sizes(const char *msgs[], int *rows, int *cols) {
  * The function computes the start of an aligned string. If the string does not
  * fit in its container, the function returns -1;
  *****************************************************************************/
-// TODO: unit tests
+
 int get_align_start(const int max, const int len, const enum e_align align) {
 
 	if (len > max) {
