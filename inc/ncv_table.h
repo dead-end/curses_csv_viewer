@@ -129,9 +129,6 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor);
 
 void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor);
 
-// todo check name
-//bool s_table_sort_update(s_table *table, const int column, const enum e_direction direction);
-
 // todo: remove
 wchar_t* s_table_update_filter(s_table *table, s_cursor *cursor);
 
