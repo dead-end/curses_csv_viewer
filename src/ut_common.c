@@ -127,7 +127,7 @@ static void test_trims() {
 }
 
 /******************************************************************************
- * The function tests tge convertion from a multi byte string to a wide
+ * The function tests the conversion from a multi byte string to a wide
  * character string. (Setting the locale to "C" does not work!)
  *****************************************************************************/
 
@@ -166,6 +166,29 @@ static void test_mbs_2_wchars() {
 }
 
 /******************************************************************************
+ * The function tests the wcs_is_empty() function.
+ *****************************************************************************/
+
+static void test_wcs_is_empty() {
+
+	log_debug_str("Start");
+
+	ut_check_bool(wcs_is_empty(L""), true);
+
+	ut_check_bool(wcs_is_empty(L"  "), true);
+
+	ut_check_bool(wcs_is_empty(L" \t \n "), true);
+
+	ut_check_bool(wcs_is_empty(L"abc"), false);
+
+	ut_check_bool(wcs_is_empty(L"  abc   "), false);
+
+	ut_check_bool(wcs_is_empty(L" \t a b c \n  "), false);
+
+	log_debug_str("End");
+}
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -185,6 +208,8 @@ int main() {
 	test_trims();
 
 	test_mbs_2_wchars();
+
+	test_wcs_is_empty();
 
 	log_debug_str("End");
 

@@ -259,7 +259,7 @@ wchar_t* wcstrim(wchar_t *str) {
  * The function checks if a wchar_t string is empty, which means, that the
  * string has length 0 or consists only of whitespaces.
  *****************************************************************************/
-// TODO: unit tests
+
 bool wcs_is_empty(const wchar_t *str) {
 	const wchar_t *ptr;
 
