@@ -26,6 +26,8 @@
 #include "ncv_common.h"
 
 #include <wchar.h>
+#include <string.h>
+#include <locale.h>
 
 /******************************************************************************
  * The function tests the wcs_casestr function.
@@ -125,6 +127,45 @@ static void test_trims() {
 }
 
 /******************************************************************************
+ * The function tests tge convertion from a multi byte string to a wide
+ * character string. (Setting the locale to "C" does not work!)
+ *****************************************************************************/
+
+#define WCHAR_BUF_SIZE 5
+
+#define WCHAR_STR_LEN WCHAR_BUF_SIZE -1
+
+static void test_mbs_2_wchars() {
+	log_debug_str("Start");
+
+	wchar_t buffer[WCHAR_BUF_SIZE];
+	size_t size;
+
+	//
+	// Test: abcd
+	//
+	size = mbs_2_wchars("abcd", buffer, WCHAR_BUF_SIZE);
+	ut_check_int((int) size, WCHAR_STR_LEN, "mbs_2_wchars: abcd");
+	ut_check_wchar_str(buffer, L"abcd");
+
+	//
+	// Test: äöüß
+	//
+	size = mbs_2_wchars("äöüß", buffer, WCHAR_BUF_SIZE);
+	ut_check_int((int) size, WCHAR_STR_LEN, "mbs_2_wchars: äöüß");
+	ut_check_wchar_str(buffer, L"äöüß");
+
+	//
+	// Test: заяц
+	//
+	size = mbs_2_wchars("заяц", buffer, WCHAR_BUF_SIZE);
+	ut_check_int((int) size, WCHAR_STR_LEN, "mbs_2_wchars: заяц");
+	ut_check_wchar_str(buffer, L"заяц");
+
+	log_debug_str("End");
+}
+
+/******************************************************************************
  * The main function simply starts the test.
  *****************************************************************************/
 
@@ -132,11 +173,18 @@ int main() {
 
 	log_debug_str("Start");
 
+	//
+	// Setting the locale to "C" does not work with: mbs_2_wchars()
+	//
+	setlocale(LC_ALL, "");
+
 	test_wcs_casestr();
 
 	test_str_array_sizes();
 
 	test_trims();
+
+	test_mbs_2_wchars();
 
 	log_debug_str("End");
 

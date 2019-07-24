@@ -185,7 +185,7 @@ wchar_t read_wchar(FILE *file) {
  * The function converts a multi byte char string to a wide char string. The
  * buffer has to be large enough or the program terminates with an error.
  *****************************************************************************/
-// TODO: unit tests
+
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 
 	const size_t result = mbstowcs(buffer, mbs, buf_size);
