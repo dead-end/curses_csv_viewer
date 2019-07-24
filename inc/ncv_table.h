@@ -84,7 +84,6 @@ typedef struct s_table {
 	//
 	s_filter filter;
 
-// TODO: comment
 	//
 	// If sorting is applied to the table, the sorting column and direction is
 	// stored here.
@@ -94,8 +93,8 @@ typedef struct s_table {
 } s_table;
 
 /******************************************************************************
- * The macro is called with a s_table and a s_field. If checks whether the
- *field is a header field.
+ * The macro is called with a s_table and the row index. If checks whether the
+ * field is a header field.
  *****************************************************************************/
 
 #define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
@@ -105,19 +104,13 @@ typedef struct s_table {
  * rows (__no_rows) is not the number of used rows (no_rows).
  *****************************************************************************/
 
+// TODO: if all rows contains at least one column with the filter string this
+// is not a correct implementation.
 #define s_table_is_filtered(t) ((t)->no_rows != (t)->__no_rows)
-
-/******************************************************************************
- * The macro checks whether the table is filtered, by looking at the filter
- * string.
- *****************************************************************************/
 
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 
 void s_table_free(s_table *table);
-
-// TODO: remove
-bool s_table_reset_rows_old(s_table *table);
 
 void s_table_reset_rows(s_table *table);
 
@@ -129,11 +122,6 @@ void s_table_reset_filter(s_table *table, s_cursor *cursor);
 
 void s_table_cursor_on_table(const s_table *table, const s_cursor *cursor);
 
-// todo: remove
-wchar_t* s_table_update_filter(s_table *table, s_cursor *cursor);
-
-//wchar_t *s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool do_reset);
-// TODO:
 wchar_t* s_table_update_filter_sort(s_table *table, s_cursor *cursor, const bool filter_changed, const bool sort_changed);
 
 bool s_table_prev_next(const s_table *table, s_cursor *cursor, const enum e_direction direction);
