@@ -262,6 +262,64 @@ void win_table_set_cursor(const s_table *table, s_cursor *cursor, const enum e_d
 #define get_row_col_offset(p, i) (((p).direction == E_DIR_FORWARD || ((p).truncated == -1 && i == (p).first)) ? 1 : 0)
 
 /******************************************************************************
+ * The macro returns the char for the horizontal border. If column is sorted,
+ * the first and the last char are special. The macro is called with a table
+ * and an index of a column. Results are: '>', '<', '-'
+ *****************************************************************************/
+
+#define get_border_char(t, i) ((t)->sort.is_active && (t)->sort.column == (i)) ? ((t)->sort.direction == E_DIR_FORWARD ? '>' : '<') : ACS_HLINE;
+
+/******************************************************************************
+ * The function prints a horizontal line. The first and last chars are the
+ * border char and the rest of the chars are the line char.
+ *
+ * Examples: ">------->" or "<-------<" or "---------"
+ *****************************************************************************/
+
+static void mvw_hline(WINDOW *win, const int row, const int col, const chtype border, const chtype line, const int width) {
+
+#ifdef DEBUG
+	//
+	// If the width of the column is 0, there is no line. This should not
+	// happen and is only checked in DEBUG mode.
+	//
+	if (width == 0) {
+		return;
+	}
+#endif
+
+	//
+	// If both char are the same we can simply draw a line.
+	//
+	if (border == line) {
+		mvwhline(win, row, col, line, width);
+
+	} else {
+
+		//
+		// Add the border first
+		//
+		mvwaddch(win, row, col, border);
+
+		if (width > 1) {
+
+			//
+			// If the width allows an other char, we print the last border char.
+			//
+			mvwaddch(win, row, col + width - 1, border);
+
+			if (width > 2) {
+
+				//
+				// If space is left, print line chars.
+				//
+				mvwhline(win, row, col + 1, line, width - 2);
+			}
+		}
+	}
+}
+
+/******************************************************************************
  * The function prints the visible part of the table, including the table
  * header (if present), the field cursor (if present).
  *****************************************************************************/
@@ -387,52 +445,32 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 				}
 			}
 
-// TODO: add border for sorted values
-
 			//
-			// row borders
+			// horizontal borders (if the column is sorted, the first and the
+			// last char of the horirontal line are special.
+			// Example: ">------->"
 			//
-//			chtype ch;
-//			if (s_table_is_sorted(table) && table->sort.column == idx.col) {
-//				ch = table->sort.direction == E_DIR_FORWARD ? '>' : '<';
-//			} else {
-//				ch = ACS_HLINE;
-//			}
-//
-//			if (row_table_part.direction == DIR_FORWARD) {
-//				mvwhline(win_table, win_field.row, win_text.col, ch, col_field_part.size);
-//
-//				if (is_not_truncated_and_last(&row_table_part, idx.row)) {
-//					mvwhline(win_table, win_field_end.row, win_text.col, ch, col_field_part.size);
-//					num_borders.row++;
-//				}
-//			} else {
-//				mvwhline(win_table, win_field_end.row, win_text.col, ch, col_field_part.size);
-//
-//				if (is_not_truncated_and_first(&row_table_part, idx.row)) {
-//					mvwhline(win_table, win_field.row, win_text.col, ch, col_field_part.size);
-//					num_borders.row++;
-//				}
-//			}
+			const chtype border = get_border_char(table, idx.col)
+			;
 
 			if (row_table_part.direction == E_DIR_FORWARD) {
-				mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
+				mvw_hline(win_table, win_field.row, win_text.col, border, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_last(&row_table_part, idx.row)) {
-					mvwhline(win_table, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
+					mvw_hline(win_table, win_field_end.row, win_text.col, border, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			} else {
-				mvwhline(win_table, win_field_end.row, win_text.col, ACS_HLINE, col_field_part.size);
+				mvw_hline(win_table, win_field_end.row, win_text.col, border, ACS_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_first(&row_table_part, idx.row)) {
-					mvwhline(win_table, win_field.row, win_text.col, ACS_HLINE, col_field_part.size);
+					mvw_hline(win_table, win_field.row, win_text.col, border, ACS_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			}
 
 			//
-			// col borders
+			// vertical borders
 			//
 			if (col_table_part.direction == E_DIR_FORWARD) {
 				mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
