@@ -341,7 +341,7 @@ void ui_loop(s_table *table, const char *filename) {
 			//
 			case NCV_KEY_ESC:
 				log_debug("Found esc char: %d", chr);
-// TODO: check
+
 				//
 				// Deactivate filtering and sorting.
 				//
@@ -359,7 +359,6 @@ void ui_loop(s_table *table, const char *filename) {
 					win_table_on_table_change(table, &cursor);
 				}
 
-// TODO: check
 				//
 				// If the mode changed or the filter was reset, we need to
 				// redraw the windows. The function change_mode, has always to
@@ -396,9 +395,8 @@ void ui_loop(s_table *table, const char *filename) {
 
 				continue;
 
-// TODO: check
 				//
-				// Sort forward
+				// Sort forward (sorting always changes the table)
 				//
 			case CTRL('s'):
 				log_debug_str("Found <ctrl>-s");
@@ -411,9 +409,8 @@ void ui_loop(s_table *table, const char *filename) {
 
 				continue;
 
-// TODO: check
 				//
-				// Sort backward
+				// Sort backward (sorting always changes the table)
 				//
 			case CTRL('r'):
 				log_debug_str("Found <ctrl>-r");
@@ -425,6 +422,7 @@ void ui_loop(s_table *table, const char *filename) {
 				wins_print(table, &cursor, filename, mode, true);
 
 				continue;
+
 				//
 				// Show help
 				//
@@ -503,7 +501,6 @@ void ui_loop(s_table *table, const char *filename) {
 
 					log_debug_str("Filter changed, update table!");
 
-// TODO: check
 					//
 					// Do the filtering of the table.
 					//
