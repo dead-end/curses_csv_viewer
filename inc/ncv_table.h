@@ -100,13 +100,13 @@ typedef struct s_table {
 #define s_table_is_field_header(t, i) ((i)->row == 0 && (t)->show_header)
 
 /******************************************************************************
- * The macro checks if the tables is filtered. In this case, the number of all
- * rows (__no_rows) is not the number of used rows (no_rows).
+ * The macro checks if the table has all rows. This is true, if the table is
+ * not filtered or if it is filtered, but every row contains a field, that
+ * matches the filter string. In this case the filtered table is the same as
+ * the unfiltered table.
  *****************************************************************************/
 
-// TODO: if all rows contains at least one column with the filter string this
-// is not a correct implementation.
-#define s_table_is_filtered(t) ((t)->no_rows != (t)->__no_rows)
+#define s_table_has_all_rows(t) ((t)->no_rows == (t)->__no_rows)
 
 void s_table_init(s_table *table, const int no_columns, const int no_rows);
 

@@ -163,7 +163,7 @@ static bool s_table_reset_rows_opt(s_table *table) {
 	//
 	// Ensure that the table is actually filtered or sorted.
 	//
-	if (!s_table_is_filtered(table) && !s_sort_is_active(&table->sort)) {
+	if (s_table_has_all_rows(table) && !s_sort_is_active(&table->sort)) {
 		log_debug_str("Table is not filtered and not sorted!");
 		return false;
 	}
