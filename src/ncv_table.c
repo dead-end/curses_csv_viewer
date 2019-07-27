@@ -85,7 +85,6 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	//
 	table->fields = xmalloc(sizeof(wchar_t**) * no_rows);
 
-	// TODO: check
 	//
 	// Initialize filtering and sorting.
 	//
