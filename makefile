@@ -15,7 +15,7 @@ CC       = gcc
 #DEBUG    = -DDEBUG -g
 BASE_CFLAGE = -Wall -Wextra -Wpedantic -Werror -std=c11 -O2
 CFLAGS   = $(BASE_CFLAGE) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) 
-LIBS     = $(shell ncursesw5-config --libs) -lformw -lmenu -lm
+LIBS     = $(shell ncursesw5-config --libs) -lformw -lmenuw -lm
 
 ###############################################################################
 # LIBS

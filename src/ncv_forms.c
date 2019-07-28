@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include <ncursesw/form.h>
-#include <menu.h>
+#include <ncursesw/menu.h>
 
 /******************************************************************************
  * Definition of the checkbox checked char.
