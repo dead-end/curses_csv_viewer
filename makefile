@@ -11,11 +11,13 @@ TST_DIR = tests
 # Definition of the compiler and its flags.
 ###############################################################################
 
+NCURSES_CONFIG=ncursesw5-config
+
 CC       = gcc
 #DEBUG    = -DDEBUG -g
 BASE_CFLAGE = -Wall -Wextra -Wpedantic -Werror -std=c11 -O2
-CFLAGS   = $(BASE_CFLAGE) -I$(INC_DIR)  $(shell ncursesw5-config --cflags) $(DEBUG) 
-LIBS     = $(shell ncursesw5-config --libs) -lformw -lmenuw -lm
+CFLAGS   = $(BASE_CFLAGE) -I$(INC_DIR)  $(shell $(NCURSES_CONFIG) --cflags) $(DEBUG) 
+LIBS     = $(shell $(NCURSES_CONFIG) --libs) -lformw -lmenuw -lm
 
 ###############################################################################
 # LIBS
