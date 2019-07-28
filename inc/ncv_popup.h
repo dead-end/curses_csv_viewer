@@ -27,7 +27,7 @@
 #include <stdbool.h>
 
 #include <ncursesw/form.h>
-#include <ncursesw/menu.h>
+#include <menu.h>
 
 /******************************************************************************
  * The struct for a popup. It consists of a form with fields and a menu, which

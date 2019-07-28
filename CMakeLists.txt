@@ -49,7 +49,7 @@ add_executable(ccsvv src/ncv_ccsvv.c ${LIBS})
 
 target_compile_definitions(ccsvv PUBLIC _GNU_SOURCE "$<$<CONFIG:DEBUG>:DEBUG>")
 
-target_link_libraries(ccsvv m formw menuw ncursesw tinfo)
+target_link_libraries(ccsvv m formw menu ncursesw tinfo)
 
 #
 # Install executable with 755
@@ -95,7 +95,7 @@ foreach(src_file ${TEST_SRCS})
 
   target_compile_definitions(${exe_file} PUBLIC _GNU_SOURCE "$<$<CONFIG:DEBUG>:DEBUG>")
    
-  target_link_libraries(${exe_file} m formw menuw ncursesw tinfo)
+  target_link_libraries(${exe_file} m formw menu ncursesw tinfo)
 
   add_test(${exe_file} ${exe_file})
 

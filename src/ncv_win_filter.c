@@ -31,7 +31,7 @@
 
 #include <string.h>
 #include <ncursesw/form.h>
-#include <ncursesw/menu.h>
+#include <menu.h>
 
 /******************************************************************************
  * Some definitions for the fields.
