@@ -15,7 +15,7 @@ programs without root.
 
 The first step is to download the *ncurses* sources from:
 
-*https://invisible-mirror.net/archives/ncurses/*
+https://invisible-mirror.net/archives/ncurses/
 
 For this document I used: *ncurses-6.1.tar.gz*, which has to be extracted.
 
@@ -57,7 +57,7 @@ the install directory:
 
 The next step is to download and extract *ccsvv* from: 
 
-*https://github.com/dead-end/curses_csv_viewer*
+https://github.com/dead-end/curses_csv_viewer
 
 
 ```
