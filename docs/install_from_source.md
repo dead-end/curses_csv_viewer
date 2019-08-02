@@ -12,7 +12,7 @@ programs without root.
 
 ## ncurses
 
-The first step is to download the *ncurses* sources for:
+The first step is to download the *ncurses* sources from:
 
 *https://invisible-mirror.net/archives/ncurses/*
 
@@ -39,7 +39,7 @@ Configuration|Description
 The build is standard:
 
 ```
-# ./configure --prefix=$HOME/usr/local --enable-widec --with-shared
+# ./configure --prefix=$HOME/usr/local --enable-widec --with-shared --disable-leaks
 
 # make
 
