@@ -34,6 +34,7 @@ Configuration|Description
 --prefix=$HOME/usr/local|The directory where *ncurses* will be installed
 --enable-widec|Enable wide character support
 --with-shared|Create shared lib ($HOME/usr/local/lib/libncursesw.so.6)
+--disable-leaks|The flag is only necessary if you use valgrind
 
 The build is standard:
 
