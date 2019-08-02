@@ -72,7 +72,7 @@ To use the installed *ncurses*, we need to configure `ncursesw6-config` for the 
 Now we can check to build result.
 
 ```
-# ./ccsvv res/lang.csv
+# ./ccsvv -d : /etc/passwd
 ```
 
 ## Uninstall and cleanup
