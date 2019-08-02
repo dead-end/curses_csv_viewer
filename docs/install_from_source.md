@@ -50,7 +50,7 @@ If you want to use the installed *ncurses* you have to set the `LD_LIBRARY_PATH`
 the install directory:
 
 ```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/local/lib
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/local/lib
 ```
 
 ## ccsvv
@@ -66,13 +66,13 @@ The next step is to download and extract `ccsvv` from: `https://github.com/dead-
 To use the installed *ncurses*, we need to configure `ncursesw6-config` for the build:
 
 ```
-make NCURSES_CONFIG=$HOME/usr/local/bin/ncursesw6-config
+# make NCURSES_CONFIG=$HOME/usr/local/bin/ncursesw6-config
 ```
 
 Now we can check to build result.
 
 ```
-./ccsvv res/lang.csv
+# ./ccsvv res/lang.csv
 ```
 
 ## Uninstall and cleanup
@@ -86,5 +86,5 @@ To uninstall `ncurses` we have to call:
 To cleanup `ccsvv` we have to call:
 
 ```
-make clean
+# make clean
 ```
