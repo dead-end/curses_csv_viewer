@@ -10,11 +10,17 @@ sizes do not fit.
 
 ![table part](../img/table_part.png?raw=true "Table Part")
 
-A truncated field may be truncated left or right or at top or bottom. To compute the
+A truncated field may be truncated left or right or at top or bottom. This means
+lines of the field are not visiable if the hight of the row is truncated or the
+first or last characters of a line is not visiable if the columnis truncated. 
+
+![field part](../img/field_part.png?raw=true "Field Part")
+
+To compute the
 truncated sizes, we start at the reference field and sum up the widths or hights until
 the sum exceeds the width or hight of the visible part of the table.
 
-![field part](../img/field_part.png?raw=true "Field Part")
+
 
 ## s_wblock
 *ccsvv* uses a buffer, which is internally a linked list of (wchar_t) blocks. The size of each new block is
