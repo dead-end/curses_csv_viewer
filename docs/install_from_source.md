@@ -46,7 +46,7 @@ The build is standard:
 # make install
 ```
 
-If you want to use the installed *ncurses* you have to set the `LD_LIBRARY_PATH` with
+If you want to use the installed *ncurses* you have to set the *LD_LIBRARY_PATH* with
 the install directory:
 
 ```
@@ -55,7 +55,9 @@ the install directory:
 
 ## ccsvv
 
-The next step is to download and extract `ccsvv` from: `https://github.com/dead-end/curses_csv_viewer` 
+The next step is to download and extract *ccsvv* from: 
+
+*https://github.com/dead-end/curses_csv_viewer*
 
 
 ```
@@ -63,7 +65,7 @@ The next step is to download and extract `ccsvv` from: `https://github.com/dead-
 
 # cd curses_csv_viewer-master
 ```
-To use the installed *ncurses*, we need to configure `ncursesw6-config` for the build:
+To use the installed *ncurses*, we need to configure *ncursesw6-config* for the build:
 
 ```
 # make NCURSES_CONFIG=$HOME/usr/local/bin/ncursesw6-config
@@ -77,13 +79,13 @@ Now we can check to build result.
 
 ## Uninstall and cleanup
 
-To uninstall `ncurses` we have to call:
+To uninstall *ncurses* we have to call:
 
 ```
 # make uninstall
 ```
 
-To cleanup `ccsvv` we have to call:
+To cleanup *ccsvv* we have to call:
 
 ```
 # make clean
