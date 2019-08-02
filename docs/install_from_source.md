@@ -1,7 +1,8 @@
 # Installation from sources
 
 In this document I build *ncurses* and *ccsvv* from its sources. This is necessary if your OS does not
-provide an appropriate *ncuses* library.
+provide an appropriate *ncuses* library. *ccsvv* uses the wide character libraries of *ncurses*, *form*
+and *menu*.
 
 As a preparation we create an installation directory inside our home directory, so we can install our
 programs without root.
@@ -16,7 +17,7 @@ The first step is to download the *ncurses* sources from:
 
 *https://invisible-mirror.net/archives/ncurses/*
 
-For this document I used: *ncurses-6.1.tar.gz*. The next step is to extract the sources.
+For this document I used: *ncurses-6.1.tar.gz*, which has to be extracted.
 
 ```
 # gunzip ncurses-6.1.tar.gz
@@ -30,10 +31,10 @@ The next step is to build the *ncurses*. We need the following build configurati
 
 Configuration           |Description
 ------------------------|-----------
---prefix=$HOME/usr/local|The directory where *ncurses* will be installed
---enable-widec          |Enable wide character support
---with-shared           |Create shared lib ($HOME/usr/local/lib/libncursesw.so.6)
---disable-leaks         |The flag is only necessary if you use valgrind
+--prefix=$HOME/usr/local|The directory where *ncurses* will be installed.
+--enable-widec          |Enable wide character support.
+--with-shared           |Create shared lib ($HOME/usr/local/lib/libncursesw.so.6).
+--disable-leaks         |The flag is only necessary if you use valgrind.
 
 The build is standard:
 
