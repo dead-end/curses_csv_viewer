@@ -29,7 +29,7 @@ For this document I used: *ncurses-6.1.tar.gz*. The next step is to extract the 
 The next step is to build the *ncurses*. We need the following build configuration:
 
 Configuration           |Description
--------------           |-----------
+------------------------|-----------
 --prefix=$HOME/usr/local|The directory where *ncurses* will be installed
 --enable-widec          |Enable wide character support
 --with-shared           |Create shared lib ($HOME/usr/local/lib/libncursesw.so.6)
