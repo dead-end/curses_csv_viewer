@@ -12,13 +12,13 @@ FROM ubuntu
 MAINTAINER dead-end
 
 ARG CCSVV_VERSION=0.2.0
-ARG NCURSES_VERSION=5
+ARG NCURSES_MAJOR=5
 
 COPY ccsvv_${CCSVV_VERSION}_amd64.deb /tmp
 
 RUN apt-get update && \
-	apt-get install -y libtinfo${NCURSES_VERSION} && \
-	apt-get install -y libncursesw${NCURSES_VERSION} && \
+	apt-get install -y libtinfo${NCURSES_MAJOR} && \
+	apt-get install -y libncursesw${NCURSES_MAJOR} && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
 
