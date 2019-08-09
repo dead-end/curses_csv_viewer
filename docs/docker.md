@@ -1,5 +1,15 @@
 # Docker
 
+This document shows verious docker files to build and / or install *ccsvv* from a debian package
+or from sources. The docker files can be seen as an installation instruction which can
+be verified in a docker container.
+
+If one of the versions changes, it cange set by: 
+
+```
+docker build --build-arg var_1=value_1 --build-arg var_2=value_2
+```
+
 ## Ubuntu with deb
 
 For the bild of the docker image you need to copy the .deb file from the cmake build (directory: cmake-build) 
@@ -43,7 +53,8 @@ FROM ubuntu
 MAINTAINER dead-end
 
 ARG NCURSES_MAJOR=6
-ARG NCURSES_VERSION=${NCURSES_MAJOR}.1
+ARG NCURSES_MINOR=1
+ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
 
 RUN apt-get update && \
 	apt-get install -y gcc && \
@@ -87,7 +98,8 @@ FROM ubuntu
 MAINTAINER dead-end
 
 ARG NCURSES_MAJOR=6
-ARG NCURSES_VERSION=${NCURSES_MAJOR}.1
+ARG NCURSES_MINOR=1
+ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
 ARG PREFIX=/usr/local
 
 RUN apt-get update && \
