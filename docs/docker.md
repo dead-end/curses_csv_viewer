@@ -42,6 +42,7 @@ FROM ubuntu
 MAINTAINER dead-end
 
 ARG NCURSES_VERSION=6.1
+ARG NCURSES_CONFIG_VERSION=6
 
 RUN apt-get update && \
 	apt-get install -y gcc && \
@@ -49,19 +50,19 @@ RUN apt-get update && \
 	apt-get install -y zip && \
 	apt-get install -y wget 
 
-RUN cd /tmp && \
-	wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
+WORKDIR /tmp
+
+RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
 	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
 	cd ncurses-${NCURSES_VERSION} && \
 	./configure --enable-widec --with-shared --disable-leaks --includedir=/usr/include/ncursesw && \
 	make && \
 	make install
 
-RUN cd /tmp && \
-	wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
+RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
 	unzip master.zip && \
 	cd curses_csv_viewer-master && \
-	make NCURSES_CONFIG=/usr/bin/ncursesw6-config
+	make NCURSES_CONFIG=ncursesw${NCURSES_CONFIG_VERSION}-config
 ```
 
 The you can build the image, run the container and do the cleanup:
