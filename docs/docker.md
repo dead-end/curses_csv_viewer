@@ -68,7 +68,7 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 The you can build the image, run the container and do the cleanup:
 
 ```
-# sudo docker build -t ccsvv_src --build-arg NCURSES_VERSION=6.1 .
+# sudo docker build -t ccsvv_src --build-arg NCURSES_VERSION=6.1 --build-arg NCURSES_CONFIG_VERSION=6 .
 
 # docker run -it ccsvv_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 
