@@ -32,7 +32,7 @@ The next step is to build the *ncurses*. We need the following build configurati
 Configuration                                 |Description
 ------------------------                      |-----------
 --prefix=$HOME/usr/local                      |The directory where *ncurses* will be installed.
---includedir=$HOME/usr/local/include/ncursesw |The include directory 
+--includedir=$HOME/usr/local/include/ncursesw |The include directory to satify `#include <ncursesw/ncurses.h>`
 --enable-widec                                |Enable wide character support.
 --with-shared                                 |Create shared lib ($HOME/usr/local/lib/libncursesw.so.6).
 --disable-leaks                               |The flag is only necessary if you use valgrind.
