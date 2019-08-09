@@ -22,7 +22,8 @@ RUN apt-get update && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
 
-The you can build the image, run the container and do the cleanup:
+The you can build the image, run the container and do the cleanup with the following 
+commands:
 
 ```
 # sudo docker build -t ccsvv_deb ccsvv_deb
@@ -34,7 +35,8 @@ The you can build the image, run the container and do the cleanup:
 
 ## Ubuntu from sources
 
-The build from sources does not need a special context. It downloads the sources with wget.
+The following *Dockerfile* can be used to build *ncurses* and *ccsvv* from their sources.
+The sources will be downloaded with wget, so no special docker contex is necessary.
 
 ```
 FROM ubuntu 
@@ -65,7 +67,8 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 	make NCURSES_CONFIG=ncursesw${NCURSES_MAJOR}-config
 ```
 
-The you can build the image, run the container and do the cleanup:
+The you can build the image, run the container and do the cleanup with the following 
+commands:
 
 ```
 # sudo docker build -t ccsvv_src .
@@ -76,6 +79,9 @@ The you can build the image, run the container and do the cleanup:
 ```
 
 ## Ubuntu from sources with prefix
+
+The following *Dockerfile* can be used to build *ncurses* and *ccsvv* from their sources with a prefix directory.
+The sources will be downloaded with wget, so no special docker contex is necessary.
 
 ```
 FROM ubuntu 
@@ -107,7 +113,8 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
 ```
 
-The you can build the image, run the container and do the cleanup:
+The you can build the image, run the container and do the cleanup with the following 
+commands:
 
 ```
 # sudo docker build -t ccsvv_pre .
