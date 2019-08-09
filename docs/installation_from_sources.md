@@ -29,17 +29,18 @@ For this document I used: *ncurses-6.1.tar.gz*, which has to be extracted.
 
 The next step is to build the *ncurses*. We need the following build configuration:
 
-Configuration           |Description
-------------------------|-----------
---prefix=$HOME/usr/local|The directory where *ncurses* will be installed.
---enable-widec          |Enable wide character support.
---with-shared           |Create shared lib ($HOME/usr/local/lib/libncursesw.so.6).
---disable-leaks         |The flag is only necessary if you use valgrind.
+Configuration                                 |Description
+------------------------                      |-----------
+--prefix=$HOME/usr/local                      |The directory where *ncurses* will be installed.
+--includedir=$HOME/usr/local/include/ncursesw |The include directory 
+--enable-widec                                |Enable wide character support.
+--with-shared                                 |Create shared lib ($HOME/usr/local/lib/libncursesw.so.6).
+--disable-leaks                               |The flag is only necessary if you use valgrind.
 
 The build is standard:
 
 ```
-# ./configure --prefix=$HOME/usr/local --enable-widec --with-shared --disable-leaks
+# ./configure --prefix=$HOME/usr/local --includedir=$HOME/usr/local/include/ncursesw --enable-widec --with-shared --disable-leaks
 
 # make
 
