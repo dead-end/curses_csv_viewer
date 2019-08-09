@@ -25,7 +25,7 @@ RUN apt-get update && \
 The you can build the image, run the container and do the cleanup:
 
 ```
-# sudo docker build -t ccsvv_deb --build-arg CCSVV_VERSION=0.2.0 --build-arg NCURSES_VERSION=5 ccsvv_deb
+# sudo docker build -t ccsvv_deb ccsvv_deb
 
 # docker run -it ccsvv_deb ccsvv -d : /etc/passwd
 
@@ -41,8 +41,8 @@ FROM ubuntu
 
 MAINTAINER dead-end
 
-ARG NCURSES_VERSION=6.1
-ARG NCURSES_CONFIG_VERSION=6
+ARG NCURSES_MAJOR=6
+ARG NCURSES_VERSION=${NCURSES_MAJOR}.1
 
 RUN apt-get update && \
 	apt-get install -y gcc && \
@@ -62,15 +62,57 @@ RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NC
 RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
 	unzip master.zip && \
 	cd curses_csv_viewer-master && \
-	make NCURSES_CONFIG=ncursesw${NCURSES_CONFIG_VERSION}-config
+	make NCURSES_CONFIG=ncursesw${NCURSES_MAJOR}-config
 ```
 
 The you can build the image, run the container and do the cleanup:
 
 ```
-# sudo docker build -t ccsvv_src --build-arg NCURSES_VERSION=6.1 --build-arg NCURSES_CONFIG_VERSION=6 .
+# sudo docker build -t ccsvv_src .
 
 # docker run -it ccsvv_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
+
+# docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
+```
+
+## Ubuntu from sources with prefix
+
+```
+FROM ubuntu 
+
+MAINTAINER dead-end
+
+ARG NCURSES_MAJOR=6
+ARG NCURSES_VERSION=${NCURSES_MAJOR}.1
+ARG PREFIX=/usr/local
+
+RUN apt-get update && \
+	apt-get install -y gcc && \
+	apt-get install -y make && \
+	apt-get install -y zip && \
+	apt-get install -y wget 
+
+WORKDIR /tmp
+
+RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
+	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
+	cd ncurses-${NCURSES_VERSION} && \
+	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks --includedir=${PREFIX}/include/ncursesw && \
+	make && \
+	make install
+
+RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
+	unzip master.zip && \
+	cd curses_csv_viewer-master && \
+	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
+```
+
+The you can build the image, run the container and do the cleanup:
+
+```
+# sudo docker build -t ccsvv_pre .
+
+# docker run -it ccsvv_pre /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 
 # docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
 ```
