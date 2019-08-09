@@ -22,8 +22,7 @@ RUN apt-get update && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
 
-The you can build the image, run the container and do the cleanup with the following 
-commands:
+The you can build the image, run the container and do the cleanup with the following commands:
 
 ```
 # sudo docker build -t ccsvv_deb ccsvv_deb
@@ -67,8 +66,7 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 	make NCURSES_CONFIG=ncursesw${NCURSES_MAJOR}-config
 ```
 
-The you can build the image, run the container and do the cleanup with the following 
-commands:
+The you can build the image, run the container and do the cleanup with the following commands:
 
 ```
 # sudo docker build -t ccsvv_src .
@@ -113,8 +111,7 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
 ```
 
-The you can build the image, run the container and do the cleanup with the following 
-commands:
+The you can build the image, run the container and do the cleanup with the following commands:
 
 ```
 # sudo docker build -t ccsvv_pre .
