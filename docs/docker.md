@@ -25,11 +25,11 @@ RUN apt-get update && \
 The you can build the image, run the container and do the cleanup with the following commands:
 
 ```
-# sudo docker build -t ccsvv_deb ccsvv_deb
+sudo docker build -t ccsvv_deb ccsvv_deb
 
-# docker run -it ccsvv_deb ccsvv -d : /etc/passwd
+docker run -it ccsvv_deb ccsvv -d : /etc/passwd
 
-# docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
+docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
 ```
 
 ## Ubuntu from sources
@@ -69,11 +69,11 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 The you can build the image, run the container and do the cleanup with the following commands:
 
 ```
-# sudo docker build -t ccsvv_src .
+sudo docker build -t ccsvv_src .
 
-# docker run -it ccsvv_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
+docker run -it ccsvv_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 
-# docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
+docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
 ```
 
 ## Ubuntu from sources with prefix
@@ -114,9 +114,9 @@ RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/mast
 The you can build the image, run the container and do the cleanup with the following commands:
 
 ```
-# sudo docker build -t ccsvv_pre .
+sudo docker build -t ccsvv_pre .
 
-# docker run -it ccsvv_pre /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
+docker run -it ccsvv_pre /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 
-# docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
+docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
 ```
