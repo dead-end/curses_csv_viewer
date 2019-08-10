@@ -132,3 +132,39 @@ docker run -it ccsvv_pre /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 
 docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
 ```
+
+# Centos from sources
+
+The Dockerfile for a centos build from sources.
+
+```
+FROM centos
+
+MAINTAINER dead-end
+
+ARG NCURSES_MAJOR=6
+ARG NCURSES_MINOR=1
+ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
+
+RUN yum -y update && \
+	yum -y install gcc && \
+	yum -y install make && \
+	yum -y install zip && \
+	yum -y install unzip && \
+	yum -y install wget
+
+WORKDIR /tmp
+
+RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
+	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
+	cd ncurses-${NCURSES_VERSION} && \
+	./configure --enable-widec --with-shared --disable-leaks --includedir=/usr/include/ncursesw && \
+	make && \
+	make install
+
+RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
+	unzip master.zip && \
+	cd curses_csv_viewer-master && \
+	make NCURSES_CONFIG=ncursesw${NCURSES_MAJOR}-config
+```
+
