@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "ncv_ncurses.h"
 #include "ncv_table_part.h"
 #include "ncv_common.h"
 
@@ -95,10 +96,10 @@ static s_corner LL_CORNER;
 
 void s_corner_inits(const int no_rows, const int no_columns) {
 
-	s_corner_init(UL_CORNER, ACS_ULCORNER, ACS_TTEE, ACS_LTEE, ACS_PLUS, 0, 0, true, true);
-	s_corner_init(UR_CORNER, ACS_URCORNER, ACS_TTEE, ACS_RTEE, ACS_PLUS, 0, no_columns - 1, true, false);
-	s_corner_init(LL_CORNER, ACS_LLCORNER, ACS_BTEE, ACS_LTEE, ACS_PLUS, no_rows - 1, 0, false, true);
-	s_corner_init(LR_CORNER, ACS_LRCORNER, ACS_BTEE, ACS_RTEE, ACS_PLUS, no_rows - 1, no_columns - 1, false, false);
+	s_corner_init(UL_CORNER, NCV_ULCORNER, NCV_TTEE, NCV_LTEE, NCV_PLUS, 0, 0, true, true);
+	s_corner_init(UR_CORNER, NCV_URCORNER, NCV_TTEE, NCV_RTEE, NCV_PLUS, 0, no_columns - 1, true, false);
+	s_corner_init(LL_CORNER, NCV_LLCORNER, NCV_BTEE, NCV_LTEE, NCV_PLUS, no_rows - 1, 0, false, true);
+	s_corner_init(LR_CORNER, NCV_LRCORNER, NCV_BTEE, NCV_RTEE, NCV_PLUS, no_rows - 1, no_columns - 1, false, false);
 }
 
 /******************************************************************************

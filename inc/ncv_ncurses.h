@@ -29,6 +29,54 @@
 #include <ncursesw/ncurses.h>
 
 /******************************************************************************
+ * Some terminals do not print the ACS characters correctly. The result is that
+ * the defined character is printed instead. For example the upper left corner
+ * prints the 'l':
+ *
+ * #define ACS_ULCORNER	NCURSES_ACS('l')
+ *
+ * I had this problem with putty. To face this issue, you can compile ccsvv
+ * with the NO_ACS_BORDER flag. This uses simple characters for the borders
+ * instead.
+ *****************************************************************************/
+
+#ifdef NO_ACS_BORDER
+
+#define NCV_ULCORNER '+'
+#define NCV_URCORNER '+'
+#define NCV_LLCORNER '+'
+#define NCV_LRCORNER '+'
+
+#define NCV_TTEE '+'
+#define NCV_BTEE '+'
+#define NCV_LTEE '+'
+#define NCV_RTEE '+'
+
+#define NCV_PLUS '+'
+
+#define NCV_HLINE '-'
+#define NCV_VLINE '|'
+
+#else
+
+#define NCV_ULCORNER ACS_ULCORNER
+#define NCV_URCORNER ACS_URCORNER
+#define NCV_LLCORNER ACS_LLCORNER
+#define NCV_LRCORNER ACS_LRCORNER
+
+#define NCV_TTEE ACS_TTEE
+#define NCV_BTEE ACS_BTEE
+#define NCV_LTEE ACS_LTEE
+#define NCV_RTEE ACS_RTEE
+
+#define NCV_PLUS ACS_PLUS
+
+#define NCV_HLINE ACS_HLINE
+#define NCV_VLINE ACS_VLINE
+
+#endif
+
+/******************************************************************************
  * Check for control modifier. Usage: CTRL('f')
  *****************************************************************************/
 

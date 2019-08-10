@@ -267,7 +267,7 @@ void win_table_set_cursor(const s_table *table, s_cursor *cursor, const enum e_d
  * and an index of a column. Results are: '>', '<', '-'
  *****************************************************************************/
 
-#define get_border_char(t, i) ((t)->sort.is_active && (t)->sort.column == (i)) ? ((t)->sort.direction == E_DIR_FORWARD ? '>' : '<') : ACS_HLINE;
+#define get_border_char(t, i) ((t)->sort.is_active && (t)->sort.column == (i)) ? ((t)->sort.direction == E_DIR_FORWARD ? '>' : '<') : NCV_HLINE;
 
 /******************************************************************************
  * The function prints a horizontal line. The first and last chars are the
@@ -454,17 +454,17 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			;
 
 			if (row_table_part.direction == E_DIR_FORWARD) {
-				mvw_hline(win_table, win_field.row, win_text.col, border, ACS_HLINE, col_field_part.size);
+				mvw_hline(win_table, win_field.row, win_text.col, border, NCV_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_last(&row_table_part, idx.row)) {
-					mvw_hline(win_table, win_field_end.row, win_text.col, border, ACS_HLINE, col_field_part.size);
+					mvw_hline(win_table, win_field_end.row, win_text.col, border, NCV_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			} else {
-				mvw_hline(win_table, win_field_end.row, win_text.col, border, ACS_HLINE, col_field_part.size);
+				mvw_hline(win_table, win_field_end.row, win_text.col, border, NCV_HLINE, col_field_part.size);
 
 				if (is_not_truncated_and_first(&row_table_part, idx.row)) {
-					mvw_hline(win_table, win_field.row, win_text.col, border, ACS_HLINE, col_field_part.size);
+					mvw_hline(win_table, win_field.row, win_text.col, border, NCV_HLINE, col_field_part.size);
 					num_borders.row++;
 				}
 			}
@@ -473,17 +473,17 @@ void win_table_content_print(const s_table *table, const s_cursor *cursor) {
 			// vertical borders
 			//
 			if (col_table_part.direction == E_DIR_FORWARD) {
-				mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
+				mvwvline(win_table, win_text.row, win_field.col, NCV_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_last(&col_table_part, idx.col)) {
-					mvwvline(win_table, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
+					mvwvline(win_table, win_text.row, win_field_end.col, NCV_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			} else {
-				mvwvline(win_table, win_text.row, win_field_end.col, ACS_VLINE, row_field_part.size);
+				mvwvline(win_table, win_text.row, win_field_end.col, NCV_VLINE, row_field_part.size);
 
 				if (is_not_truncated_and_first(&col_table_part, idx.col)) {
-					mvwvline(win_table, win_text.row, win_field.col, ACS_VLINE, row_field_part.size);
+					mvwvline(win_table, win_text.row, win_field.col, NCV_VLINE, row_field_part.size);
 					num_borders.col++;
 				}
 			}
