@@ -586,7 +586,14 @@ void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
 	// Create a copy of the field content that can be modified (trimmed). The
 	// string has by construction the same size as the raw string.
 	//
+	// The -Wstringop-truncation says that raw_len is computed from the source
+	// and not from the destination.
+	//
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
 	strncpy(raw_str, raw_field, raw_len);
+#pragma GCC diagnostic pop
+
 	log_debug("Raw len: '%zu' '%s'", raw_len, raw_str);
 
 	//
