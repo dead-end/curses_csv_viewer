@@ -573,31 +573,17 @@ void forms_get_input_str(FIELD *field, wchar_t *buffer, const int buffer_size) {
 	// If the string contains multi byte chars, the length can be greater than
 	// the buffer size.
 	//
-	size_t raw_len = strlen(raw_field);
+	const size_t raw_len = strlen(raw_field);
 	char raw_str[raw_len + 1];
-
-	//
-	// Ensure the string termination. This seams to be necessary with -O2 gcc
-	// flag.
-	//
-	raw_str[raw_len] = '\0';
 
 	//
 	// Create a copy of the field content that can be modified (trimmed). The
 	// string has by construction the same size as the raw string.
 	//
-	// The -Wstringop-truncation says that raw_len is computed from the source
-	// and not from the destination.
+	// The strcpy() function copies the string pointed to by src, including the
+	// terminating null byte ('\0'), to the buffer pointed to by dest.
 	//
-#if __GNUC__ >= 8
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif
-	strncpy(raw_str, raw_field, raw_len);
-#if __GNUC__ >= 8
-#pragma GCC diagnostic pop
-#endif
-
+	strcpy(raw_str, raw_field);
 	log_debug("Raw len: '%zu' '%s'", raw_len, raw_str);
 
 	//
