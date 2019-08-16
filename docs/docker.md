@@ -4,25 +4,35 @@ This document shows verious docker files to build and / or install *ccsvv* from 
 or from sources. The docker files can be seen as an installation instruction which can
 be verified in a docker container.
 
-If one of the versions changes, it cange set by: 
+You can overwrite build arguments with: 
 
 ```
 docker build --build-arg var_1=value_1 --build-arg var_2=value_2
 ```
 
-## Ubuntu with deb
-
-For the bild of the docker image you need to copy the .deb file from the cmake build (directory: cmake-build) 
-to the context (here: ccsvv_deb) directory and add the *Dockerfile*. The version of *ccsv* and *ncurses* can
-be set by build args if necessary.
+You can cleanup the docker images and containes with:
 
 ```
-FROM ubuntu 
+docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
+```
 
-MAINTAINER dead-end
+## Installation with *.deb* packages
+
+For the build of the docker image you need to set the docker context to the cmake build directory
+(*cmake-build*), which contains the *.deb* file.
+
+The docker file has variables for the OS, the *ccsvv* and the *ncurses* major version. The OS can
+be any linux distribution that uses *.deb* packages. The default is *ubuntu*.
+
+```
+ARG DEB_OS=ubuntu
+
+FROM ${DEB_OS}
 
 ARG CCSVV_VERSION=0.2.0
 ARG NCURSES_MAJOR=5
+
+MAINTAINER dead-end
 
 COPY ccsvv_${CCSVV_VERSION}_amd64.deb /tmp
 
@@ -32,14 +42,21 @@ RUN apt-get update && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
 
-The you can build the image, run the container and do the cleanup with the following commands:
+The image for ubuntu and the start of the container can be done with the following
+commands:
 
 ```
-sudo docker build -t ccsvv_deb ccsvv_deb
+sudo docker build -t ccsvv_ubuntu_deb --build-arg DEB_OS=ubuntu cmake-build
 
-docker run -it ccsvv_deb ccsvv -d : /etc/passwd
+docker run -it ccsvv_ubuntu_deb ccsvv -d : /etc/passwd
+```
 
-docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
+The same for debian:
+
+```
+sudo docker build -t ccsvv_debian_deb --build-arg DEB_OS=debian cmake-build
+
+docker run -it ccsvv_debian_deb ccsvv -d : /etc/passwd
 ```
 
 ## Ubuntu from sources
