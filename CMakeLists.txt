@@ -14,7 +14,12 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic -Werror -std=c11 -O2)
 
-include_directories(inc)
+execute_process(
+    COMMAND bash "-c" "ncursesw5-config --includedir" 
+    OUTPUT_VARIABLE NCURSESW_INC
+)
+
+include_directories(inc ${NCURSESW_INC})
 
 ###############################################################################
 # Project settings
