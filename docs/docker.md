@@ -38,6 +38,15 @@ You can cleanup the docker images and containers with:
 docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
 ```
 
+List the docker images and containers:
+
+```
+docker images
+
+docker ps
+```
+
+
 ## Installation with *.deb* packages
 
 For the build of the docker image you need to set the docker context to the cmake build directory
@@ -81,25 +90,31 @@ sudo docker build -t ccsvv_debian_deb --build-arg DEB_OS=debian cmake-build
 docker run -it ccsvv_debian_deb ccsvv -d : /etc/passwd
 ```
 
-## Debian-like from sources
+## Build from sources
 
-The following *Dockerfile* can be used to build *ncurses* and *ccsvv* from their sources.
-The sources will be downloaded with wget, so no special docker contex is necessary. As an
-OS again a linux that uses *.deb* packages are OK.
+Building *ccsvv* and *ncurses* from their sources is similar for the different linux operating systems. It
+consists of two steps. In the first step an image for the os is created, that contains the tools to build
+*ccsvv*. In the second step the compiling of the sources takes place. Let us start with the second step.
 
-The build and installation of *ncurses* uses a prefix, so the *ncurses* can be installed
-beside the system installation.
+### Ubuntu build tool image
 
-The build process is straightforward, first the build tools are installed, then *ncurses*
-is downloaded, build and installed and finally *ccsvv* is downloaded, build and installed.
+The second step is identical for all linux systems. The dockerfile requires a BUILD_OS parameter, which is
+the tag of the image from the first step. It defines *ncurses* version informations and a PREFIX for the
+installation. This is not strictly necessary. To use the PREFIX we have to export the LD_LIBRARY_PATH with
+the lib directory from the PREFIX.
 
-The three steps (install build tools, install *ncurses* and install *ccsvv*) have their own
-*RUN* command, which creates a new layer.
+The build commands are straightforward.
+
+* download the sources with wget
+* extract the archive and cd to the directory
+* call: ./configure, make, make install
 
 ```
-ARG DEB_OS=ubuntu
+# File: dockerfile.src
 
-FROM ${DEB_OS}
+ARG BUILD_OS=
+
+FROM ${BUILD_OS}
 
 MAINTAINER dead-end
 
@@ -107,116 +122,134 @@ ARG NCURSES_MAJOR=6
 ARG NCURSES_MINOR=1
 ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
 ARG PREFIX=/usr/local
+
+ENV LD_LIBRARY_PATH=${PREFIX}/lib
+
+WORKDIR /tmp
+
+RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
+	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
+	cd ncurses-${NCURSES_VERSION} && \
+	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks --includedir=${PREFIX}/include/ncursesw && \
+	make && \
+	make install
+
+RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
+	unzip master.zip && \
+	cd curses_csv_viewer-master && \
+	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
+```
+
+### Ubuntu build tool image
+
+The dockerfile to create the build tool image for ubuntu.
+
+```
+# File: dockerfile.ubuntu
+
+FROM ubuntu
+
+MAINTAINER dead-end
 
 RUN apt-get update && \
 	apt-get install -y gcc && \
 	apt-get install -y make && \
 	apt-get install -y zip && \
 	apt-get install -y wget
-
-WORKDIR /tmp
-
-RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
-	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
-	cd ncurses-${NCURSES_VERSION} && \
-	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks --includedir=${PREFIX}/include/ncursesw && \
-	make && \
-	make install
-
-RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
-	unzip master.zip && \
-	cd curses_csv_viewer-master && \
-	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
 ```
 
-The build of the image and the running of the container is the following for debian:
+The commands to build the images and run the container:
 
 ```
-sudo docker build -t ccsvv_debian_src --build-arg DEB_OS=debian .
+sudo docker build -t ccsvv_ubuntu -f dockerfile.ubuntu .
 
-docker run -it ccsvv_debian_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
-
-```
-
-The same for ubuntu:
-
-```
-sudo docker build -t ccsvv_ubuntu_src --build-arg DEB_OS=ubuntu .
+sudo docker build -t ccsvv_ubuntu_src --build-arg BUILD_OS=ccsvv_ubuntu -f dockerfile.src .
 
 docker run -it ccsvv_ubuntu_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 ```
 
-# Centos from sources
+### Debian build tool image
 
-The Dockerfile for a centos build from sources.
+The dockerfile to create the build tool image for debian.
 
 ```
-FROM centos
+# File: dockerfile.debian
+
+FROM debian
 
 MAINTAINER dead-end
 
-ARG NCURSES_MAJOR=6
-ARG NCURSES_MINOR=1
-ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
-ARG PREFIX=/usr/local
-
-RUN yum -y update && \
-	yum -y install gcc && \
-	yum -y install make && \
-	yum -y install zip && \
-	yum -y install unzip && \
-	yum -y install wget
-
-WORKDIR /tmp
-
-RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
-	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
-	cd ncurses-${NCURSES_VERSION} && \
-	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks --includedir=${PREFIX}/include/ncursesw && \
-	make && \
-	make install
-
-RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
-	unzip master.zip && \
-	cd curses_csv_viewer-master && \
-	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
+RUN apt-get update && \
+	apt-get install -y gcc && \
+	apt-get install -y make && \
+	apt-get install -y zip && \
+	apt-get install -y wget
 ```
 
-# Archlinux from sources
-
-These are the first steps ....
+The commands to build the images and run the container:
 
 ```
+sudo docker build -t ccsvv_debian -f dockerfile.debian .
+
+sudo docker build -t ccsvv_debian_src --build-arg BUILD_OS=ccsvv_debian -f dockerfile.src .
+
+docker run -it ccsvv_debian_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
+```
+
+### Archlinux build tool image
+
+The dockerfile to create the build tool image for archlinux.
+
+```
+# File: Dockerfile.arch
+
 FROM archlinux/base
 
 MAINTAINER dead-end
 
-ARG NCURSES_MAJOR=6
-ARG NCURSES_MINOR=1
-ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
-ARG PREFIX=/usr/local
-
-
 RUN pacman -Sy && \
 	pacman -S --noconfirm wget && \
-	pacman -S --noconfirm zip && \
 	pacman -S --noconfirm unzip && \
 	pacman -S --noconfirm grep && \
 	pacman -S --noconfirm awk && \
 	pacman -S --noconfirm make && \
 	pacman -S --noconfirm gcc
+```
 
-WORKDIR /tmp
+The commands to build the images and run the container:
 
-RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
-	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
-	cd ncurses-${NCURSES_VERSION} && \
-	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks --includedir=${PREFIX}/include/ncursesw && \
-	make && \
-	make install
+```
+sudo docker build -t ccsvv_arch -f dockerfile.arch .
 
-RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
-	unzip master.zip && \
-	cd curses_csv_viewer-master && \
-	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
+sudo docker build -t ccsvv_arch_src --build-arg BUILD_OS=ccsvv_arch -f dockerfile.src .
+
+docker run -it ccsvv_arch_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
+```
+
+### Centos build tool image
+
+The dockerfile to create the build tool image for centos.
+
+```
+# File: dockerfile.centos
+
+FROM centos
+
+MAINTAINER dead-end
+
+RUN yum -y update && \
+	yum -y install gcc && \
+	yum -y install make && \
+	yum -y install unzip && \
+	yum -y install wget
+```
+
+The commands to build the images and run the container:
+
+```
+sudo docker build -t ccsvv_centos -f dockerfile.centos .
+
+sudo docker build -t ccsvv_centos_src --build-arg BUILD_OS=ccsvv_centos -f dockerfile.src .
+
+docker run -it ccsvv_centos_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
 ```
