@@ -30,8 +30,8 @@
 #include "ncv_common.h"
 
 #include <string.h>
-#include <ncursesw/form.h>
-#include <ncursesw/menu.h>
+#include <form.h>
+#include <menu.h>
 
 /******************************************************************************
  * Some definitions for the fields.

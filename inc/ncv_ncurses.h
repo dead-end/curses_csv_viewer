@@ -26,7 +26,7 @@
 #define INC_NCV_NCURSES_H_
 
 #include "ncv_common.h"
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 /******************************************************************************
  * Some terminals do not print the ACS characters correctly. The result is that

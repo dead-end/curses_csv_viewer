@@ -27,7 +27,7 @@
 
 #include "ncv_table.h"
 
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 /******************************************************************************
  * The struct defines an attribute that can be highlighted. It is used for

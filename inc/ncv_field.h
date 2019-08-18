@@ -25,12 +25,11 @@
 #ifndef INC_NCV_FIELD_H_
 #define INC_NCV_FIELD_H_
 
-
 #include "ncv_table_part.h"
 #include "ncv_win_table.h"
 #include "ncv_common.h"
 
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 /***************************************************************************
  * A field has two s_field_part structures, one for the row and one for the
@@ -56,7 +55,6 @@ typedef struct s_field_part {
 
 } s_field_part;
 
-
 void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_field_part, const s_field_part *col_field_part, const s_field *win_row_col, const int width, const s_filter *filter, const s_attr *attr_cur);
 
 //
@@ -64,7 +62,7 @@ void print_field_content(WINDOW *win, wchar_t *ptr, const s_field_part *row_fiel
 //
 void s_field_part_update(s_field_part *field_part, const s_table_part *table_part, const int index, const int size);
 
-wchar_t *get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int width, bool *end);
+wchar_t* get_field_complete_line(wchar_t *str_ptr, wchar_t *buffer, const int width, bool *end);
 
 void intersection(const s_buffer *visible, const s_buffer *print, s_buffer *result);
 

@@ -25,8 +25,8 @@
 #ifndef INC_NCV_FORMS_H_
 #define INC_NCV_FORMS_H_
 
-#include <ncursesw/form.h>
-#include <ncursesw/menu.h>
+#include <form.h>
+#include <menu.h>
 
 /******************************************************************************
  * The enumeration of the different field types.

@@ -28,7 +28,7 @@
 #include "ncv_table_part.h"
 #include "ncv_common.h"
 
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 void s_corner_inits(const int no_rows, const int no_columns);
 

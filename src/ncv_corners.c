@@ -26,7 +26,7 @@
 #include "ncv_table_part.h"
 #include "ncv_common.h"
 
-#include <ncursesw/ncurses.h>
+#include <ncurses.h>
 
 /******************************************************************************
  * Each field can have between 1 and 4 visible corner chars. Each corner can
