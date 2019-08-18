@@ -6,7 +6,7 @@ be verified in a docker container.
 
 ## Useful docker commands
 
-Search for an docker image:
+Search for a docker image:
 
 ```
 docker search archlinux
@@ -23,7 +23,6 @@ context, which is a directory that contains mapped files and directories:
 
 ```
 docker build -t image_tag -f dockerfile ctx
-
 ```
 
 You can overwrite build arguments with: 
@@ -201,7 +200,7 @@ docker run -it ccsvv_debian_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/pa
 The dockerfile to create the build tool image for archlinux.
 
 ```
-# File: Dockerfile.arch
+# File: dockerfile.arch
 
 FROM archlinux/base
 
