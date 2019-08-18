@@ -25,7 +25,11 @@ include_directories(inc ${NCURSESW_INC})
 # Project settings
 ###############################################################################
 
-project(ccsvv)
+#
+# Define project name and C as the only language, so no cpp comiler is
+# required.
+#
+project(ccsvv C)
 
 set(LIBS
   src/ncv_common.c
