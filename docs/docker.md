@@ -129,7 +129,7 @@ WORKDIR /tmp
 RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
 	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
 	cd ncurses-${NCURSES_VERSION} && \
-	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks --includedir=${PREFIX}/include/ncursesw && \
+	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks && \
 	make && \
 	make install
 
