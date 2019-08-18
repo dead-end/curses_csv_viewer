@@ -191,7 +191,7 @@ size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size) {
 	const size_t result = mbstowcs(buffer, mbs, buf_size);
 
 	if (result == (size_t) -1) {
-		log_exit_str("Encountered an invalid multibyte sequence!");
+		log_exit("Encountered an invalid multibyte sequence in: %s", mbs);
 	}
 
 	//
@@ -216,8 +216,7 @@ char* trim(char *str) {
 	//
 	// skip leading white spaces
 	//
-	for (ptr = str; isspace(*ptr); ptr++)
-		;
+	for (ptr = str; isspace(*ptr); ptr++);
 
 	//
 	// skip tailing white spaces by overwriting them with '\0'
@@ -241,8 +240,7 @@ wchar_t* wcstrim(wchar_t *str) {
 	//
 	// skip leading white spaces
 	//
-	for (ptr = str; iswspace(*ptr); ptr++)
-		;
+	for (ptr = str; iswspace(*ptr); ptr++);
 
 	//
 	// skip tailing white spaces by overwriting them with '\0'
