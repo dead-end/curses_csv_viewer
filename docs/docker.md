@@ -9,13 +9,13 @@ be verified in a docker container.
 Search for a docker image:
 
 ```
-docker search archlinux
+docker search ubuntu
 ```
 
 Run the image *interactive* with a *tty*:
 
 ```
-docker run -it archlinux/base
+docker run -it ubuntu
 ```
 
 Build a docker image that will be tagged *image_tag* with a docker file *dockerfile* and a docker
@@ -51,7 +51,7 @@ docker ps
 For the build of the docker image you need to set the docker context to the cmake build directory
 (*cmake-build*), which contains the *.deb* file.
 
-The docker file has variables for the OS, the *ccsvv* and the *ncurses* major version. The OS can
+The docker file has variables for the OS and the *ccsvv* version. The OS can
 be any linux distribution that uses *.deb* packages. The default is *ubuntu*.
 
 ```
@@ -60,15 +60,12 @@ ARG DEB_OS=ubuntu
 FROM ${DEB_OS}
 
 ARG CCSVV_VERSION=0.2.0
-ARG NCURSES_MAJOR=5
 
 MAINTAINER dead-end
 
 COPY ccsvv_${CCSVV_VERSION}_amd64.deb /tmp
 
 RUN apt-get update && \
-	apt-get install -y libtinfo${NCURSES_MAJOR} && \
-	apt-get install -y libncursesw${NCURSES_MAJOR} && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
 
@@ -251,4 +248,39 @@ sudo docker build -t ccsvv_centos -f dockerfile.centos .
 sudo docker build -t ccsvv_centos_src --build-arg BUILD_OS=ccsvv_centos -f dockerfile.src .
 
 docker run -it ccsvv_centos_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
+```
+
+## Build and install *.deb* package on ubuntu
+
+```
+ARG DEB_OS=ubuntu
+
+FROM ${DEB_OS}
+
+ARG CCSVV_VERSION=0.2.0
+ARG NCURSES_MAJOR=5
+
+ENV LANG=C.UTF-8
+ENV CTEST_OUTPUT_ON_FAILURE=1
+
+MAINTAINER dead-end
+
+# DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils
+RUN apt-get update && \
+	apt-get install -y zip && \
+	apt-get install -y wget
+
+RUN apt-get install -y cmake
+
+RUN apt-get install -y libtinfo${NCURSES_MAJOR} && \
+	apt-get install -y libncursesw${NCURSES_MAJOR} && \
+	apt-get install -y libncursesw${NCURSES_MAJOR}-dev
+
+WORKDIR /tmp
+
+RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
+	unzip master.zip && \
+	cd curses_csv_viewer-master && \
+	sh bin/cmake_build.sh && \
+	apt-get install -y /tmp/curses_csv_viewer-master/cmake-build/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
