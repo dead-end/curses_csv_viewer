@@ -56,7 +56,9 @@ CFLAGS      = $(BUILD_FLAGS) $(OPTION_FLAGS) $(WARN_FLAGS) -I$(INC_DIR) $(shell 
 LIBS        = $(shell $(NCURSES_CONFIG) --libs) -lformw -lmenuw -lm
 
 ###############################################################################
-# LIBS
+# The list of sources that are used to build the executable. The last one:
+# ut_utils.c is only used to build the test programs. Each of the source files
+# has a header file with the same name.
 ###############################################################################
 
 SRC_LIBS = \
@@ -87,14 +89,14 @@ OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
 INC_LIBS = $(subst $(SRC_DIR),$(INC_DIR),$(subst .c,.h,$(SRC_LIBS)))
 
 ###############################################################################
-# MAIN
+# The main program.
 ###############################################################################
 
 EXEC     = ccsvv
 
-SRC_MAIN = $(SRC_DIR)/ncv_ccsvv.c
+SRC_EXEC = $(SRC_DIR)/ncv_ccsvv.c
 
-OBJ_MAIN = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_MAIN)))
+OBJ_EXEC = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_EXEC)))
 
 ###############################################################################
 # The definitions for the test programs.
@@ -146,7 +148,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_LIBS)
 # the list of all prerequisites, which are the object files in this case.
 ###############################################################################
 
-$(EXEC): $(OBJ_LIBS) $(OBJ_MAIN)
+$(EXEC): $(OBJ_LIBS) $(OBJ_EXEC)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 ###############################################################################
