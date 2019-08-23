@@ -176,6 +176,28 @@ check: $(TESTS)
 	@echo "Checks: OK"
 
 ###############################################################################
+# Goals to install and uninstall the executable.
+# --owner=root --group=root 
+###############################################################################
+
+PREFIX = /usr/local
+
+BINDIR = $(PREFIX)/bin
+
+DOCDIR = $(PREFIX)/share/doc/$(EXEC)
+
+.PHONY: install uninstall
+
+install: $(EXEC)
+	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR)
+	install -D --mode=644 LICENSE --target-directory=$(DOCDIR)
+
+uninstall:
+	rm -f $(DOCDIR)/LICENSE
+	if [ -d "$(DOCDIR)" ]; then rmdir $(DOCDIR); fi
+	rm -f $(BINDIR)/$(EXEC)
+
+###############################################################################
 # The cleanup goal deletes the executable, the test programs, all object files
 # and some editing remains.
 ###############################################################################
@@ -199,6 +221,7 @@ help:
 	@echo "  DEBUG=[true|false]           : A debug flag for the application. (default: false)"
 	@echo "  NCURSES_MAJOR=[5|6]          : The major verion of ncurses. (default: 5)"
 	@echo "  USE_ACS_BORDERS=[true|false] : Use ASCII characters as borders. (default: false)"
+	@echo "  PREFIX=<PATH>                : Prefix for install / uninstall. (default: /usr/local)"
 
 ###############################################################################
 # Todo: remove
