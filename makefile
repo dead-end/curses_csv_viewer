@@ -7,43 +7,80 @@ SRC_DIR = src
 OBJ_DIR = build
 TST_DIR = tests
 
+OPTION_FLAGS=
+
+###############################################################################
+# A flag to enable / disable ACS borders. If 'false' ASCII characters are used.
+# The may be helpful if for example putty has an issue with ACS and UTF-8.
+###############################################################################
+
+USE_ACS_BORDERS = true
+
+ifeq ($(USE_ACS_BORDERS),false)
+  OPTION_FLAGS += -DNO_ACS_BORDER
+endif
+
+###############################################################################
+# A debug flag for the application. If set to true the application has to pipe
+# the stdout to a file.
+###############################################################################
+
+DEBUG = false
+
+ifeq ($(DEBUG),true)
+  OPTION_FLAGS += -DDEBUG -g
+endif
+
+###############################################################################
+# Ncurses has a major version and that version determines some programs and
+# library names, especially the ncurses config program, which contains 
+# informations for the compiler.
+###############################################################################
+
+NCURSES_MAJOR  = 5
+
+NCURSES_CONFIG = ncursesw$(NCURSES_MAJOR)-config
+
 ###############################################################################
 # Definition of the compiler and its flags.
 ###############################################################################
 
-NCURSES_CONFIG=ncursesw5-config
+CC          = gcc
 
-CC       = gcc
-#DEBUG    = -DDEBUG -g
-BASE_CFLAGE = -Wall -Wextra -Wpedantic -Werror -std=c11 -O2
-CFLAGS   = $(BASE_CFLAGE) -I$(INC_DIR)  $(shell $(NCURSES_CONFIG) --cflags) $(DEBUG) 
-LIBS     = $(shell $(NCURSES_CONFIG) --libs) -lformw -lmenuw -lm
+WARN_FLAGS  = -Wall -Wextra -Wpedantic -Werror
+
+BUILD_FLAGS = -std=c11 -O2
+
+CFLAGS      = $(BUILD_FLAGS) $(OPTION_FLAGS) $(WARN_FLAGS) -I$(INC_DIR) $(shell $(NCURSES_CONFIG) --cflags) 
+
+LIBS        = $(shell $(NCURSES_CONFIG) --libs) -lformw -lmenuw -lm
 
 ###############################################################################
 # LIBS
 ###############################################################################
 
-SRC_LIBS += $(SRC_DIR)/ncv_common.c
-SRC_LIBS += $(SRC_DIR)/ncv_ncurses.c
-SRC_LIBS += $(SRC_DIR)/ncv_parser.c
-SRC_LIBS += $(SRC_DIR)/ncv_table.c
-SRC_LIBS += $(SRC_DIR)/ncv_table_part.c
-SRC_LIBS += $(SRC_DIR)/ncv_table_header.c
-SRC_LIBS += $(SRC_DIR)/ncv_table_sort.c
-SRC_LIBS += $(SRC_DIR)/ncv_corners.c
-SRC_LIBS += $(SRC_DIR)/ncv_field.c
-SRC_LIBS += $(SRC_DIR)/ncv_filter.c
-SRC_LIBS += $(SRC_DIR)/ncv_sort.c
-SRC_LIBS += $(SRC_DIR)/ncv_ui_loop.c
-SRC_LIBS += $(SRC_DIR)/ncv_forms.c
-SRC_LIBS += $(SRC_DIR)/ncv_popup.c
-SRC_LIBS += $(SRC_DIR)/ncv_wbuf.c
-SRC_LIBS += $(SRC_DIR)/ncv_win_header.c
-SRC_LIBS += $(SRC_DIR)/ncv_win_filter.c
-SRC_LIBS += $(SRC_DIR)/ncv_win_table.c
-SRC_LIBS += $(SRC_DIR)/ncv_win_footer.c
-SRC_LIBS += $(SRC_DIR)/ncv_win_help.c
-SRC_LIBS += $(SRC_DIR)/ut_utils.c
+SRC_LIBS = \
+	$(SRC_DIR)/ncv_common.c \
+	$(SRC_DIR)/ncv_ncurses.c \
+	$(SRC_DIR)/ncv_parser.c \
+	$(SRC_DIR)/ncv_table.c \
+	$(SRC_DIR)/ncv_table_part.c \
+	$(SRC_DIR)/ncv_table_header.c \
+	$(SRC_DIR)/ncv_table_sort.c \
+	$(SRC_DIR)/ncv_corners.c \
+	$(SRC_DIR)/ncv_field.c \
+	$(SRC_DIR)/ncv_filter.c \
+	$(SRC_DIR)/ncv_sort.c \
+	$(SRC_DIR)/ncv_ui_loop.c \
+	$(SRC_DIR)/ncv_forms.c \
+	$(SRC_DIR)/ncv_popup.c \
+	$(SRC_DIR)/ncv_wbuf.c \
+	$(SRC_DIR)/ncv_win_header.c \
+	$(SRC_DIR)/ncv_win_filter.c \
+	$(SRC_DIR)/ncv_win_table.c \
+	$(SRC_DIR)/ncv_win_footer.c \
+	$(SRC_DIR)/ncv_win_help.c \
+	$(SRC_DIR)/ut_utils.c \
 
 OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
 
@@ -60,25 +97,109 @@ SRC_MAIN = $(SRC_DIR)/ncv_ccsvv.c
 OBJ_MAIN = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_MAIN)))
 
 ###############################################################################
-# TEST
+# The definitions for the test programs.
 ###############################################################################
 
-SRC_TEST += $(SRC_DIR)/ut_parser.c 
-SRC_TEST += $(SRC_DIR)/ut_table.c
-SRC_TEST += $(SRC_DIR)/ut_table_part.c
-SRC_TEST += $(SRC_DIR)/ut_table_header.c
-SRC_TEST += $(SRC_DIR)/ut_table_sort.c 
-SRC_TEST += $(SRC_DIR)/ut_field.c
-SRC_TEST += $(SRC_DIR)/ut_common.c
-SRC_TEST += $(SRC_DIR)/ut_filter.c
-SRC_TEST += $(SRC_DIR)/ut_wbuf.c
+SRC_TEST = \
+	$(SRC_DIR)/ut_parser.c \
+	$(SRC_DIR)/ut_table.c \
+	$(SRC_DIR)/ut_table_part.c \
+	$(SRC_DIR)/ut_table_header.c \
+	$(SRC_DIR)/ut_table_sort.c \
+	$(SRC_DIR)/ut_field.c \
+	$(SRC_DIR)/ut_common.c \
+	$(SRC_DIR)/ut_filter.c \
+	$(SRC_DIR)/ut_wbuf.c \
 
-TEST     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
+TESTS    = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
 
 OBJ_TEST = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_TEST)))
 
 ###############################################################################
-# DEMO
+# Definition of the top-level targets. 
+#
+# A phony target is one that is not the name of a file. If a file 'all' exists,
+# nothing will happen.
+###############################################################################
+
+.PHONY: all
+
+all: $(EXEC) check $(DEMO)
+
+###############################################################################
+# A static pattern, that builds an object file from its source. The automatic
+# variable $@ is the target and $< is the first prerequisite, which is the
+# corrosponding source file. Example:
+#
+#   build/ncv_common.o: src/ncv_common.c src/ncv_common.h src/ncv_ncurses.h...
+#	  gcc -c -o build/ncv_common.o src/ncv_common.c ...
+#
+# The complete list of header files is not necessary as a prerequisite, but it
+# does not hurt.
+###############################################################################
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_LIBS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
+
+###############################################################################
+# The goal compiles the executable from the object files. The automatic $^ is 
+# the list of all prerequisites, which are the object files in this case.
+###############################################################################
+
+$(EXEC): $(OBJ_LIBS) $(OBJ_MAIN)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+###############################################################################
+# The goal compiles the executables of the test programs. The valiable TEST is
+# the list of all test programs. The expression: 
+#
+#   $(subst $(TST_DIR),$(OBJ_DIR),$@.o)
+#
+# creates the corresponding object file from the test program. Example:
+#
+#   tests/ut_parser => build/ut_parser.o
+###############################################################################
+
+$(TESTS): $(OBJ_LIBS) $(OBJ_TEST)
+	$(CC) -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS)
+
+###############################################################################
+# The check goal invokes all test programs.
+###############################################################################
+
+.PHONY: check
+
+check: $(TESTS)
+	@for ut_test in $(TESTS) ; do ./$$ut_test || exit 1 ; done
+	@echo "Checks: OK"
+
+###############################################################################
+# The cleanup goal deletes the executable, the test programs, all object files
+# and some editing remains.
+###############################################################################
+
+.PHONY: clean
+
+clean:
+	rm -f $(OBJ_DIR)/*.o
+	rm -f $(SRC_DIR)/*.c~
+	rm -f $(INC_DIR)/*.h~
+	rm -f $(TST_DIR)/ut_*
+	rm -f $(EXEC)
+
+###############################################################################
+# The goal prints a help message the the ccsvv specific options for the build.
+###############################################################################
+
+.PHONY: help
+
+help:
+	@echo "  DEBUG=[true|false]           : A debug flag for the application. (default: false)"
+	@echo "  NCURSES_MAJOR=[5|6]          : The major verion of ncurses. (default: 5)"
+	@echo "  USE_ACS_BORDERS=[true|false] : Use ASCII characters as borders. (default: false)"
+
+###############################################################################
+# Todo: remove
 ###############################################################################
 
 SRC_DEMO += $(SRC_DIR)/demo_windows.c 
@@ -87,41 +208,5 @@ DEMO     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_DEMO)))
 
 OBJ_DEMO = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_DEMO)))
 
-###############################################################################
-# Definitions of the build commands.
-###############################################################################
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_LIBS)
-	$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
-
-$(EXEC): $(OBJ_LIBS) $(OBJ_MAIN)
-	gcc -o $@ $^ $(CFLAGS) $(LIBS)
-
-$(TEST): $(OBJ_LIBS) $(OBJ_TEST)
-	gcc -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS)
-
-unit_test: $(TEST)
-	for ut_test in $(TEST) ; do \
-		./$$ut_test || exit 1 ; \
-    done
-
 $(DEMO): $(OBJ_LIBS) $(OBJ_DEMO)
-	gcc -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS) 
-
-all: $(EXEC) unit_test $(DEMO)
-	
-###############################################################################
-# Definition of the cleanup and run task.
-###############################################################################
-
-.PHONY: run clean
-
-run:
-	./$(EXEC)
-
-clean:
-	rm -f $(OBJ_DIR)/*.o
-	rm -f $(SRC_DIR)/*.c~
-	rm -f $(INC_DIR)/*.h~
-	rm -f $(TST_DIR)/ut_*
-	rm -f $(EXEC)
+	$(CC) -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(CFLAGS) $(LIBS) 
