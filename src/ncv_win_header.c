@@ -30,7 +30,7 @@
  * Definition of the label (and its size)
  *****************************************************************************/
 
-#define HEADER_LABEL L" ccsvv 0.2"
+#define HEADER_LABEL L" ccsvv " VERISON_SHORT
 
 #define FILTER_LABEL  L"Filter"
 
