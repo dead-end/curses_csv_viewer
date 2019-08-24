@@ -3,17 +3,17 @@
 ###############################################################################
 # The script is called with an executable file and it returns a list of deb
 # packages (including the version), which the executable depends on. This
-# information can be used for the deb package build. See:
-# CPACK_DEBIAN_PACKAGE_DEPENDS in CMakeLists.txt.
+# information can be used for the deb package build. It has a mode "no-debug"
+# or "all", which can be used to ignore the debug dependencies.
 #
 # Example:
 #
-#    >sh bin/pkg-deps.sh ccsvv
-#    Processing: ccsvv
-#    Found dependencies:
+#    >sh bin/pkg-deps.sh no-debug ccsvv
 #    libc6 (>=2.27), libncursesw5 (>=6.1), libtinfo5 (>=6.1)
-#    Found debug dependencies:
-#    libncursesw5-dbg (>=6.1), libtinfo5-dbg (>=6.1)
+#
+#    >sh bin/pkg-deps.sh all ccsvv
+#    libc6 (>=2.27), libncursesw5 (>=6.1), libncursesw5-dbg (>=6.1), \
+#    libtinfo5 (>=6.1), libtinfo5-dbg (>=6.1)
 ###############################################################################
 
 set -ue
@@ -75,18 +75,25 @@ print_pkgs() {
 # Ensure that the script is called with an executable 
 ###############################################################################
 
-if [ "$#" != "1" ] ; then
-  echo "Usage: $0 <bin>"
+if [ "$#" != "2" ] ; then
+  echo "Usage: $0 [no-debug|all] <bin>"
   exit 1
 fi
 
-executable="${1}"
+mode="${1}"
+
+if [ "${mode}" != "no-debug" -a "${mode}" != "all" ] ; then
+  echo "Usage: $0 [no-debug|all] <bin>"
+  exit 1
+fi
+
+executable="${2}"
 
 if [ ! -x "${executable}" ] ; then
   log "error" "The file: ${executable} is not an executable!"
 fi
 
-echo "Processing: ${executable}"
+log "debug" "Processing: ${executable}"
 
 ###############################################################################
 # Get the list of dependencies. The script uses "raw" variables which are not
@@ -124,18 +131,13 @@ dep_pkgs=$(echo "${dep_pkgs}" | sort -u)
 
 log "debug" "dep_pkgs: ${dep_pkgs}"
 
-dep_pkgs_debug=$(echo "${dep_pkgs}" | grep -- '-dbg$')
+if [ "${mode}" = "no-debug" ] ; then
+  dep_pkgs=$(echo "${dep_pkgs}" | grep -v -- '-dbg$')
+fi
 
-dep_pkgs_normal=$(echo "${dep_pkgs}" | grep -v -- '-dbg$')
+log "debug" "Found dependencies with mode ${mode}:"
 
-echo "Found dependencies:"
-
-print_pkgs "${dep_pkgs_normal}"
-
-echo "Found debug dependencies:"
-
-print_pkgs "${dep_pkgs_debug}"
+print_pkgs "${dep_pkgs}"
 
 exit 0
-
 
