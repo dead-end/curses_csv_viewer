@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <locale.h>
 #include <errno.h>
+#include <signal.h>
 
 /******************************************************************************
  * The table struct is defined static to be able to use it in the function
@@ -46,6 +47,21 @@
  *****************************************************************************/
 
 static s_table table;
+
+/******************************************************************************
+ * The function is a callback function for the signal SIGUSR1. It can be used
+ * to terminate the program with a return code 0, by sending the signal
+ * SIGUSR1. This is can be used as a smoke test for docker containers. Start a
+ * background job that sends the SIGUSR1 after a while and start ccsvv in
+ * foreground. Example:
+ *
+ * sh signal_sender.sh & ccsvv -d : /etc/passwd
+ *****************************************************************************/
+
+static void signal_callback(const int signo) {
+	fprintf(stderr, "Received signal %d", signo);
+	exit(0);
+}
 
 /******************************************************************************
  * A cleanup function for the ncurses stuff. The important call, is the call of
@@ -269,6 +285,14 @@ int main(const int argc, char *const argv[]) {
 		//
 	} else if (optind != argc) {
 		print_usage(true, "Unknown option found!");
+	}
+
+	//
+	// Add signal handler for SIGUSR1. See the documentation of signal_callback
+	// for the reason.
+	//
+	if (signal(SIGUSR1, signal_callback) == SIG_ERR) {
+		log_exit_str("Unable to register signal function for signal: SIGUSR1");
 	}
 
 	//
