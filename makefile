@@ -48,12 +48,12 @@ NCURSES_CONFIG = ncursesw$(NCURSES_MAJOR)-config
 
 ################################################################################
 # Definition of compiler flags. CC is defined by make and CFLAGS can be set by
-# the user.
+# the user. The flag _GNU_SOURCE is necessary for qsort_r.
 ################################################################################
 
 WARN_FLAGS  = -Wall -Wextra -Wpedantic -Werror
 
-BUILD_FLAGS = -std=c11 -O2
+BUILD_FLAGS = -std=c11 -O2 -D_GNU_SOURCE
 
 FLAGS      = $(BUILD_FLAGS) $(OPTION_FLAGS) $(WARN_FLAGS) -I$(INC_DIR) $(shell $(NCURSES_CONFIG) --cflags)
 
