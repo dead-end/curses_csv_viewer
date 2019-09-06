@@ -252,35 +252,51 @@ docker run -it ccsvv_centos_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/pa
 
 ## Build and install *.deb* package on ubuntu
 
-```
-ARG DEB_OS=ubuntu
+```dockerfile
+################################################################################
+# sudo docker build -t ccsvv_deb -f dockerfile.deb .
+#
+# docker run -it ccsvv_deb sh /tmp/curses_csv_viewer-master/bin/test_run.sh
+################################################################################
 
-FROM ${DEB_OS}
-
-ARG CCSVV_VERSION=0.2.0
-ARG NCURSES_MAJOR=5
-
-ENV LANG=C.UTF-8
-ENV CTEST_OUTPUT_ON_FAILURE=1
+FROM ubuntu
 
 MAINTAINER dead-end
 
-# DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils
+ARG NCURSES_MAJOR=5
+
+#
+# Necessary for unit tests
+#
+ENV LANG=C.UTF-8
+
+#
+# Stop cmake on errors
+#
+ENV CTEST_OUTPUT_ON_FAILURE=1
+
+#
+# Download sources zipfile
+#
+ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
+
+#
+# Install build tools and dependencies
+#
 RUN apt-get update && \
-	apt-get install -y zip && \
-	apt-get install -y wget
-
-RUN apt-get install -y cmake
-
-RUN apt-get install -y libtinfo${NCURSES_MAJOR} && \
-	apt-get install -y libncursesw${NCURSES_MAJOR} && \
-	apt-get install -y libncursesw${NCURSES_MAJOR}-dev
+        apt-get install -y zip && \
+        apt-get install -y cmake && \
+        apt-get install -y libtinfo${NCURSES_MAJOR} && \
+        apt-get install -y libncursesw${NCURSES_MAJOR} && \
+        apt-get install -y libncursesw${NCURSES_MAJOR}-dev
 
 WORKDIR /tmp
 
-RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
-	unzip master.zip && \
-	cd curses_csv_viewer-master && \
-	sh bin/cmake_build.sh && \
-	apt-get install -y /tmp/curses_csv_viewer-master/cmake-build/ccsvv_${CCSVV_VERSION}_amd64.deb
+#
+# Build ccsvv
+#
+RUN unzip master.zip && \
+        cd curses_csv_viewer-master && \
+        sh bin/cmake_build.sh && \
+        apt-get install -y /tmp/curses_csv_viewer-master/cmake-build/ccsvv_*_amd64.deb
 ```
