@@ -252,11 +252,14 @@ docker run -it ccsvv_centos_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/pa
 
 ## Build and install *.deb* package on ubuntu
 
+The following docker file creates a ubuntu container with build tools, compiles *ccsvv* and creates
+a *.deb* package.
+
 ```dockerfile
 ################################################################################
-# sudo docker build -t ccsvv_deb -f dockerfile.deb .
+# sudo docker build -t ccsvv_deb_build -f dockerfile.deb.build .
 #
-# docker run -it ccsvv_deb sh /tmp/curses_csv_viewer-master/bin/test_run.sh
+# docker run -it ccsvv_deb_build sh /tmp/curses_csv_viewer-master/bin/test_run.sh
 ################################################################################
 
 FROM ubuntu
@@ -299,4 +302,32 @@ RUN unzip master.zip && \
         cd curses_csv_viewer-master && \
         sh bin/cmake_build.sh && \
         apt-get install -y /tmp/curses_csv_viewer-master/cmake-build/ccsvv_*_amd64.deb
+```
+
+With the following command, you can copy the newly created package from the container to the host filesystem. The
+option `-q` is quiet and returns only numeric IDs and the option `-l` shows the latest created container.
+
+```bash
+docker cp $(docker ps -q -l):/tmp/curses_csv_viewer-master/cmake-build/ccsvv_0.2.0_amd64.deb .
+```
+
+The last docker file creates an ubuntu container and installes the newly created *.deb* package.
+
+```dockerfile
+################################################################################
+# sudo docker build -t ccsvv_deb_install -f dockerfile.deb.install .
+#
+# docker run -it ccsvv_deb_install ccsvv -d : /etc/passwd
+################################################################################
+
+FROM ubuntu
+
+ARG CCSVV_VERSION=0.2.0
+
+MAINTAINER dead-end
+
+COPY ccsvv_${CCSVV_VERSION}_amd64.deb /tmp
+
+RUN apt-get update && \
+	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
