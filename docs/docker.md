@@ -440,7 +440,58 @@ RUN unzip master.zip && \
 ## Centos buid from sources
 
 The centos docker file is similar to the fedora docker file, but the wide character ncurses installation
-in centos is broken. The header file does not contain all wide character related functions:
+in centos is broken.
+
+```dockerfile
+################################################################################
+# File: dockerfile.centos
+#
+# Bild the image:
+#
+#   sudo docker build -t ccsvv_centos -f dockerfile.centos .
+#
+# Run test:
+#
+#   docker run -it ccsvv_centos sh /tmp/curses_csv_viewer-master/bin/test_run.sh
+################################################################################
+
+FROM centos
+
+MAINTAINER dead-end
+
+ARG NCURSES_MAJOR=5
+
+#
+# A UTF8 locale is neccessary for unit tests. 'C.utf8' is the only
+# installed.
+#
+ENV LANG=en_GB.utf8
+
+#
+# Set path so that test_run.sh finds ccsvv.
+#
+ENV PATH=$PATH:/tmp/curses_csv_viewer-master
+
+ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
+
+RUN yum -y update && \
+	yum -y install gcc && \
+	yum -y install make && \
+	yum -y install unzip && \
+	yum -y install ncurses-devel
+
+WORKDIR /tmp
+
+#
+# Build ccsvv
+#
+RUN unzip master.zip
+        cd curses_csv_viewer-master && \
+        make NCURSES_MAJOR=${NCURSES_MAJOR}
+```
+
+ The header file does not contain all wide character related functions, so the build process
+ fails:
 
 ```bash
  cc -c -o build/ncv_forms.o src/ncv_forms.c -std=c11 -O2 -D_GNU_SOURCE  -Wall -Wextra -Wpedantic -Werror -Iinc  -lncursesw -ltinfo -lformw -lmenuw -lm
