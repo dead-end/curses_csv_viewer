@@ -332,166 +332,51 @@ RUN apt-get update && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
 ```
 
-## Arch linux buid from sources
+## Building *ccsvv* from source files
 
-The following docker file provides an arch linux image with build tools and builds *ccsvv*.
+I am using docker to test the build of *ccsvv* from the source files for the following linux systems:
+
+- [archlinux.dockerfile](archlinux.dockerfile)
+- [fedora.dockerfile](fedora.dockerfile)
+- [centos.dockerfile](centos.dockerfile)
+
+The docker files are quit similar. Install tools to build the application:
+
+- zip
+- make
+- gcc
+- ncurses libraries
+- other like `ps` command
+
+In order to run the tests, a locale has to be set and the locale has to be UTF8, for example:
 
 ```dockerfile
-################################################################################
-# File: dockerfile.arch
-#
-# Bild the image:
-#
-#   sudo docker build -t ccsvv_arch -f dockerfile.arch .
-#
-# Run test:
-#
-#   docker run -it ccsvv_arch sh /tmp/curses_csv_viewer-master/bin/test_run.sh
-################################################################################
-
-FROM archlinux/base
-
-MAINTAINER dead-end
-
-ARG NCURSES_MAJOR=6
-
-#
-# A UTF8 locale is neccessary for unit tests. 'en_US.utf8' is the only
-# installed.
-#
 ENV LANG=en_US.utf8
-
-#
-# Set path so that test_run.sh finds ccsvv.
-#
-ENV PATH=$PATH:/tmp/curses_csv_viewer-master
-
-ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
-
-RUN pacman -Sy && \
-	pacman -S --noconfirm unzip && \
-	pacman -S --noconfirm make && \
-	pacman -S --noconfirm gcc && \
-	pacman -S --noconfirm ncurses && \
-	pacman -S --noconfirm procps
-
-WORKDIR /tmp
-
-#
-# Build ccsvv
-#
-RUN unzip master.zip && \
-        cd curses_csv_viewer-master && \
-        make NCURSES_MAJOR=${NCURSES_MAJOR}
 ```
 
-## Fedora buid from sources
-
-The following docker file provides a fedora image with build tools and builds *ccsvv*.
+The *ccsvv* application uses the ncurses config file, the get build configurations. Depending on the installed
+ncurses this can be `ncurses5-config` or `ncurses6-config`:
 
 ```dockerfile
-################################################################################
-# File: dockerfile.fedora
-#
-# Bild the image:
-#
-#   sudo docker build -t ccsvv_fedora -f dockerfile.fedora .
-#
-# Run test:
-#
-#   docker run -it ccsvv_fedora sh /tmp/curses_csv_viewer-master/bin/test_run.sh
-################################################################################
-
-FROM fedora
-
-MAINTAINER dead-end
-
 ARG NCURSES_MAJOR=6
-
-#
-# A UTF8 locale is neccessary for unit tests. 'C.utf8' is the only
-# installed.
-#
-ENV LANG=C.UTF-8
-
-#
-# Set path so that test_run.sh finds ccsvv.
-#
-ENV PATH=$PATH:/tmp/curses_csv_viewer-master
-
-ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
-
-RUN yum -y update && \
-	yum -y install gcc && \
-	yum -y install make && \
-	yum -y install unzip && \
-	yum -y install ncurses-devel
-
-WORKDIR /tmp
-
-#
-# Build ccsvv
-#
-RUN unzip master.zip && \
-        cd curses_csv_viewer-master && \
-        make NCURSES_MAJOR=${NCURSES_MAJOR}
 ```
 
-## Centos buid from sources
-
-The centos docker file is similar to the fedora docker file, but the wide character ncurses installation
-in centos is broken.
+To be able to start *ccsvv* it is important to set the path. This is required for the test script `test_run.sh`:
 
 ```dockerfile
-################################################################################
-# File: dockerfile.centos
-#
-# Bild the image:
-#
-#   sudo docker build -t ccsvv_centos -f dockerfile.centos .
-#
-# Run test:
-#
-#   docker run -it ccsvv_centos sh /tmp/curses_csv_viewer-master/bin/test_run.sh
-################################################################################
-
-FROM centos
-
-MAINTAINER dead-end
-
-ARG NCURSES_MAJOR=5
-
-#
-# A UTF8 locale is neccessary for unit tests. 'C.utf8' is the only
-# installed.
-#
-ENV LANG=en_GB.utf8
-
-#
-# Set path so that test_run.sh finds ccsvv.
-#
 ENV PATH=$PATH:/tmp/curses_csv_viewer-master
-
-ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
-
-RUN yum -y update && \
-	yum -y install gcc && \
-	yum -y install make && \
-	yum -y install unzip && \
-	yum -y install ncurses-devel
-
-WORKDIR /tmp
-
-#
-# Build ccsvv
-#
-RUN unzip master.zip
-        cd curses_csv_viewer-master && \
-        make NCURSES_MAJOR=${NCURSES_MAJOR}
 ```
 
- The header file does not contain all wide character related functions, so the build process
- fails:
+You can build the image and run a smoke test with the following commands:
+
+```bash
+sudo docker build -t ccsvv_archlinux -f docker/archlinux.dockerfile docker/
+
+docker run -it ccsvv_archlinux sh /tmp/curses_csv_viewer-master/bin/test_run.sh
+```
+
+The centos build fails. The header file does not contain all wide character related functions, so the build process
+fails. This is not a *ccsvv* issue, but it shows that the tests are a good idea.
 
 ```bash
  cc -c -o build/ncv_forms.o src/ncv_forms.c -std=c11 -O2 -D_GNU_SOURCE  -Wall -Wextra -Wpedantic -Werror -Iinc  -lncursesw -ltinfo -lformw -lmenuw -lm
