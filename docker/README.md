@@ -1,8 +1,24 @@
 # Docker
 
-This document shows verious docker files to build and / or install *ccsvv* from a debian package
-or from sources. The docker files can be seen as an installation instruction which can
-be verified in a docker container.
+I am using docker to test *ccsvv*, its build and installation on verious linux
+distributions. The docker files can be seen as an installation instruction. It
+shows the installation requiremnments as well as the installation process.
+
+## Smoke tests
+
+Testing a terminal based application is not easy. *ccsvv* has several unit tests
+that are running during the build, which tests the business logic.
+
+*ccsvv* has a test script, that performs a simple smoke test. 
+
+[bin/test_docker.sh](bin/test_docker.sh)
+
+First it starts a process that polls for a *ccsvv* process. If it finds one it 
+sends a `SIGUSR1` signal to this process. Then the srcipt starts the *ccsvv* 
+process. After a while it receives the signal and terminates.
+
+The smoke test ensures that the execution flag is set and the the required libraries
+are found.
 
 ## Useful docker commands
 
@@ -19,7 +35,7 @@ docker run -it ubuntu
 ```
 
 Build a docker image that will be tagged *image_tag* with a docker file *dockerfile* and a docker
-context, which is a directory that contains mapped files and directories:
+context *ctx*, which is a directory that contains mapped files and directories:
 
 ```
 docker build -t image_tag -f dockerfile ctx
@@ -45,293 +61,6 @@ docker images
 docker ps
 ```
 
-
-## Installation with *.deb* packages
-
-For the build of the docker image you need to set the docker context to the cmake build directory
-(*cmake-build*), which contains the *.deb* file.
-
-The docker file has variables for the OS and the *ccsvv* version. The OS can
-be any linux distribution that uses *.deb* packages. The default is *ubuntu*.
-
-```
-ARG DEB_OS=ubuntu
-
-FROM ${DEB_OS}
-
-ARG CCSVV_VERSION=0.2.0
-
-MAINTAINER dead-end
-
-COPY ccsvv_${CCSVV_VERSION}_amd64.deb /tmp
-
-RUN apt-get update && \
-	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
-```
-
-The image for ubuntu and the start of the container can be done with the following
-commands:
-
-```
-sudo docker build -t ccsvv_ubuntu_deb --build-arg DEB_OS=ubuntu cmake-build
-
-docker run -it ccsvv_ubuntu_deb ccsvv -d : /etc/passwd
-```
-
-The same for debian:
-
-```
-sudo docker build -t ccsvv_debian_deb --build-arg DEB_OS=debian cmake-build
-
-docker run -it ccsvv_debian_deb ccsvv -d : /etc/passwd
-```
-
-## Build from sources
-
-Building *ccsvv* and *ncurses* from their sources is similar for the different linux operating systems. It
-consists of two steps. In the first step an image for the os is created, that contains the tools to build
-*ccsvv*. In the second step the compiling of the sources takes place. Let us start with the second step.
-
-### Ubuntu build tool image
-
-The second step is identical for all linux systems. The dockerfile requires a BUILD_OS parameter, which is
-the tag of the image from the first step. It defines *ncurses* version informations and a PREFIX for the
-installation. This is not strictly necessary. To use the PREFIX we have to export the LD_LIBRARY_PATH with
-the lib directory from the PREFIX.
-
-The build commands are straightforward.
-
-* download the sources with wget
-* extract the archive and cd to the directory
-* call: ./configure, make, make install
-
-```
-# File: dockerfile.src
-
-ARG BUILD_OS=
-
-FROM ${BUILD_OS}
-
-MAINTAINER dead-end
-
-ARG NCURSES_MAJOR=6
-ARG NCURSES_MINOR=1
-ARG NCURSES_VERSION=${NCURSES_MAJOR}.${NCURSES_MINOR}
-ARG PREFIX=/usr/local
-
-ENV LD_LIBRARY_PATH=${PREFIX}/lib
-
-WORKDIR /tmp
-
-RUN wget --no-verbose https://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz && \
-	tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
-	cd ncurses-${NCURSES_VERSION} && \
-	./configure --prefix=${PREFIX} --enable-widec --with-shared --disable-leaks && \
-	make && \
-	make install
-
-RUN wget --no-verbose https://github.com/dead-end/curses_csv_viewer/archive/master.zip && \
-	unzip master.zip && \
-	cd curses_csv_viewer-master && \
-	make NCURSES_CONFIG=${PREFIX}/bin/ncursesw${NCURSES_MAJOR}-config
-```
-
-### Ubuntu build tool image
-
-The dockerfile to create the build tool image for ubuntu.
-
-```
-# File: dockerfile.ubuntu
-
-FROM ubuntu
-
-MAINTAINER dead-end
-
-RUN apt-get update && \
-	apt-get install -y gcc && \
-	apt-get install -y make && \
-	apt-get install -y zip && \
-	apt-get install -y wget
-```
-
-The commands to build the images and run the container:
-
-```
-sudo docker build -t ccsvv_ubuntu -f dockerfile.ubuntu .
-
-sudo docker build -t ccsvv_ubuntu_src --build-arg BUILD_OS=ccsvv_ubuntu -f dockerfile.src .
-
-docker run -it ccsvv_ubuntu_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
-```
-
-### Debian build tool image
-
-The dockerfile to create the build tool image for debian.
-
-```
-# File: dockerfile.debian
-
-FROM debian
-
-MAINTAINER dead-end
-
-RUN apt-get update && \
-	apt-get install -y gcc && \
-	apt-get install -y make && \
-	apt-get install -y zip && \
-	apt-get install -y wget
-```
-
-The commands to build the images and run the container:
-
-```
-sudo docker build -t ccsvv_debian -f dockerfile.debian .
-
-sudo docker build -t ccsvv_debian_src --build-arg BUILD_OS=ccsvv_debian -f dockerfile.src .
-
-docker run -it ccsvv_debian_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
-```
-
-### Archlinux build tool image
-
-The dockerfile to create the build tool image for archlinux.
-
-```
-# File: dockerfile.arch
-
-FROM archlinux/base
-
-MAINTAINER dead-end
-
-RUN pacman -Sy && \
-	pacman -S --noconfirm wget && \
-	pacman -S --noconfirm unzip && \
-	pacman -S --noconfirm grep && \
-	pacman -S --noconfirm awk && \
-	pacman -S --noconfirm make && \
-	pacman -S --noconfirm gcc
-```
-
-The commands to build the images and run the container:
-
-```
-sudo docker build -t ccsvv_arch -f dockerfile.arch .
-
-sudo docker build -t ccsvv_arch_src --build-arg BUILD_OS=ccsvv_arch -f dockerfile.src .
-
-docker run -it ccsvv_arch_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
-```
-
-### Centos build tool image
-
-The dockerfile to create the build tool image for centos.
-
-```
-# File: dockerfile.centos
-
-FROM centos
-
-MAINTAINER dead-end
-
-RUN yum -y update && \
-	yum -y install gcc && \
-	yum -y install make && \
-	yum -y install unzip && \
-	yum -y install wget
-```
-
-The commands to build the images and run the container:
-
-```
-sudo docker build -t ccsvv_centos -f dockerfile.centos .
-
-sudo docker build -t ccsvv_centos_src --build-arg BUILD_OS=ccsvv_centos -f dockerfile.src .
-
-docker run -it ccsvv_centos_src /tmp/curses_csv_viewer-master/ccsvv -d : /etc/passwd
-```
-
-## Build and install *.deb* package on ubuntu
-
-The following docker file creates a ubuntu container with build tools, compiles *ccsvv* and creates
-a *.deb* package.
-
-```dockerfile
-################################################################################
-# sudo docker build -t ccsvv_deb_build -f dockerfile.deb.build .
-#
-# docker run -it ccsvv_deb_build sh /tmp/curses_csv_viewer-master/bin/test_run.sh
-################################################################################
-
-FROM ubuntu
-
-MAINTAINER dead-end
-
-ARG NCURSES_MAJOR=5
-
-#
-# Necessary for unit tests
-#
-ENV LANG=C.UTF-8
-
-#
-# Stop cmake on errors
-#
-ENV CTEST_OUTPUT_ON_FAILURE=1
-
-#
-# Download sources zipfile
-#
-ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
-
-#
-# Install build tools and dependencies
-#
-RUN apt-get update && \
-        apt-get install -y zip && \
-        apt-get install -y cmake && \
-        apt-get install -y libtinfo${NCURSES_MAJOR} && \
-        apt-get install -y libncursesw${NCURSES_MAJOR} && \
-        apt-get install -y libncursesw${NCURSES_MAJOR}-dev
-
-WORKDIR /tmp
-
-#
-# Build ccsvv
-#
-RUN unzip master.zip && \
-        cd curses_csv_viewer-master && \
-        sh bin/cmake_build.sh && \
-        apt-get install -y /tmp/curses_csv_viewer-master/cmake-build/ccsvv_*_amd64.deb
-```
-
-With the following command, you can copy the newly created package from the container to the host filesystem. The
-option `-q` is quiet and returns only numeric IDs and the option `-l` shows the latest created container.
-
-```bash
-docker cp $(docker ps -q -l):/tmp/curses_csv_viewer-master/cmake-build/ccsvv_0.2.0_amd64.deb .
-```
-
-The last docker file creates an ubuntu container and installes the newly created *.deb* package.
-
-```dockerfile
-################################################################################
-# sudo docker build -t ccsvv_deb_install -f dockerfile.deb.install .
-#
-# docker run -it ccsvv_deb_install ccsvv -d : /etc/passwd
-################################################################################
-
-FROM ubuntu
-
-ARG CCSVV_VERSION=0.2.0
-
-MAINTAINER dead-end
-
-COPY ccsvv_${CCSVV_VERSION}_amd64.deb /tmp
-
-RUN apt-get update && \
-	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
-```
-
 ## Building *ccsvv* from source files
 
 I am using docker to test the build of *ccsvv* from the source files for the following linux systems:
@@ -340,7 +69,9 @@ I am using docker to test the build of *ccsvv* from the source files for the fol
 - [fedora.dockerfile](fedora.dockerfile)
 - [centos.dockerfile](centos.dockerfile)
 
-The docker files are quit similar. Install tools to build the application:
+The docker files are quit similar. They install tools used for the build
+of the application, they extract the sources and start the build. The
+build tool are:
 
 - zip
 - make
@@ -348,20 +79,24 @@ The docker files are quit similar. Install tools to build the application:
 - ncurses libraries
 - other like `ps` command
 
-In order to run the tests, a locale has to be set and the locale has to be UTF8, for example:
+During the build, unit tests are started. They require a locale set to UTF8.
+The different linux systems have different default locales installed. For
+example archlinux has:
 
 ```dockerfile
 ENV LANG=en_US.utf8
 ```
 
-The *ccsvv* application uses the ncurses config file, the get build configurations. Depending on the installed
-ncurses this can be `ncurses5-config` or `ncurses6-config`:
+The *ccsvv* application uses a config script from ncurses to get configuration
+data for the build. Depending on the installed ncurses version this script is
+`ncurses5-config` or `ncurses6-config`:
 
 ```dockerfile
 ARG NCURSES_MAJOR=6
 ```
 
-To be able to start *ccsvv* it is important to set the path. This is required for the test script `test_run.sh`:
+To be able to start *ccsvv* it is important to set the path. This is required 
+for the test script `test_run.sh`:
 
 ```dockerfile
 ENV PATH=$PATH:/tmp/curses_csv_viewer-master
@@ -375,8 +110,9 @@ sudo docker build -t ccsvv_archlinux -f docker/archlinux.dockerfile docker/
 docker run -it ccsvv_archlinux sh /tmp/curses_csv_viewer-master/bin/test_run.sh
 ```
 
-The centos build fails. The header file does not contain all wide character related functions, so the build process
-fails. This is not a *ccsvv* issue, but it shows that the tests are a good idea.
+The build on centos fails. The ncurses header file does not contain all wide
+character related functions. This is not a *ccsvv* issue, but it shows that
+the tests are a good idea.
 
 ```bash
  cc -c -o build/ncv_forms.o src/ncv_forms.c -std=c11 -O2 -D_GNU_SOURCE  -Wall -Wextra -Wpedantic -Werror -Iinc  -lncursesw -ltinfo -lformw -lmenuw -lm
@@ -387,3 +123,29 @@ src/ncv_forms.c:46:2: error: implicit declaration of function 'form_driver_w' [-
 cc1: all warnings being treated as errors
 make: *** [build/ncv_forms.o] Error 1
 ```
+
+## Building a *.deb* package
+
+I am using docker to build a *.deb* packages for the *ccsvv* application.
+This is done in several steps. The first step is to create a docker image
+that builds the application from its source files. This is similar to the
+builds for the other linux systems. After the build the package is created.
+
+[deb.build.dockerfile](deb.build.dockerfile)
+
+After we created the *.deb* package, we want to know if it works, by
+installing the package and running the test script. But the image contains
+all the dependencies of *ccsvv*, because they are necessary for the build.
+
+To do a proper testing, we copy the *.deb* file from the image to the host
+file system. This is done with the command:
+
+```dockerfile
+docker cp $(docker ps -q -l):/<image-dir>/ccsvv.deb <host-dir>
+```
+
+And then we create a new image without the dependencies. We
+install the *.deb* package on that image start the container and run the
+smoke test script.
+
+[deb.install.dockerfile](deb.install.dockerfile)
