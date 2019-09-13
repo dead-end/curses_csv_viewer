@@ -19,10 +19,12 @@ that are running during the build, which tests the business logic. Additionally
 
 [bin/test_run.sh](bin/test_run.sh)
 
-First it starts a process that polls for a *ccsvv* process. If it finds one it 
-sends a `SIGUSR1` signal to this process. Then the srcipt starts the *ccsvv* 
-process. *ccsvv* has a signal handler for the `SIGUSR1` signal, which terminates
-the program.
+The aim of the script is to start *ccsvv* which reads and displays a file 
+(`/etc/paaswd`). The script then sends a signal (`SIGUSR1`) which causes
+*ccsvv* to terminate. The script terminates with the return code of *ccsvv*.
+This can only be accomblished with a background process, that polls for a
+*ccsvv* process and sends a signal if such a process comes to existance. This
+signal terminates *ccsvv*.
 
 ![Smoke test](../img/smoke_test.png)
 
