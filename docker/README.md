@@ -1,8 +1,8 @@
 # Docker
 
-I am using docker to test *ccsvv*, its build and installation on verious linux
-distributions. The docker files can be seen as an installation instruction. It
-shows the installation requiremnments as well as the installation process.
+I am using docker to test *ccsvv*, its build and installation on various linux distributions. 
+The docker files can be seen as an installation instruction. It shows the installation 
+requirements as well as the installation process.
 
 The following script triggers all docker builds and tests:
 
@@ -20,6 +20,8 @@ that are running during the build, which tests the business logic.
 First it starts a process that polls for a *ccsvv* process. If it finds one it 
 sends a `SIGUSR1` signal to this process. Then the srcipt starts the *ccsvv* 
 process. After a while it receives the signal and terminates.
+
+![Smoke test](../img/smoke_test.png)
 
 The smoke test ensures that the execution flag is set and the the required libraries
 are found.
