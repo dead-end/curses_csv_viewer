@@ -1,24 +1,26 @@
 ################################################################################
 # File: deb.build.dockerfile
 #
-# Bild the image:
+# Build the image:
 #
 #   sudo docker build -t ccsvv_deb_build -f docker/deb.build.dockerfile docker/
 #
 # Run test:
 #
-#   docker run -it ccsvv_deb_build sh /tmp/curses_csv_viewer-master/bin/test_run.sh
+#   docker run -it ccsvv_deb_build sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
 ################################################################################
 
 FROM ubuntu
-
-MAINTAINER dead-end
 
 #
 # The ccsvv version should be set by the caller
 #
 ARG CCSVV_VERSION=0.2.0
 
+#
+# The ncurses major version necessary for the config script ncurses5-config or 
+# ncurses6-config
+#
 ARG NCURSES_MAJOR=5
 
 #
@@ -46,6 +48,9 @@ RUN apt-get update && \
         apt-get install -y libncursesw${NCURSES_MAJOR} && \
         apt-get install -y libncursesw${NCURSES_MAJOR}-dev
 
+#
+# Set the directory for the build steps
+#
 WORKDIR /tmp
 
 #

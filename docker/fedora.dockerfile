@@ -1,7 +1,7 @@
 ################################################################################
 # File: fedora.dockerfile
 #
-# Bild the image:
+# Build the image:
 #
 #   sudo docker build -t ccsvv_fedora -f docker/fedora.dockerfile docker/
 #
@@ -12,8 +12,10 @@
 
 FROM fedora
 
-MAINTAINER dead-end
-
+#
+# The ncurses major version necessary for the config script ncurses5-config or 
+# ncurses6-config
+#
 ARG NCURSES_MAJOR=6
 
 #
@@ -36,6 +38,9 @@ RUN yum -y update && \
 	yum -y install ncurses-devel && \
 	yum -y install procps
 
+#
+# Set the directory for the build steps
+#
 WORKDIR /tmp
 
 #

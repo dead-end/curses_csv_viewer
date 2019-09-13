@@ -1,7 +1,7 @@
 ################################################################################
 # File: centos.dockerfile
 #
-# Bild the image:
+# Build the image:
 #
 #   sudo docker build -t ccsvv_centos -f docker/centos.dockerfile docker/
 #
@@ -12,8 +12,10 @@
 
 FROM centos
 
-MAINTAINER dead-end
-
+#
+# The ncurses major version necessary for the config script ncurses5-config or 
+# ncurses6-config
+#
 ARG NCURSES_MAJOR=5
 
 #
@@ -35,6 +37,9 @@ RUN yum -y update && \
 	yum -y install make && \
 	yum -y install ncurses-devel
 
+#
+# Set the directory for the build steps
+#
 WORKDIR /tmp
 
 #

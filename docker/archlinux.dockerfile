@@ -1,7 +1,7 @@
 ################################################################################
 # File: archlinux.dockerfile
 #
-# Bild the image:
+# Build the image:
 #
 #   sudo docker build -t ccsvv_archlinux -f docker/archlinux.dockerfile docker/
 #
@@ -12,8 +12,10 @@
 
 FROM archlinux/base
 
-MAINTAINER dead-end
-
+#
+# The ncurses major version necessary for the config script ncurses5-config or 
+# ncurses6-config
+#
 ARG NCURSES_MAJOR=6
 
 #
@@ -36,6 +38,9 @@ RUN pacman -Sy && \
 	pacman -S --noconfirm ncurses && \
 	pacman -S --noconfirm procps
 
+#
+# Set the directory for the build steps
+#
 WORKDIR /tmp
 
 #

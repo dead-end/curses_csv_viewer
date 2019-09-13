@@ -1,18 +1,16 @@
 ################################################################################
 # File: deb.build.dockerfile
 #
-# Bild the image:
+# Build the image:
 #
 #   sudo docker build -t ccsvv_deb_install -f docker/deb.install.dockerfile docker/
 #
 # Run test:
 #
-#   docker run -it ccsvv_deb_install sh /tmp/curses_csv_viewer-master/bin/test_run.sh
+#   docker run -it ccsvv_deb_install sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
 ################################################################################
 
 FROM ubuntu
-
-MAINTAINER dead-end
 
 #
 # The ccsvv version should be set by the caller
