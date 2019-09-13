@@ -26,7 +26,7 @@ the program.
 
 ![Smoke test](../img/smoke_test.png)
 
-The smoke test ensures that the execution flag is set for the *ccsvv* program,  
+The smoke test ensures that the execution flag is set for the *ccsvv* program,
 the required libraries are found and that *ccsvv* is able to read and display 
 the `/etc/passwd` file.
 
