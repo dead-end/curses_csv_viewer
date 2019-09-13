@@ -51,7 +51,7 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>310</x>
+      <x>290</x>
       <y>90</y>
       <w>130</w>
       <h>30</h>
@@ -87,19 +87,19 @@ bg=orange</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>290</x>
       <y>30</y>
-      <w>120</w>
+      <w>140</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;
 3.) polling</panel_attributes>
-    <additional_attributes>10.0;60.0;10.0;20.0;100.0;20.0;100.0;60.0</additional_attributes>
+    <additional_attributes>10.0;60.0;10.0;20.0;120.0;20.0;120.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>430</x>
+      <x>410</x>
       <y>90</y>
       <w>160</w>
       <h>130</h>
