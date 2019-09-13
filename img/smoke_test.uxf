@@ -105,7 +105,7 @@ bg=orange</panel_attributes>
       <h>130</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;
-5.) signal</panel_attributes>
+6.) signal</panel_attributes>
     <additional_attributes>10.0;20.0;140.0;20.0;140.0;110.0</additional_attributes>
   </element>
   <element>
@@ -128,7 +128,31 @@ bg=orange</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;
-6.) terminate</panel_attributes>
+7.) terminate</panel_attributes>
     <additional_attributes>10.0;20.0;150.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>490</x>
+      <y>280</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bg=red
+/etc/passwd</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>540</x>
+      <y>220</y>
+      <w>180</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;
+5.) read &amp; display</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
 </diagram>
