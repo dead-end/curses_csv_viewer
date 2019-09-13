@@ -21,7 +21,7 @@ that are running during the build, which tests the business logic. Additionally
 
 The aim of the script is to start *ccsvv* which reads and displays a file 
 (`/etc/paaswd`). The script then sends a signal (`SIGUSR1`) which causes
-*ccsvv* to terminate. The script terminates with the return code of *ccsvv*.
+*ccsvv* to terminate. The script itself terminates with the return code of *ccsvv*.
 This can only be accomblished with a background process, that polls for a
 *ccsvv* process and sends a signal if such a process comes to existance. This
 signal terminates *ccsvv*.
