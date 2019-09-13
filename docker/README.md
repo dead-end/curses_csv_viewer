@@ -51,6 +51,13 @@ You can overwrite build arguments with:
 docker build ... --build-arg var_1=value_1 --build-arg var_2=value_2 ...
 ```
 
+Mount host directory: *$HOME/data* into the container: */data*, start the container and call `ls /data`
+on the container directory.
+
+```
+  docker run -v $HOME/data:/data debian ls /data
+```
+
 You can cleanup the docker images and containers with:
 
 ```
