@@ -1,20 +1,21 @@
 # Docker
 
-I am using docker to test *ccsvv*, the build of *ccsvv* as well as the installation of *ccsvv* 
+I am using docker to test *ccsvv*, the build of *ccsvv* and the installation of *ccsvv* 
 on various linux distributions. 
 The docker files can be seen as an installation instruction. It shows the installation 
 requirements as well as the installation process.
 
-The following script triggers all docker builds and tests, that are described below:
+The following script triggers all docker builds and tests, that are described below. It 
+can be used with a *clean* argument, that deletes all docker images and containers before
+the tests.
 
 [bin/test_docker.sh](bin/test_docker.sh)
 
 ## Smoke tests
 
 Testing a terminal based application is not easy. *ccsvv* has several unit tests
-that are running during the build, which tests the business logic.
-
-Additionally *ccsvv* has a test script, that performs a simple smoke test. 
+that are running during the build, which tests the business logic. Additionally 
+*ccsvv* has a test script, that performs a simple smoke test:
 
 [bin/test_run.sh](bin/test_run.sh)
 
@@ -25,8 +26,9 @@ the program.
 
 ![Smoke test](../img/smoke_test.png)
 
-The smoke test ensures that the execution flag is set and the the required libraries
-are found.
+The smoke test ensures that the execution flag is set for the *ccsvv* program,  
+the required libraries are found and that *ccsvv* is able to read and display 
+the `/etc/passwd` file.
 
 ## Useful docker commands
 
