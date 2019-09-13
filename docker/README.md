@@ -4,6 +4,10 @@ I am using docker to test *ccsvv*, its build and installation on verious linux
 distributions. The docker files can be seen as an installation instruction. It
 shows the installation requiremnments as well as the installation process.
 
+The following script triggers all docker builds and tests:
+
+[bin/test_docker.sh](bin/test_docker.sh)
+
 ## Smoke tests
 
 Testing a terminal based application is not easy. *ccsvv* has several unit tests
@@ -11,7 +15,7 @@ that are running during the build, which tests the business logic.
 
 *ccsvv* has a test script, that performs a simple smoke test. 
 
-[bin/test_docker.sh](bin/test_docker.sh)
+[bin/test_run.sh](bin/test_run.sh)
 
 First it starts a process that polls for a *ccsvv* process. If it finds one it 
 sends a `SIGUSR1` signal to this process. Then the srcipt starts the *ccsvv* 
