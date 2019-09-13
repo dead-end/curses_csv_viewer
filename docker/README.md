@@ -1,10 +1,11 @@
 # Docker
 
-I am using docker to test *ccsvv*, its build and installation on various linux distributions. 
+I am using docker to test *ccsvv*, the build of *ccsvv* as well as the installation of *ccsvv* 
+on various linux distributions. 
 The docker files can be seen as an installation instruction. It shows the installation 
 requirements as well as the installation process.
 
-The following script triggers all docker builds and tests:
+The following script triggers all docker builds and tests, that are described below:
 
 [bin/test_docker.sh](bin/test_docker.sh)
 
@@ -13,13 +14,14 @@ The following script triggers all docker builds and tests:
 Testing a terminal based application is not easy. *ccsvv* has several unit tests
 that are running during the build, which tests the business logic.
 
-*ccsvv* has a test script, that performs a simple smoke test. 
+Additionally *ccsvv* has a test script, that performs a simple smoke test. 
 
 [bin/test_run.sh](bin/test_run.sh)
 
 First it starts a process that polls for a *ccsvv* process. If it finds one it 
 sends a `SIGUSR1` signal to this process. Then the srcipt starts the *ccsvv* 
-process. After a while it receives the signal and terminates.
+process. *ccsvv* has a signal handler for the `SIGUSR1` signal, which terminates
+the program.
 
 ![Smoke test](../img/smoke_test.png)
 
@@ -34,7 +36,7 @@ Search for a docker image:
 docker search ubuntu
 ```
 
-Run the image *interactive* with a *tty*:
+Run a docker image *interactively* with a *tty*:
 
 ```
 docker run -it ubuntu
@@ -83,16 +85,15 @@ I am using docker to test the build of *ccsvv* from the source files for the fol
 - [centos.dockerfile](centos.dockerfile)
 
 The docker files are quit similar. They install tools used for the build
-of the application, they extract the sources and start the build. The
+of the application, they extract the sources and start the build. The main
 build tool are:
 
 - zip
 - make
 - gcc
 - ncurses libraries
-- other like `ps` command
 
-During the build, unit tests are started. They require a locale set to UTF8.
+During the build, unit tests are started. They require a locale with UTF8 to be set.
 The different linux systems have different default locales installed. For
 example archlinux has:
 
@@ -101,7 +102,7 @@ ENV LANG=en_US.utf8
 ```
 
 The *ccsvv* application uses a config script from ncurses to get configuration
-data for the build. Depending on the installed ncurses version this script is
+data for the build. Depending on the installed ncurses major version this script is
 `ncurses5-config` or `ncurses6-config`:
 
 ```dockerfile
@@ -143,6 +144,7 @@ I am using docker to build a *.deb* packages for the *ccsvv* application.
 This is done in several steps. The first step is to create a docker image
 that builds the application from its source files. This is similar to the
 builds for the other linux systems. After the build the package is created.
+This is done in the following docker file:
 
 [deb.build.dockerfile](deb.build.dockerfile)
 
