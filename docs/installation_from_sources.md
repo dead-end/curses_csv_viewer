@@ -13,13 +13,12 @@ mkdir -p $HOME/usr/local
 
 ## ncurses
 
-The first step is to download the *ncurses* sources from:
-
-https://invisible-mirror.net/archives/ncurses/
-
-For this document I used: *ncurses-6.1.tar.gz*, which has to be extracted.
+The first step is to download the *ncurses* and extract the sources. At the time, writing this
+document the highest version is: *ncurses-6.1.tar.gz*
 
 ```bash
+wget https://invisible-mirror.net/archives/ncurses/ ncurses-6.1.tar.gz
+
 gunzip ncurses-6.1.tar.gz
 
 tar xvf ncurses-6.1.tar
@@ -65,12 +64,13 @@ export LANG=C.UTF-8
 
 ## ccsvv
 
-The next step is to download and extract *ccsvv* from: 
-
-https://github.com/dead-end/curses_csv_viewer
+The next step is to download and extract *ccsvv*:
 
 ```bash
-unzip curses_csv_viewer-master.zip
+
+wget https://github.com/dead-end/curses_csv_viewer/archive/master.zip
+
+unzip master.zip
 
 cd curses_csv_viewer-master
 ```

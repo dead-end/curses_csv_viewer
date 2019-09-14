@@ -95,6 +95,17 @@ check "${?}" "Unable to build ccsvv_deb_install"
 docker run -it ccsvv_deb_install sh /tmp/test_run.sh
 check "${?}" "Unable to run ccsvv_deb_install"
 
+#
+# ncurses source install test
+#
+echo "TEST: ncurses source install test"
+
+sudo docker build -t ncurses_src -f docker/ncurses_src.dockerfile docker/
+check "${?}" "Unable to build ncurses_src"
+
+docker run -it ncurses_src sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
+check "${?}" "Unable to run ncurses_src"
+
 echo "Docker tests: OK"
 
 exit 0
