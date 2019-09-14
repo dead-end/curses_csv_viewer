@@ -5,7 +5,7 @@
 # started with no argument. In this case the script starts itself again with a
 # "signal" argument in the background and then starts the ccsvv program.
 # The background skript is polling for a pid of the ccsvv program and if it
-# finds on, it sends a SIGUSR1 (10) signal to the ccsvv. The ccsvv has a signal
+# finds one, it sends a SIGUSR1 (10) signal to the ccsvv. The ccsvv has a signal
 # handler that waits for SIGUSR1 signals and terminates ccsvv with an exit
 # code of 0. So calling:
 # 
