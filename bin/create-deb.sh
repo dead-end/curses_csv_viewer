@@ -1,7 +1,7 @@
 #/bin/sh
 
 ###############################################################################
-#
+# The program is call without arguments and builds a .deb package.
 ###############################################################################
 
 set -ue
@@ -51,7 +51,7 @@ copy() {
 }
 
 ###############################################################################
-#
+# Main program
 ###############################################################################
 
 if [ ! -d "${build_dir}" ] ; then
@@ -94,8 +94,21 @@ copy "${exec}" "${root_dir}/usr/bin"
 
 copy "LICENSE" "${root_dir}/usr/share/doc/${exec}"
 
-sed "s#%(version)%#${version}# ; s#%(dependencies)%#${dependencies=}#" "pkgs/control" \
-	> "${root_dir}/DEBIAN/control" || do_exit "Unable to replace version"
+#
+# Write the control file (${dependencies=} sets the default to "" if the
+# variable is not defined.)
+#
+cat << EOF > "${root_dir}/DEBIAN/control"
+Package: ccsvv
+Version: ${version}
+Priority: optional
+Section: Utilities
+Architecture: amd64
+Homepage: https://github.com/dead-end/curses_csv_viewer
+Depends: ${dependencies=}
+Maintainer: dead-end
+Description: Curses based csv file viewer
+EOF
 
 dpkg-deb --build ${root_dir} || do_exit "dpkg-deb"
 
