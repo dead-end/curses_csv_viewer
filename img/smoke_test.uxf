@@ -5,7 +5,7 @@
     <id>UMLActor</id>
     <coordinates>
       <x>50</x>
-      <y>180</y>
+      <y>190</y>
       <w>60</w>
       <h>110</h>
     </coordinates>
@@ -16,7 +16,7 @@
     <id>Relation</id>
     <coordinates>
       <x>100</x>
-      <y>200</y>
+      <y>210</y>
       <w>160</w>
       <h>40</h>
     </coordinates>
@@ -28,7 +28,7 @@
     <id>UMLGeneric</id>
     <coordinates>
       <x>240</x>
-      <y>200</y>
+      <y>210</y>
       <w>130</w>
       <h>30</h>
     </coordinates>
@@ -40,7 +40,7 @@ bg=orange</panel_attributes>
     <id>UMLGeneric</id>
     <coordinates>
       <x>490</x>
-      <y>200</y>
+      <y>210</y>
       <w>130</w>
       <h>30</h>
     </coordinates>
@@ -52,7 +52,7 @@ bg=yellow</panel_attributes>
     <id>UMLGeneric</id>
     <coordinates>
       <x>290</x>
-      <y>90</y>
+      <y>100</y>
       <w>130</w>
       <h>30</h>
     </coordinates>
@@ -64,7 +64,7 @@ bg=orange</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>320</x>
-      <y>110</y>
+      <y>120</y>
       <w>110</w>
       <h>110</h>
     </coordinates>
@@ -76,7 +76,7 @@ bg=orange</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>360</x>
-      <y>200</y>
+      <y>210</y>
       <w>150</w>
       <h>40</h>
     </coordinates>
@@ -87,20 +87,20 @@ bg=orange</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>290</x>
-      <y>30</y>
-      <w>140</w>
+      <x>220</x>
+      <y>40</y>
+      <w>280</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;
-3.) polling</panel_attributes>
-    <additional_attributes>10.0;60.0;10.0;20.0;120.0;20.0;120.0;60.0</additional_attributes>
+3.) polling for a ccsvv process</panel_attributes>
+    <additional_attributes>80.0;60.0;80.0;20.0;190.0;20.0;190.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>410</x>
-      <y>90</y>
+      <y>100</y>
       <w>160</w>
       <h>130</h>
     </coordinates>
@@ -112,7 +112,7 @@ bg=orange</panel_attributes>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>760</x>
-      <y>210</y>
+      <y>220</y>
       <w>20</w>
       <h>20</h>
     </coordinates>
@@ -123,7 +123,7 @@ bg=orange</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>610</x>
-      <y>200</y>
+      <y>210</y>
       <w>170</w>
       <h>40</h>
     </coordinates>
@@ -135,7 +135,7 @@ bg=orange</panel_attributes>
     <id>UMLGeneric</id>
     <coordinates>
       <x>490</x>
-      <y>280</y>
+      <y>290</y>
       <w>130</w>
       <h>30</h>
     </coordinates>
@@ -147,12 +147,37 @@ bg=orange</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>540</x>
-      <y>220</y>
+      <y>230</y>
       <w>180</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;&gt;
 5.) read &amp; display</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>290</x>
+      <y>230</y>
+      <w>150</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;
+8.) terminates
+with ccsvv exit
+code</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>290</x>
+      <y>320</y>
+      <w>20</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>type=termination</panel_attributes>
+    <additional_attributes/>
   </element>
 </diagram>
