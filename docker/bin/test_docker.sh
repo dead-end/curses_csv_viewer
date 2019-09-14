@@ -81,7 +81,7 @@ check "${?}" "Unable to run ccsvv_deb_build"
 #
 # Get the deb package from the docker image
 #
-docker cp $(docker ps -q -l):/tmp/curses_csv_viewer-master/cmake-build/ccsvv_${CCSVV_VERSION}_amd64.deb docker/tmp/
+docker cp $(docker ps -q -l):/tmp/ccsvv_${CCSVV_VERSION}_amd64.deb docker/tmp/
 check "${?}" "Unable to extract .deb file from image"
 
 #

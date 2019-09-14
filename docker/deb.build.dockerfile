@@ -61,5 +61,6 @@ RUN unzip master.zip && \
         cd curses_csv_viewer-master && \
         make NCURSES_MAJOR=${NCURSES_MAJOR} && \
         sh bin/create-deb.sh && \
-		apt-get install -y /tmp/curses_csv_viewer-master/build/root/ccsvv_0.2.0_amd64.deb
+        cp /tmp/curses_csv_viewer-master/build/root/ccsvv_0.2.0_amd64.deb /tmp/ && \
+		apt-get install -y /tmp/ccsvv_0.2.0_amd64.deb
 
