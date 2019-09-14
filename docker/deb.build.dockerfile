@@ -43,7 +43,8 @@ ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
 #
 RUN apt-get update && \
         apt-get install -y zip && \
-        apt-get install -y cmake && \
+        apt-get install -y gcc && \
+        apt-get install -y make && \
         apt-get install -y libtinfo${NCURSES_MAJOR} && \
         apt-get install -y libncursesw${NCURSES_MAJOR} && \
         apt-get install -y libncursesw${NCURSES_MAJOR}-dev
@@ -60,5 +61,5 @@ RUN unzip master.zip && \
         cd curses_csv_viewer-master && \
         make NCURSES_MAJOR=${NCURSES_MAJOR} && \
         sh bin/create-deb.sh && \
-		apt-get install -y build/root/ccsvv_0.2.0_amd64.deb
+		apt-get install -y /tmp/curses_csv_viewer-master/build/root/ccsvv_0.2.0_amd64.deb
 
