@@ -90,7 +90,10 @@ mk_dir "${root_dir}/usr/share/doc/${exec}"
 
 mk_dir "${root_dir}/DEBIAN"
 
-copy "${exec}" "${root_dir}/usr/bin"
+#
+# Needed for lintian
+#
+strip -S --strip-unneeded -o "${root_dir}/usr/bin/${exec}" "${exec}" || do_exit "strip failed"
 
 copy "LICENSE" "${root_dir}/usr/share/doc/${exec}"
 
@@ -107,10 +110,14 @@ Architecture: amd64
 Homepage: https://github.com/dead-end/curses_csv_viewer
 Depends: ${dependencies=}
 Maintainer: dead-end
-Description: Curses based csv file viewer
+Description: Curses based csv file 
+ viewer
 EOF
 
-dpkg-deb --build ${root_dir} || do_exit "dpkg-deb"
+#
+# fakeroot sets permissions and owner:group
+#
+fakeroot dpkg-deb --build ${root_dir} || do_exit "dpkg-deb"
 
 exit 0
 
