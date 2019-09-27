@@ -190,9 +190,15 @@ BINDIR = $(PREFIX)/bin
 
 DOCDIR = $(PREFIX)/share/doc/$(EXEC)
 
+MANDIR = $(PREFIX)/share/man/man1
+
+MANPAGE = ccsvv.1
+
 .PHONY: install uninstall
 
 install: $(EXEC)
+	gzip man/$(MANPAGE)
+	install -D --mode=644 man/$(MANPAGE).gz --target-directory=$(MANDIR)
 	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR)
 	install -D --mode=644 LICENSE --target-directory=$(DOCDIR)
 
@@ -200,6 +206,7 @@ uninstall:
 	rm -f $(DOCDIR)/LICENSE
 	if [ -d "$(DOCDIR)" ]; then rmdir $(DOCDIR); fi
 	rm -f $(BINDIR)/$(EXEC)
+	rm -f $(MANDIR)/$(MANPAGE).gz
 
 ################################################################################
 # The cleanup goal deletes the executable, the test programs, all object files
@@ -209,6 +216,8 @@ uninstall:
 .PHONY: clean
 
 clean:
+	rm -f man/$(MANPAGE).gz
+	rm -rf $(OBJ_DIR)/root/
 	rm -f $(OBJ_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
 	rm -f $(INC_DIR)/*.h~
