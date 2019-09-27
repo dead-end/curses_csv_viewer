@@ -1,0 +1,94 @@
+.\"-----------------------------------------------------------------------------
+.\" groff -man -Tascii man/ccsvv.1
+.\"
+.\" \fB .B Bold \fI .I Italic \fR Roman
+.\"-----------------------------------------------------------------------------
+.TH "CCSVV" "1" "September 2019" "V 0.3" "User Commands"
+.\"-----------------------------------------------------------------------------
+.SH NAME
+ccsvv \- displays a csv (comma-separated values) file as a table
+.\"-----------------------------------------------------------------------------
+.SH SYNOPSIS
+.\"-----------------------------------------------------------------------------
+.B ccsvv
+[\fI\,OPTION\/\fR]... [\fI\,FILE\/\fR]
+.\"-----------------------------------------------------------------------------
+.SH DESCRIPTION
+.\"-----------------------------------------------------------------------------
+.PP
+The program is called with the name of a csv FILE. If no filename is defined, 
+ccsvv reads the csv data from stdin.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB\-h\fR
+Shows a help text.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB\-d delimiter\fR
+Defines a delimiter character, other than the default comma.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB\-m\fR
+By default ccsvv uses colors if the terminal supports them. With this option 
+ccsvv is forced to use a monochrom mode.
+.\"-----------------------------------------------------------------------------
+.\"
+.TP
+\fB\-s | -n\fR
+The flags define whether the first row of the table is interpreted as a header 
+for the table (\fB\-s\fR) or not (\fB\-n\fR). If none of the flags is given 
+ccsvv tries to detect whether a header is present or not.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB\-t\fR
+Switch off trimming of the csv fields.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB\-c\fR
+By default ccsvv adds missing fields in a row. The flag switches on strict 
+checks. A missing field results in an error.
+.\"-----------------------------------------------------------------------------
+.SH COMMANDS
+After ccsvv started, the following commands can be used:
+.\"-----------------------------------------------------------------------------
+.TP
+\fB^C\fR, \fB^Q\fR
+Terminates the program.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB^H\fR
+Shows a help dialog.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB^F\fR
+Shows a filter / search dialog.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB^X\fR
+Deletes the filter / search string in the dialog.
+.\"-----------------------------------------------------------------------------
+.TP
+\fBESC\fR
+Delete the filter / search string and resets the table.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB^N\fR, \fB^P\fR
+Searches for the next / previous field that contains the filter / search string.
+.\"-----------------------------------------------------------------------------
+.SH EXAMPLES
+Display the passwd file with ccsvv:
+.PP
+.nf
+.RS
+ccsvv -d : /etc/passwd
+.\"-----------------------------------------------------------------------------
+.SH SEE ALSO
+ncurses(3)
+.\"-----------------------------------------------------------------------------
+.SH BUGS
+No known bugs.
+.\"-----------------------------------------------------------------------------
+.SH AUTHOR
+Dead End
+
+
