@@ -88,6 +88,8 @@ mk_dir "${root_dir}/usr/bin"
 
 mk_dir "${root_dir}/usr/share/doc/${exec}"
 
+mk_dir "${root_dir}/usr/share/man/man1"
+
 mk_dir "${root_dir}/DEBIAN"
 
 #
@@ -96,6 +98,10 @@ mk_dir "${root_dir}/DEBIAN"
 strip -S --strip-unneeded -o "${root_dir}/usr/bin/${exec}" "${exec}" || do_exit "strip failed"
 
 copy "LICENSE" "${root_dir}/usr/share/doc/${exec}"
+
+copy "man/ccsvv.1" "${root_dir}/usr/share/man/man1"
+
+gzip "${root_dir}/usr/share/man/man1/ccsvv.1"
 
 #
 # Write the control file (${dependencies=} sets the default to "" if the
