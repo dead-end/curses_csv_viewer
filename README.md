@@ -13,42 +13,47 @@
 
 ## Usage
 ```
-ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]
+NAME
+       ccsvv - displays a ccsvv file as a table
 
-  -h            Shows this usage message.
+SYNOPSIS
+       ccsvv [OPTION]... [FILE]
 
-  -d delimiter  Defines a delimiter character, other than the default comma.
+DESCRIPTION
+       The  name  of  the csv FILE. If no filename is defined, ccsvv reads the
+       csv data from stdin.
 
-  -m            By default ccsvv uses colors if the terminal supports them. With
-                this option ccsvv is forced to use a monochrom mode.
+       -h     Shows a help text.
 
-  -s | -n       The flags define whether the first row of the table is
-                interpreted as a header for the table ('-s') or not ('-n').
-                If none of the flags is given ccsvv tries to detect whether a
-                header is present or not.
+       -d delimiter
+              Defines a delimiter character, other than the default comma.
 
-  -t            Switch off trimming of the csv fields.
-  
-  -c            By default ccsvv adds missing fields in a row. The flag switches
-                on strict checks. A missing field results in an error.
+       -m     By default ccsvv uses colors if the terminal supports them. With
+              this option ccsvv is forced to use a monochrom mode.
 
+       -s | -n
+              The  flags  define  whether the first row of the table is inter‐
+              preted as a header for the table ('-s') or not ('-n').  If  none
+              of  the flags is given ccsvv tries to detect whether a header is
+              present or not.
 
-  file          The name of the csv file. If no filename is defined, ccsvv reads
-                the csv data from stdin.
+       -t     Switch off trimming of the csv fields.
 
-Commands:
+       -c     By default ccsvv adds missing fields in a row. The flag switches
+              on strict checks. A missing field results in an error.
 
-  ^C and ^Q     Terminate the program.
+COMMANDS
+       ^C, ^Q Terminate the program.
 
-  ^F            Switches to filter input mode and allows to input a filter
-                string.
+       ^F     Switches  to  filter  input  mode  and  allows to input a filter
+              string.
 
-  ^X            In filter mode, deletes the filter string.
+       ^X     In filter mode, deletes the filter string.
 
-  ESC           Delete the filter string and reset the table.
+       ESC    Delete the filter string and reset the table.
 
-  ^N and ^P     Search for the next / previous field that contains the filter
-                string.
+       ^N, ^P Search for the next / previous field that  contains  the  filter
+              string.
 ```
 ## Installation
 
