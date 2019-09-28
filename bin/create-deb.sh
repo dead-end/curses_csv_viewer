@@ -124,6 +124,11 @@ Description: Curses based csv file
 EOF
 
 #
+# Add md5sums
+#
+find "${root_dir}" -type f -not -path "*DEBIAN*" | xargs md5sum | sed "s#${root_dir}##" > "${root_dir}/DEBIAN/md5sums"
+
+#
 # fakeroot sets permissions and owner:group
 #
 fakeroot dpkg-deb --build ${root_dir} || do_exit "dpkg-deb"
