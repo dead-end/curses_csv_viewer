@@ -197,13 +197,15 @@ MANPAGE = ccsvv.1
 .PHONY: install uninstall
 
 install: $(EXEC)
-	gzip man/$(MANPAGE)
-	install -D --mode=644 man/$(MANPAGE).gz --target-directory=$(MANDIR)
-	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR)
-	install -D --mode=644 LICENSE --target-directory=$(DOCDIR)
+	cp man/$(MANPAGE) $(OBJ_DIR)/
+	rm -f $(OBJ_DIR)/$(MANPAGE).gz
+	gzip -9n $(OBJ_DIR)/$(MANPAGE)
+	install -D --mode=644 $(OBJ_DIR)/$(MANPAGE).gz --target-directory=$(MANDIR)
+	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR) --strip
+	install -D --mode=644 LICENSE $(DOCDIR)/copyright
 
 uninstall:
-	rm -f $(DOCDIR)/LICENSE
+	rm -f $(DOCDIR)/copyright
 	if [ -d "$(DOCDIR)" ]; then rmdir $(DOCDIR); fi
 	rm -f $(BINDIR)/$(EXEC)
 	rm -f $(MANDIR)/$(MANPAGE).gz
