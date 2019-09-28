@@ -31,4 +31,5 @@ COPY bin/test_run.sh /tmp
 # Install the .deb package
 #
 RUN apt-get update && \
+	apt-get install -y man && \
 	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
