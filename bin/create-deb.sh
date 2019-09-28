@@ -97,11 +97,14 @@ mk_dir "${root_dir}/DEBIAN"
 #
 strip -S --strip-unneeded -o "${root_dir}/usr/bin/${exec}" "${exec}" || do_exit "strip failed"
 
-copy "LICENSE" "${root_dir}/usr/share/doc/${exec}"
+copy "LICENSE" "${root_dir}/usr/share/doc/${exec}/copyright"
 
 copy "man/ccsvv.1" "${root_dir}/usr/share/man/man1"
 
-gzip "${root_dir}/usr/share/man/man1/ccsvv.1"
+#
+# -9n manpage-not-compressed-with-max-compression
+#
+gzip -9n "${root_dir}/usr/share/man/man1/ccsvv.1"
 
 #
 # Write the control file (${dependencies=} sets the default to "" if the
@@ -111,7 +114,7 @@ cat << EOF > "${root_dir}/DEBIAN/control"
 Package: ccsvv
 Version: ${version}
 Priority: optional
-Section: Utilities
+Section: utils
 Architecture: amd64
 Homepage: https://github.com/dead-end/curses_csv_viewer
 Depends: ${dependencies=}
