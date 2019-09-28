@@ -22,8 +22,8 @@ that are running during the build, which tests the business logic. Additionally
 The aim of the script is to start *ccsvv* which reads and displays a file 
 (`/etc/paaswd`). The script then sends a signal (`SIGUSR1`) which causes
 *ccsvv* to terminate. The script itself terminates with the return code of *ccsvv*.
-This can only be accomblished with a background process, that polls for a
-*ccsvv* process and sends a signal if such a process comes to existance. This
+This can only be accomplished with a background process, that polls for a
+*ccsvv* process and sends a signal if such a process comes to existence. This
 signal terminates *ccsvv*.
 
 ![Smoke test](../img/smoke_test.png)
@@ -168,3 +168,12 @@ install the *.deb* package on that image start the container and run the
 smoke test script.
 
 [deb.install.dockerfile](deb.install.dockerfile)
+
+Docker tries to provide small images. One way to achieve this is to exclude
+program documentations from the installation. This is especially true for
+man pages. To be fully able to test the installation of the *.deb* package
+these excludes should be remove:
+
+```bash
+rm /etc/dpkg/dpkg.cfg.d/excludes
+```
