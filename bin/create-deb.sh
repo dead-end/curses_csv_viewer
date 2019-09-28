@@ -26,31 +26,6 @@ do_exit() {
 }
 
 ###############################################################################
-# A simple wrapper with error handling. 
-###############################################################################
-
-mk_dir() {
-  dir="${1}"
-
-  echo "Create directory: ${dir}"
-
-  mkdir -p "${dir}" || do_exit "Unable to create dir: ${dir}"
-}
-
-###############################################################################
-# A simple wrapper with error handling. 
-###############################################################################
-
-copy() {
-  from="${1}"
-  to="${2}"
-
-  echo "Copy: ${from} to: ${to}"
-
-  cp "${from}" "${to}" || do_exit "Unable to copy: ${from} to: ${to}"
-}
-
-###############################################################################
 # Main program
 ###############################################################################
 
@@ -84,30 +59,9 @@ deb="${exec}_${version}_${arch}"
 
 root_dir="${build_dir}/root/${deb}"
 
-mk_dir "${root_dir}/DEBIAN"
+mkdir -p "${root_dir}/DEBIAN" || do_exit "Unable to create dir: DEBIAN"
 
 make PREFIX="${root_dir}/usr" install
-
-#mk_dir "${root_dir}/usr/bin"
-
-#mk_dir "${root_dir}/usr/share/doc/${exec}"
-
-#mk_dir "${root_dir}/usr/share/man/man1"
-
-
-#
-# Needed for lintian
-#
-#strip -S --strip-unneeded -o "${root_dir}/usr/bin/${exec}" "${exec}" || do_exit "strip failed"
-
-#copy "LICENSE" "${root_dir}/usr/share/doc/${exec}/copyright"
-
-#copy "man/ccsvv.1" "${root_dir}/usr/share/man/man1"
-
-#
-# -9n manpage-not-compressed-with-max-compression
-#
-#gzip -9n "${root_dir}/usr/share/man/man1/ccsvv.1"
 
 #
 # Write the control file (${dependencies=} sets the default to "" if the
