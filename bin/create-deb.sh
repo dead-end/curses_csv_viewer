@@ -84,27 +84,30 @@ deb="${exec}_${version}_${arch}"
 
 root_dir="${build_dir}/root/${deb}"
 
-mk_dir "${root_dir}/usr/bin"
-
-mk_dir "${root_dir}/usr/share/doc/${exec}"
-
-mk_dir "${root_dir}/usr/share/man/man1"
-
 mk_dir "${root_dir}/DEBIAN"
+
+make PREFIX="${root_dir}/usr" install
+
+#mk_dir "${root_dir}/usr/bin"
+
+#mk_dir "${root_dir}/usr/share/doc/${exec}"
+
+#mk_dir "${root_dir}/usr/share/man/man1"
+
 
 #
 # Needed for lintian
 #
-strip -S --strip-unneeded -o "${root_dir}/usr/bin/${exec}" "${exec}" || do_exit "strip failed"
+#strip -S --strip-unneeded -o "${root_dir}/usr/bin/${exec}" "${exec}" || do_exit "strip failed"
 
-copy "LICENSE" "${root_dir}/usr/share/doc/${exec}/copyright"
+#copy "LICENSE" "${root_dir}/usr/share/doc/${exec}/copyright"
 
-copy "man/ccsvv.1" "${root_dir}/usr/share/man/man1"
+#copy "man/ccsvv.1" "${root_dir}/usr/share/man/man1"
 
 #
 # -9n manpage-not-compressed-with-max-compression
 #
-gzip -9n "${root_dir}/usr/share/man/man1/ccsvv.1"
+#gzip -9n "${root_dir}/usr/share/man/man1/ccsvv.1"
 
 #
 # Write the control file (${dependencies=} sets the default to "" if the
@@ -126,7 +129,7 @@ EOF
 #
 # Add md5sums
 #
-find "${root_dir}" -type f -not -path "*DEBIAN*" | xargs md5sum | sed "s#${root_dir}##" > "${root_dir}/DEBIAN/md5sums"
+find "${root_dir}" -type f -not -path "*DEBIAN*" | xargs md5sum | sed "s#${root_dir}/##" > "${root_dir}/DEBIAN/md5sums"
 
 #
 # fakeroot sets permissions and owner:group
