@@ -35,11 +35,6 @@ ENV LANG=C.UTF-8
 ENV LD_LIBRARY_PATH=${PREFIX}/lib
 
 #
-# Set path so that test_run.sh finds ccsvv.
-#
-ENV PATH=$PATH:/tmp/curses_csv_viewer-master
-
-#
 # Install the build tools (procps contains the ps command, which is necessary
 # for the smoke test script
 #
@@ -78,4 +73,5 @@ ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
 #
 RUN unzip master.zip && \
 	cd curses_csv_viewer-master && \
-	make NCURSES_MAJOR=${NCURSES_MAJOR}
+	make NCURSES_MAJOR=${NCURSES_MAJOR} && \
+	make install
