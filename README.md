@@ -170,12 +170,15 @@ sh derby_client.sh "select * from mytab"
 
 ![Show query example](img/derby-db.png)
 
-## Rurther readings
+## Further readings
 There are some implementation details documented at the following pages:
 
 - [Header detection](docs/header_detection.md)
 
 - [Implementation details](docs/internals.md)
+
+I use docker build packages and verify the installations. A documentation can be
+found at:
 
 - [Docker support](docker/README.md)
 
