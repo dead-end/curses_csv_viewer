@@ -5,8 +5,8 @@ the filtered result.
 But how do we know whether the csv file has a header row or not? A simple way
 is to tell it *ccsvv* by a command line argument.
 
-  -s has a header row
-  -n has no header row
+-  -s has a header row
+-  -n has no header row
 
 But it would be nicer if there would be no need for the user of *ccsvv* to 
 configure whether the csv file has a header row or not at the program start. 
