@@ -43,13 +43,14 @@ static int win_help_size_rows;
 
 // @formatter:off
 static const char *msgs[] = {
-		"CTRL-H        Shows this message.",
-		"ESC           Hides dialog window.",
-		"CTRL-C CTRL-Q Terminates the program.",
-		"CTRL-F        Shows filter dialog.",
-		"CTRL-P        Searches previous filter match.",
-		"CTRL-N        Searches next filter match.",
-		"CTRL-X        Deletes filter content.",
+		"^C, ^Q Terminates the program",
+		"^H     Shows a help dialog",
+		"^F     Shows a filter/search dialog",
+		"^X     Deletes filter/search string",
+		"ESC    Deletes filter/search string &",
+		"       resets table",
+	    "^N, ^P Searches next/previous string",
+	    "^S, ^R Sorts by current column",
 		NULL
 };
 // @formatter:on
