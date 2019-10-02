@@ -105,7 +105,7 @@ make clean
 
 The instalation can be verified with the docker file, which is based on a debian image:
 
-[ncurses_src.dockerfile](ncurses_src.dockerfile)
+[ncurses_src.dockerfile](docker/ncurses_src.dockerfile)
 
 To build the docker image and run the smoke test call:
 
