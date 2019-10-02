@@ -175,10 +175,10 @@ There are some implementation details documented at the following pages:
 
 - [Header detection](docs/header_detection.md)
 
-- [Implementation details](docs/internals.md)
+- [Implementation details](docs/implementation_details.md)
 
-I use docker build packages and verify the installations. A documentation can be
-found at:
+I use docker to build and verify installation packages and to ensure that the
+installation documentation is correct. A description can be found at:
 
 - [Docker support](docker/README.md)
 
