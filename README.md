@@ -6,55 +6,14 @@
 * multi line fields
 * different line endings (win / mac / linux)
 * unicode characters (wchar_t)
-* header detection (see below)
+* [header detection](docs/header_detection.md)
 * filtering
+* sorting
+
+The options can be see in [manpage](man/README.md)
 
 ![Show example](img/languages.png)
 
-## Usage
-```
-NAME
-       ccsvv - displays a ccsvv file as a table
-
-SYNOPSIS
-       ccsvv [OPTION]... [FILE]
-
-DESCRIPTION
-       The  name  of  the csv FILE. If no filename is defined, ccsvv reads the
-       csv data from stdin.
-
-       -h     Shows a help text.
-
-       -d delimiter
-              Defines a delimiter character, other than the default comma.
-
-       -m     By default ccsvv uses colors if the terminal supports them. With
-              this option ccsvv is forced to use a monochrom mode.
-
-       -s | -n
-              The  flags  define  whether the first row of the table is inter‐
-              preted as a header for the table ('-s') or not ('-n').  If  none
-              of  the flags is given ccsvv tries to detect whether a header is
-              present or not.
-
-       -t     Switch off trimming of the csv fields.
-
-       -c     By default ccsvv adds missing fields in a row. The flag switches
-              on strict checks. A missing field results in an error.
-
-COMMANDS
-       ^C, ^Q Terminate the program.
-
-       ^F     Switches  to  filter  input  mode  and  allows to input a filter
-              string.
-
-       ^X     In filter mode, deletes the filter string.
-
-       ESC    Delete the filter string and reset the table.
-
-       ^N, ^P Search for the next / previous field that  contains  the  filter
-              string.
-```
 ## Installation
 
 ### Debian Package
@@ -188,8 +147,12 @@ sh derby_client.sh "select * from mytab"
 
 ![Show query example](img/derby-db.png)
 
-## Internals
+## Rurther readings
+There are some implementation details documented at the following pages:
 
-[Header detection](docs/header_detection.md)
+- [Header detection](docs/header_detection.md)
 
-[Implementation details](docs/internals.md)
+- [Implementation details](docs/internals.md)
+
+- [Docker support](docker/README.md)
+
