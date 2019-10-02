@@ -35,7 +35,10 @@ ENV LANG=C.UTF-8
 ENV LD_LIBRARY_PATH=${PREFIX}/lib
 
 #
-# Set path so that test_run.sh finds ccsvv.
+# Set path so that test_run.sh finds ccsvv. This can be omitted if you install
+# ccsvv with: make install. Installing ccsvv requires root rights which are not
+# necessary present. This docker file tries to verify local installations with a
+# prefix.
 #
 ENV PATH=$PATH:/tmp/curses_csv_viewer-master
 
@@ -74,7 +77,7 @@ RUN tar xvzf ncurses-${NCURSES_VERSION}.tar.gz && \
 ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
 
 #
-# Build ccsvv
+# Build ccsvv (see above: ENV PATH ...)
 #
 RUN unzip master.zip && \
 	cd curses_csv_viewer-master && \
