@@ -6,7 +6,7 @@
 .TH "CCSVV" "1" "September 2019" "V 0.3" "User Commands"
 .\"-----------------------------------------------------------------------------
 .SH NAME
-ccsvv \- displays a csv (comma-separated values) file as a table
+ccsvv \- displays a csv file (comma-separated values) as a table
 .\"-----------------------------------------------------------------------------
 .SH SYNOPSIS
 .\"-----------------------------------------------------------------------------
@@ -16,7 +16,7 @@ ccsvv \- displays a csv (comma-separated values) file as a table
 .SH DESCRIPTION
 .\"-----------------------------------------------------------------------------
 .PP
-The program is called with the name of a csv FILE. If no filename is defined, 
+The program is called with the name of a csv FILE. If no filename is given, 
 ccsvv reads the csv data from stdin.
 .\"-----------------------------------------------------------------------------
 .TP
@@ -29,7 +29,7 @@ Defines a delimiter character, other than the default comma.
 .\"-----------------------------------------------------------------------------
 .TP
 \fB\-m\fR
-By default ccsvv uses colors if the terminal supports them. With this option 
+By default ccsvv uses colors if it is supported by the terminal. With this option 
 ccsvv is forced to use a monochrom mode.
 .\"-----------------------------------------------------------------------------
 .\"
@@ -41,7 +41,7 @@ ccsvv tries to detect whether a header is present or not.
 .\"-----------------------------------------------------------------------------
 .TP
 \fB\-t\fR
-Switch off trimming of the csv fields.
+Switch off trimming of csv fields.
 .\"-----------------------------------------------------------------------------
 .TP
 \fB\-c\fR
@@ -49,7 +49,7 @@ By default ccsvv adds missing fields in a row. The flag switches on strict
 checks. A missing field results in an error.
 .\"-----------------------------------------------------------------------------
 .SH COMMANDS
-After ccsvv started, the following commands can be used:
+After ccsvv was started, the following commands are supported:
 .\"-----------------------------------------------------------------------------
 .TP
 \fB^C\fR, \fB^Q\fR
@@ -69,14 +69,20 @@ Deletes the filter / search string in the dialog.
 .\"-----------------------------------------------------------------------------
 .TP
 \fBESC\fR
-Delete the filter / search string and resets the table.
+Deletes the filter / search string and resets the table.
 .\"-----------------------------------------------------------------------------
 .TP
 \fB^N\fR, \fB^P\fR
-Searches for the next / previous field that contains the filter / search string.
+Searches for the next (\fB^N\fR) / previous (\fB^P\fR) field that contains the 
+filter / search string.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB^S\fR, \fB^R\fR
+Sorts the table with the current column in ascending (\fB^S\fR) / descending 
+(\fB^R\fR) order.
 .\"-----------------------------------------------------------------------------
 .SH EXAMPLES
-Display the passwd file with ccsvv:
+Display the password file with ccsvv:
 .PP
 .nf
 .RS
