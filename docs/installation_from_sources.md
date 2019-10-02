@@ -1,11 +1,12 @@
 # Installation from sources
 
-In this document I build *ncurses* and *ccsvv* from its sources. This is necessary if your OS does not
-provide an appropriate *ncuses* library. *ccsvv* uses the wide character libraries of *ncurses*, *form*
-and *menu*, which might be not installed.
+In this document I build *ncurses* and *ccsvv* from its sources. This is 
+necessary if your OS does not provide an appropriate *ncuses* library. *ccsvv* 
+uses the wide character libraries of *ncurses*, *form* and *menu*, which might 
+be not installed.
 
-As a preparation we create an installation directory inside our home directory, so we can install our
-programs without *root*.
+As a preparation we create an installation directory inside our home directory, 
+so we can install our programs without *root*.
 
 ```bash
 mkdir -p $HOME/usr/local
@@ -13,8 +14,8 @@ mkdir -p $HOME/usr/local
 
 ## ncurses
 
-The first step is to download the *ncurses* and extract the sources. At the time, writing this
-document the highest version is: *ncurses-6.1.tar.gz*
+The first step is to download the *ncurses* and extract the sources. At the 
+time, writing this document the highest version is: *ncurses-6.1.tar.gz*
 
 ```bash
 wget https://invisible-mirror.net/archives/ncurses/ ncurses-6.1.tar.gz
@@ -26,7 +27,8 @@ tar xvf ncurses-6.1.tar
 cd ncurses-6.1/
 ```
 
-The next step is to build the *ncurses*. We need the following build configuration:
+The next step is to build the *ncurses*. We need the following build 
+configuration:
 
 Configuration                                 |Description
 ------------------------                      |-----------
@@ -48,15 +50,15 @@ make
 make install
 ```
 
-If you want to use the installed *ncurses* you have to set the *LD_LIBRARY_PATH* with
-the install directory:
+If you want to use the installed *ncurses* you have to set the *LD_LIBRARY_PATH* 
+with the install directory:
 
 ```bash
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/local/lib
 ```
 
-For the unit tests to sucessfully run, it is necessary to set a UTF8 locale. The command
-`locale -a` lists all installed locales.
+For the unit tests to successfully run, it is necessary to set a UTF8 locale. 
+The command `locale -a` lists all installed locales.
 
 ```bash
 export LANG=C.UTF-8
@@ -75,7 +77,8 @@ unzip master.zip
 cd curses_csv_viewer-master
 ```
 
-To use the installed *ncurses*, we need to configure *ncursesw6-config* for the build:
+To use the installed *ncurses*, we need to configure *ncursesw6-config* for the 
+build:
 
 ```bash
 make NCURSES_CONFIG=$HOME/usr/local/bin/ncursesw6-config
@@ -103,7 +106,8 @@ make clean
 
 ## Docker verification
 
-The instalation can be verified with the docker file, which is based on a debian image:
+The installation can be verified with the docker file, which is based on a 
+debian image:
 
 [ncurses_src.dockerfile](../docker/ncurses_src.dockerfile)
 
