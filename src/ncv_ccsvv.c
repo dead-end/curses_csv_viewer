@@ -158,33 +158,51 @@ static void print_usage(const bool has_error, const char *msg) {
 	}
 
 	//
-	// Print the usage information.
+	// Print the usage information, which are created with the man2usage.sh
+	// script from the man page.
 	//
-	//              "--------------------------------------------------------------------------------\n");
-	fprintf(stream, "ccsvv [-h] [-m] [-s | -n] [-d delimiter] [file]\n\n");
-	fprintf(stream, "  -h            Shows this usage message.\n\n");
-	fprintf(stream, "  -d delimiter  Defines a delimiter character, other than the default comma.\n\n");
-	fprintf(stream, "  -m            By default ccsvv uses colors if the terminal supports them. With\n");
-	fprintf(stream, "                this option ccsvv is forced to use a monochrom mode.\n\n");
-	fprintf(stream, "  -s | -n       The flags define whether the first row of the table is\n");
-	fprintf(stream, "                interpreted as a header for the table ('-s') or not ('-n').\n");
-	fprintf(stream, "                If none of the flags is given ccsvv tries to detect whether a\n");
-	fprintf(stream, "                header is present or not.\n\n");
-	fprintf(stream, "  -t            Switch off trimming of the csv fields.\n\n");
-	fprintf(stream, "  -c            By default ccsvv adds missing fields in a row. The flag switches\n");
-	fprintf(stream, "                on strict checks. A missing field results in an error.\n\n");
-	fprintf(stream, "  file          The name of the csv file. If no filename is defined, ccsvv reads\n");
-	fprintf(stream, "                the csv data from stdin.\n");
-	//              "--------------------------------------------------------------------------------\n");
-	fprintf(stream, "\nCommands:\n\n");
-	fprintf(stream, "  ^C and ^Q     Terminate the program.\n\n");
-	fprintf(stream, "  ^F            Switches to filter input mode and allows to input a filter\n");
-	fprintf(stream, "                string.\n\n");
-	fprintf(stream, "  ^X            In filter mode, deletes the filter string.\n\n");
-	fprintf(stream, "  ESC           Delete the filter string and reset the table.\n\n");
-	//              "--------------------------------------------------------------------------------\n");
-	fprintf(stream, "  ^N and ^P     Search for the next / previous field that contains the filter\n");
-	fprintf(stream, "                string.\n\n");
+	fprintf(stream, "    ccsvv - displays a csv file (comma-separated values) as a table\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ccsvv [OPTION]... [FILE]\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    The  program  is  called  with  the name of a csv FILE. If no filename is\n");
+	fprintf(stream, "    given, ccsvv reads the csv data from stdin.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -h     Shows a help text.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -d delimiter\n");
+	fprintf(stream, "           Defines a delimiter character, other than the default comma.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -m     By default ccsvv uses colors if it is supported by  the  terminal.\n");
+	fprintf(stream, "           With this option ccsvv is forced to use a monochrom mode.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -s | -n\n");
+	fprintf(stream, "           The flags define whether the first row of the table is interpreted\n");
+	fprintf(stream, "           as a header for the table (-s) or not (-n). If none of  the  flags\n");
+	fprintf(stream, "           is given ccsvv tries to detect whether a header is present or not.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -t     Switch off trimming of csv fields.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -c     By  default  ccsvv adds missing fields in a row. The flag switches\n");
+	fprintf(stream, "           on strict checks. A missing field results in an error.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    After ccsvv was started, the following commands are supported:\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ^C, ^Q Terminates the program.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ^H     Shows a help dialog.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ^F     Shows a filter / search dialog.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ^X     Deletes the filter / search string in the dialog.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ESC    Deletes the filter / search string and resets the table.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ^N, ^P Searches for the next (^N) / previous (^P) field that contains the\n");
+	fprintf(stream, "           filter / search string.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    ^S, ^R Sorts  the  table  with  the  current  column  in ascending (^S) /\n");
+	fprintf(stream, "           descending (^R) order.\n");
 
 	exit(status);
 }
