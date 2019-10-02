@@ -20,8 +20,6 @@ To compute the
 truncated sizes, we start at the reference field and sum up the widths or hights until
 the sum exceeds the width or hight of the visible part of the table.
 
-
-
 ## s_wblock
 *ccsvv* uses a buffer, which is internally a linked list of (wchar_t) blocks. The size of each new block is
 doubled. The buffer is used store the csv data. The csv data can be read from a file or from stdin via a pipe 
