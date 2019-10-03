@@ -108,7 +108,7 @@ static void test_sort_wcs() {
 
 /******************************************************************************
  * The function checks the sorting of the table by a given column with a given
- * direction,
+ * direction.
  *****************************************************************************/
 
 static void test_sort_num() {
@@ -159,26 +159,68 @@ static void test_sort_num() {
 	ut_check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"0", L"1", L"2", L"3", L"4" });
 
 	//
-	// If we switch on the header showing, a reset is necessary.
+	// Cleanup
 	//
+	s_table_free(&table);
+
+	fclose(tmp);
+
+	log_debug_str("Start");
+}
+
+/******************************************************************************
+ * The function checks the sorting of the table with a header row by a given
+ * column with a given direction. The header field should be alphanumeric to
+ * ensure that this is ignored during the conversion.
+ *****************************************************************************/
+
+static void test_sort_num_header() {
+	s_table table;
+	s_cursor cursor;
+	s_table_set_defaults(table);
+
+	log_debug_str("Start");
+
+	const wchar_t data[] =
+
+	L"H" DL "      Price" NL
+	L"0" DL " 11.11 Euro" NL
+	L"1" DL "  2.22 Euro" NL
+	L"2" DL "           " NL
+	L"3" DL "333.33 Euro" NL
+	L"4" DL "  0.01 Euro" NL;
+
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+
+	FILE *tmp = ut_create_tmp_file(data);
+	parser_process_file(tmp, &cfg_parser, &table);
+
 	table.show_header = true;
-	s_table_reset_rows(&table);
+	s_filter_set_inactive(&table.filter);
 
 	//
-	// Forward with column 1 with header
+	// Forward with column 1
 	//
 	s_sort_update(&table.sort, 1, E_DIR_FORWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	ut_check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"0", L"4", L"1", L"3", L"2" });
+	ut_check_table_column(&table, 0, 6, (const wchar_t*[] ) { L"H", L"4", L"1", L"0", L"3", L"2" });
 
 	//
-	// Backward with column 1 with header
+	// Backward with column 1
 	//
 	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
 	s_table_update_filter_sort(&table, &cursor, false, true);
 
-	ut_check_table_column(&table, 0, 5, (const wchar_t*[] ) { L"0", L"2", L"3", L"1", L"4" });
+	ut_check_table_column(&table, 0, 6, (const wchar_t*[] ) { L"H", L"2", L"3", L"0", L"1", L"4" });
+
+	//
+	// Backward again with column 1 => reset
+	//
+	s_sort_update(&table.sort, 1, E_DIR_BACKWARD);
+	s_table_update_filter_sort(&table, &cursor, false, true);
+
+	ut_check_table_column(&table, 0, 6, (const wchar_t*[] ) { L"H", L"0", L"1", L"2", L"3", L"4" });
 
 	//
 	// Cleanup
@@ -212,6 +254,8 @@ int main() {
 	test_sort_wcs();
 
 	test_sort_num();
+
+	test_sort_num_header();
 
 	log_debug_str("End");
 

@@ -135,7 +135,9 @@ static void apply_num_sorting(s_table *table, const s_comp_num *comp_num) {
 	for (int row = 0; row < table->no_rows; row++) {
 		table->fields[row] = comp_num[row].row;
 
+#ifdef DEBUG
 		log_debug("Sorted value: %ls", table->fields[row][col]);
+#endif
 	}
 }
 
@@ -174,10 +176,19 @@ bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 	for (int row = 0; row < table->no_rows; row++) {
 
 		//
+		// Ignore the header if necessary.
+		//
+		if (row == 0 && table->show_header) {
+			num_comp[row].value = 0;
+			log_debug_str("String is header, set value to: 0");
+
+		}
+
+		//
 		// Check if the column value is empty.
 		//
 		//
-		if (wcs_is_empty(table->fields[row][col])) {
+		else if (wcs_is_empty(table->fields[row][col])) {
 			num_comp[row].value = DBL_MAX;
 			log_debug_str("String is empty, set value to: DBL_MAX");
 
