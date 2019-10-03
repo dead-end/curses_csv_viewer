@@ -41,10 +41,10 @@ An empty value is converted to DBL_MAX, the maximum defined value for a double,
 The result is, that the empty rows are at the top.
 
 The function allows a non-numerical postfix string. This string has to be equal
-for all none empty values. 
+for all none empty values. In the example file, this is *" Euro"*.
 
 | No |       Price   |
-| -- |:-------------:|
+| -- |---------------|
 |  1 | 10000,00 Euro |
 |  2 |               |
 |  3 |     2,00 Euro |
@@ -53,7 +53,7 @@ for all none empty values.
 The sorted result is:
 
 | No |       Price   |
-| -- |:-------------:|
+| -- |---------------|
 |  2 |               |
 |  3 |     2,00 Euro |
 |  4 |    10,00 Euro |
