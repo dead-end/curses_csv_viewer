@@ -16,10 +16,9 @@ first or last characters of a line is not visible if the column is truncated.
 
 ![field part](../img/field_part.png?raw=true "Field Part")
 
-To compute theJ
-truncated sizes, we start at the reference field and sum up the widths or 
-heights until the sum exceeds the width or hight of the visible part of the 
-table.
+To compute the truncated sizes, we start at the reference field and sum up the 
+widths or heights until the sum exceeds the width or hight of the visible part 
+of the table.
 
 ## Sorting
 *ccsvv* supports sorting of the table by a given column. The sorting can be 
