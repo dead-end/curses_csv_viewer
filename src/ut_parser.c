@@ -159,11 +159,11 @@ static void test_parser_empty() {
 }
 
 /******************************************************************************
- * The function check the strict flag 'false'. This means that missing columns
- * should be added.
+ * The function parses a corrupt csv file with non strict mode. It adds missing
+ * fields and removes empty rows and columns at the end of the data.
  *****************************************************************************/
 
-static void test_strict_false() {
+static void test_add_remove() {
 	s_table table;
 	s_table_set_defaults(table);
 
@@ -171,18 +171,25 @@ static void test_strict_false() {
 
 	const wchar_t *data =
 
-	L"col0-0" NL
-	L"col0-1" DL "col1-1" NL
-	L"col0-2" DL "col1-2" DL "col2-2" NL;
+	L"" DL " " DL NL
+	L"" DL "1" NL
+	L"" DL "2" DL "2" DL " " DL"" DL"" DL"" DL "" NL
+	L"" DL "3" DL "3" DL "3" NL
+	L"" DL " " DL " " DL " " DL" " DL NL
+	L"" DL " " DL NL;
 
 	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = false };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
 
-	ut_check_table_row(&table, 0, 3, (const wchar_t*[] ) { L"col0-0", L"", L"" });
-	ut_check_table_row(&table, 1, 3, (const wchar_t*[] ) { L"col0-1", L"col1-1", L"" });
-	ut_check_table_row(&table, 2, 3, (const wchar_t*[] ) { L"col0-2", L"col1-2", L"col2-2" });
+	ut_check_int(table.no_columns, 4, "no cols");
+	ut_check_int(table.no_rows, 4, "no rows");
+
+	ut_check_table_row(&table, 0, 4, (const wchar_t*[] ) { L"", L"", L"", L"" });
+	ut_check_table_row(&table, 1, 4, (const wchar_t*[] ) { L"", L"1", L"", L"" });
+	ut_check_table_row(&table, 2, 4, (const wchar_t*[] ) { L"", L"2", L"2", L"" });
+	ut_check_table_row(&table, 3, 4, (const wchar_t*[] ) { L"", L"3", L"3", L"3" });
 
 	//
 	// Cleanup
@@ -210,7 +217,7 @@ int main() {
 
 	test_parser_empty();
 
-	test_strict_false();
+	test_add_remove();
 
 	log_debug_str("End");
 

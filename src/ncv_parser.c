@@ -53,9 +53,9 @@ typedef struct s_csv_parser {
 	int current_column;
 
 	//
-	// The parameter contains the number of columns in the first row. The
-	// number of columns in all other rows have to be equal to this.
+	// The parameter contains the number of rows and columns.
 	//
+	int no_rows;
 	int no_columns;
 
 	//
@@ -72,11 +72,6 @@ typedef struct s_csv_parser {
 	int field_idx;
 
 } s_csv_parser;
-
-//
-// Simple macro to increase readability.
-//
-#define s_csv_parser_last_col_idx(c) ((c)->no_columns - 1)
 
 //
 // The marco resets the parser field
@@ -98,6 +93,7 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 
 	if (do_count) {
 		csv_parser->no_columns = 0;
+		csv_parser->no_rows = 0;
 	}
 }
 
@@ -145,6 +141,88 @@ static wchar_t* parser_field_get_str(s_csv_parser *csv_parser, const s_cfg_parse
 }
 
 /******************************************************************************
+ * The function updates the number of rows and columns in the non strict mode.
+ * It is looking for the maximum row / column of non empty fields.
+ *****************************************************************************/
+
+static void update_no_rows_cols(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser) {
+
+#ifdef DEBUG
+
+	//
+	// Strict mode check should have happened upfront.
+	//
+	if (cfg_parser->strict_cols) {
+		log_exit_str("Called in strict mode!");
+	}
+#endif
+
+	const wchar_t *ptr = parser_field_get_str(csv_parser, cfg_parser);
+
+	if (!wcs_is_empty(ptr)) {
+
+		if (csv_parser->no_columns < csv_parser->current_column + 1) {
+			csv_parser->no_columns = csv_parser->current_column + 1;
+		}
+
+		if (csv_parser->no_rows < csv_parser->current_row + 1) {
+			csv_parser->no_rows = csv_parser->current_row + 1;
+		}
+	}
+}
+
+/******************************************************************************
+ * The function updates the number of rows and columns in the strict mode. It
+ * counts the columns of the first row and compares it to the rest of the rows.
+ *****************************************************************************/
+
+static void update_no_rows_cols_strict(s_csv_parser *csv_parser, const bool is_row_end) {
+
+#ifdef DEBUG
+
+	//
+	// Strict mode check should have happened upfront.
+	//
+	if (!cfg_parser->strict_cols) {
+		log_exit_str("Called not in strict mode!");
+	}
+#endif
+
+	if (csv_parser->current_row == 0) {
+		csv_parser->no_columns++;
+
+		//
+		// Increment the number of rows
+		//
+		if (is_row_end) {
+			csv_parser->no_rows++;
+		}
+
+	} else if (is_row_end) {
+
+		//
+		// Here we are at the end of a row, other than the first row. We
+		// compare the column number of the first row with that of the current.
+		//
+		if (csv_parser->current_column != csv_parser->no_columns - 1) {
+			log_exit("Row: %d current columns: %d expected columns: %d", csv_parser->current_row + 1, csv_parser->current_column, csv_parser->no_columns);
+		}
+
+		//
+		// Increment the number of rows
+		//
+		csv_parser->no_rows++;
+	}
+}
+
+/******************************************************************************
+ * The macro checks if the current fields row / column is inside the allowed
+ * range.
+ *****************************************************************************/
+
+#define current_is_inside(c) ((c)->current_column < (c)->no_columns && (c)->current_row < (c)->no_rows)
+
+/******************************************************************************
  * The function checks if fields are missing in a row and adds empty fields if
  * necessary.
  *****************************************************************************/
@@ -154,15 +232,17 @@ static void add_missing_field(s_csv_parser *csv_parser, s_table *table) {
 	//
 	// Check if the current column is the last column
 	//
-	while (csv_parser->current_column < s_csv_parser_last_col_idx(csv_parser)) {
+	while (csv_parser->current_column < csv_parser->no_columns - 1) {
+
+		//
+		// Increment the index only when we add a field
+		//
+		csv_parser->current_column++;
 
 		//
 		// Add the missing field
 		//
-		csv_parser->current_column++;
-
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, L"");
-
 		log_debug("Missing column: %d of total %d in row: %d", csv_parser->current_column + 1, csv_parser->no_columns, csv_parser->current_row + 1);
 	}
 }
@@ -175,37 +255,16 @@ static void add_missing_field(s_csv_parser *csv_parser, s_table *table) {
 
 static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser, const bool is_row_end, s_table *table) {
 
+	//
+	// In the do_count phase, we try to determine no_rows and no_columns.
+	//
 	if (csv_parser->do_count) {
 
 		if (cfg_parser->strict_cols) {
+			update_no_rows_cols_strict(csv_parser, is_row_end);
 
-			//
-			// With the strict mode, the first column defines the number of
-			// columns.
-			//
-			if (csv_parser->current_row == 0) {
-				csv_parser->no_columns++;
-
-			} else if (is_row_end) {
-
-				//
-				// Here we are at the end of a row, other than the first row.
-				// We compare the column number of the first row with that of
-				// the current.
-				//
-				if (csv_parser->current_column != s_csv_parser_last_col_idx(csv_parser)) {
-					log_exit("Row: %d current columns: %d expected columns: %d", csv_parser->current_row + 1, csv_parser->current_column, csv_parser->no_columns);
-				}
-			}
 		} else {
-
-			//
-			// If we do not have a strict mode, we are looking for the highest
-			// column value. The column number is one more than the index.
-			//
-			if (csv_parser->current_column > s_csv_parser_last_col_idx(csv_parser)) {
-				csv_parser->no_columns = csv_parser->current_column + 1;
-			}
+			update_no_rows_cols(csv_parser, cfg_parser);
 		}
 	}
 
@@ -215,17 +274,26 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 	else {
 
 		//
-		// Copy the field data to the table.
+		// In strict mode, this is always true.
 		//
-		wchar_t *ptr = parser_field_get_str(csv_parser, cfg_parser);
+		if (current_is_inside(csv_parser)) {
 
-		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, ptr);
+			//
+			// Copy the field data to the table.
+			//
+			wchar_t *ptr = parser_field_get_str(csv_parser, cfg_parser);
+			s_table_copy(table, csv_parser->current_row, csv_parser->current_column, ptr);
 
-		//
-		// If we found the end of the row,
-		//
-		if (is_row_end && !cfg_parser->strict_cols) {
-			add_missing_field(csv_parser, table);
+			//
+			// If we found the end of the row, we add missing columns in non
+			// strict mode. The condition "!cfg_parser->strict_cols" is used to
+			// prevent unnecessary function calls. The function itself would
+			// not add a column, because the no_columns value was verified in
+			// during the do_count phase.
+			//
+			if (is_row_end && !cfg_parser->strict_cols) {
+				add_missing_field(csv_parser, table);
+			}
 		}
 	}
 
@@ -235,7 +303,6 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 	if (is_row_end) {
 
 		csv_parser->current_row++;
-
 		csv_parser->current_column = 0;
 
 	} else {
@@ -370,11 +437,10 @@ static void parse_csv_wbuf(s_wbuf *wbuf, const s_cfg_parser *cfg_parser, s_csv_p
 		}
 
 		//
-		// If we count fields and records copying is unnecessary.
+		// Add the current wchar to the field. This is necessary even in the
+		// do_count phase.
 		//
-		if (!csv_parser->do_count) {
-			parser_field_add_wchar(csv_parser, wchar_cur);
-		}
+		parser_field_add_wchar(csv_parser, wchar_cur);
 	}
 }
 
@@ -401,12 +467,12 @@ void parser_process_file(FILE *file, const s_cfg_parser *cfg_parser, s_table *ta
 	s_csv_parser_init(&csv_parser, true);
 	parse_csv_wbuf(wbuf, cfg_parser, &csv_parser, table);
 
-	log_debug("No rows: %d no columns: %d", csv_parser.current_row, csv_parser.no_columns);
+	log_debug("No rows: %d no columns: %d", csv_parser.no_rows, csv_parser.no_columns);
 
 	//
 	// Allocate memory for the number of rows and columns.
 	//
-	s_table_init(table, csv_parser.current_row, csv_parser.no_columns);
+	s_table_init(table, csv_parser.no_rows, csv_parser.no_columns);
 
 	//
 	// Parse the csv file again to copy the fields to the table structure.
