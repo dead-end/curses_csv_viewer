@@ -155,7 +155,7 @@ static void apply_num_sorting(s_table *table, const s_comp_num *comp_num) {
  * "1000,00 Euro"
  *****************************************************************************/
 
-bool try_convert_num(s_table *table, s_comp_num *num_comp) {
+static bool try_convert_num(s_table *table, s_comp_num *num_comp) {
 
 	//
 	// Two pointer to suffixes. The first suffix found is stored in:
