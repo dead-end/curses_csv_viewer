@@ -112,6 +112,7 @@ SRC_TEST = \
 	$(SRC_DIR)/ut_table_part.c \
 	$(SRC_DIR)/ut_table_header.c \
 	$(SRC_DIR)/ut_table_sort.c \
+	$(SRC_DIR)/ut_sort.c \
 	$(SRC_DIR)/ut_field.c \
 	$(SRC_DIR)/ut_common.c \
 	$(SRC_DIR)/ut_filter.c \
