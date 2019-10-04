@@ -183,8 +183,10 @@ static void print_usage(const bool has_error, const char *msg) {
 	fprintf(stream, "\n");
 	fprintf(stream, "    -t     Switch off trimming of csv fields.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    -c     By  default  ccsvv adds missing fields in a row. The flag switches\n");
-	fprintf(stream, "           on strict checks. A missing field results in an error.\n");
+	fprintf(stream, "    -c     By  default  ccsvv tries to optimize the csv data. It adds missing\n");
+	fprintf(stream, "           fields and removes empty columns and rows at the end of the table.\n");
+	fprintf(stream, "           The  flag switches on strict checks. A missing field results in an\n");
+	fprintf(stream, "           error and no rows or columns are removed.\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "    After ccsvv was started, the following commands are supported:\n");
 	fprintf(stream, "\n");

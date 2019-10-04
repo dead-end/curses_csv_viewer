@@ -27,8 +27,10 @@ DESCRIPTION
 
        -t     Switch off trimming of csv fields.
 
-       -c     By default ccsvv adds missing fields in a row. The flag switches
-              on strict checks. A missing field results in an error.
+       -c     By default ccsvv tries to optimize the csv data. It adds missing
+              fields  and removes empty columns and rows at the end of the ta‐
+              ble. The flag switches on strict checks. A missing field results
+              in an error and no rows or columns are removed.
 
 COMMANDS
        After ccsvv was started, the following commands are supported:
