@@ -197,8 +197,6 @@ int get_align_start(const int max, const int len, const enum e_align align);
 
 void* xmalloc(const size_t size);
 
-FILE* stdin_2_tmp();
-
 size_t mbs_2_wchars(const char *mbs, wchar_t *buffer, const int buf_size);
 
 char* trim(char *str);

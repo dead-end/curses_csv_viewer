@@ -48,64 +48,6 @@ void* xmalloc(const size_t size) {
 }
 
 /******************************************************************************
- * The function creates a temp file and copies the input from stdin to that
- * file. It uses read instead of fread, because the latter does not work with
- * rewind() and fgetws().
- *****************************************************************************/
-
-FILE* stdin_2_tmp() {
-	ssize_t bytes_read, bytes_write;
-	char buf[BUF_SIZE];
-	FILE *tmp;
-
-	//
-	// Create a temp file
-	//
-	if ((tmp = tmpfile()) == NULL) {
-		log_exit("Unable to create tmp file: %s", strerror(errno));
-	}
-
-	int in = fileno(stdin);
-	int out = fileno(tmp);
-
-	//
-	// Copy the data until we encounter the end of input or an error.
-	//
-	while ((bytes_read = read(in, buf, BUF_SIZE)) > 0) {
-
-		bytes_write = write(out, buf, bytes_read);
-
-		//
-		// Check for write errors.
-		//
-		if (bytes_write != bytes_read) {
-
-			if (bytes_write == -1) {
-				log_exit("Unable to write to temp file: %s", strerror (errno));
-			} else {
-				log_exit_str("Could not write the whole buffer!");
-			}
-		}
-	}
-
-	//
-	// Check for read errors.
-	//
-	if (bytes_read == -1) {
-		log_exit("Could not read from stdin: %s", strerror (errno));
-	}
-
-	//
-	// Rewind the file.
-	//
-	if (fseek(tmp, 0L, SEEK_SET) == -1) {
-		log_exit("Unable to rewind file due to: %s", strerror(errno));
-	}
-
-	return tmp;
-}
-
-/******************************************************************************
  * The function reads a wchar_t from a stream. It converts the different line
  * endings (windows: \r\n mac: \r) to a standard (unix: \n). It also does error
  * processing.
