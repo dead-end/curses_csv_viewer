@@ -32,8 +32,11 @@
 #define DO_TRIM_FALSE false
 
 /******************************************************************************
- * The function checks the sorting of the table by a given column with a given
- * direction,
+ * The function checks the sorting:
+ *
+ * - alphanumeric
+ * - with filter
+ * - with / without header
  *****************************************************************************/
 
 static void test_sort_wcs() {
@@ -45,10 +48,12 @@ static void test_sort_wcs() {
 
 	const wchar_t data[] =
 
-	L"bb" DL "BB" NL
-	L"cc" DL "CC" NL
-	L"dd" DL "DD" NL
-	L"aa" DL "AA" NL;
+	L"bb" DL "BB" DL "filter" NL
+	L"--" DL "--" DL "------" NL
+	L"cc" DL "CC" DL "filter" NL
+	L"dd" DL "DD" DL "filter" NL
+	L"--" DL "--" DL "------" NL
+	L"aa" DL "AA" DL "filter" NL;
 
 	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
@@ -56,7 +61,7 @@ static void test_sort_wcs() {
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = false;
-	s_filter_set_inactive(&table.filter);
+	s_filter_set(&table.filter, true, L"filter", false, false);
 
 	//
 	// Forward with column 0
@@ -75,7 +80,8 @@ static void test_sort_wcs() {
 	ut_check_table_column(&table, 1, 4, (const wchar_t*[] ) { L"DD", L"CC", L"BB", L"AA" });
 
 	//
-	// If we switch on the header showing, a reset is necessary.
+	// If we switch on the header showing, a reset is necessary. Filtering is
+	// still active
 	//
 	table.show_header = true;
 	s_table_reset_rows(&table);
@@ -107,8 +113,11 @@ static void test_sort_wcs() {
 }
 
 /******************************************************************************
- * The function checks the sorting of the table by a given column with a given
- * direction.
+ * The function checks the sorting:
+ *
+ * - numeric
+ * - with filter
+ * - without header
  *****************************************************************************/
 
 static void test_sort_num() {
@@ -120,11 +129,14 @@ static void test_sort_num() {
 
 	const wchar_t data[] =
 
-	L"0" DL " 11.11 Euro" NL
-	L"1" DL "  2.22 Euro" NL
-	L"2" DL "           " NL
-	L"3" DL "333.33 Euro" NL
-	L"4" DL "  0.01 Euro" NL;
+	L"0" DL " 11.11 Euro" DL "filter" NL
+	L"-" DL "-----------" DL "------" NL
+	L"1" DL "  2.22 Euro" DL "filter" NL
+	L"2" DL "           " DL "filter" NL
+	L"-" DL "-----------" DL "------" NL
+	L"3" DL "333.33 Euro" DL "filter" NL
+	L"-" DL "-----------" DL "------" NL
+	L"4" DL "  0.01 Euro" DL "filter" NL;
 
 	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
@@ -132,7 +144,7 @@ static void test_sort_num() {
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = false;
-	s_filter_set_inactive(&table.filter);
+	s_filter_set(&table.filter, true, L"filter", false, false);
 
 	//
 	// Forward with column 1
@@ -169,9 +181,11 @@ static void test_sort_num() {
 }
 
 /******************************************************************************
- * The function checks the sorting of the table with a header row by a given
- * column with a given direction. The header field should be alphanumeric to
- * ensure that this is ignored during the conversion.
+ * The function checks the sorting:
+ *
+ * - numeric
+ * - with filter
+ * - with header
  *****************************************************************************/
 
 static void test_sort_num_header() {
@@ -183,12 +197,15 @@ static void test_sort_num_header() {
 
 	const wchar_t data[] =
 
-	L"H" DL "      Price" NL
-	L"0" DL " 11.11 Euro" NL
-	L"1" DL "  2.22 Euro" NL
-	L"2" DL "           " NL
-	L"3" DL "333.33 Euro" NL
-	L"4" DL "  0.01 Euro" NL;
+	L"H" DL "      Price" DL "------" NL
+	L"0" DL " 11.11 Euro" DL "filter" NL
+	L"-" DL "-----------" DL "------" NL
+	L"1" DL "  2.22 Euro" DL "filter" NL
+	L"2" DL "           " DL "filter" NL
+	L"-" DL "-----------" DL "------" NL
+	L"3" DL "333.33 Euro" DL "filter" NL
+	L"4" DL "  0.01 Euro" DL "filter" NL
+	L"-" DL "-----------" DL "------" NL;
 
 	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
 
@@ -196,7 +213,7 @@ static void test_sort_num_header() {
 	parser_process_file(tmp, &cfg_parser, &table);
 
 	table.show_header = true;
-	s_filter_set_inactive(&table.filter);
+	s_filter_set(&table.filter, true, L"filter", false, false);
 
 	//
 	// Forward with column 1
@@ -257,7 +274,7 @@ static void test_sort_update() {
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), false);
 
 	//
-	// Change all.
+	// Change all
 	//
 	s_sort_set_inactive(&sort);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), true);
