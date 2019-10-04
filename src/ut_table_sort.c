@@ -103,7 +103,7 @@ static void test_sort_wcs() {
 
 	fclose(tmp);
 
-	log_debug_str("Start");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -165,7 +165,7 @@ static void test_sort_num() {
 
 	fclose(tmp);
 
-	log_debug_str("Start");
+	log_debug_str("End");
 }
 
 /******************************************************************************
@@ -229,10 +229,43 @@ static void test_sort_num_header() {
 
 	fclose(tmp);
 
-	log_debug_str("Start");
+	log_debug_str("End");
 }
 
-// TODO: test s_sort_update()
+/******************************************************************************
+ * The function checks the s_sort_update() function.
+ *****************************************************************************/
+
+static void test_sort_update() {
+	s_sort sort;
+
+	log_debug_str("Start");
+
+	//
+	// FORWARD FORWARD
+	//
+	s_sort_set_inactive(&sort);
+	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), true);
+	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), false);
+
+	//
+	// BACKWARD BACKWARD
+	//
+	s_sort_set_inactive(&sort);
+	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), true);
+	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), false);
+
+	//
+	// Change all.
+	//
+	s_sort_set_inactive(&sort);
+	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), true);
+	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), true);
+	ut_check_bool(s_sort_update(&sort, 1, E_DIR_BACKWARD), true);
+	ut_check_bool(s_sort_update(&sort, 1, E_DIR_FORWARD), true);
+
+	log_debug_str("End");
+}
 
 /******************************************************************************
  * The main function simply starts the test.
@@ -256,6 +289,8 @@ int main() {
 	test_sort_num();
 
 	test_sort_num_header();
+
+	test_sort_update();
 
 	log_debug_str("End");
 
