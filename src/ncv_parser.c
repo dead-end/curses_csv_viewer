@@ -188,11 +188,14 @@ static void update_no_rows_cols_strict(s_csv_parser *csv_parser, const bool is_r
 	}
 #endif
 
+	//
+	// In the first row count the columns
+	//
 	if (csv_parser->current_row == 0) {
 		csv_parser->no_columns++;
 
 		//
-		// Increment the number of rows
+		// Increment the number of rows if necessary
 		//
 		if (is_row_end) {
 			csv_parser->no_rows++;
@@ -205,11 +208,18 @@ static void update_no_rows_cols_strict(s_csv_parser *csv_parser, const bool is_r
 		// compare the column number of the first row with that of the current.
 		//
 		if (csv_parser->current_column != csv_parser->no_columns - 1) {
-			log_exit("Row: %d current columns: %d expected columns: %d", csv_parser->current_row + 1, csv_parser->current_column, csv_parser->no_columns);
+
+			// @formatter:off
+			log_exit("Row: %d current columns: %d expected columns: %d",
+					csv_parser->current_row + 1,
+					csv_parser->current_column,
+					csv_parser->no_columns);
+			// @formatter:on
 		}
 
 		//
-		// Increment the number of rows
+		// We are at the end of the row, so always increment the number of
+		// rows.
 		//
 		csv_parser->no_rows++;
 	}
@@ -227,23 +237,24 @@ static void update_no_rows_cols_strict(s_csv_parser *csv_parser, const bool is_r
  * necessary.
  *****************************************************************************/
 
-static void add_missing_field(s_csv_parser *csv_parser, s_table *table) {
+static void add_missing_fields(s_csv_parser *csv_parser, s_table *table) {
 
 	//
-	// Check if the current column is the last column
+	// Add missing fields until the current column is the last column
 	//
-	while (csv_parser->current_column < csv_parser->no_columns - 1) {
-
-		//
-		// Increment the index only when we add a field
-		//
-		csv_parser->current_column++;
+	while (++csv_parser->current_column < csv_parser->no_columns) {
 
 		//
 		// Add the missing field
 		//
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, L"");
-		log_debug("Missing column: %d of total %d in row: %d", csv_parser->current_column + 1, csv_parser->no_columns, csv_parser->current_row + 1);
+
+		// @formatter:off
+		log_debug("Missing column: %d of total %d in row: %d",
+				csv_parser->current_column + 1,
+				csv_parser->no_columns,
+				csv_parser->current_row + 1);
+		// @formatter:on
 	}
 }
 
@@ -256,7 +267,7 @@ static void add_missing_field(s_csv_parser *csv_parser, s_table *table) {
 static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser, const bool is_row_end, s_table *table) {
 
 	//
-	// In the do_count phase, we try to determine no_rows and no_columns.
+	// In the "do_count" phase, we try to determine no_rows and no_columns.
 	//
 	if (csv_parser->do_count) {
 
@@ -292,7 +303,7 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 			// during the do_count phase.
 			//
 			if (is_row_end && !cfg_parser->strict_cols) {
-				add_missing_field(csv_parser, table);
+				add_missing_fields(csv_parser, table);
 			}
 		}
 	}
@@ -301,7 +312,6 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 	// Update the column and row counters.
 	//
 	if (is_row_end) {
-
 		csv_parser->current_row++;
 		csv_parser->current_column = 0;
 
