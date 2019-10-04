@@ -233,7 +233,8 @@ static void test_sort_num_header() {
 }
 
 /******************************************************************************
- * The function checks the s_sort_update() function.
+ * The function checks the s_sort_update() function, which returns true if the
+ * struct changed.
  *****************************************************************************/
 
 static void test_sort_update() {
