@@ -59,17 +59,17 @@ typedef struct s_csv_parser {
 	int no_columns;
 
 	//
+	// The flag indicates whether the field is escaped or not. Before the first
+	// char is read from the field it is unclear.
+	//
+	enum bool_defined is_escaped;
+
+	//
 	// The parsed content is copied char by char to the field. The field index
 	// shows the current position.
 	//
 	wchar_t field[MAX_FIELD_SIZE];
 	int field_idx;
-
-	//
-	// The flag indicates whether the field is escaped or not. Before the first
-	// char is read from the field it is unclear.
-	//
-	enum bool_defined is_escaped;
 
 } s_csv_parser;
 
@@ -77,6 +77,11 @@ typedef struct s_csv_parser {
 // Simple macro to increase readability.
 //
 #define s_csv_parser_last_col_idx(c) ((c)->no_columns - 1)
+
+//
+// The marco resets the parser field
+//
+#define parser_field_reset(c) c->field_idx = 0
 
 /******************************************************************************
  * The function sets default values to the members of the struct.
@@ -87,8 +92,9 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
 	csv_parser->do_count = do_count;
 	csv_parser->current_row = 0;
 	csv_parser->current_column = 0;
-	csv_parser->field_idx = 0;
 	csv_parser->is_escaped = BOOL_UNDEF;
+
+	parser_field_reset(csv_parser);
 
 	if (do_count) {
 		csv_parser->no_columns = 0;
@@ -100,7 +106,7 @@ static void s_csv_parser_init(s_csv_parser *csv_parser, const bool do_count) {
  * overflow happens.
  *****************************************************************************/
 
-static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
+static void parser_field_add_wchar(s_csv_parser *csv_parser, const wchar_t wchar) {
 
 	//
 	// Ensure the size.
@@ -120,12 +126,12 @@ static void add_wchar_to_field(s_csv_parser *csv_parser, const wchar_t wchar) {
  * does a trimming, if configured.
  *****************************************************************************/
 
-static wchar_t* get_str_from_field(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser) {
+static wchar_t* parser_field_get_str(s_csv_parser *csv_parser, const s_cfg_parser *cfg_parser) {
 
 	//
 	// Add the terminating \0 to the field.
 	//
-	add_wchar_to_field(csv_parser, W_STR_TERM);
+	parser_field_add_wchar(csv_parser, W_STR_TERM);
 
 	//
 	// If configured, trim the field content.
@@ -211,7 +217,7 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 		//
 		// Copy the field data to the table.
 		//
-		wchar_t *ptr = get_str_from_field(csv_parser, cfg_parser);
+		wchar_t *ptr = parser_field_get_str(csv_parser, cfg_parser);
 
 		s_table_copy(table, csv_parser->current_row, csv_parser->current_column, ptr);
 
@@ -239,7 +245,7 @@ static void process_column_end(s_csv_parser *csv_parser, const s_cfg_parser *cfg
 	//
 	// Reset the field index and the escape state.
 	//
-	csv_parser->field_idx = 0;
+	parser_field_reset(csv_parser);
 
 	csv_parser->is_escaped = BOOL_UNDEF;
 }
@@ -367,7 +373,7 @@ static void parse_csv_wbuf(s_wbuf *wbuf, const s_cfg_parser *cfg_parser, s_csv_p
 		// If we count fields and records copying is unnecessary.
 		//
 		if (!csv_parser->do_count) {
-			add_wchar_to_field(csv_parser, wchar_cur);
+			parser_field_add_wchar(csv_parser, wchar_cur);
 		}
 	}
 }
