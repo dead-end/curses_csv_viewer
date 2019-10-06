@@ -43,7 +43,7 @@ COMMANDS
 
        ^H     Shows a help dialog.
 
-       ^F     Shows a filter / search dialog.
+       ^F, /  Shows a filter / search dialog.
 
        ^X     Deletes the filter / search string in the dialog.
 

@@ -45,7 +45,7 @@ static int win_help_size_rows;
 static const char *msgs[] = {
 		"^C, ^Q Terminates the program",
 		"^H     Shows a help dialog",
-		"^F     Shows a filter/search dialog",
+		"^F, /  Shows a filter/search dialog",
 		"^X     Deletes filter/search string",
 		"ESC    Deletes filter/search string &",
 		"       resets table",

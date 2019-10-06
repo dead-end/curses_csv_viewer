@@ -199,7 +199,7 @@ static void print_usage(const bool has_error, const char *msg) {
 	fprintf(stream, "\n");
 	fprintf(stream, "    ^H     Shows a help dialog.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    ^F     Shows a filter / search dialog.\n");
+	fprintf(stream, "    ^F, /  Shows a filter / search dialog.\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "    ^X     Deletes the filter / search string in the dialog.\n");
 	fprintf(stream, "\n");
