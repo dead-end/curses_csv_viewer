@@ -6,7 +6,7 @@
 .TH "CCSVV" "1" "September 2019" "V 0.3" "User Commands"
 .\"-----------------------------------------------------------------------------
 .SH NAME
-ccsvv \- displays a csv file (comma-separated values) as a table
+ccsvv \- displays a csv (comma separated values) file as a table
 .\"-----------------------------------------------------------------------------
 .SH SYNOPSIS
 .\"-----------------------------------------------------------------------------
@@ -20,35 +20,35 @@ The program is called with the name of a csv FILE. If no filename is given,
 ccsvv reads the csv data from stdin.
 .\"-----------------------------------------------------------------------------
 .TP
-\fB\-h\fR
-Shows a help text.
+\fB\-c\fR, \fB\--checks\fR
+By default ccsvv tries to optimize the csv data. It adds missing fields and 
+removes empty columns and rows at the end of the table. The flag switches on 
+strict checks. A missing field results in an error and no rows or columns are 
+removed.
 .\"-----------------------------------------------------------------------------
 .TP
-\fB\-d delimiter\fR
+\fB\-d [\fIdelimiter\fR]\fR, \fB\--delimiter [\fIdelimiter\fR]\fR
 Defines a delimiter character, other than the default comma.
 .\"-----------------------------------------------------------------------------
 .TP
-\fB\-m\fR
-By default ccsvv uses colors if it is supported by the terminal. With this option 
-ccsvv is forced to use a monochrom mode.
+\fB\-h\fR, \fB\--help\fR
+Shows a help text.
+.\"-----------------------------------------------------------------------------
+.TP
+\fB\-m\fR, \fB\--monochrom\fR
+By default ccsvv uses colors if it is supported by the terminal. With this 
+option ccsvv is forced to use a monochrom mode.
 .\"-----------------------------------------------------------------------------
 .\"
 .TP
-\fB\-s | -n\fR
+\fB\-n\fR, \fB\--no-header\fR | \fB\-s\fR, \fB\--show-header\fR
 The flags define whether the first row of the table is interpreted as a header 
 for the table (\fB\-s\fR) or not (\fB\-n\fR). If none of the flags is given 
 ccsvv tries to detect whether a header is present or not.
 .\"-----------------------------------------------------------------------------
 .TP
-\fB\-t\fR
+\fB\-t\fR, \fB\--trim\fR
 Switch off trimming of csv fields.
-.\"-----------------------------------------------------------------------------
-.TP
-\fB\-c\fR
-By default ccsvv tries to optimize the csv data. It adds missing fields and 
-removes empty columns and rows at the end of the table. The flag switches on 
-strict checks. A missing field results in an error and no rows or columns are 
-removed.
 .\"-----------------------------------------------------------------------------
 .SH COMMANDS
 After ccsvv was started, the following commands are supported:
@@ -98,5 +98,4 @@ No known bugs.
 .\"-----------------------------------------------------------------------------
 .SH AUTHOR
 Dead End
-
 

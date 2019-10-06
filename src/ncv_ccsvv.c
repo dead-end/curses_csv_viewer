@@ -40,6 +40,7 @@
 #include <locale.h>
 #include <errno.h>
 #include <signal.h>
+#include <getopt.h>
 
 /******************************************************************************
  * The table struct is defined static to be able to use it in the function
@@ -161,32 +162,36 @@ static void print_usage(const bool has_error, const char *msg) {
 	// Print the usage information, which are created with the man2usage.sh
 	// script from the man page.
 	//
-	fprintf(stream, "    ccsvv - displays a csv file (comma-separated values) as a table\n");
+	fprintf(stream, "    ccsvv - displays a csv (comma separated values) file as a table\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "    ccsvv [OPTION]... [FILE]\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "    The  program  is  called  with  the name of a csv FILE. If no filename is\n");
 	fprintf(stream, "    given, ccsvv reads the csv data from stdin.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    -h     Shows a help text.\n");
+	fprintf(stream, "    -c, --checks\n");
+	fprintf(stream, "           By default ccsvv tries to optimize the csv data. It  adds  missing\n");
+	fprintf(stream, "           fields and removes empty columns and rows at the end of the table.\n");
+	fprintf(stream, "           The flag switches on strict checks. A missing field results in  an\n");
+	fprintf(stream, "           error and no rows or columns are removed.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    -d delimiter\n");
+	fprintf(stream, "    -d [delimiter], --delimiter [delimiter]\n");
 	fprintf(stream, "           Defines a delimiter character, other than the default comma.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    -m     By default ccsvv uses colors if it is supported by  the  terminal.\n");
+	fprintf(stream, "    -h, --help\n");
+	fprintf(stream, "           Shows a help text.\n");
+	fprintf(stream, "\n");
+	fprintf(stream, "    -m, --monochrom\n");
+	fprintf(stream, "           By  default  ccsvv uses colors if it is supported by the terminal.\n");
 	fprintf(stream, "           With this option ccsvv is forced to use a monochrom mode.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    -s | -n\n");
+	fprintf(stream, "    -n, --no-header | -s, --show-header\n");
 	fprintf(stream, "           The flags define whether the first row of the table is interpreted\n");
-	fprintf(stream, "           as a header for the table (-s) or not (-n). If none of  the  flags\n");
+	fprintf(stream, "           as  a  header for the table (-s) or not (-n). If none of the flags\n");
 	fprintf(stream, "           is given ccsvv tries to detect whether a header is present or not.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    -t     Switch off trimming of csv fields.\n");
-	fprintf(stream, "\n");
-	fprintf(stream, "    -c     By  default  ccsvv tries to optimize the csv data. It adds missing\n");
-	fprintf(stream, "           fields and removes empty columns and rows at the end of the table.\n");
-	fprintf(stream, "           The  flag switches on strict checks. A missing field results in an\n");
-	fprintf(stream, "           error and no rows or columns are removed.\n");
+	fprintf(stream, "    -t, --trim\n");
+	fprintf(stream, "           Switch off trimming of csv fields.\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "    After ccsvv was started, the following commands are supported:\n");
 	fprintf(stream, "\n");
@@ -232,33 +237,29 @@ int main(const int argc, char *const argv[]) {
 
 	bool detect_header = true;
 
-	//
-	// Parse the command line options.
-	//
-	while ((c = getopt(argc, argv, "hmsntd:c")) != -1) {
+	int option_index = 0;
+
+	const struct option long_options[] =
+	// @formatter:off
+	        {
+	  	      {"checks",      no_argument,       0, 'c'},
+	  	      {"delimiter",   required_argument, 0, 'd'},
+	          {"help",        no_argument,       0, 'h'},
+	          {"monochrom",   no_argument,       0, 'm'},
+			  {"no-header",   no_argument,       0, 'n'},
+			  {"show-header", no_argument,       0, 's'},
+	          {"trim",        no_argument,       0, 't'},
+	          {0, 0, 0, 0}
+	        };
+	// @formatter:on
+			//
+			// Parse the command line options.
+			//
+	while ((c = getopt_long(argc, argv, "cd:hmnst", long_options, &option_index)) != -1) {
 		switch (c) {
 
-		case 'h':
-			print_usage(false, NULL);
-			break;
-
-		case 'm':
-			monochrom = true;
-			log_debug_str("Use monochrom.");
-			break;
-
-		case 's':
-			table.show_header = true;
-			detect_header = false;
-			break;
-
-		case 'n':
-			table.show_header = false;
-			detect_header = false;
-			break;
-
-		case 't':
-			cfg_parser.do_trim = false;
+		case 'c':
+			cfg_parser.strict = true;
 			break;
 
 		case 'd':
@@ -284,8 +285,27 @@ int main(const int argc, char *const argv[]) {
 			log_debug("Delimiter: %lc", cfg_parser.delim);
 			break;
 
-		case 'c':
-			cfg_parser.strict = true;
+		case 'h':
+			print_usage(false, NULL);
+			break;
+
+		case 'm':
+			monochrom = true;
+			log_debug_str("Use monochrom.");
+			break;
+
+		case 'n':
+			table.show_header = false;
+			detect_header = false;
+			break;
+
+		case 's':
+			table.show_header = true;
+			detect_header = false;
+			break;
+
+		case 't':
+			cfg_parser.do_trim = false;
 			break;
 
 		default:
