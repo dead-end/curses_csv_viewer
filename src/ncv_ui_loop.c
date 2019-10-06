@@ -379,6 +379,7 @@ void ui_loop(s_table *table, const char *filename) {
 				//
 				// Switch to FILTER mode
 				//
+			case L'/':
 			case CTRL('f'):
 				log_debug_str("Found <ctrl>-f");
 
