@@ -55,7 +55,7 @@ static void test_sort_wcs() {
 	L"--" DL "--" DL "------" NL
 	L"aa" DL "AA" DL "filter" NL;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -138,7 +138,7 @@ static void test_sort_num() {
 	L"-" DL "-----------" DL "------" NL
 	L"4" DL "  0.01 Euro" DL "filter" NL;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -207,7 +207,7 @@ static void test_sort_num_header() {
 	L"4" DL "  0.01 Euro" DL "filter" NL
 	L"-" DL "-----------" DL "------" NL;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
