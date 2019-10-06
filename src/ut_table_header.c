@@ -89,7 +89,7 @@ static void test_table_has_header() {
 	"16" DL "01.01.218" DL "   100 Euro" DL "ee  " DL "ee11" NL
 	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -184,7 +184,7 @@ static void test_table_mean_std_dev() {
 	"16" DL "01.01.218" DL "   100 Euro" DL "ee  " DL "ee11" NL
 	"32" DL "01.01.218" DL "100.20 Euro" DL "eeff" DL "eeff1122" NL;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);

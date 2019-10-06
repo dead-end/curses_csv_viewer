@@ -48,7 +48,7 @@ static void test_parser() {
 
 	log_debug_str("Start");
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -83,7 +83,7 @@ static void test_parser() {
 static void helper_line_endings(const wchar_t *data) {
 	s_table table;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -134,7 +134,7 @@ static void test_parser_empty() {
 
 	log_debug_str("Start");
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict_cols = true };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = false, .strict = true };
 
 	FILE *tmp = ut_create_tmp_file(L",\n,");
 	parser_process_file(tmp, &cfg_parser, &table);
@@ -178,7 +178,7 @@ static void test_add_remove() {
 	L"" DL " " DL " " DL " " DL" " DL NL
 	L"" DL " " DL NL;
 
-	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = false };
+	const s_cfg_parser cfg_parser = { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict = false };
 
 	FILE *tmp = ut_create_tmp_file(data);
 	parser_process_file(tmp, &cfg_parser, &table);

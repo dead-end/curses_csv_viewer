@@ -49,10 +49,11 @@ typedef struct s_cfg_parser {
 	bool do_trim;
 
 	//
-	// A flag that indicates that a missing column in one row is an error. A
-	// value of false means, that missing columns are added.
+	// A flag that indicates a strict mode. In a non strict mode, missing
+	// fields are added and empty rows / columns at the end of the table are
+	// removed.
 	//
-	bool strict_cols;
+	bool strict;
 
 } s_cfg_parser;
 

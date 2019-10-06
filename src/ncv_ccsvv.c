@@ -221,7 +221,7 @@ int main(const int argc, char *const argv[]) {
 	//
 	// Create a default parser configuration.
 	//
-	s_cfg_parser cfg_parser = (s_cfg_parser ) { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict_cols = false };
+	s_cfg_parser cfg_parser = (s_cfg_parser ) { .filename = NULL, .delim = W_DELIM, .do_trim = true, .strict = false };
 
 	//
 	// Import the locale from the environment to allow proper wchar_t's.
@@ -285,7 +285,7 @@ int main(const int argc, char *const argv[]) {
 			break;
 
 		case 'c':
-			cfg_parser.strict_cols = true;
+			cfg_parser.strict = true;
 			break;
 
 		default:
