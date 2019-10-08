@@ -70,19 +70,20 @@ mode="${1}"
 #
 if [ "${mode}" = "help" ] ; then
   usage
+fi
 
 #
 # Remove all docker images and containers
 #
-elif [ "${mode}" = "clean" ] ; then
+if [ "${mode}" = "clean" ] ; then
   docker rm $(docker ps -a -q) ; docker rmi $(docker images -q)
   check "${?}" "Unable to cleanup"
-
+fi
 
 #
 # Archlinux test
 #
-elif [ "${mode}" = "arch" -o "${mode}" = "all" ] ; then
+if [ "${mode}" = "arch" -o "${mode}" = "all" ] ; then
   echo "TEST: archlinux test"
 
   sudo docker build -t ccsvv_archlinux -f docker/archlinux.dockerfile docker/
@@ -90,11 +91,12 @@ elif [ "${mode}" = "arch" -o "${mode}" = "all" ] ; then
 
   docker run -it ccsvv_archlinux sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
   check "${?}" "Unable to run ccsvv_archlinux"
+fi
 
 #
 # Fedora test
 #
-elif [ "${mode}" = "fedora" -o "${mode}" = "all" ] ; then
+if [ "${mode}" = "fedora" -o "${mode}" = "all" ] ; then
   echo "TEST: fedora test"
 
   sudo docker build -t ccsvv_fedora -f docker/fedora.dockerfile docker/
@@ -102,12 +104,13 @@ elif [ "${mode}" = "fedora" -o "${mode}" = "all" ] ; then
 
   docker run -it ccsvv_fedora sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
   check "${?}" "Unable to run ccsvv_fedora"
+fi
 
 
 #
 # Build .deb package test 
 #
-elif [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
+if [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
   echo "TEST: .deb build test"
 
   sudo docker build -t ccsvv_deb_build --build-arg CCSVV_VERSION=${CCSVV_VERSION} -f docker/deb.build.dockerfile docker/
@@ -135,11 +138,12 @@ elif [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
   #
   docker run -it ccsvv_deb_install sh -c "sh /tmp/test_run.sh && man --pager=cat ccsvv && cat /usr/share/doc/ccsvv/copyright"
   check "${?}" "Unable to run ccsvv_deb_install"
+fi
 
 #
 # ncurses source install test
 #
-elif [ "${mode}" = "source" -o "${mode}" = "all" ] ; then
+if [ "${mode}" = "source" -o "${mode}" = "all" ] ; then
   echo "TEST: ncurses source install test"
 
   sudo docker build -t ncurses_src -f docker/ncurses_src.dockerfile docker/
@@ -147,9 +151,6 @@ elif [ "${mode}" = "source" -o "${mode}" = "all" ] ; then
 
   docker run -it ncurses_src sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
   check "${?}" "Unable to run ncurses_src"
-
-else
-  usage "Unknown mode: ${mode}"
 fi
 
 echo "Docker tests: OK"
