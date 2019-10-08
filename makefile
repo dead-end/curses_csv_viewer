@@ -131,7 +131,7 @@ OBJ_TEST = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_TEST)))
 
 .PHONY: all
 
-all: $(EXEC) check $(DEMO)
+all: $(EXEC) test $(DEMO)
 
 ################################################################################
 # A static pattern, that builds an object file from its source. The automatic
@@ -171,14 +171,14 @@ $(TESTS): $(OBJ_LIBS) $(OBJ_TEST)
 	$(CC) -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(FLAGS) $(LIBS)
 
 ################################################################################
-# The check goal invokes all test programs.
+# The test goal invokes all test programs.
 ################################################################################
 
-.PHONY: check
+.PHONY: test
 
-check: $(TESTS)
+test: $(TESTS)
 	@for ut_test in $(TESTS) ; do ./$$ut_test || exit 1 ; done
-	@echo "Checks: OK"
+	@echo "Tests: OK"
 
 ################################################################################
 # Goals to install and uninstall the executable.
@@ -235,7 +235,7 @@ help:
 	@echo "Targets:"
 	@echo ""
 	@echo "  make | make all              : Triggers the build of the executable."
-	@echo "  make check                   : Triggers unit tests."
+	@echo "  make test                   : Triggers unit tests."
 	@echo "  make clean                   : Removes executables and temporary files from the build."
 	@echo "  make install | uninstall     : Installs / uninstalles the program files."
 	@echo "  make help                    : Prints this message."
