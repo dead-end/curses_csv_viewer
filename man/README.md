@@ -37,7 +37,9 @@ DESCRIPTION
               Switch off trimming of csv fields.
 
 COMMANDS
-       After ccsvv was started, the following commands are supported:
+       After  ccsvv  was  started,  you  can move the cursor with the keys Up,
+       Down, Left, Right, Page Up, Page Down, Home and End.   Addtionally  the
+       following commands are supported:
 
        ^C, ^Q Terminates the program.
 

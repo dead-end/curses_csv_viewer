@@ -193,7 +193,9 @@ static void print_usage(const bool has_error, const char *msg) {
 	fprintf(stream, "    -t, --trim\n");
 	fprintf(stream, "           Switch off trimming of csv fields.\n");
 	fprintf(stream, "\n");
-	fprintf(stream, "    After ccsvv was started, the following commands are supported:\n");
+	fprintf(stream, "    After ccsvv was started, you can move the cursor with the keys Up,  Down,\n");
+	fprintf(stream, "    Left, Right, Page Up, Page Down, Home and End.  Addtionally the following\n");
+	fprintf(stream, "    commands are supported:\n");
 	fprintf(stream, "\n");
 	fprintf(stream, "    ^C, ^Q Terminates the program.\n");
 	fprintf(stream, "\n");
