@@ -110,8 +110,7 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
 }
 
 /******************************************************************************
- * The function reverses the direction of a table part in certain
- * situations.
+ * The function reverses the direction of a table part in certain situations.
  *
  * Example:
  *
