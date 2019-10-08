@@ -115,10 +115,23 @@ void s_table_part_update(s_table_part *table_part, const int *sizes, const int i
  * Example:
  *
  * You have a table with 10 fields. Visible are fields 5-8. If you enlarge the
- * window you can make visible fields 5-9 and then 5-10. If you keep on
- * enlarging the window you have to check whether there are fields that are not
- * visible at the other end. In this example you can make visible fields 4-10
- * and then 3-10 and so on until all fields are visible.
+ * window you can make visible fields 5-9 and then 5-10.
+ *
+ *        |------>|
+ * 1 2 3 4 5 6 7 8 9 0
+ *
+ *        |---------->|
+ * 1 2 3 4 5 6 7 8 9 0
+ *
+ * If you keep on enlarging the window you have to check whether there are
+ * fields that are not visible at the other end. In this example you can make
+ * visible fields 4-10 and then 3-10 and so on until all fields are visible.
+ *
+ *        |<----------|
+ * 1 2 3 4 5 6 7 8 9 0
+ *
+ *    |<--------------|
+ * 1 2 3 4 5 6 7 8 9 0
  *
  * The parameter table_end is 'table->no_rows - 1' or table->no_column - 1'
  * depending on the table part.
