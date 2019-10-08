@@ -235,7 +235,7 @@ help:
 	@echo "Targets:"
 	@echo ""
 	@echo "  make | make all              : Triggers the build of the executable."
-	@echo "  make test                   : Triggers unit tests."
+	@echo "  make test                    : Triggers unit tests."
 	@echo "  make clean                   : Removes executables and temporary files from the build."
 	@echo "  make install | uninstall     : Installs / uninstalles the program files."
 	@echo "  make help                    : Prints this message."
