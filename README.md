@@ -85,7 +85,7 @@ following example shows the `/etc/passwd` file, filtered by *system*.
 ```
 ccsvv -d : /etc/passwd
 ```
-![Show /etc/passwd](img/etc-passwd.png)
+![Show /etc/passwd](img/search-example.gif)
 
 ## Example: Derby DB
 In this section we want to discuss how to use **ccsvv** to display the results 
