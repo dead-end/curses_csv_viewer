@@ -204,8 +204,8 @@ install: $(EXEC)
 	install -D --mode=644 $(OBJ_DIR)/$(MANPAGE).gz --target-directory=$(MANDIR)
 	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR) --strip
 	if [ "$(DEB_INSTALL)" = "false" ]; then \
-		install -D --mode=644 LICENSE $(DOCDIR)/copyright \
-		install -D --mode=644 changelog $(DOCDIR)/changelog \
+		install -D --mode=644 LICENSE $(DOCDIR)/copyright ; \
+		install -D --mode=644 changelog $(DOCDIR)/changelog ; \
 	fi
 
 uninstall:
