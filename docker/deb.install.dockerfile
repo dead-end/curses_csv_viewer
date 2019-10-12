@@ -33,4 +33,5 @@ COPY bin/test_run.sh /tmp
 RUN apt-get update && \
 	apt-get install -y man && \
 	rm -f /etc/dpkg/dpkg.cfg.d/excludes && \
-	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb
+	apt-get install /tmp/ccsvv_${CCSVV_VERSION}_amd64.deb && \
+	apt-get install -y procps
