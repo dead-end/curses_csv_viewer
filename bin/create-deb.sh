@@ -76,8 +76,10 @@ Architecture: amd64
 Homepage: https://github.com/dead-end/curses_csv_viewer
 Depends: ${dependencies=}
 Maintainer: dead-end
-Description: Curses based csv file 
- viewer
+Description: Curses based csv file viewer
+  Ccsvv is a viewer for csv (comma-separated values) data. It accepts input from a
+  file or from stdin. It supports different field separators, multi line fields,
+  escaping with " and filtering / sorting.
 EOF
 
 #
