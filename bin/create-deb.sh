@@ -61,11 +61,7 @@ root_dir="${build_dir}/root/${deb}"
 
 mkdir -p "${root_dir}/DEBIAN" || do_exit "Unable to create dir: DEBIAN"
 
-cp changelog "${root_dir}/DEBIAN/changelog" || do_exit "Unable to copy changelog"
-
-cp LICENSE "${root_dir}/DEBIAN/copyright" || do_exit "Unable to copy copyright"
-
-make PREFIX="${root_dir}/usr" DEB_INSTALL="true" install
+make PREFIX="${root_dir}/usr" install
 
 #
 # Write the control file (${dependencies=} sets the default to "" if the
