@@ -220,6 +220,7 @@ uninstall:
 
 clean:
 	rm -rf $(OBJ_DIR)/root/
+	rm -rf $(OBJ_DIR)/ccsvv-*
 	rm -f $(OBJ_DIR)/*.gz
 	rm -f $(OBJ_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
