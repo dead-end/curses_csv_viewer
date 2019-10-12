@@ -48,7 +48,8 @@ RUN apt-get update && \
         apt-get install -y libtinfo${NCURSES_MAJOR} && \
         apt-get install -y libncursesw${NCURSES_MAJOR} && \
         apt-get install -y libncursesw${NCURSES_MAJOR}-dev && \
-        apt-get install -y fakeroot
+        apt-get install -y fakeroot && \
+        apt-get install -y procps
 
 #
 # Set the directory for the build steps
