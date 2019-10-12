@@ -249,15 +249,3 @@ help:
 	@echo "  USE_ACS_BORDERS=[true|false] : Use ASCII characters as borders. (default: false)"
 	@echo "  PREFIX=<PATH>                : Prefix for install / uninstall. (default: /usr/local)"
 
-################################################################################
-# Todo: remove
-################################################################################
-
-SRC_DEMO += $(SRC_DIR)/demo_windows.c 
-
-DEMO     = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_DEMO)))
-
-OBJ_DEMO = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_DEMO)))
-
-$(DEMO): $(OBJ_LIBS) $(OBJ_DEMO)
-	$(CC) -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(FLAGS) $(LIBS) 
