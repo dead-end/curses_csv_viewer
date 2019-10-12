@@ -10,7 +10,7 @@
 #   docker run -it ccsvv_deb_install sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
 ################################################################################
 
-FROM ubuntu
+FROM debian
 
 #
 # The ccsvv version should be set by the caller
