@@ -197,16 +197,14 @@ MANPAGE = ccsvv.1
 
 .PHONY: install uninstall
 
-DEB_INSTALL=false
-
 install: $(EXEC)
 	gzip -9n -c man/$(MANPAGE) > $(OBJ_DIR)/$(MANPAGE).gz
 	install -D --mode=644 $(OBJ_DIR)/$(MANPAGE).gz --target-directory=$(MANDIR)
 	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR) --strip
-	if [ "$(DEB_INSTALL)" = "false" ]; then \
-		install -D --mode=644 LICENSE $(DOCDIR)/copyright ; \
-		install -D --mode=644 changelog $(DOCDIR)/changelog ; \
-	fi
+	install -D --mode=644 LICENSE $(DOCDIR)/copyright
+	gzip -9n -c changelog > $(OBJ_DIR)/changelog.gz
+	install -D --mode=644 $(OBJ_DIR)/changelog.gz $(DOCDIR)/changelog.gz
+	install -D --mode=644 $(OBJ_DIR)/changelog.gz $(DOCDIR)/changelog.DEBIAN.gz
 
 uninstall:
 	rm -f $(DOCDIR)/copyright
