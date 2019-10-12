@@ -203,7 +203,7 @@ install: $(EXEC)
 	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR) --strip
 	install -D --mode=644 LICENSE $(DOCDIR)/copyright
 	gzip -9n -c changelog > $(OBJ_DIR)/changelog.gz
-	install -D --mode=644 $(OBJ_DIR)/changelog.gz $(DOCDIR)/changelog.Debian.gz
+	install -D --mode=644 $(OBJ_DIR)/changelog.gz $(DOCDIR)/changelog.gz
 
 uninstall:
 	rm -f $(DOCDIR)/copyright
