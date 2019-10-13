@@ -219,8 +219,7 @@ uninstall:
 .PHONY: clean
 
 clean:
-	rm -rf $(BUILD_DIR)/root/
-	rm -rf $(BUILD_DIR)/ccsvv-*
+	rm -rf $(BUILD_DIR)/ccsvv*
 	rm -f $(BUILD_DIR)/*.gz
 	rm -f $(BUILD_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
