@@ -2,10 +2,10 @@
 # Definition of the project directories.
 ################################################################################
 
-INC_DIR = inc
+INCLUDE_DIR = inc
 SRC_DIR = src
-OBJ_DIR = build
-TST_DIR = tests
+BUILD_DIR = build
+TEST_DIR = tests
 
 ################################################################################
 # A variable that collects the optional flags.
@@ -55,7 +55,7 @@ WARN_FLAGS  = -Wall -Wextra -Wpedantic -Werror
 
 BUILD_FLAGS = -std=c11 -O2 -D_GNU_SOURCE
 
-FLAGS      = $(BUILD_FLAGS) $(OPTION_FLAGS) $(WARN_FLAGS) -I$(INC_DIR) $(shell $(NCURSES_CONFIG) --cflags)
+FLAGS      = $(BUILD_FLAGS) $(OPTION_FLAGS) $(WARN_FLAGS) -I$(INCLUDE_DIR) $(shell $(NCURSES_CONFIG) --cflags)
 
 LIBS        = $(shell $(NCURSES_CONFIG) --libs) -lformw -lmenuw -lm
 
@@ -88,9 +88,9 @@ SRC_LIBS = \
 	$(SRC_DIR)/ncv_win_help.c \
 	$(SRC_DIR)/ut_utils.c \
 
-OBJ_LIBS = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_LIBS)))
+OBJ_LIBS = $(subst $(SRC_DIR),$(BUILD_DIR),$(subst .c,.o,$(SRC_LIBS)))
 
-INC_LIBS = $(subst $(SRC_DIR),$(INC_DIR),$(subst .c,.h,$(SRC_LIBS)))
+INC_LIBS = $(subst $(SRC_DIR),$(INCLUDE_DIR),$(subst .c,.h,$(SRC_LIBS)))
 
 ################################################################################
 # The main program.
@@ -100,7 +100,7 @@ EXEC     = ccsvv
 
 SRC_EXEC = $(SRC_DIR)/ncv_ccsvv.c
 
-OBJ_EXEC = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_EXEC)))
+OBJ_EXEC = $(subst $(SRC_DIR),$(BUILD_DIR),$(subst .c,.o,$(SRC_EXEC)))
 
 ################################################################################
 # The definitions for the test programs.
@@ -118,9 +118,9 @@ SRC_TEST = \
 	$(SRC_DIR)/ut_filter.c \
 	$(SRC_DIR)/ut_wbuf.c \
 
-TESTS    = $(subst $(SRC_DIR),$(TST_DIR),$(subst .c,,$(SRC_TEST)))
+TESTS    = $(subst $(SRC_DIR),$(TEST_DIR),$(subst .c,,$(SRC_TEST)))
 
-OBJ_TEST = $(subst $(SRC_DIR),$(OBJ_DIR),$(subst .c,.o,$(SRC_TEST)))
+OBJ_TEST = $(subst $(SRC_DIR),$(BUILD_DIR),$(subst .c,.o,$(SRC_TEST)))
 
 ################################################################################
 # Definition of the top-level targets. 
@@ -145,7 +145,7 @@ all: $(EXEC) test $(DEMO)
 # does not hurt.
 ################################################################################
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_LIBS)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c $(INC_LIBS)
 	$(CC) -c -o $@ $< $(FLAGS) $(LIBS)
 
 ################################################################################
@@ -160,7 +160,7 @@ $(EXEC): $(OBJ_LIBS) $(OBJ_EXEC)
 # The goal compiles the executables of the test programs. The valiable TEST is
 # the list of all test programs. The expression: 
 #
-#   $(subst $(TST_DIR),$(OBJ_DIR),$@.o)
+#   $(subst $(TEST_DIR),$(BUILD_DIR),$@.o)
 #
 # creates the corresponding object file from the test program. Example:
 #
@@ -168,7 +168,7 @@ $(EXEC): $(OBJ_LIBS) $(OBJ_EXEC)
 ################################################################################
 
 $(TESTS): $(OBJ_LIBS) $(OBJ_TEST)
-	$(CC) -o $@ $(OBJ_LIBS) $(subst $(TST_DIR),$(OBJ_DIR),$@.o) $(FLAGS) $(LIBS)
+	$(CC) -o $@ $(OBJ_LIBS) $(subst $(TEST_DIR),$(BUILD_DIR),$@.o) $(FLAGS) $(LIBS)
 
 ################################################################################
 # The test goal invokes all test programs.
@@ -198,12 +198,12 @@ MANPAGE = ccsvv.1
 .PHONY: install uninstall
 
 install: $(EXEC)
-	gzip -9n -c man/$(MANPAGE) > $(OBJ_DIR)/$(MANPAGE).gz
-	install -D --mode=644 $(OBJ_DIR)/$(MANPAGE).gz --target-directory=$(MANDIR)
+	gzip -9n -c man/$(MANPAGE) > $(BUILD_DIR)/$(MANPAGE).gz
+	install -D --mode=644 $(BUILD_DIR)/$(MANPAGE).gz --target-directory=$(MANDIR)
 	install -D --mode=755 $(EXEC) --target-directory=$(BINDIR) --strip
 	install -D --mode=644 LICENSE $(DOCDIR)/copyright
-	gzip -9n -c changelog > $(OBJ_DIR)/changelog.gz
-	install -D --mode=644 $(OBJ_DIR)/changelog.gz $(DOCDIR)/changelog.gz
+	gzip -9n -c changelog > $(BUILD_DIR)/changelog.gz
+	install -D --mode=644 $(BUILD_DIR)/changelog.gz $(DOCDIR)/changelog.gz
 
 uninstall:
 	rm -f $(DOCDIR)/copyright
@@ -219,13 +219,13 @@ uninstall:
 .PHONY: clean
 
 clean:
-	rm -rf $(OBJ_DIR)/root/
-	rm -rf $(OBJ_DIR)/ccsvv-*
-	rm -f $(OBJ_DIR)/*.gz
-	rm -f $(OBJ_DIR)/*.o
+	rm -rf $(BUILD_DIR)/root/
+	rm -rf $(BUILD_DIR)/ccsvv-*
+	rm -f $(BUILD_DIR)/*.gz
+	rm -f $(BUILD_DIR)/*.o
 	rm -f $(SRC_DIR)/*.c~
-	rm -f $(INC_DIR)/*.h~
-	rm -f $(TST_DIR)/ut_*
+	rm -f $(INCLUDE_DIR)/*.h~
+	rm -f $(TEST_DIR)/ut_*
 	rm -f $(EXEC)
 
 ################################################################################
