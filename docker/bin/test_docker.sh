@@ -136,7 +136,7 @@ if [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
   #
   # Run smoke test, check the man page and the copyright file
   #
-  docker run -it ccsvv_deb_install sh -c "sh /tmp/test_run.sh && man --pager=cat ccsvv && cat /usr/share/doc/ccsvv/copyright"
+  docker run -it ccsvv_deb_install sh -c "sh /tmp/test_run.sh && man --pager=cat ccsvv && cat /usr/share/doc/ccsvv/copyright && zcat /usr/share/doc/ccsvv/changelog.gz"
   check "${?}" "Unable to run ccsvv_deb_install"
 fi
 
