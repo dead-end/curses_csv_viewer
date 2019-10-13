@@ -65,9 +65,7 @@ fi
 
 sh ${0} signal &
 
-ccsvv -d : /etc/passwd || do_exit "Unable to run ccsvv"
-
-man --pager=cat ccsvv || do_exit "Unable to get man page"
+ccsvv -d : /etc/passwd
 
 #
 # No exit code => return the exit code from the last command
