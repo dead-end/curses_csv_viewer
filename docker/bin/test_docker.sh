@@ -8,8 +8,6 @@
 
 set -u
 
-CCSVV_VERSION=0.2.0
-
 ################################################################################
 # The function checks for errors.
 ################################################################################
@@ -22,6 +20,18 @@ check() {
     exit 1
   fi
 }
+
+################################################################################
+# The load the version to the variable: version
+################################################################################
+
+version=$(sed -n 's/#define VERSION "\([^"]*\)"/\1/p' inc/ncv_common.h)
+
+if [ "${version}" = "" ] ; then
+  do_exit "No version found!"
+fi
+
+echo "Version: ${version}"
 
 ################################################################################
 # The function prints a usage / help message. If it is called with an argument
@@ -113,7 +123,7 @@ fi
 if [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
   echo "TEST: .deb build test"
 
-  sudo docker build -t ccsvv_deb_build --build-arg CCSVV_VERSION=${CCSVV_VERSION} -f docker/deb.build.dockerfile docker/
+  sudo docker build -t ccsvv_deb_build --build-arg CCSVV_VERSION=${version} -f docker/deb.build.dockerfile docker/
   check "${?}" "Unable to build ccsvv_deb_build"
 
   docker run -it ccsvv_deb_build sh /tmp/curses_csv_viewer-master/docker/bin/test_run.sh
@@ -122,7 +132,7 @@ if [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
   #
   # Get the deb package from the docker image
   #
-  docker cp $(docker ps -q -l):/tmp/ccsvv_${CCSVV_VERSION}_amd64.deb docker/tmp/
+  docker cp $(docker ps -q -l):/tmp/ccsvv_${version}_amd64.deb docker/tmp/
   check "${?}" "Unable to extract .deb file from image"
 
   #
@@ -130,7 +140,7 @@ if [ "${mode}" = "deb" -o "${mode}" = "all" ] ; then
   #
   echo "TEST: .deb install test"
 
-  sudo docker build -t ccsvv_deb_install --build-arg CCSVV_VERSION=${CCSVV_VERSION} -f docker/deb.install.dockerfile docker/ 
+  sudo docker build -t ccsvv_deb_install --build-arg CCSVV_VERSION=${version} -f docker/deb.install.dockerfile docker/ 
   check "${?}" "Unable to build ccsvv_deb_install"
 
   #
