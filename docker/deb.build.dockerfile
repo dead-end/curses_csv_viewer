@@ -29,11 +29,6 @@ ARG NCURSES_MAJOR=5
 ENV LANG=C.UTF-8
 
 #
-# Stop cmake on errors
-#
-ENV CTEST_OUTPUT_ON_FAILURE=1
-
-#
 # Download sources zipfile
 #
 ADD https://github.com/dead-end/curses_csv_viewer/archive/master.zip /tmp
