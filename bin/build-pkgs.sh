@@ -1,7 +1,7 @@
 #/bin/sh
 
 ################################################################################
-# The script builds a tarballs with the ccsvv sources or a debian .deb package.
+# The script builds a tar ball with the ccsvv sources or a debian .deb package.
 ################################################################################
 
 set -ue
@@ -85,6 +85,10 @@ create_src() {
   #
   root_dir="build/ccsvv-${version}"
 
+  #
+  # Create the empty directories. The original directories may contain .md
+  # files.
+  #
   mkdir -p "${root_dir}/build/" "${root_dir}/tests/" || do_exit "Unable to create directories"
 
   cp -r src/ inc/ man/ makefile LICENSE "${root_dir}/" || do_exir "Unable to copy data"
