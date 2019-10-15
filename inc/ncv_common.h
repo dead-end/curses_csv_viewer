@@ -29,9 +29,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define VERSION "0.2.0"
+#define VERSION "0.3.0"
 
-#define VERISON_SHORT "0.2"
+#define VERISON_SHORT "0.3"
 
 /******************************************************************************
  * Definition of the print_debug macro. It is only defined if the DEBUG flag is
