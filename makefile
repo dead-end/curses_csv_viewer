@@ -131,7 +131,7 @@ OBJ_TEST = $(subst $(SRC_DIR),$(BUILD_DIR),$(subst .c,.o,$(SRC_TEST)))
 
 .PHONY: all
 
-all: $(EXEC) test $(DEMO)
+all: $(EXEC) test
 
 ################################################################################
 # A static pattern, that builds an object file from its source. The automatic
