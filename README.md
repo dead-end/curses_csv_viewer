@@ -36,24 +36,8 @@ with:
 
 ```
 make
-```
-An alternative is to use cmake. This can be done with:
-```
-mkdir cmake-build
-cd cmake-build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make
-make test
-```
 
-### Binary Tar
-Ensure that the dependencies are fulfilled (see below). The 
-[latest release](../../releases/latest) contains a tar file with a compiled 
-binary. Download the *.tgz* file, check the md5 sum and untar the file. 
-
-```bash
-md5sum ccsvv_X.Y.Z.tgz
-tar xvzf ccsvv_X.Y.Z_amd64.deb
+make install
 ```
 
 ### Dependencies
@@ -78,6 +62,12 @@ this is:
 
 If you compiled your own *ncursesw5* lib, make sure that the LD_LIBRARY_PATH is 
 properly set.
+
+### Installation from sources
+The following document shows the installation of **ncurses** and **ccsvv** from 
+their sources: 
+
+- [Installation from sources](docs/installation_from_sources.md)
 
 ## Example: /etc/passwd
 **ccsvv** can be used to browse through all kinds of csv like files. The 
@@ -181,4 +171,3 @@ I use docker to build and verify installation packages and to ensure that the
 installation documentation is correct. A description can be found at:
 
 - [Docker support](docker/README.md)
-
