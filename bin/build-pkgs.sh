@@ -8,6 +8,10 @@ set -ue
 
 arch="amd64"
 
+version_header="inc/ncv_common.h"
+
+program="ccsvv"
+
 ################################################################################
 # Error function.
 ################################################################################
@@ -29,7 +33,7 @@ fi
 # The load the version to the variable: version
 ################################################################################
 
-version=$(sed -n 's/#define VERSION "\([^"]*\)"/\1/p' inc/ncv_common.h)
+version=$(sed -n 's/#define VERSION "\([^"]*\)"/\1/p' ${version_header})
 
 if [ "${version}" = "" ] ; then
   do_exit "No version found!"
@@ -47,7 +51,7 @@ echo "Version: ${version}"
 usage() {
   echo "Usage: ${0} [help|src|deb"
   echo "  help : Prints this message"
-  echo "  src  : Creates a tarball with the ccsvv sources"
+  echo "  src  : Creates a tarball with the ${program} sources"
   echo "  deb  : Creates a debian package"
 
   if [ "${#}" != "0" ] ; then
@@ -59,14 +63,14 @@ usage() {
 }
 
 ################################################################################
-# The function builds a tarball with the ccsvv sources. The result is: 
+# The function builds a tarball with the program sources. The result is: 
 #
-#   ccsvv-{version}.tar.gz 
+#   ${program}-{version}.tar.gz 
 #
 # and the build should work with the tarball:
 #
-# > tar xvzf ccsvv-{version}.tar.gz
-# > cd ccsvv-{version}/
+# > tar xvzf ${program}-{version}.tar.gz
+# > cd ${program}-{version}/
 # > make
 # > make install
 ################################################################################
@@ -76,14 +80,14 @@ create_src() {
   #
   # Remove old directories
   #
-  if [ -d "build/ccsvv-${version}" ] ; then
-    rm -rf "build/ccsvv-${version}/"
+  if [ -d "build/${program}-${version}" ] ; then
+    rm -rf "build/${program}-${version}/"
   fi
 
   #
   # Create the root directory for the build
   #
-  root_dir="build/ccsvv-${version}"
+  root_dir="build/${program}-${version}"
 
   #
   # Create the empty directories. The original directories may contain .md
@@ -96,7 +100,7 @@ create_src() {
   #
   # Create the tar ball
   #
-  tar cvzf "build/ccsvv-${version}.tar.gz" "${root_dir}/" || do_exit "Unable to create final tar"
+  tar cvzf "build/${program}-${version}.tar.gz" "${root_dir}/" || do_exit "Unable to create final tar"
 }
 
 ################################################################################
@@ -108,14 +112,14 @@ create_deb() {
   #
   # Remove old directories
   #
-  if [ -d "build/ccsvv_${version}_${arch}" ] ; then
-    rm -rf "build/ccsvv_${version}_${arch}/"
+  if [ -d "build/${program}_${version}_${arch}" ] ; then
+    rm -rf "build/${program}_${version}_${arch}/"
   fi
 
   #
   # Create the root directory for the build
   #
-  root_dir="build/ccsvv_${version}_${arch}"
+  root_dir="build/${program}_${version}_${arch}"
 
   mkdir -p "${root_dir}/DEBIAN" || do_exit "Unable to create dir: DEBIAN"
 
@@ -124,7 +128,7 @@ create_deb() {
   #
   # Get the dependencies
   #
-  dependencies=$(sh bin/pkg-deps.sh no-debug ccsvv)
+  dependencies=$(sh bin/pkg-deps.sh no-debug ${program})
 
   echo "dependencies: ${dependencies}"
 
@@ -133,7 +137,7 @@ create_deb() {
   # variable is not defined.)
   #
   cat << EOF > "${root_dir}/DEBIAN/control"
-Package: ccsvv
+Package: ${program}
 Version: ${version}
 Priority: optional
 Section: utils
