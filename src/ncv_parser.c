@@ -207,16 +207,6 @@ static void update_no_rows_cols(s_csv_parser *csv_parser, const s_cfg_parser *cf
 
 static void update_no_rows_cols_strict(s_csv_parser *csv_parser, const bool is_row_end) {
 
-#ifdef DEBUG
-
-	//
-	// Strict mode check should have happened upfront.
-	//
-	if (!cfg_parser->strict) {
-		log_exit_str("Called not in strict mode!");
-	}
-#endif
-
 	//
 	// In the first row count the columns
 	//
