@@ -54,7 +54,7 @@ typedef struct s_sort {
 
 #define s_sort_is_active(s) ((s)->is_active)
 
-bool s_sort_set_inactive(s_sort *sort);
+bool s_sort_set_inactive(s_sort *sort, const bool uninit);
 
 bool s_sort_update(s_sort *sort, const int column, const enum e_direction direction);
 

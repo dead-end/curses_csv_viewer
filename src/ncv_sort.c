@@ -27,11 +27,15 @@
 /******************************************************************************
  * The function sets the sort status to inactive. It returns true if the status
  * changed.
+ *
+ * Do check "sort->is_active" only if it is initialized. See:
+ *
+ * https://stackoverflow.com/questions/54120862/does-the-c-standard-allow-for-an-uninitialized-bool-to-crash-a-program
  *****************************************************************************/
 
-bool s_sort_set_inactive(s_sort *sort) {
+bool s_sort_set_inactive(s_sort *sort, const bool uninit) {
 
-	if (sort->is_active) {
+	if (uninit || sort->is_active) {
 		sort->is_active = false;
 		sort->column = -1;
 		sort->direction = E_DIR_FORWARD;
