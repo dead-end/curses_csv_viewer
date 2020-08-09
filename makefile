@@ -40,6 +40,9 @@ endif
 # Ncurses has a major version and that version determines some programs and
 # library names, especially the ncurses config program, which contains 
 # informations for the compiler.
+#
+# The ncursesw6-config program is currently not part of ubuntu. The parameter
+# can be used if ncurses is build from source.
 ################################################################################
 
 NCURSES_MAJOR  = 5
