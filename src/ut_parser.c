@@ -146,7 +146,7 @@ static void test_parser_empty() {
 	// Check the widths of the columns and the heights of the rows.
 	//
 	ut_check_int_array(table.width, (int[] ) { 1, 1 }, 2, "column widths");
-	ut_check_int_array(table.height, (int[] ) { 1, }, 2, "row heights");
+	ut_check_int_array(table.height, (int[] ) { 1, 1 }, 2, "row heights");
 
 	//
 	// Cleanup
