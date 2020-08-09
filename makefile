@@ -30,7 +30,7 @@ endif
 # stderr to a file.
 ################################################################################
 
-DEBUG = true
+DEBUG = false
 
 ifeq ($(DEBUG),true)
   OPTION_FLAGS += -DDEBUG -g
