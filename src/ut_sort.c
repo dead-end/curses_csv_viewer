@@ -40,21 +40,21 @@ static void test_sort_update() {
 	//
 	// FORWARD FORWARD
 	//
-	s_sort_set_inactive(&sort);
+	s_sort_set_inactive(&sort, true);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), true);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), false);
 
 	//
 	// BACKWARD BACKWARD
 	//
-	s_sort_set_inactive(&sort);
+	s_sort_set_inactive(&sort, true);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), true);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), false);
 
 	//
 	// Change all
 	//
-	s_sort_set_inactive(&sort);
+	s_sort_set_inactive(&sort, true);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_FORWARD), true);
 	ut_check_bool(s_sort_update(&sort, 0, E_DIR_BACKWARD), true);
 	ut_check_bool(s_sort_update(&sort, 1, E_DIR_BACKWARD), true);
