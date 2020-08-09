@@ -346,7 +346,7 @@ void ui_loop(s_table *table, const char *filename) {
 				// Deactivate filtering and sorting.
 				//
 				const bool is_filter_reset = s_filter_set_inactive(&table->filter);
-				const bool is_sort_reset = s_sort_set_inactive(&table->sort);
+				const bool is_sort_reset = s_sort_set_inactive(&table->sort, false);
 
 				if (is_filter_reset || is_sort_reset) {
 
