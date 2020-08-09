@@ -90,7 +90,7 @@ void s_table_init(s_table *table, const int no_rows, const int no_columns) {
 	//
 	s_filter_init(&table->filter);
 
-	s_sort_set_inactive(&table->sort);
+	s_sort_set_inactive(&table->sort, true);
 }
 
 /******************************************************************************
@@ -573,9 +573,7 @@ void s_table_copy(s_table *table, const int row, const int column, wchar_t *str)
 	int col_size;
 	s_table_field_dimension(str, &col_size, &row_size);
 
-	log_debug("Row: %d column: %d field: '%ls'", row, column, str);
-	log_debug("Height current: %d max: %d", row_size, table->__height[row]);
-	log_debug("Width  current: %d max: %d", col_size, table->width[column]);
+	log_debug("Row: %d column: %d field: '%ls'", row, column, str);log_debug("Height current: %d max: %d", row_size, table->__height[row]);log_debug("Width  current: %d max: %d", col_size, table->width[column]);
 
 	//
 	// Update the row height if necessary.
